@@ -17,28 +17,45 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { CalendarDays, LayoutDashboard, LogOut, UsersIcon } from "lucide-react";
+import {
+  CalendarDaysIcon,
+  LayoutDashboardIcon,
+  LogOut,
+  MoonIcon,
+  StethoscopeIcon,
+  SunIcon,
+  UsersRoundIcon,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useTheme } from "../ui/theme-provider";
+import { Button } from "../ui/button";
 
 const items = [
   {
     title: "Dashboard",
     url: "/dashboard",
-    icon: LayoutDashboard,
+    icon: LayoutDashboardIcon,
   },
-  {
-    title: "Alunos",
-    url: "/alunos",
-    icon: UsersIcon,
-  },
+
   {
     title: "Agendamentos",
     url: "/agendamentos",
-    icon: CalendarDays,
+    icon: CalendarDaysIcon,
+  },
+  {
+    title: "medicos",
+    url: "/medicos",
+    icon: StethoscopeIcon,
+  },
+  {
+    title: "Pacientes",
+    url: "/pacientes",
+    icon: UsersRoundIcon,
   },
 ];
 
 export const AppSidebar = () => {
+  const { setTheme, theme } = useTheme();
   // const router = useRouter();
   // const session = authClient.useSession();
   // const pathname = usePathname();
@@ -49,11 +66,14 @@ export const AppSidebar = () => {
     // });
   };
 
+  const handleChangeTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
+
   return (
     <Sidebar>
       <SidebarHeader className="border-b p-4">
-        {/* <img src="/logo.svg" alt="Logo" className="w-[136px] h-7" /> */}
-        Logo
+        <img src="/logo.png" alt="Logo" className="w-max h-12 object-contain" />
       </SidebarHeader>
 
       <SidebarContent>
@@ -89,6 +109,16 @@ export const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup> */}
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Outros</SidebarGroupLabel>
+          <SidebarGroupContent className="ml-2">
+            <Button variant="outline" size="icon" onClick={handleChangeTheme}>
+              <SunIcon className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+              <MoonIcon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+            </Button>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>

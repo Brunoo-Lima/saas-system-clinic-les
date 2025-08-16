@@ -1,5 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoginForm } from "./_components/login-form";
+import { SignUpForm } from "./_components/signup-form";
 
 export const LoginPage = () => {
   return (
@@ -12,7 +13,9 @@ export const LoginPage = () => {
         <TabsContent value="login">
           <LoginForm />
         </TabsContent>
-        <TabsContent value="register">{/* <SignUpForm /> */}</TabsContent>
+        <TabsContent value="register">
+          <SignUpForm />
+        </TabsContent>
       </Tabs>
     </section>
   );
