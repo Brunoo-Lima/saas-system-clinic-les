@@ -25,9 +25,9 @@ interface IAppointmentsChartProps {
   dailyAppointmentsData: IDailyAppointment[];
 }
 
-export const AppointmentsChart = ({
+export default function AppointmentsChart({
   dailyAppointmentsData,
-}: IAppointmentsChartProps) => {
+}: IAppointmentsChartProps) {
   // Gerar 21 dias: 10 antes + hoje + 10 depois
   const chartDays = Array.from({ length: 21 }).map((_, i) =>
     dayjs()
@@ -153,4 +153,4 @@ export const AppointmentsChart = ({
       </CardContent>
     </Card>
   );
-};
+}

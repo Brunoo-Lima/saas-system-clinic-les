@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/page-container";
 import { DatePicker } from "./_components/date-picker";
 import { StatsCards } from "./_components/stats-cards";
-import { AppointmentsChart } from "./_components/appointments-chart";
+
 import { TopDoctors } from "./_components/top-doctors";
 import { AppointmentToday } from "./_components/appointment-today";
 import { TopSpecialties } from "./_components/top-specialties";
@@ -19,7 +19,11 @@ import { patientsList } from "@/mocks/patients-list";
 import { appointmentList } from "@/mocks/appointment-list";
 import { topSpecialties } from "@/mocks/top-specialties";
 import { dailyAppointmentsData } from "@/mocks/daily-appointments-data";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
+
+const AppointmentsChart = React.lazy(
+  () => import("./_components/appointments-chart")
+);
 
 export const DashboardPage = () => {
   useEffect(() => {
