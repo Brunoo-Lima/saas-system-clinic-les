@@ -2,9 +2,19 @@ export const PageContainer = ({ children }: { children: React.ReactNode }) => {
   return <section className="w-full space-y-6 p-6">{children}</section>;
 };
 
-export const PageHeader = ({ children }: { children: React.ReactNode }) => {
+export const PageHeader = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
   return (
-    <div className="flex w-full items-center justify-between">{children}</div>
+    <div
+      className={`${className} flex w-full items-center justify-between sm:flex-row flex-col gap-y-4 justify-start items-start`}
+    >
+      {children}
+    </div>
   );
 };
 

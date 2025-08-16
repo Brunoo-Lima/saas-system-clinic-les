@@ -60,7 +60,7 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
   };
 
   return (
-    <Card>
+    <Card className="sm:min-w-[350px] w-[450px]">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Avatar className="h-10 w-10">

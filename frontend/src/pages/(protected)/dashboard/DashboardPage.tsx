@@ -23,7 +23,7 @@ import { dailyAppointmentsData } from "@/mocks/daily-appointments-data";
 export const DashboardPage = () => {
   return (
     <PageContainer>
-      <PageHeader>
+      <PageHeader className="sm:flex-row flex-col gap-y-4 justify-start items-start">
         <PageHeaderContent>
           <PageTitle>Dashboard</PageTitle>
           <PageDescription>
@@ -44,11 +44,11 @@ export const DashboardPage = () => {
           totalDoctors={doctorsList.length}
         />
 
-        <div className="grid grid-cols-[2.25fr_1fr] gap-4">
+        <div className="grid md:grid-cols-[2.25fr_1fr] grid-cols-1 gap-4">
           <AppointmentsChart dailyAppointmentsData={dailyAppointmentsData} />
           <TopDoctors doctors={topDoctors} />
         </div>
-        <div className="grid grid-cols-[2.25fr_1fr] gap-4">
+        <div className="grid md:grid-cols-[2.25fr_1fr] grid-cols-1 gap-4">
           <AppointmentToday />
           <TopSpecialties topSpecialties={topSpecialties} />
         </div>
