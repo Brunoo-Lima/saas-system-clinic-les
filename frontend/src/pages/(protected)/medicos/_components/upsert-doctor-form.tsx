@@ -32,13 +32,12 @@ import { useForm } from "react-hook-form";
 import { medicalSpecialties } from "../_constants";
 import { NumericFormat } from "react-number-format";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { useEffect } from "react";
 import type { IDoctor } from "@/@types/IDoctor";
 
 interface IUpsertDoctorFormProps {
   doctor?: IDoctor;
-  onSuccess?: () => void;
+  onSuccess: () => void;
   isOpen: boolean;
 }
 
@@ -89,7 +88,7 @@ export const UpsertDoctorForm = ({
   //   },
   // });
 
-  const onSubmit = (values: DoctorFormSchema) => {
+  const onSubmit = (_values: DoctorFormSchema) => {
     // upsertDoctorAction.execute({
     //   ...values,
     //   id: doctor?.id,
@@ -97,6 +96,7 @@ export const UpsertDoctorForm = ({
     //   availableToWeekDay: Number(values.availableToWeekDay),
     //   appointmentPriceInCents: values.appointmentPrice * 100,
     // });
+    onSuccess();
   };
 
   return (

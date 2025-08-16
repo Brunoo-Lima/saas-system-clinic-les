@@ -2,7 +2,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -36,13 +35,13 @@ import {
 interface IUpsertPatientFormProps {
   isOpen: boolean;
   patient?: any;
-  onSuccess?: () => void;
+  onSuccess: () => void;
 }
 
 export const UpsertPatientForm = ({
   patient,
-  onSuccess,
   isOpen,
+  onSuccess,
 }: IUpsertPatientFormProps) => {
   const form = useForm<PatientFormSchema>({
     shouldUnregister: true,
@@ -71,11 +70,13 @@ export const UpsertPatientForm = ({
   //   },
   // });
 
-  const onSubmit = (values: PatientFormSchema) => {
+  const onSubmit = (_values: PatientFormSchema) => {
     // upsertPatientAction.execute({
     //   ...values,
     //   id: patient?.id,
     // });
+
+    onSuccess();
   };
 
   return (

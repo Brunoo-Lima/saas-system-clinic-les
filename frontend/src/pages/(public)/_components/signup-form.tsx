@@ -1,8 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,14 +14,12 @@ import { FormControl, FormMessage } from "@/components/ui/form";
 import { FormItem, FormLabel } from "@/components/ui/form";
 import { Form, FormField } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useNavigate } from "react-router-dom";
 import {
   registerSchema,
   type RegisterSchema,
 } from "@/validations/signup-form-schema";
 
 export const SignUpForm = () => {
-  const router = useNavigate();
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -33,7 +29,7 @@ export const SignUpForm = () => {
     },
   });
 
-  async function onSubmit(values: RegisterSchema) {
+  async function onSubmit(_values: RegisterSchema) {
     // await authClient.signUp.email(
     //   {
     //     email: values.email,

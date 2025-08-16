@@ -1,5 +1,4 @@
 import { MoreVerticalIcon, TrashIcon } from "lucide-react";
-import { toast } from "sonner";
 
 import {
   AlertDialog,

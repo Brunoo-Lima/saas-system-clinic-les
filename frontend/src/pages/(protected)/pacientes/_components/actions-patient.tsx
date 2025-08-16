@@ -22,7 +22,6 @@ import {
 import { EditIcon, MoreVerticalIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 import { UpsertPatientForm } from "./upsert-patient-form";
-import { toast } from "sonner";
 import type { IPatient } from "@/@types/IPatient";
 
 interface IActionsPatientProps {

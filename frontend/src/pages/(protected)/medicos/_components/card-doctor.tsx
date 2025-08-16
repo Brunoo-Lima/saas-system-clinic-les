@@ -24,7 +24,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { TrashIcon } from "lucide-react";
-import { toast } from "sonner";
 import { formatCurrencyInCents } from "@/utils/format-currency-in-cents";
 import { getAvailability } from "../_helpers/availability";
 import type { IDoctor } from "@/@types/IDoctor";

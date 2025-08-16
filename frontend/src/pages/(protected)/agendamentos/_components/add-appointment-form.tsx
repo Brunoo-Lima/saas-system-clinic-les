@@ -5,7 +5,6 @@ import { CalendarIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -42,8 +41,6 @@ import {
   appointmentFormSchema,
   type AppointmentFormSchema,
 } from "@/validations/appointment-form-schema";
-import { useQuery } from "@tanstack/react-query";
-import dayjs from "dayjs";
 import type { IPatient } from "@/@types/IPatient";
 import type { IDoctor } from "@/@types/IDoctor";
 import type { IAppointment } from "@/@types/IAppointment";
@@ -54,7 +51,7 @@ interface IAddAppointmentFormProps {
   patients: IPatient[];
   doctors: IDoctor[];
   appointment?: IAppointment;
-  onSuccess?: () => void;
+  onSuccess: () => void;
 }
 
 export const AddAppointmentForm = ({
@@ -127,12 +124,13 @@ export const AddAppointmentForm = ({
   //   },
   // });
 
-  const onSubmit = (values: AppointmentFormSchema) => {
+  const onSubmit = (_values: AppointmentFormSchema) => {
     // addAppointmentAction.execute({
     //   ...values,
     //   id: appointment?.id,
     //   appointmentPriceInCents: values.appointmentPrice * 100,
     // });
+    onSuccess();
   };
 
   const isDateAvailable = (date: Date) => {
