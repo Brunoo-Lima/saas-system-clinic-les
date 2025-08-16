@@ -7,6 +7,9 @@ import {
   PageHeaderContent,
   PageTitle,
 } from "@/components/ui/page-container";
+import { AddDoctorButton } from "./_components/add-doctor-button";
+import { doctorsList } from "@/mocks/doctors-list";
+import { CardDoctor } from "./_components/card-doctor";
 
 export const DoctorsPage = () => {
   return (
@@ -17,12 +20,17 @@ export const DoctorsPage = () => {
           <PageDescription>Gerencie os médicos da sua clínica</PageDescription>
         </PageHeaderContent>
 
-        <PageActions>{/* <AddStudentButton /> */} botao</PageActions>
+        <PageActions>
+          <AddDoctorButton />
+        </PageActions>
       </PageHeader>
 
       <PageContent>
-        {/* <DataTable columns={studentsTableColumns} data={[]} /> */}
-        lista
+        <div className="grid grid-cols-3 gap-6">
+          {doctorsList.map((doctor) => (
+            <CardDoctor key={doctor.id} doctor={doctor} />
+          ))}
+        </div>
       </PageContent>
     </PageContainer>
   );
