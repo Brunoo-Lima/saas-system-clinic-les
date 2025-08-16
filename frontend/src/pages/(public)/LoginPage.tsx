@@ -1,8 +1,13 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoginForm } from "./_components/login-form";
 import { SignUpForm } from "./_components/signup-form";
+import { useEffect } from "react";
 
 export const LoginPage = () => {
+  useEffect(() => {
+    document.title = "Login";
+  }, []);
+
   return (
     <section className="flex h-screen w-screen items-center justify-center">
       <Tabs defaultValue="login" className="w-[400px]">

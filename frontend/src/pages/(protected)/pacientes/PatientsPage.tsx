@@ -11,8 +11,13 @@ import { AddPatientButton } from "./_components/add-patient-button";
 import { DataTable } from "@/components/ui/data-table";
 import { patientsList } from "@/mocks/patients-list";
 import { patientsTableColumns } from "./_components/table-columns";
+import { useEffect } from "react";
 
 export const PatientsPage = () => {
+  useEffect(() => {
+    document.title = "Pacientes";
+  }, []);
+
   return (
     <PageContainer>
       <PageHeader>

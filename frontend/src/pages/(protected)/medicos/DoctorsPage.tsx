@@ -10,8 +10,13 @@ import {
 import { AddDoctorButton } from "./_components/add-doctor-button";
 import { doctorsList } from "@/mocks/doctors-list";
 import { CardDoctor } from "./_components/card-doctor";
+import { useEffect } from "react";
 
 export const DoctorsPage = () => {
+  useEffect(() => {
+    document.title = "Médicos";
+  }, []);
+
   return (
     <PageContainer>
       <PageHeader>

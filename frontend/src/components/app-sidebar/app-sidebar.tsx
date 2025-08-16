@@ -26,7 +26,7 @@ import {
   SunIcon,
   UsersRoundIcon,
 } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useTheme } from "../ui/theme-provider";
 import { Button } from "../ui/button";
 
@@ -56,6 +56,7 @@ const items = [
 
 export const AppSidebar = () => {
   const { setTheme, theme } = useTheme();
+  const navigate = useNavigate();
   // const router = useRouter();
   // const session = authClient.useSession();
   // const pathname = usePathname();
@@ -64,6 +65,7 @@ export const AppSidebar = () => {
     // await authClient.signOut({
     //   fetchOptions: { onSuccess: () => router.push("/login") },
     // });
+    navigate("/");
   };
 
   const handleChangeTheme = () => {

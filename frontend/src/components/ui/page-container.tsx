@@ -11,7 +11,7 @@ export const PageHeader = ({
 }) => {
   return (
     <div
-      className={`${className} flex w-full items-center justify-between sm:flex-row flex-col gap-y-4 justify-start items-start`}
+      className={`${className} flex w-full sm:items-center sm:justify-between sm:flex-row flex-col gap-y-4 justify-start items-start`}
     >
       {children}
     </div>

@@ -19,8 +19,13 @@ import { patientsList } from "@/mocks/patients-list";
 import { appointmentList } from "@/mocks/appointment-list";
 import { topSpecialties } from "@/mocks/top-specialties";
 import { dailyAppointmentsData } from "@/mocks/daily-appointments-data";
+import { useEffect } from "react";
 
 export const DashboardPage = () => {
+  useEffect(() => {
+    document.title = "Dashboard";
+  }, []);
+
   return (
     <PageContainer>
       <PageHeader className="sm:flex-row flex-col gap-y-4 justify-start items-start">
