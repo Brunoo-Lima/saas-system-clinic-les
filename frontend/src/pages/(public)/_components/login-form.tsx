@@ -80,20 +80,18 @@ export const LoginForm = () => {
               )}
             />
           </CardContent>
-          <CardFooter>
-            <div className="w-full space-y-2">
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? (
-                  <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  "Entrar"
-                )}
-              </Button>
-            </div>
+          <CardFooter className="pt-3">
+            <Button
+              type="submit"
+              className="w-full text-foreground"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? (
+                <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                "Entrar"
+              )}
+            </Button>
           </CardFooter>
         </form>
       </Form>

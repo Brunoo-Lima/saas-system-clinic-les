@@ -108,10 +108,10 @@ export const SignUpForm = () => {
               )}
             />
           </CardContent>
-          <CardFooter>
+          <CardFooter className="pt-3">
             <Button
               type="submit"
-              className="w-full"
+              className="w-full text-foreground"
               disabled={form.formState.isSubmitting}
             >
               {form.formState.isSubmitting ? (

@@ -7,6 +7,10 @@ import {
   PageHeaderContent,
   PageTitle,
 } from "@/components/ui/page-container";
+import { AddPatientButton } from "./_components/add-patient-button";
+import { DataTable } from "@/components/ui/data-table";
+import { pacientsList } from "@/mocks/pacients-list";
+import { patientsTableColumns } from "./_components/table-columns";
 
 export const PatientsPage = () => {
   return (
@@ -19,12 +23,13 @@ export const PatientsPage = () => {
           </PageDescription>
         </PageHeaderContent>
 
-        <PageActions>{/* <AddStudentButton /> */} botao</PageActions>
+        <PageActions>
+          <AddPatientButton />
+        </PageActions>
       </PageHeader>
 
       <PageContent>
-        {/* <DataTable columns={studentsTableColumns} data={[]} /> */}
-        lista
+        <DataTable columns={patientsTableColumns} data={pacientsList} />
       </PageContent>
     </PageContainer>
   );
