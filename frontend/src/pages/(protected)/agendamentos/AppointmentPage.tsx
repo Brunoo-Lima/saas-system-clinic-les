@@ -13,8 +13,13 @@ import { doctorsList } from "@/mocks/doctors-list";
 import { DataTable } from "@/components/ui/data-table";
 import { appointmentsTableColumns } from "./_components/table-columns";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { HistoryIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-export const AppointmentPage = () => {
+export default function AppointmentPage() {
+  const navigate = useNavigate();
+
   useEffect(() => {
     document.title = "Agendamentos";
   }, []);
@@ -31,6 +36,13 @@ export const AppointmentPage = () => {
 
         <PageActions>
           <AddAppointmentButton patients={patientsList} doctors={doctorsList} />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate("/agendamentos/historico")}
+          >
+            <HistoryIcon /> Histórico de agendamentos
+          </Button>
         </PageActions>
       </PageHeader>
 
@@ -39,4 +51,4 @@ export const AppointmentPage = () => {
       </PageContent>
     </PageContainer>
   );
-};
+}
