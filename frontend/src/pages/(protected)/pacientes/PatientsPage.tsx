@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/page-container";
 import { AddPatientButton } from "./_components/add-patient-button";
 import { DataTable } from "@/components/ui/data-table";
-import { pacientsList } from "@/mocks/pacients-list";
+import { patientsList } from "@/mocks/patients-list";
 import { patientsTableColumns } from "./_components/table-columns";
 
 export const PatientsPage = () => {
@@ -29,7 +29,7 @@ export const PatientsPage = () => {
       </PageHeader>
 
       <PageContent>
-        <DataTable columns={patientsTableColumns} data={pacientsList} />
+        <DataTable columns={patientsTableColumns} data={patientsList} />
       </PageContent>
     </PageContainer>
   );

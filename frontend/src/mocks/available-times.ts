@@ -1,0 +1,16 @@
+export const availableTimes = [
+  { label: "08:00", value: "08:00", isAvailable: true },
+  { label: "09:00", value: "09:00", isAvailable: true },
+  { label: "10:00", value: "10:00", isAvailable: true },
+  { label: "11:00", value: "11:00", isAvailable: true },
+  { label: "12:00", value: "12:00", isAvailable: true },
+  { label: "13:00", value: "13:00", isAvailable: true },
+  { label: "14:00", value: "14:00", isAvailable: true },
+  { label: "15:00", value: "15:00", isAvailable: true },
+  { label: "16:00", value: "16:00", isAvailable: true },
+  { label: "17:00", value: "17:00", isAvailable: true },
+  { label: "18:00", value: "18:00", isAvailable: true },
+  { label: "19:00", value: "19:00", isAvailable: true },
+  { label: "20:00", value: "20:00", isAvailable: true },
+  { label: "21:00", value: "21:00", isAvailable: true },
+];

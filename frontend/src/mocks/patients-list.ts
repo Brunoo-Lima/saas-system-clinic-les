@@ -1,4 +1,4 @@
-export const pacientsList = [
+export const patientsList = [
   {
     id: 1,
     name: "Theo",
