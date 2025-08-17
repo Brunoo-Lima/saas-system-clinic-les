@@ -7,4 +7,5 @@ export interface IDoctor {
   availableToWeekDay: number;
   availableFromTime: string;
   availableToTime: string;
+  sex: string;
 }
