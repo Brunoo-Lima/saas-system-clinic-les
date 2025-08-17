@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/page-container';
 import { AddPatientButton } from './_components/add-patient-button';
 import { DataTable } from '@/components/ui/data-table';
-import { patientsList } from '@/mocks/patients-list';
 import { patientsTableColumns } from './_components/table-columns';
 import { useEffect } from 'react';
 import { InputSearch } from '@/components/ui/input-search';
