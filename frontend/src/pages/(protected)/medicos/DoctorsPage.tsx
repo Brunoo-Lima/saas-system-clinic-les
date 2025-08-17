@@ -22,7 +22,6 @@ import { Button } from '@/components/ui/button';
 import { ChevronDownIcon } from 'lucide-react';
 import { PaginationComponent } from '@/components/pagination-component';
 import { medicalSpecialties } from './_constants';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 export const DoctorsPage = () => {
   const {
