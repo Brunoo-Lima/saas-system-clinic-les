@@ -6,22 +6,22 @@ import {
   PageHeader,
   PageHeaderContent,
   PageTitle,
-} from '@/components/ui/page-container';
+} from "@/components/ui/page-container";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { AddDoctorButton } from './_components/add-doctor-button';
-import { CardDoctor } from './_components/card-doctor';
-import { useEffect } from 'react';
-import { useDoctor } from '@/hooks/use-doctor';
-import { InputSearch } from '@/components/ui/input-search';
-import { Button } from '@/components/ui/button';
-import { ChevronDownIcon } from 'lucide-react';
-import { PaginationComponent } from '@/components/pagination-component';
-import { medicalSpecialties } from './_constants';
+} from "@/components/ui/dropdown-menu";
+import { AddDoctorButton } from "./_components/add-doctor-button";
+import { CardDoctor } from "./_components/card-doctor";
+import { useEffect } from "react";
+import { useDoctor } from "@/hooks/use-doctor";
+import { InputSearch } from "@/components/ui/input-search";
+import { Button } from "@/components/ui/button";
+import { ChevronDownIcon } from "lucide-react";
+import { PaginationComponent } from "@/components/pagination-component";
+import { medicalSpecialties } from "./_constants";
 
 export const DoctorsPage = () => {
   const {
@@ -38,7 +38,7 @@ export const DoctorsPage = () => {
   } = useDoctor();
 
   useEffect(() => {
-    document.title = 'Médicos';
+    document.title = "Médicos";
   }, []);
 
   return (
@@ -72,17 +72,17 @@ export const DoctorsPage = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuCheckboxItem
-                  checked={selectedGender === 'male'}
+                  checked={selectedGender === "male"}
                   onCheckedChange={(checked) =>
-                    setSelectedGender(checked ? 'male' : null)
+                    setSelectedGender(checked ? "male" : null)
                   }
                 >
                   Masculino
                 </DropdownMenuCheckboxItem>
                 <DropdownMenuCheckboxItem
-                  checked={selectedGender === 'female'}
+                  checked={selectedGender === "female"}
                   onCheckedChange={(checked) =>
-                    setSelectedGender(checked ? 'female' : null)
+                    setSelectedGender(checked ? "female" : null)
                   }
                 >
                   Feminino
@@ -117,6 +117,8 @@ export const DoctorsPage = () => {
           {paginatedData.map((doctor) => (
             <CardDoctor key={doctor.id} doctor={doctor} />
           ))}
+
+          {paginatedData.length === 0 && <p>Nenhum médico encontrado.</p>}
         </div>
 
         <PaginationComponent
