@@ -12,6 +12,7 @@ import {
 import { Row } from "@/components/ui/row";
 import { SaveIcon, SquarePenIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { ButtonChangePassword } from "./_components/button-change-password";
 
 export default function ProfilePage() {
   const [isEditingAddress, setIsEditingAddress] = useState<boolean>(false);
@@ -21,10 +22,6 @@ export default function ProfilePage() {
   useEffect(() => {
     document.title = "Perfil";
   }, []);
-
-  const handleChangeFile = () => {
-    fileInputRef.current?.click();
-  };
 
   return (
     <PageContainer>
@@ -40,7 +37,7 @@ export default function ProfilePage() {
           <div className="w-32 h-32 rounded-full border-2 border-border overflow-hidden">
             <img
               src={previewImage ? previewImage : "/logo.png"}
-              alt=""
+              alt="Foto de perfil"
               className="w-full h-full object-contain"
             />
           </div>
@@ -89,10 +86,10 @@ export default function ProfilePage() {
               <div className="flex md:items-end items-start md:flex-row flex-col gap-4">
                 <Row>
                   <Label>Senha</Label>
-                  <Input type="password" placeholder="Senha" />
+                  <Input type="password" placeholder="Senha" disabled />
                 </Row>
 
-                <Button>Alterar senha</Button>
+                <ButtonChangePassword />
               </div>
             </div>
 
