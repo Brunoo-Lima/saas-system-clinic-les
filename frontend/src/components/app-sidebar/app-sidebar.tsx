@@ -149,10 +149,14 @@ export const AppSidebar = () => {
                   </div>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
+              <DropdownMenuContent className="*:cursor-pointer">
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut />
                   Sair
+                </DropdownMenuItem>
+
+                <DropdownMenuItem onClick={() => navigate("/perfil")}>
+                  Perfil
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

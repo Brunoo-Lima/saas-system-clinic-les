@@ -5,6 +5,7 @@ import { DashboardPage } from "@/pages/(protected)/dashboard/DashboardPage";
 import HistoricPage from "@/pages/(protected)/historico/HistoricPage";
 import { DoctorsPage } from "@/pages/(protected)/medicos/DoctorsPage";
 import { PatientsPage } from "@/pages/(protected)/pacientes/PatientsPage";
+import ProfilePage from "@/pages/(protected)/perfil/ProfilePage";
 import { LoginPage } from "@/pages/(public)/LoginPage";
 import { createBrowserRouter } from "react-router-dom";
 
@@ -41,6 +42,10 @@ export const router = createBrowserRouter([
       {
         path: "agendamentos/historico",
         element: <HistoricAppointmentPage />,
+      },
+      {
+        path: "perfil",
+        element: <ProfilePage />,
       },
     ],
   },
