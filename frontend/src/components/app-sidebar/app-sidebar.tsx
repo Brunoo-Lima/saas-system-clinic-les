@@ -81,7 +81,7 @@ export const AppSidebar = () => {
   return (
     <Sidebar>
       <SidebarHeader className="border-b p-4">
-        <img src="/logo.png" alt="Logo" className="w-max h-12 object-contain" />
+        <img src="/logo.png" alt="Logo" className="w-max h-14 object-contain" />
       </SidebarHeader>
 
       <SidebarContent>
