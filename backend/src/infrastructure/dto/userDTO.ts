@@ -1,8 +1,7 @@
 export interface UserDTO {
-    email?: string;
-    emailVellicated?: boolean;
-    password?: string;
-    passwordConfirmed?: string;
-    role?: "admin" | "user";
-    avatar?: string;
+  email?: string;
+  emailVerified?: boolean;
+  password?: string;
+  role?: "admin" | "doctor" | "patient";
+  avatar?: string;
 }

@@ -1,10 +1,10 @@
 export interface IResponseHandler {
   success: boolean;
-  data: any| null;
+  data: any | null;
   message: string | string[];
 }
 
-export class ResponseHandler{
+export class ResponseHandler {
   public static success<T>(data?: T, message: string = "Success") {
     return {
       success: true,
@@ -21,4 +21,3 @@ export class ResponseHandler{
     };
   }
 }
-

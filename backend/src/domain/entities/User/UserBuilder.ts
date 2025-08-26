@@ -4,7 +4,7 @@ import { IUser } from "./User";
 export class UserBuilder {
   private data: Partial<IUser> = {};
 
-  setRole(role: "admin" | "user"): this {
+  setRole(role: "admin" | "doctor" | "patient"): this {
     this.data.role = role;
     return this;
   }
@@ -14,27 +14,26 @@ export class UserBuilder {
     return this;
   }
 
-  setPassword(password: string  = ""): this {
+  setPassword(password: string = ""): this {
     this.data.password = password;
-    this.data.passwordConfirmed = password; // já seta confirmado junto
     return this;
   }
 
-  setAvatar(avatar: string  = ""): this {
+  setAvatar(avatar: string = ""): this {
     this.data.avatar = avatar;
     return this;
   }
 
-  setEmailVellicated(validated: boolean = false): this {
-    this.data.emailVellicated = validated;
+  setEmailVerified(validated: boolean = false): this {
+    this.data.emailVerified = validated;
     return this;
   }
 
   build(): User {
     return new User({
-      emailVellicated: false, // default
+      emailVerified: false, // default
       avatar: "",
-      ...this.data,           // sobrescreve defaults se vier do builder
+      ...this.data, // sobrescreve defaults se vier do builder
     });
   }
 
