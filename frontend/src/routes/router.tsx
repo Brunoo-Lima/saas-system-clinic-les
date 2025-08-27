@@ -1,6 +1,7 @@
 import { DefaultLayout } from "@/components/default-layout/default-layout";
 import AppointmentPage from "@/pages/(protected)/agendamentos/AppointmentPage";
 import HistoricAppointmentPage from "@/pages/(protected)/agendamentos/historico-de-agendamentos/HistoricAppointmentPage";
+import { AgreementsPage } from "@/pages/(protected)/convenios/AgreementsPage";
 import { DashboardPage } from "@/pages/(protected)/dashboard/DashboardPage";
 import HistoricPage from "@/pages/(protected)/historico/HistoricPage";
 import { DoctorsPage } from "@/pages/(protected)/medicos/DoctorsPage";
@@ -34,6 +35,10 @@ export const router = createBrowserRouter([
       {
         path: "pacientes",
         element: <PatientsPage />,
+      },
+      {
+        path: "convenios",
+        element: <AgreementsPage />,
       },
       {
         path: "historico",

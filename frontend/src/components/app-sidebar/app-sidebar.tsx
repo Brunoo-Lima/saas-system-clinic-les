@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/sidebar";
 import {
   CalendarDaysIcon,
+  HeartHandshakeIcon,
   HistoryIcon,
   LayoutDashboardIcon,
   LogOut,
@@ -52,6 +53,11 @@ const items = [
     title: "Pacientes",
     url: "/pacientes",
     icon: UsersRoundIcon,
+  },
+  {
+    title: "Convênios",
+    url: "/convenios",
+    icon: HeartHandshakeIcon,
   },
   {
     title: "Histórico",
