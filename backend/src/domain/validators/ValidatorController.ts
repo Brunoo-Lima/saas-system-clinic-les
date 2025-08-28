@@ -9,12 +9,12 @@ export class ValidatorController {
         this.className = className;
         this.validatorsClasses.set(className, []);
     }
-    public async process(entity: EntityDomain, {...args} = {}){
+    public async process(entity: EntityDomain, ...args: any){
 
         const validators = this.validatorsClasses.get(this.className);
         if(!validators) return { success: true, message: "No validators to process"};
         
-        const results = await Promise.all(validators.map(validator => validator.valid(entity, args)));
+        const results = await Promise.all(validators.map(validator => validator.valid(entity, ...args)));
         const fails = results.filter(r => !r.success);
 
         if(fails.length > 0){
