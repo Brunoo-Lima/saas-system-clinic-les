@@ -33,7 +33,6 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { CheckIcon } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import type { IAgreement } from "@/@types/IAgreement";
 
@@ -85,7 +84,7 @@ export const UpsertAgreementForm = ({
   };
 
   return (
-    <DialogContent>
+    <DialogContent className="w-full sm:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle>
           {agreement ? agreement.name : "Adicionar Convênio"}
@@ -98,119 +97,117 @@ export const UpsertAgreementForm = ({
       </DialogHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <ScrollArea className="h-[600px] pr-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome do convênio</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Digite o nome do convênio" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Digite a descrição do convênio"
-                      {...field}
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nome do convênio</FormLabel>
+                <FormControl>
+                  <Input placeholder="Digite o nome do convênio" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Descrição</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Digite a descrição do convênio"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="specialties"
+            defaultValue={[]}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Especialidades</FormLabel>
+                <FormControl>
+                  <Command>
+                    <CommandInput
+                      className="px-2 py-0 border-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                      placeholder="Buscar especialidade..."
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <CommandList>
+                      <CommandEmpty>Nenhum resultado.</CommandEmpty>
+                      <CommandGroup>
+                        {medicalSpecialties.map((spec) => {
+                          const isSelected = field.value.some(
+                            (s) => s.slug === spec.slug
+                          );
 
-            <FormField
-              control={form.control}
-              name="specialties"
-              defaultValue={[]}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Especialidades</FormLabel>
-                  <FormControl>
-                    <Command>
-                      <CommandInput
-                        className="px-2 py-0 border-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                        placeholder="Buscar especialidade..."
-                      />
-                      <CommandList>
-                        <CommandEmpty>Nenhum resultado.</CommandEmpty>
-                        <CommandGroup>
-                          {medicalSpecialties.map((spec) => {
-                            const isSelected = field.value.some(
-                              (s) => s.slug === spec.slug
-                            );
+                          return (
+                            <CommandItem
+                              key={spec.slug}
+                              onSelect={() => {
+                                if (isSelected) {
+                                  field.onChange(
+                                    field.value.filter(
+                                      (s) => s.slug !== spec.slug
+                                    )
+                                  );
+                                } else {
+                                  field.onChange([
+                                    ...field.value,
+                                    { slug: spec.slug, name: spec.value },
+                                  ]);
+                                }
+                              }}
+                              className="flex items-center justify-between"
+                            >
+                              {spec.label}
+                              {isSelected && <CheckIcon size={16} />}
+                            </CommandItem>
+                          );
+                        })}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </FormControl>
+                <FormMessage />
 
-                            return (
-                              <CommandItem
-                                key={spec.slug}
-                                onSelect={() => {
-                                  if (isSelected) {
-                                    field.onChange(
-                                      field.value.filter(
-                                        (s) => s.slug !== spec.slug
-                                      )
-                                    );
-                                  } else {
-                                    field.onChange([
-                                      ...field.value,
-                                      { slug: spec.slug, name: spec.value },
-                                    ]);
-                                  }
-                                }}
-                                className="flex items-center justify-between"
-                              >
-                                {spec.label}
-                                {isSelected && <CheckIcon size={16} />}
-                              </CommandItem>
-                            );
-                          })}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </FormControl>
-
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {field.value.map((s) => (
-                      <span
-                        key={s.slug}
-                        className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm flex items-center gap-1"
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {field.value.map((s) => (
+                    <span
+                      key={s.slug}
+                      className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm flex items-center gap-1"
+                    >
+                      {s.name}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          field.onChange(
+                            field.value.filter((item) => item.slug !== s.slug)
+                          )
+                        }
+                        className="text-red-500 hover:text-red-700"
                       >
-                        {s.name}
-                        <button
-                          type="button"
-                          onClick={() =>
-                            field.onChange(
-                              field.value.filter((item) => item.slug !== s.slug)
-                            )
-                          }
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </ScrollArea>
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </FormItem>
+            )}
+          />
 
           <DialogFooter>
             <Button
               type="submit"
               disabled={form.formState.isSubmitting}
-              className="w-full"
+              className="w-full mt-4"
             >
               {form.formState.isSubmitting ? "Salvando..." : "Salvar"}
             </Button>

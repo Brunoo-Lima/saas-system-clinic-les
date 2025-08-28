@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { addressFormSchema } from "./address-form-schema";
 
 export const patientFormSchema = z.object({
   name: z.string().trim().min(1, {
@@ -7,12 +8,25 @@ export const patientFormSchema = z.object({
   email: z.string().email({
     message: "Email inválido.",
   }),
+  agreement: z.string().trim().min(1, {
+    message: "Convênio é obrigatório.",
+  }),
+  typeDocument: z.enum(["CPF", "CNH"], {
+    message: "Tipo é obrigatório.",
+  }),
+  document: z.string().trim().min(1, {
+    message: "Documento é obrigatório.",
+  }),
+  dateOfBirth: z.date({
+    message: "Data de nascimento é obrigatória.",
+  }),
   phoneNumber: z.string().trim().min(1, {
     message: "Número de telefone é obrigatório.",
   }),
-  sex: z.enum(["male", "female"], {
-    message: "Sexo é obrigatório.",
+  gender: z.enum(["male", "female"], {
+    message: "Gênero é obrigatório.",
   }),
+  address: addressFormSchema,
 });
 
 export type PatientFormSchema = z.infer<typeof patientFormSchema>;

@@ -16,7 +16,7 @@ export const DialogSpecialties = ({ specialties }: IDialogSpecialtiesProps) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Especialidades</Button>
+        <Button variant={"outline"}>Especialidades</Button>
       </DialogTrigger>
 
       <DialogContent className="h-max">
