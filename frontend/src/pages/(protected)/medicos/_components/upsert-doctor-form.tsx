@@ -34,6 +34,7 @@ import { NumericFormat } from "react-number-format";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import type { IDoctor } from "@/@types/IDoctor";
+import { toast } from "sonner";
 
 interface IUpsertDoctorFormProps {
   doctor?: IDoctor;
@@ -52,8 +53,8 @@ export const UpsertDoctorForm = ({
     defaultValues: {
       name: doctor?.name ?? "",
       specialty: doctor?.specialty ?? "",
-      appointmentPrice: doctor?.appointmentPriceInCents
-        ? doctor.appointmentPriceInCents / 100
+      priceService: doctor?.servicePriceInCents
+        ? doctor.servicePriceInCents / 100
         : 0,
       availableFromWeekDay: doctor?.availableFromWeekDay?.toString() ?? "1",
       availableToWeekDay: doctor?.availableToWeekDay?.toString() ?? "5",
@@ -67,8 +68,8 @@ export const UpsertDoctorForm = ({
       form.reset({
         name: doctor?.name ?? "",
         specialty: doctor?.specialty ?? "",
-        appointmentPrice: doctor?.appointmentPriceInCents
-          ? doctor.appointmentPriceInCents / 100
+        priceService: doctor?.servicePriceInCents
+          ? doctor.servicePriceInCents / 100
           : 0,
         availableFromWeekDay: doctor?.availableFromWeekDay?.toString() ?? "1",
         availableToWeekDay: doctor?.availableToWeekDay?.toString() ?? "5",
@@ -97,6 +98,7 @@ export const UpsertDoctorForm = ({
     //   appointmentPriceInCents: values.appointmentPrice * 100,
     // });
     onSuccess();
+    toast.success("Médico salvo com sucesso.");
   };
 
   return (
@@ -156,10 +158,10 @@ export const UpsertDoctorForm = ({
 
           <FormField
             control={form.control}
-            name="appointmentPrice"
+            name="priceService"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Preço da consulta</FormLabel>
+                <FormLabel>Preço do serviço</FormLabel>
                 <NumericFormat
                   value={field.value}
                   onValueChange={(value) => {

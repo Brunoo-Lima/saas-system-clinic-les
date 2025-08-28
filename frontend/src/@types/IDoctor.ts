@@ -2,7 +2,7 @@ export interface IDoctor {
   id: number;
   name: string;
   specialty: string;
-  appointmentPriceInCents: number;
+  servicePriceInCents: number;
   availableFromWeekDay: number;
   availableToWeekDay: number;
   availableFromTime: string;

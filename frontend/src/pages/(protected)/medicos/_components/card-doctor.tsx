@@ -28,6 +28,7 @@ import { formatCurrencyInCents } from "@/utils/format-currency-in-cents";
 import { getAvailability } from "../_helpers/availability";
 import type { IDoctor } from "@/@types/IDoctor";
 import { UpsertDoctorForm } from "./upsert-doctor-form";
+import { toast } from "sonner";
 interface ICardDoctorProps {
   doctor: IDoctor; //retorna as props do banco
 }
@@ -56,6 +57,7 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
     if (!doctor) return;
 
     // deleteDoctorAction.execute({ id: doctor.id });
+    toast.success("Médico deletado com sucesso.");
   };
 
   return (
@@ -84,7 +86,7 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
         </Badge>
         <Badge variant="outline">
           <DollarSignIcon className="mr-1" />
-          {formatCurrencyInCents(doctor.appointmentPriceInCents)}
+          {formatCurrencyInCents(doctor.servicePriceInCents)}
         </Badge>
       </CardContent>
       <Separator />

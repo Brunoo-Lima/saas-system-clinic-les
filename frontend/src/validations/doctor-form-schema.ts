@@ -9,9 +9,9 @@ export const doctorFormSchema = z
       .string()
       .trim()
       .min(1, { message: "Especialidade é obrigatória." }),
-    appointmentPrice: z
+    priceService: z
       .number()
-      .min(1, { message: "Preço da consulta é obrigatório." }),
+      .min(1, { message: "Preço do serviço é obrigatório." }),
     availableFromWeekDay: z.string(),
     availableToWeekDay: z.string(),
     availableFromTime: z

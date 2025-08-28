@@ -96,7 +96,7 @@ export const AddAppointmentForm = ({
       if (selectedDoctor) {
         form.setValue(
           "appointmentPrice",
-          selectedDoctor.appointmentPriceInCents / 100
+          selectedDoctor.servicePriceInCents / 100
         );
       }
     }
