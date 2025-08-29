@@ -1,11 +1,12 @@
-export interface IDoctor {
+import type { IPerson } from "./IPerson";
+
+export interface IDoctor extends IPerson {
   id: number;
-  name: string;
   specialty: string;
+  crm: string;
   servicePriceInCents: number;
-  availableFromWeekDay: number;
-  availableToWeekDay: number;
-  availableFromTime: string;
-  availableToTime: string;
-  sex: string;
+  availableWeekDay: string[];
+  availableTime: string[];
+  status: boolean;
+  justification?: string;
 }

@@ -35,6 +35,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import type { IDoctor } from "@/@types/IDoctor";
 import { toast } from "sonner";
+import FormInputCustom from "@/components/ui/form-custom/form-input-custom";
 
 interface IUpsertDoctorFormProps {
   doctor?: IDoctor;
@@ -53,13 +54,28 @@ export const UpsertDoctorForm = ({
     defaultValues: {
       name: doctor?.name ?? "",
       specialty: doctor?.specialty ?? "",
+      crm: doctor?.crm ?? "",
       priceService: doctor?.servicePriceInCents
         ? doctor.servicePriceInCents / 100
         : 0,
-      availableFromWeekDay: doctor?.availableFromWeekDay?.toString() ?? "1",
-      availableToWeekDay: doctor?.availableToWeekDay?.toString() ?? "5",
-      availableFromTime: doctor?.availableFromTime ?? "",
-      availableToTime: doctor?.availableToTime ?? "",
+      typeDocument: doctor?.typeDocument ?? "CPF",
+      document: doctor?.document ?? "",
+      email: doctor?.email ?? "",
+      phoneNumber: doctor?.phoneNumber ?? "",
+      dateOfBirth: doctor?.dateOfBirth ?? "",
+      availableWeekDay: doctor?.availableWeekDay ?? ["1", "2", "3", "4", "5"],
+      availableTime: doctor?.availableTime ?? [""],
+      gender: doctor?.gender ?? "male",
+      status: doctor?.status ?? true,
+      justification: doctor?.justification ?? "",
+      address: {
+        zipCode: doctor?.address?.zipCode ?? "",
+        state: doctor?.address?.state ?? "",
+        city: doctor?.address?.city ?? "",
+        neighborhood: doctor?.address?.neighborhood ?? "",
+        street: doctor?.address?.street ?? "",
+        number: doctor?.address?.number ?? "",
+      },
     },
   });
 
@@ -68,13 +84,28 @@ export const UpsertDoctorForm = ({
       form.reset({
         name: doctor?.name ?? "",
         specialty: doctor?.specialty ?? "",
+        crm: doctor?.crm ?? "",
         priceService: doctor?.servicePriceInCents
           ? doctor.servicePriceInCents / 100
           : 0,
-        availableFromWeekDay: doctor?.availableFromWeekDay?.toString() ?? "1",
-        availableToWeekDay: doctor?.availableToWeekDay?.toString() ?? "5",
-        availableFromTime: doctor?.availableFromTime ?? "",
-        availableToTime: doctor?.availableToTime ?? "",
+        typeDocument: doctor?.typeDocument ?? "CPF",
+        document: doctor?.document ?? "",
+        email: doctor?.email ?? "",
+        phoneNumber: doctor?.phoneNumber ?? "",
+        dateOfBirth: doctor?.dateOfBirth ?? "",
+        availableWeekDay: doctor?.availableWeekDay ?? ["1", "2", "3", "4", "5"],
+        availableTime: doctor?.availableTime ?? [],
+        gender: doctor?.gender ?? "male",
+        status: doctor?.status ?? true,
+        justification: doctor?.justification ?? "",
+        address: {
+          zipCode: doctor?.address?.zipCode ?? "",
+          state: doctor?.address?.state ?? "",
+          city: doctor?.address?.city ?? "",
+          neighborhood: doctor?.address?.neighborhood ?? "",
+          street: doctor?.address?.street ?? "",
+          number: doctor?.address?.number ?? "",
+        },
       });
     }
   }, [isOpen, form, doctor]);
@@ -89,7 +120,7 @@ export const UpsertDoctorForm = ({
   //   },
   // });
 
-  const onSubmit = (_values: DoctorFormSchema) => {
+  const onSubmit = (data: DoctorFormSchema) => {
     // upsertDoctorAction.execute({
     //   ...values,
     //   id: doctor?.id,
@@ -97,12 +128,14 @@ export const UpsertDoctorForm = ({
     //   availableToWeekDay: Number(values.availableToWeekDay),
     //   appointmentPriceInCents: values.appointmentPrice * 100,
     // });
+    console.log(data);
+
     onSuccess();
     toast.success("Médico salvo com sucesso.");
   };
 
   return (
-    <DialogContent>
+    <DialogContent className="w-full sm:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle>{doctor ? doctor.name : "Adicionar médico"}</DialogTitle>
         <DialogDescription>
@@ -114,18 +147,11 @@ export const UpsertDoctorForm = ({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
+          <FormInputCustom
             name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Nome"
+            placeholder="Digite o nome"
+            control={form.control}
           />
 
           <FormField
