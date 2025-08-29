@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { HistoryIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import type { IDoctor } from "@/@types/IDoctor";
 
 export default function AppointmentPage() {
   const navigate = useNavigate();
@@ -35,7 +36,10 @@ export default function AppointmentPage() {
         </PageHeaderContent>
 
         <PageActions>
-          <AddAppointmentButton patients={patientsList} doctors={doctorsList} />
+          <AddAppointmentButton
+            patients={patientsList}
+            doctors={doctorsList as IDoctor[]}
+          />
           <Button
             type="button"
             variant="outline"

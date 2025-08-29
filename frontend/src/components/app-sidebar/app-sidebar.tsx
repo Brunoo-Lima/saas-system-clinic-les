@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/sidebar";
 import {
   CalendarDaysIcon,
+  HeartHandshakeIcon,
   HistoryIcon,
   LayoutDashboardIcon,
   LogOut,
@@ -54,6 +55,11 @@ const items = [
     icon: UsersRoundIcon,
   },
   {
+    title: "Convênios",
+    url: "/convenios",
+    icon: HeartHandshakeIcon,
+  },
+  {
     title: "Histórico",
     url: "/historico",
     icon: HistoryIcon,
@@ -81,7 +87,7 @@ export const AppSidebar = () => {
   return (
     <Sidebar>
       <SidebarHeader className="border-b p-4">
-        <img src="/logo.png" alt="Logo" className="w-max h-12 object-contain" />
+        <img src="/logo.png" alt="Logo" className="w-max h-14 object-contain" />
       </SidebarHeader>
 
       <SidebarContent>

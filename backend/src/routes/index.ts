@@ -1,10 +1,10 @@
 import express, { Router } from "express";
-import { testeRoute } from "./teste.route";
+import { userRoutes } from "./createUser.route";
 
 const routes: Router = express.Router();
 
 // routes.use(userRoutes);
 
-routes.use(testeRoute);
+routes.use(userRoutes);
 
 export { routes };

@@ -25,9 +25,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { TrashIcon } from "lucide-react";
 import { formatCurrencyInCents } from "@/utils/format-currency-in-cents";
-import { getAvailability } from "../_helpers/availability";
 import type { IDoctor } from "@/@types/IDoctor";
 import { UpsertDoctorForm } from "./upsert-doctor-form";
+import { toast } from "sonner";
+import { getAvailability } from "../_helpers/availability";
 interface ICardDoctorProps {
   doctor: IDoctor; //retorna as props do banco
 }
@@ -43,6 +44,8 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
 
   const availability = getAvailability(doctor);
 
+  console.log(availability);
+
   // const deleteDoctorAction = useAction(deleteDoctor, {
   //   onSuccess: () => {
   //     toast.success("Médico deletado com sucesso.");
@@ -56,6 +59,7 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
     if (!doctor) return;
 
     // deleteDoctorAction.execute({ id: doctor.id });
+    toast.success("Médico deletado com sucesso.");
   };
 
   return (
@@ -75,16 +79,20 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
       <CardContent className="flex flex-col gap-2">
         <Badge variant="outline">
           <CalendarIcon className="mr-1" />
-          {availability.from.format("dddd")} a {availability.to.format("dddd")}
+          Segunda a Sexta
+          {/* {availability.map((a) => a.to.format("dddd")).join(", ")} */}
         </Badge>
         <Badge variant="outline">
           <ClockIcon className="mr-1" />
-          {availability.from.format("HH:mm")} as{" "}
-          {availability.to.format("HH:mm")}
+          09:00 as 18:00
+          {/* {availability.map(
+            (a) => `${a.to.format("HH:mm")} as ${a.from.format("HH:mm")}`
+          )} */}
         </Badge>
+
         <Badge variant="outline">
           <DollarSignIcon className="mr-1" />
-          {formatCurrencyInCents(doctor.appointmentPriceInCents)}
+          {formatCurrencyInCents(doctor.servicePriceInCents)}
         </Badge>
       </CardContent>
       <Separator />
@@ -99,8 +107,8 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
           <UpsertDoctorForm
             doctor={{
               ...doctor,
-              availableToTime: availability.to.format("HH:mm:ss"), //14:00:00
-              availableFromTime: availability.from.format("HH:mm:ss"),
+              // availableToTime: availability.to.format("HH:mm:ss"), //14:00:00
+              // availableFromTime: availability.from.format("HH:mm:ss"),
             }}
             onSuccess={() => setIsUpsertDoctorDialogOpen(false)}
             isOpen={isUpsertDoctorDialogOpen}

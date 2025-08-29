@@ -138,3 +138,12 @@ button {
 ::-webkit-scrollbar-thumb {
   background-color: transparent;
 }
+
+.rdp-root {
+  --rdp-accent-color: var(--primary);
+  --rdp-accent-background-color: var(--foreground);
+}
+.rdp-dropdown .rdp-years_dropdown {
+  color: var(--primary);
+  background-color: var(--foreground);
+}

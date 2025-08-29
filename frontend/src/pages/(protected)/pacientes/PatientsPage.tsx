@@ -6,22 +6,22 @@ import {
   PageHeader,
   PageHeaderContent,
   PageTitle,
-} from '@/components/ui/page-container';
-import { AddPatientButton } from './_components/add-patient-button';
-import { DataTable } from '@/components/ui/data-table';
-import { patientsTableColumns } from './_components/table-columns';
-import { useEffect } from 'react';
-import { InputSearch } from '@/components/ui/input-search';
+} from "@/components/ui/page-container";
+import { AddPatientButton } from "./_components/add-patient-button";
+import { DataTable } from "@/components/ui/data-table";
+import { patientsTableColumns } from "./_components/table-columns";
+import { Suspense, useEffect } from "react";
+import { InputSearch } from "@/components/ui/input-search";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { ChevronDownIcon } from 'lucide-react';
-import { usePatient } from '@/hooks/use-patient';
-import { PaginationComponent } from '@/components/pagination-component';
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { ChevronDownIcon } from "lucide-react";
+import { usePatient } from "@/hooks/use-patient";
+import { PaginationComponent } from "@/components/pagination-component";
 
 export const PatientsPage = () => {
   const {
@@ -36,7 +36,7 @@ export const PatientsPage = () => {
   } = usePatient();
 
   useEffect(() => {
-    document.title = 'Pacientes';
+    document.title = "Pacientes";
   }, []);
 
   return (
@@ -71,17 +71,17 @@ export const PatientsPage = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuCheckboxItem
-                checked={selectedGender === 'male'}
+                checked={selectedGender === "male"}
                 onCheckedChange={(checked) =>
-                  setSelectedGender(checked ? 'male' : null)
+                  setSelectedGender(checked ? "male" : null)
                 }
               >
                 Masculino
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
-                checked={selectedGender === 'female'}
+                checked={selectedGender === "female"}
                 onCheckedChange={(checked) =>
-                  setSelectedGender(checked ? 'female' : null)
+                  setSelectedGender(checked ? "female" : null)
                 }
               >
                 Feminino
@@ -90,7 +90,9 @@ export const PatientsPage = () => {
           </DropdownMenu>
         </div>
 
-        <DataTable columns={patientsTableColumns} data={paginatedData} />
+        <Suspense fallback={<div>Carregando...</div>}>
+          <DataTable columns={patientsTableColumns} data={paginatedData} />
+        </Suspense>
 
         <div className="flex-1 self-end">
           <PaginationComponent
