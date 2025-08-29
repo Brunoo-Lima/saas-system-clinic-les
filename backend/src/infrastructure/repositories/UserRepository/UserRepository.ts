@@ -1,4 +1,4 @@
-import { User } from "../../../domain/entities/User/User";
+import { User } from "../../../domain/entities/EntityUser/User";
 import { IUserRepository } from "./IUserRepository";
 import db from "../../database/connection";
 import { userSchema } from "../../database/schema";
@@ -21,8 +21,8 @@ export class UserRepository implements IUserRepository {
           createdAt: new Date(),
           updatedAt: new Date(),
         }).returning({
-            id: userSchema.id,
-            email: userSchema.email,
+          id: userSchema.id,
+          email: userSchema.email,
         });
       return ResponseHandler.success(
         userInserted[0],
@@ -38,25 +38,25 @@ export class UserRepository implements IUserRepository {
       const user = await db
         .select()
         .from(userSchema)
-        .where(eq(userSchema.email, email), )
+        .where(eq(userSchema.email, email),)
         .limit(1);
       return user[0] || null;
     } catch (error) {
       return ResponseHandler.error(["Failed to find user in repository"]);
     }
-  } 
+  }
   async findUser(user: User): Promise<any> {
     try {
       const userFounded = await db
-      .select()
-      .from(userSchema)
-      .where(
-        or(
-          eq(userSchema.id, user.getUUIDHash()),
-          eq(userSchema.email, user.email!)
-        )
+        .select()
+        .from(userSchema)
+        .where(
+          or(
+            eq(userSchema.id, user.getUUIDHash()),
+            eq(userSchema.email, user.email!)
+          )
 
-      )
+        )
       return userFounded || null;
 
     } catch (error) {

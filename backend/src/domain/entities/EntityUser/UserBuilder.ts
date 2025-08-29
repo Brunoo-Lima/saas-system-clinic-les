@@ -32,6 +32,7 @@ export class UserBuilder {
   build(): User {
     return new User({
       emailVerified: false, // default
+      status: true,
       avatar: "",
       ...this.data, // sobrescreve defaults se vier do builder
     });

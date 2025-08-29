@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { CreateUserService } from "../../services/UserService/CreateUserService";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
-import { UserBuilder } from "../../domain/entities/User/UserBuilder";
+import { UserBuilder } from "../../domain/entities/EntityUser/UserBuilder";
 
 export class CreateUserController {
   async handle(req: Request, res: Response): Promise<Response> {

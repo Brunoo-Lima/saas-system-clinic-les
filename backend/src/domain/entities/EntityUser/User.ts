@@ -1,12 +1,12 @@
 import { EntityDomain } from "../EntityDomain";
 
 export interface IUser {
-  token?: string;
   email?: string;
   emailVerified?: boolean;
   password?: string;
   role?: "admin" | "doctor" | "patient";
   avatar?: string;
+  status?: boolean
 }
 
 export class User extends EntityDomain {
@@ -32,7 +32,7 @@ export class User extends EntityDomain {
   public get avatar() {
     return this.dataUser.avatar;
   }
-  public get token() {
-    return this.dataUser.token;
+  public get status(){
+    return this.dataUser.status;
   }
 }

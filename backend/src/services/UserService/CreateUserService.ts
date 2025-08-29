@@ -1,5 +1,5 @@
 import { IUserRepository } from "../../infrastructure/repositories/UserRepository/IUserRepository";
-import { User } from "../../domain/entities/User/User";
+import { User } from "../../domain/entities/EntityUser/User";
 import { ValidatorController } from "../../domain/validators/ValidatorController";
 import { ValidatorEmail } from "../../domain/validators/ValidatorEmail";
 import { RequiredDataToUserCreate } from "../../domain/validators/UserValidator/RequiredDataToUserCreate";
