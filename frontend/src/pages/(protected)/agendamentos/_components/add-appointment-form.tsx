@@ -74,8 +74,8 @@ export const AddAppointmentForm = ({
   });
 
   const selectedDoctorId = form.watch("doctorId");
-  const selectedPatientId = form.watch("patientId");
-  const selectedDate = form.watch("date");
+  // const selectedPatientId = form.watch("patientId");
+  // const selectedDate = form.watch("date");
 
   // const { data: availableTimes } = useQuery({
   //   queryKey: ["available-times", selectedDate, selectedDoctorId],
@@ -133,23 +133,23 @@ export const AddAppointmentForm = ({
     onSuccess();
   };
 
-  const isDateAvailable = (date: Date) => {
-    if (!selectedDoctorId) return false;
+  // const isDateAvailable = (date: Date) => {
+  //   if (!selectedDoctorId) return false;
 
-    const selectedDoctor = doctors.find(
-      (doctor) => doctor.id.toString() === selectedDoctorId
-    );
-    if (!selectedDoctor) return false;
+  //   const selectedDoctor = doctors.find(
+  //     (doctor) => doctor.id.toString() === selectedDoctorId
+  //   );
+  //   if (!selectedDoctor) return false;
 
-    const dayOfWeek = date.getDay();
+  //   const dayOfWeek = date.getDay();
 
-    return (
-      dayOfWeek >= selectedDoctor?.availableFromWeekDay &&
-      dayOfWeek <= selectedDoctor?.availableToWeekDay
-    );
-  };
+  //   return (
+  //     dayOfWeek >= selectedDoctor?.availableFromWeekDay &&
+  //     dayOfWeek <= selectedDoctor?.availableToWeekDay
+  //   );
+  // };
 
-  const isDateTimeEnabled = selectedPatientId && selectedDoctorId;
+  // const isDateTimeEnabled = selectedPatientId && selectedDoctorId;
 
   return (
     <DialogContent className="sm:max-w-[500px]">
@@ -260,7 +260,7 @@ export const AddAppointmentForm = ({
                     <FormControl>
                       <Button
                         variant={"outline"}
-                        disabled={!isDateTimeEnabled}
+                        // disabled={!isDateTimeEnabled}
                         className={cn(
                           "w-full justify-start text-left font-normal",
                           !field.value && "text-muted-foreground"
@@ -280,9 +280,9 @@ export const AddAppointmentForm = ({
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
-                      disabled={(date) =>
-                        date < new Date() || !isDateAvailable(date)
-                      }
+                      // disabled={(date) =>
+                      //   date < new Date() || !isDateAvailable(date)
+                      // }
                       initialFocus
                       locale={ptBR}
                     />
@@ -302,7 +302,7 @@ export const AddAppointmentForm = ({
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  disabled={!isDateTimeEnabled || !selectedDate}
+                  // disabled={!isDateTimeEnabled || !selectedDate}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">

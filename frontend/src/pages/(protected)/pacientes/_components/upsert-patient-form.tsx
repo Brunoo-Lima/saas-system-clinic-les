@@ -61,7 +61,7 @@ export const UpsertPatientForm = ({
       agreement: patient?.agreement ?? "",
       typeDocument: patient?.typeDocument ?? "",
       document: patient?.document ?? "",
-      dateOfBirth: patient?.dateOfBirth ?? new Date(),
+      dateOfBirth: patient?.dateOfBirth ?? "",
       address: patient?.address ?? {
         zipCode: "",
         street: "",

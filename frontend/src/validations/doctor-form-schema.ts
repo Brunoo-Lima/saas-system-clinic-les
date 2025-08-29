@@ -1,6 +1,18 @@
 import { z } from "zod";
 import { addressFormSchema } from "./address-form-schema";
 
+const timeIntervalSchema = z.object({
+  from: z.string().min(1, "Horário inicial obrigatório"),
+  to: z.string().min(1, "Horário final obrigatório"),
+});
+
+const dayAvailabilitySchema = z.object({
+  day: z.string().min(1, "Dia da semana é obrigatório"),
+  intervals: z
+    .array(timeIntervalSchema)
+    .min(1, "Pelo menos um intervalo deve ser adicionado"),
+});
+
 export const doctorFormSchema = z.object({
   name: z.string().trim().min(1, { message: "Nome é obrigatório." }),
   specialty: z
@@ -17,12 +29,9 @@ export const doctorFormSchema = z.object({
   priceService: z
     .number()
     .min(1, { message: "Preço do serviço é obrigatório." }),
-  availableWeekDay: z.array(z.string()).min(1, {
-    message: "Dia da semana é obrigatório.",
+  availableWeekDay: z.array(dayAvailabilitySchema).min(1, {
+    message: "Selecione pelo menos um dia de disponibilidade",
   }),
-  availableTime: z
-    .array(z.string())
-    .min(1, { message: "Hora de disponibilidade é obrigatória." }),
   status: z.boolean().default(true),
   justification: z.string().optional(),
   address: addressFormSchema,

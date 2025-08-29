@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/popover";
 
 interface IDatePickerCustomProps {
-  selected: Date | undefined;
-  onChange: (date: Date | undefined) => void;
+  selected: string | undefined;
+  onChange: (date: string | undefined) => void;
 }
 
 export const DatePickerCustom = ({
@@ -40,9 +40,9 @@ export const DatePickerCustom = ({
       <PopoverContent className="w-full p-2 ml-right">
         <DayPicker
           mode="single"
-          selected={selected}
+          selected={selected ? new Date(selected) : undefined}
           onSelect={(date) => {
-            onChange(date);
+            onChange(date ? format(date, "yyyy-MM-dd") : undefined);
           }}
           captionLayout="dropdown"
           fromYear={1925}

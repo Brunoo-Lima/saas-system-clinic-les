@@ -1,7 +1,7 @@
-import type { IDoctor } from '@/@types/IDoctor';
-import { usePagination } from '@/hooks/use-pagination';
-import { doctorsList } from '@/mocks/doctors-list';
-import { createContext, useMemo, useState, type ChangeEvent } from 'react';
+import type { IDoctor } from "@/@types/IDoctor";
+import { usePagination } from "@/hooks/use-pagination";
+import { doctorsList } from "@/mocks/doctors-list";
+import { createContext, useMemo, useState, type ChangeEvent } from "react";
 
 interface IDoctorContextProps {
   searchTerm: string;
@@ -24,12 +24,14 @@ export const DoctorContext = createContext<IDoctorContextProps | undefined>(
 );
 
 export const DoctorProvider = ({ children }: { children: React.ReactNode }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(
     null
   );
-  const [filteredList, setFilteredList] = useState<IDoctor[]>(doctorsList);
+  const [filteredList, setFilteredList] = useState<IDoctor[]>(
+    doctorsList as IDoctor[]
+  );
   const itemsPerPage = 6;
 
   const filtered = useMemo(() => {
@@ -42,7 +44,7 @@ export const DoctorProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     if (selectedGender) {
-      data = data.filter((doctor) => doctor.sex === selectedGender);
+      data = data.filter((doctor) => doctor.gender === selectedGender);
     }
 
     if (selectedSpecialty) {

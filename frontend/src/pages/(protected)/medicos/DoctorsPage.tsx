@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AddDoctorButton } from "./_components/add-doctor-button";
 import { CardDoctor } from "./_components/card-doctor";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useDoctor } from "@/hooks/use-doctor";
 import { InputSearch } from "@/components/ui/input-search";
 import { Button } from "@/components/ui/button";
@@ -114,9 +114,11 @@ export const DoctorsPage = () => {
         </div>
 
         <div className="flex flex-wrap gap-6">
-          {paginatedData.map((doctor) => (
-            <CardDoctor key={doctor.id} doctor={doctor} />
-          ))}
+          <Suspense fallback={<p>Carregando...</p>}>
+            {paginatedData.map((doctor) => (
+              <CardDoctor key={doctor.id} doctor={doctor} />
+            ))}
+          </Suspense>
 
           {paginatedData.length === 0 && <p>Nenhum médico encontrado.</p>}
         </div>

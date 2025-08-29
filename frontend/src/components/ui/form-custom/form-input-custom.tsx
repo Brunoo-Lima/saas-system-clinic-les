@@ -9,7 +9,8 @@ import {
 import type { Control, FieldValues, Path } from "react-hook-form";
 import { Input } from "../input";
 
-interface IFormInputProps<T extends FieldValues> {
+interface IFormInputProps<T extends FieldValues>
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   name: Path<T>; // só aceita chaves válidas do formulário
   label: string;
   placeholder?: string;
