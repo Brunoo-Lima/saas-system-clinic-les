@@ -1,5 +1,5 @@
 import { ResponseHandler } from "../../../helpers/ResponseHandler";
-import { User } from "../../entities/User/User";
+import { User } from "../../entities/EntityUser/User";
 import { IProcessValidator } from "../IProcessValidator";
 
 export class RequiredDataToUserCreate implements IProcessValidator {
