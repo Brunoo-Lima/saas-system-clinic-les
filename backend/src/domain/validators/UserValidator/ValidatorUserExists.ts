@@ -1,7 +1,7 @@
-import { ResponseHandler } from "../../helpers/ResponseHandler";
-import { IUserRepository } from "../../infrastructure/repositories/UserRepository/IUserRepository";
-import { User } from "../entities/EntityUser/User";
-import { IProcessValidator } from "./IProcessValidator";
+import { ResponseHandler } from "../../../helpers/ResponseHandler";
+import { IUserRepository } from "../../../infrastructure/repositories/UserRepository/IUserRepository";
+import { User } from "../../entities/EntityUser/User";
+import { IProcessValidator } from "../IProcessValidator";
 
 export class ValidatorUserExists implements IProcessValidator {
 

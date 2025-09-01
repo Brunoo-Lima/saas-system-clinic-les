@@ -34,12 +34,11 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     if ("success" in user && !user.success) {
       return res.status(401).json(ResponseHandler.error(user.message));
     }
-
-    // Se ele for admin, tem acesso liberado pra tudo
-    if ((user[0].role !== userDomain.role) && (userDomain.role !== "admin")) {
+    if (!userDomain.password || user[0].password !== userDomain.password) { return ResponseHandler.error("Incorrect email or password"); }
+    if ((user[0].role !== userDomain.role)) {
       return res.status(401).json(ResponseHandler.error("Access denied !"))
     }
-    (req as any).user = user;
+    (req as any).user = user[0];
     next(); // seguir para a rota
   } catch (error) {
     return res.status(500).json(ResponseHandler.error("Token internal error"));

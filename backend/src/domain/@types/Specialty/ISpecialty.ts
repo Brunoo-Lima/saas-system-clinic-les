@@ -1,4 +1,4 @@
 export interface ISpecialty {
-    name: string
-    price: number
+    name?: string
+    price?: number
 }

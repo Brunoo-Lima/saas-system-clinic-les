@@ -1,7 +1,7 @@
-import { User } from "../../domain/entities/EntityUser/User";
-import { ResponseHandler } from "../../helpers/ResponseHandler";
-import { IUserRepository } from "../../infrastructure/repositories/UserRepository/IUserRepository";
-import { UserRepository } from "../../infrastructure/repositories/UserRepository/UserRepository";
+import { User } from "../../../domain/entities/EntityUser/User";
+import { ResponseHandler } from "../../../helpers/ResponseHandler";
+import { IUserRepository } from "../../../infrastructure/repositories/UserRepository/IUserRepository";
+import { UserRepository } from "../../../infrastructure/repositories/UserRepository/UserRepository";
 
 export class FindUserService {
     private userRepository: IUserRepository;
@@ -16,7 +16,6 @@ export class FindUserService {
             }
 
             const foundUser = await this.userRepository.getUserByEmail(user.email);
-            if (!user.password || foundUser.password !== user.password) { return ResponseHandler.error("Incorrect email or password"); }
             if (!foundUser) {
                 return ResponseHandler.error("User not found");
             }

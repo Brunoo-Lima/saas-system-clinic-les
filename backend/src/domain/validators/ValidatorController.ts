@@ -9,7 +9,7 @@ export class ValidatorController {
         this.className = className;
         this.validatorsClasses.set(className, []);
     }
-    public async process(entity: EntityDomain, ...args: any){
+    public async process(entity: EntityDomain | Array<EntityDomain>, ...args: any){
 
         const validators = this.validatorsClasses.get(this.className);
         if(!validators) return { success: true, message: "No validators to process"};

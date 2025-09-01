@@ -1,6 +1,6 @@
 export interface IPeriod {
     periodType: "morning" | "afternoon" | "night"
-    date: Date
+    dayWeek: number
     timeFrom: number
     timeTo: number
 }

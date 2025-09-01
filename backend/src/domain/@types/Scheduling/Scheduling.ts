@@ -9,5 +9,6 @@ export interface IScheduling {
     patient: Patient
     insurance: Insurance
     specialty: Specialty
-    status: "Pending" | "Realizable" | "Canceled"
+    status: "Pending" | "Realizable" | "Canceled",
+    type: "Consultation" | "Examination" | "Treatment" 
 }

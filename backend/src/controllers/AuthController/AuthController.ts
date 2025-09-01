@@ -2,7 +2,7 @@ import "dotenv/config";
 import { Request, Response } from "express";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { UserBuilder } from "../../domain/entities/EntityUser/UserBuilder";
-import { FindUserService } from "../../services/UserService/FindUserService";
+import { FindUserService } from "../../services/(admin)/User/FindUserService";
 import jwt from "jsonwebtoken";
 
 export class AuthController {

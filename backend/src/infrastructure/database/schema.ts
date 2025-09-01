@@ -82,7 +82,6 @@ export const patientTable = pgTable("patient", {
   name: varchar("name").notNull(),
   dateOfBirth: date("dateOfBirth").notNull(),
   contact1: varchar("contact1").notNull(),
-  contact2: varchar("contact2").notNull(),
   cpf: varchar("cpf").notNull().unique(),
   user_id: uuid("user_id").references(() => userTable.id)
 })
@@ -92,7 +91,6 @@ export const doctorTable = pgTable("doctor", {
   id: uuid("id").primaryKey(),
   crm: varchar("crm").notNull().unique(),
   contact1: varchar("contact1").notNull(),
-  contact2: varchar("contact2").notNull(),
   user_id: uuid("user_id").references(() => userTable.id),
   clinic_id: uuid("clinic_id").references(() => clinicTable.id) 
 })
@@ -121,7 +119,7 @@ export const schedulingTable = pgTable("scheduling", {
 })
 
 //Movimentacoes 
-export const appointmentTable = pgTable("appointment", {
+export const movementsTable = pgTable("appointment", {
   id: uuid("id").primaryKey(),
   total: real("total").default(0),
   dateAppointment: date("dateAppointment").notNull(),
@@ -138,7 +136,6 @@ export const clinicTable = pgTable("clinic", {
   name: varchar("name").notNull().unique(),
   timeToConfirmScheduling: time().notNull(),
   contact1: varchar("contact1").notNull(),
-  contact2: varchar("contact2").notNull(),
   address_id: uuid("address_id").references(() => addressTable.id)
 })
 
@@ -274,17 +271,17 @@ export const insuranceToSpecialtyRelations = relations(
   Doutor e Pagamentos,
   Clinica e Pagamentos
 */
-export const appointmentRelation = relations(appointmentTable, ({one}) => ({
+export const appointmentRelation = relations(movementsTable, ({one}) => ({
   patient: one(patientTable, {
-    fields: [appointmentTable.patient_id],
+    fields: [movementsTable.patient_id],
     references: [patientTable.id]
   }),
   doctor: one(doctorTable, {
-    fields: [appointmentTable.doctor_id],
+    fields: [movementsTable.doctor_id],
     references: [doctorTable.id]
   }),
   clinic: one(clinicTable, {
-    fields: [appointmentTable.clinic_id],
+    fields: [movementsTable.clinic_id],
     references: [clinicTable.id]
   })
 }))
@@ -300,7 +297,6 @@ export const patientUserRelations = relations(patientTable, ({one, many}) => ({
     }
   )
 }))
-
 
 
 
