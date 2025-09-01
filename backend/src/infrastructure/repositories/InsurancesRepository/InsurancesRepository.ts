@@ -34,38 +34,50 @@ export class InsuranceRepository implements IRepository {
         }
     }
     async findEntity(insurance: Insurance) {
-        return db.transaction(async (tx) => {  
-            let query = tx
+        return db.transaction(async (tx) => {
+            const specialtyFilter =
+                insurance.specialties?.length
+                    ? inArray(
+                        specialtyTable.id,
+                        insurance.specialties
+                            .map((sp) => sp.getUUIDHash())
+                            .filter((sp) => sp !== "")
+                    )
+                    : undefined;
+
+            const whereCondition = specialtyFilter
+                ? and(
+                    or(
+                        eq(insuranceTable.type, insurance.type ?? ""),
+                        eq(insuranceTable.id, insurance.getUUIDHash())
+                    ),
+                    specialtyFilter
+                )
+                : or(
+                    eq(insuranceTable.type, insurance.type ?? ""),
+                    eq(insuranceTable.id, insurance.getUUIDHash())
+                );
+
+            return tx
                 .select({
                     id: insuranceTable.id,
                     type: insuranceTable.type,
                     specialtyName: specialtyTable.name,
-                    specialtyId: specialtyTable.id
+                    specialtyId: specialtyTable.id,
                 })
                 .from(insuranceTable)
-                .where(
-                    or(
-                        eq(insuranceTable.type, insurance.type ?? ""),
-                        eq(insuranceTable.id, insurance.getUUIDHash())
-                    )
-                ).leftJoin(
+                .where(whereCondition)
+                .leftJoin(
                     insuranceToSpecialtyTable,
-                    or(
-                        eq(insuranceToSpecialtyTable.insurance_id, insuranceTable.id),
-                        inArray(
-                            insuranceToSpecialtyTable.specialty_id,
-                            (insurance.specialties?.map((sp) => sp.getUUIDHash()).filter(sp => sp !== "")) ?? []
-                        )
-                    ),
-                    
-                ).leftJoin(
-                    specialtyTable,
-                    inArray(specialtyTable.id, (insurance.specialties?.map((sp) => sp.getUUIDHash()).filter(sp => sp !== "")) ?? [])
+                    eq(insuranceToSpecialtyTable.insurance_id, insuranceTable.id)
                 )
-
-            return query;
+                .leftJoin(
+                    specialtyTable,
+                    eq(specialtyTable.id, insuranceToSpecialtyTable.specialty_id)
+                );
         });
     }
+
 
 
     updateEntity(entity: EntityDomain): Promise<any> {
