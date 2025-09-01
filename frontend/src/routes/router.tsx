@@ -3,6 +3,7 @@ import AppointmentPage from "@/pages/(protected)/agendamentos/AppointmentPage";
 import HistoricAppointmentPage from "@/pages/(protected)/agendamentos/historico-de-agendamentos/HistoricAppointmentPage";
 import { AgreementsPage } from "@/pages/(protected)/convenios/AgreementsPage";
 import { DashboardPage } from "@/pages/(protected)/dashboard/DashboardPage";
+import SpecialtiesPage from "@/pages/(protected)/especialidades/SpecialtiesPage";
 import HistoricPage from "@/pages/(protected)/historico/HistoricPage";
 import { DoctorsPage } from "@/pages/(protected)/medicos/DoctorsPage";
 import { PatientsPage } from "@/pages/(protected)/pacientes/PatientsPage";
@@ -51,6 +52,10 @@ export const router = createBrowserRouter([
       {
         path: "perfil",
         element: <ProfilePage />,
+      },
+      {
+        path: "especialidades",
+        element: <SpecialtiesPage />,
       },
     ],
   },

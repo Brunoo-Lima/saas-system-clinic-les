@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/sidebar";
 import {
   CalendarDaysIcon,
+  DnaIcon,
   HeartHandshakeIcon,
   HistoryIcon,
   LayoutDashboardIcon,
@@ -58,6 +59,11 @@ const items = [
     title: "Convênios",
     url: "/convenios",
     icon: HeartHandshakeIcon,
+  },
+  {
+    title: "Especialidades",
+    url: "/especialidades",
+    icon: DnaIcon,
   },
   {
     title: "Histórico",
