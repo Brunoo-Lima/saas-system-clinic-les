@@ -20,7 +20,7 @@ export class SpecialtyRepository implements IRepository {
             return ResponseHandler.error(["Failed to save a specialty"])
         }
     }
-    async findEntity(specialties: Specialty | Array<Specialty>, limit?: number): Promise<any> {
+    async findEntity(specialties: Specialty | Array<Specialty>): Promise<any> {
         try {
             if(Array.isArray(specialties)){
                 const namesMapped = specialties

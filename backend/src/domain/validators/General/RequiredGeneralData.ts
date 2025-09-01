@@ -10,7 +10,7 @@ export class RequiredGeneralData implements IProcessValidator {
             for (const k of this.keys) {
 
                 if (!(typeof k as keyof EntityDomain)) return ResponseHandler.error(`This key: ${k} not exists in object`)
-                if (!(entity as any)[k]) return ResponseHandler.error([`This key: ${k} is required.`])
+                if (!(entity as any)[k]) return ResponseHandler.error(`This key: ${k} is required.`)
             }
             return ResponseHandler.success(entity, "All data is valid !")
         } catch (error) {

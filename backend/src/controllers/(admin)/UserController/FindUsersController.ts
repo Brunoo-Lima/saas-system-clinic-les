@@ -10,9 +10,7 @@ export class FindUserController {
             const userDomain = new UserBuilder().setEmail(userData.email).build();
             const service = new FindUserService();
             const user = await service.execute(userDomain)
-            return res.status(200).json(
-                user
-            )
+            return res.status(200).json(user)
 
         } catch(e){
             return res.status(500).json(

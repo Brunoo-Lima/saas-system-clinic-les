@@ -18,7 +18,8 @@ export class ValidatorController {
         const fails = results.filter(r => !r.success);
 
         if(fails.length > 0){
-            return { success: false, message: fails.map(f => f.message)};
+            const messages = fails.map(f => Array.isArray(f.message) ? f.message[0] : f.message)
+            return { success: false, message: messages};
         }
         return { success: true, message: "All validations passed" };
     }

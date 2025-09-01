@@ -4,13 +4,17 @@ import { RequiredGeneralData } from "../../../domain/validators/General/Required
 import { SpecialtyExists } from "../../../domain/validators/SpecialtyValidator/SpecialtiesExists"
 import { ValidatorController } from "../../../domain/validators/ValidatorController"
 import { ResponseHandler } from "../../../helpers/ResponseHandler"
-import { specialtiesDTO } from "../../../infrastructure/dto/SpecialtiesDTO"
+import { SpecialtiesDTO } from "../../../infrastructure/dto/SpecialtiesDTO"
 import { IRepository } from "../../../infrastructure/repositories/IRepository"
+import { SpecialtyRepository } from "../../../infrastructure/repositories/SpecialtyRepository/SpecialtyRepository"
 
 
 export class SpecialtyService {
-    constructor(private repository: IRepository) { }
-    async execute(specialtyDTO: specialtiesDTO) {
+    private repository: IRepository
+    constructor() { 
+        this.repository = new SpecialtyRepository()
+    }
+    async execute(specialtyDTO: SpecialtiesDTO ) {
         try {
 
             const validatorController = new ValidatorController(`C-${Specialty.constructor.name}`)
@@ -26,6 +30,8 @@ export class SpecialtyService {
             if (!dataValidated.success) return dataValidated
 
             const specialtiesAdded = await this.repository.create(specialties)
+            if("error" in specialtiesAdded) return specialtiesAdded;
+            
             return ResponseHandler.success(specialtiesAdded, "Specialties inserted.")
 
         } catch (error) {
