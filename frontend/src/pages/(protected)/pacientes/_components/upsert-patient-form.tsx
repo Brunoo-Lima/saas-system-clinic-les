@@ -59,8 +59,7 @@ export const UpsertPatientForm = ({
       phoneNumber: patient?.phoneNumber ?? "",
       gender: patient?.gender ?? undefined,
       agreement: patient?.agreement ?? "",
-      typeDocument: patient?.typeDocument ?? "",
-      document: patient?.document ?? "",
+      cpf: patient?.document ?? "",
       dateOfBirth: patient?.dateOfBirth ?? "",
       address: patient?.address ?? {
         zipCode: "",
@@ -127,47 +126,37 @@ export const UpsertPatientForm = ({
             control={form.control}
           />
 
-          <div className="grid grid-cols-[150px_1fr] gap-x-6">
-            <FormSelectCustom
-              name="typeDocument"
-              label="Tipo de documento"
-              options={[
-                { value: "CPF", label: "CPF" },
-                { value: "CNH", label: "CNH" },
-              ]}
+          <div className="grid grid-cols-2 gap-4">
+            <FormInputCustom
+              name="cpf"
+              label="CPF"
+              placeholder="Digite o CPF"
               control={form.control}
             />
 
-            <FormInputCustom
-              name="document"
-              label="Documento"
-              placeholder="Digite o documento"
+            <FormField
               control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Número de telefone</FormLabel>
+                  <FormControl>
+                    <PatternFormat
+                      format="(##) #####-####"
+                      mask="_"
+                      placeholder="(11) 99999-9999"
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value.value);
+                      }}
+                      customInput={Input}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
-
-          <FormField
-            control={form.control}
-            name="phoneNumber"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Número de telefone</FormLabel>
-                <FormControl>
-                  <PatternFormat
-                    format="(##) #####-####"
-                    mask="_"
-                    placeholder="(11) 99999-9999"
-                    value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value.value);
-                    }}
-                    customInput={Input}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           <FormSelectCustom
             name="gender"

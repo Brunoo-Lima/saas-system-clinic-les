@@ -34,8 +34,7 @@ export const doctorsList = [
     email: "j9iR9@example.com",
     phoneNumber: "11999999999",
     dateOfBirth: "2000-01-01",
-    typeDocument: "CPF",
-    document: "12345678901",
+    cpf: "12345678901",
     gender: "male",
     address: {
       zipCode: "12345-678",
@@ -68,8 +67,7 @@ export const doctorsList = [
     email: "j9iR9@example.com",
     phoneNumber: "11999999999",
     dateOfBirth: "1970-05-01",
-    typeDocument: "CPF",
-    document: "12345678902",
+    cpf: "12345678902",
     gender: "female",
     address: {
       zipCode: "12345-678",
@@ -102,8 +100,7 @@ export const doctorsList = [
     email: "j9iR9@example.com",
     phoneNumber: "11999999999",
     dateOfBirth: "1980-01-15",
-    typeDocument: "CPF",
-    document: "12345678903",
+    cpf: "12345678903",
     gender: "male",
     address: {
       zipCode: "12345-678",
@@ -136,8 +133,7 @@ export const doctorsList = [
     email: "j9iR9@example.com",
     phoneNumber: "11999999999",
     dateOfBirth: "1990-12-02",
-    typeDocument: "CPF",
-    document: "12345678904",
+    cpf: "12345678904",
     gender: "female",
     address: {
       zipCode: "12345-678",

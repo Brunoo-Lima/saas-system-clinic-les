@@ -19,6 +19,7 @@ export default function ProfilePage() {
   const [isEditingData, setIsEditingData] = useState<boolean>(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     document.title = "Perfil";
   }, []);

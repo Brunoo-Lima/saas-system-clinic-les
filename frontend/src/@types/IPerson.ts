@@ -1,10 +1,5 @@
 import type { IAddress } from "./IAddress";
 
-export enum DocumentType {
-  CPF = "CPF",
-  CNH = "CNH",
-}
-
 export enum Gender {
   MASCULINO = "male",
   FEMININO = "female",
@@ -13,8 +8,7 @@ export enum Gender {
 export interface IPerson {
   name: string;
   email: string;
-  typeDocument: DocumentType;
-  document: string;
+  cpf: string;
   dateOfBirth: string;
   phoneNumber: string;
   gender: Gender;

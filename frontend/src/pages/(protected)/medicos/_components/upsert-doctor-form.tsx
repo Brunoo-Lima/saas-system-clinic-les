@@ -37,7 +37,6 @@ import { timeOptions } from "@/utils/generate-time";
 import { getDoctorDefaultValues } from "../_helpers/get-doctor-default-values";
 import { WEEK_DAYS } from "../_constants/WEEK-DAYS";
 import { WeekDayAvailabilityField } from "./fields/WeekDayAvailabilityField";
-import FormInputPriceCustom from "@/components/ui/form-custom/form-input-price-custom";
 import FormSelectCustom from "@/components/ui/form-custom/form-select-custom";
 import FormInputPhoneCustom from "@/components/ui/form-custom/form-input-phone-custom";
 import { DatePickerCustom } from "@/components/ui/date-picker-custom";
@@ -118,12 +117,6 @@ export const UpsertDoctorForm = ({
               placeholder="Digite o CRM"
               control={form.control}
             />
-
-            <FormInputPriceCustom
-              name="priceService"
-              label="Preço do serviço"
-              control={form.control}
-            />
           </div>
 
           <FormField
@@ -175,42 +168,30 @@ export const UpsertDoctorForm = ({
             control={form.control}
           />
 
-          <div className="grid grid-cols-[150px_1fr] gap-x-6">
-            <FormSelectCustom
-              name="typeDocument"
-              label="Tipo de documento"
-              control={form.control}
-              options={[
-                { value: "CPF", label: "CPF" },
-                { value: "CNH", label: "CNH" },
-              ]}
-            />
-
-            <FormInputCustom
-              name="document"
-              label="Documento"
-              placeholder="Digite o documento"
-              control={form.control}
-            />
-          </div>
-
           <div className="grid grid-cols-2 gap-x-6">
+            <FormInputCustom
+              name="cpf"
+              label="CPF"
+              placeholder="Digite o CPF"
+              control={form.control}
+            />
+
             <FormInputPhoneCustom
               name="phoneNumber"
               label="Telefone"
               control={form.control}
             />
-
-            <FormSelectCustom
-              name="gender"
-              label="Sexo"
-              control={form.control}
-              options={[
-                { value: "male", label: "Masculino" },
-                { value: "female", label: "Feminino" },
-              ]}
-            />
           </div>
+
+          <FormSelectCustom
+            name="gender"
+            label="Sexo"
+            control={form.control}
+            options={[
+              { value: "male", label: "Masculino" },
+              { value: "female", label: "Feminino" },
+            ]}
+          />
 
           <FormField
             control={form.control}
