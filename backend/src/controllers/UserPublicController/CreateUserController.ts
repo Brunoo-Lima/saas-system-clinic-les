@@ -1,12 +1,11 @@
 import { Request, Response } from "express";
-import { CreateUserService } from "../../services/UserService/CreateUserService";
+import { CreateUserService } from "../../services/UserPublicService/CreateUserService";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
 
 export class CreateUserController {
   async handle(req: Request, res: Response): Promise<Response> {
     try {
       const userData = req.body;
-
       const userService = new CreateUserService();
       const newUser = await userService.execute(userData);
 
