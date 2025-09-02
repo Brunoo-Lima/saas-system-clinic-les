@@ -15,13 +15,13 @@ import { FormItem, FormLabel } from "@/components/ui/form";
 import { Form, FormField } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  registerSchema,
-  type RegisterSchema,
+  registerFormSchema,
+  type RegisterFormSchema,
 } from "@/validations/signup-form-schema";
 
 export const SignUpForm = () => {
-  const form = useForm<RegisterSchema>({
-    resolver: zodResolver(registerSchema),
+  const form = useForm<RegisterFormSchema>({
+    resolver: zodResolver(registerFormSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -29,7 +29,7 @@ export const SignUpForm = () => {
     },
   });
 
-  async function onSubmit(_values: RegisterSchema) {
+  async function onSubmit(_values: RegisterFormSchema) {
     // await authClient.signUp.email(
     //   {
     //     email: values.email,

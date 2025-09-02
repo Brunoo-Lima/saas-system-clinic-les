@@ -27,6 +27,7 @@ import {
   MoonIcon,
   StethoscopeIcon,
   SunIcon,
+  UserLockIcon,
   UsersRoundIcon,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -64,6 +65,11 @@ const items = [
     title: "Especialidades",
     url: "/especialidades",
     icon: DnaIcon,
+  },
+  {
+    title: "Acessos",
+    url: "/acessos",
+    icon: UserLockIcon,
   },
   {
     title: "Histórico",

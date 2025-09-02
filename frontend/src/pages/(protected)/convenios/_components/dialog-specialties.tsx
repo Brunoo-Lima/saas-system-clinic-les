@@ -1,4 +1,4 @@
-import type { ISpecialty } from "@/@types/IAgreement";
+import type { ISpecialty } from "@/@types/ISpecialty";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

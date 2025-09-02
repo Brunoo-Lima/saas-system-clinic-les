@@ -22,7 +22,7 @@ export const specialtyTableColumns: ColumnDef<Specialty>[] = [
     header: "Valor",
     cell: (params) => {
       const price = params.row.original.price;
-      return formatCurrencyInCents(price);
+      return formatCurrencyInCents(price ?? 0);
     },
   },
 
