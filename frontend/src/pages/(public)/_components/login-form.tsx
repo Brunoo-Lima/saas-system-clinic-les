@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -6,7 +6,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -14,32 +14,32 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { loginSchema, type LoginSchema } from "@/validations/login-form-schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { loginSchema, type LoginSchema } from '@/validations/login-form-schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2Icon } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 
 export const LoginForm = () => {
   const navigate = useNavigate();
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
 
   const onSubmit = async (values: any) => {
     console.log(values);
 
-    navigate("/dashboard");
+    navigate('/dashboard');
   };
 
   return (
-    <Card>
+    <Card className="w-[400px]">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <CardHeader>
@@ -79,6 +79,13 @@ export const LoginForm = () => {
                 </FormItem>
               )}
             />
+
+            <small>
+              Tem cadastro?{' '}
+              <a href="/registrar" className="text-primary">
+                Clique aqui!
+              </a>
+            </small>
           </CardContent>
           <CardFooter className="pt-3">
             <Button
@@ -89,7 +96,7 @@ export const LoginForm = () => {
               {form.formState.isSubmitting ? (
                 <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                "Entrar"
+                'Entrar'
               )}
             </Button>
           </CardFooter>
