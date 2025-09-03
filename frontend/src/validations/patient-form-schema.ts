@@ -11,11 +11,8 @@ export const patientFormSchema = z.object({
   agreement: z.string().trim().min(1, {
     message: "Convênio é obrigatório.",
   }),
-  typeDocument: z.enum(["CPF", "CNH"], {
-    message: "Tipo é obrigatório.",
-  }),
-  document: z.string().trim().min(1, {
-    message: "Documento é obrigatório.",
+  cpf: z.string().trim().min(1, {
+    message: "CPF é obrigatório.",
   }),
   dateOfBirth: z.string({
     message: "Data de nascimento é obrigatória.",

@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/sidebar";
 import {
   CalendarDaysIcon,
+  DnaIcon,
   HeartHandshakeIcon,
   HistoryIcon,
   LayoutDashboardIcon,
@@ -26,6 +27,7 @@ import {
   MoonIcon,
   StethoscopeIcon,
   SunIcon,
+  UserLockIcon,
   UsersRoundIcon,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -58,6 +60,16 @@ const items = [
     title: "Convênios",
     url: "/convenios",
     icon: HeartHandshakeIcon,
+  },
+  {
+    title: "Especialidades",
+    url: "/especialidades",
+    icon: DnaIcon,
+  },
+  {
+    title: "Acessos",
+    url: "/acessos",
+    icon: UserLockIcon,
   },
   {
     title: "Histórico",

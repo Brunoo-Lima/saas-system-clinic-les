@@ -20,15 +20,11 @@ export const doctorFormSchema = z.object({
     .trim()
     .min(1, { message: "Especialidade é obrigatória." }),
   crm: z.string().trim().min(1, { message: "CRM é obrigatório." }),
-  typeDocument: z.enum(["CPF", "CNH"], { message: "Tipo é obrigatório." }),
-  document: z.string().trim().min(1, { message: "Documento é obrigatório." }),
+  cpf: z.string().trim().min(1, { message: "CPF é obrigatório." }),
   phoneNumber: z.string().trim().min(1, { message: "Telefone é obrigatório." }),
   email: z.string().trim().min(1, { message: "E-mail é obrigatório." }),
   dateOfBirth: z.string({ message: "Data de nascimento é obrigatória." }),
   gender: z.enum(["male", "female"], { message: "Gênero é obrigatório." }),
-  priceService: z
-    .number()
-    .min(1, { message: "Preço do serviço é obrigatório." }),
   availableWeekDay: z.array(dayAvailabilitySchema).min(1, {
     message: "Selecione pelo menos um dia de disponibilidade",
   }),

@@ -1,8 +1,6 @@
 import { z } from "zod";
 
-export type RegisterSchema = z.infer<typeof registerSchema>;
-
-export const registerSchema = z.object({
+export const registerFormSchema = z.object({
   name: z.string().trim().min(1, { message: "Nome é obrigatório" }),
   email: z
     .string()
@@ -13,4 +11,7 @@ export const registerSchema = z.object({
     .string()
     .trim()
     .min(8, { message: "A senha deve ter pelo menos 8 caracteres" }),
+  role: z.enum(["admin", "doctor", "patient"]),
 });
+
+export type RegisterFormSchema = z.infer<typeof registerFormSchema>;

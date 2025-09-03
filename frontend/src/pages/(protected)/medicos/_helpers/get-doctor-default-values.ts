@@ -5,11 +5,7 @@ export const getDoctorDefaultValues = (doctor?: IDoctor): DoctorFormSchema => ({
   name: doctor?.name ?? "",
   specialty: doctor?.specialty ?? "",
   crm: doctor?.crm ?? "",
-  priceService: doctor?.servicePriceInCents
-    ? doctor.servicePriceInCents / 100
-    : 0,
-  typeDocument: doctor?.typeDocument ?? "CPF",
-  document: doctor?.document ?? "",
+  cpf: doctor?.cpf ?? "",
   email: doctor?.email ?? "",
   phoneNumber: doctor?.phoneNumber ?? "",
   dateOfBirth: doctor?.dateOfBirth ?? "",
