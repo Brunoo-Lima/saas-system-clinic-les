@@ -9,7 +9,7 @@ export interface IPerson {
   name: string;
   email: string;
   cpf: string;
-  dateOfBirth: string;
+  dateOfBirth: Date;
   phoneNumber: string;
   gender: Gender;
   address: IAddress;
