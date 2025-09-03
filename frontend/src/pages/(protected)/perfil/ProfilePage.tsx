@@ -37,8 +37,7 @@ export default function ProfilePage() {
         <div className="mx-auto">
           <div className="w-32 h-32 rounded-full border-2 border-border overflow-hidden">
             <img
-              src={previewImage ? previewImage : "/logo.png"}
-              alt="Foto de perfil"
+              src={previewImage ? previewImage : "/logo.webp"}
               className="w-full h-full object-contain"
             />
           </div>

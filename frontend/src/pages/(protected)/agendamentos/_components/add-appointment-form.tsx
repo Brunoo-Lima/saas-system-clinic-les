@@ -45,6 +45,8 @@ import type { IPatient } from "@/@types/IPatient";
 import type { IDoctor } from "@/@types/IDoctor";
 import type { IAppointment } from "@/@types/IAppointment";
 import { availableTimes } from "@/mocks/available-times";
+import { specialtyList } from "@/mocks/specialty-list";
+import { toast } from "sonner";
 
 interface IAddAppointmentFormProps {
   isOpen: boolean;
@@ -67,6 +69,7 @@ export const AddAppointmentForm = ({
     defaultValues: {
       patientId: appointment?.patient.id ?? "",
       doctorId: appointment?.doctor.id ?? "",
+      specialtyId: appointment?.specialty.id ?? "",
       appointmentPrice: 0,
       date: appointment?.date ?? undefined,
       time: "",
@@ -107,6 +110,7 @@ export const AddAppointmentForm = ({
       form.reset({
         patientId: appointment?.patient.id ?? "",
         doctorId: appointment?.doctor.id ?? "",
+        specialtyId: appointment?.specialty.id ?? "",
         appointmentPrice: 0,
         date: appointment?.date ?? undefined,
         time: "",
@@ -131,6 +135,7 @@ export const AddAppointmentForm = ({
     //   appointmentPriceInCents: values.appointmentPrice * 100,
     // });
     onSuccess();
+    toast.success("Agendamento salvo com sucesso.");
   };
 
   // const isDateAvailable = (date: Date) => {
@@ -163,8 +168,40 @@ export const AddAppointmentForm = ({
             : "Crie um novo agendamento."}
         </DialogDescription>
       </DialogHeader>
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="specialtyId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Especialidade</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione uma especialidade" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {specialtyList.map((specialty) => (
+                      <SelectItem
+                        key={specialty.id}
+                        value={specialty.id.toString()}
+                      >
+                        {specialty.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="patientId"

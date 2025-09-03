@@ -1,32 +1,41 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { SubmitHandler } from 'react-hook-form';
-import { useForm } from 'react-hook-form';
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
-import { Button } from '@/components/ui/button';
-import { Form } from '@/components/ui/form';
-import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import {
   registerFormUserSchema,
   type RegisterFormUserSchema,
-} from '@/validations/signup-form-user-schema';
-import { PersonalForm } from './personal-form';
-import { AddressForm } from './address-form';
+} from "@/validations/signup-form-user-schema";
+import { PersonalForm } from "./personal-form";
+import { AddressForm } from "./address-form";
 
 export default function SignupForm() {
   const navigate = useNavigate();
   const form = useForm<RegisterFormUserSchema>({
     resolver: zodResolver(registerFormUserSchema),
     defaultValues: {
-      name: '',
-      gender: 'Masculino',
+      name: "",
+      gender: "Masculino",
       birth_date: new Date(),
-      cpf: '',
-      email: '',
-      password: '',
-      confirm_password: '',
+      cpf: "",
+      email: "",
+      password: "",
+      confirm_password: "",
+      address: {
+        zipCode: "",
+        neighborhood: "",
+        street: "",
+        number: "",
+        city: "",
+        state: "",
+        country: "",
+      },
     },
   });
 
@@ -36,8 +45,10 @@ export default function SignupForm() {
 
     console.log(data);
 
-    navigate('/dashboard');
+    navigate("/dashboard");
   };
+
+  //preciso melhorar essa parte, depende como o backend vai ser criado
 
   return (
     <Form {...form}>

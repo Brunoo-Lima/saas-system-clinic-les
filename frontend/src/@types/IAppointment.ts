@@ -1,6 +1,11 @@
 export interface IAppointment {
   id: number;
   date: Date;
+  specialty: {
+    id: string;
+    name: string;
+    price: number;
+  };
   appointmentPriceInCents: number;
   patient: {
     id: string;

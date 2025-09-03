@@ -23,7 +23,7 @@ export const doctorFormSchema = z.object({
   cpf: z.string().trim().min(1, { message: "CPF é obrigatório." }),
   phoneNumber: z.string().trim().min(1, { message: "Telefone é obrigatório." }),
   email: z.string().trim().min(1, { message: "E-mail é obrigatório." }),
-  dateOfBirth: z.string({ message: "Data de nascimento é obrigatória." }),
+  dateOfBirth: z.date({ message: "Data de nascimento é obrigatória." }),
   gender: z.enum(["male", "female"], { message: "Gênero é obrigatório." }),
   availableWeekDay: z.array(dayAvailabilitySchema).min(1, {
     message: "Selecione pelo menos um dia de disponibilidade",

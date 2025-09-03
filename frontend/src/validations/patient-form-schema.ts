@@ -14,7 +14,7 @@ export const patientFormSchema = z.object({
   cpf: z.string().trim().min(1, {
     message: "CPF é obrigatório.",
   }),
-  dateOfBirth: z.string({
+  dateOfBirth: z.date({
     message: "Data de nascimento é obrigatória.",
   }),
   phoneNumber: z.string().trim().min(1, {
