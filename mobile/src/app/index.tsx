@@ -1,11 +1,10 @@
-import { Button } from '@/components/ui/Button/Button';
-import { Text, View } from 'react-native';
+import { Button, Text, View } from "react-native";
 
 export default function LoginScreen() {
   return (
-    <View>
-      <Text>Login</Text>
-      <Button text="Continuar" />
+    <View className="flex-1 items-center justify-center">
+      <Text className="text-2xl text-red-400">Login</Text>
+      <Button title="Entrar" />
     </View>
   );
 }
