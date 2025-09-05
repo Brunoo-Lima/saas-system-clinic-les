@@ -4,9 +4,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    padding: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
   title: {
-    fontSize: 16,
+    fontSize: 24,
+    fontWeight: "bold",
     color: "#333",
   },
 });

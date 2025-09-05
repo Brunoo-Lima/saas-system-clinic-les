@@ -14,9 +14,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 20,
-    // shadowColor: "#000",
-    // shadowOpacity: 0.08,
-    // shadowRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
     elevation: 6,
   },
   logo: {

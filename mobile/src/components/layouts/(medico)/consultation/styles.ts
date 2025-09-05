@@ -5,10 +5,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#fff",
   },
   title: {
     color: "#000000",
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
   },
 });
