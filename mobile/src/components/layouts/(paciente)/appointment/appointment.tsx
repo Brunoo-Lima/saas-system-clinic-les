@@ -1,10 +1,10 @@
 import { Text, View } from "react-native";
 import styles from "./styles";
 
-export default function AppointmentScreen() {
+export const Appointment = () => {
   return (
     <View style={styles.container}>
-      <Text>Agendamento</Text>
+      <Text style={styles.title}>Agendamentos</Text>
     </View>
   );
-}
+};

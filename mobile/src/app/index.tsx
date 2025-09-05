@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import styles from "./styles";
 import { LoginForm } from "@/components/layouts/login/login-form";
+import { TabsLogin } from "@/components/layouts/login/tabs/tabs-login";
 
 type Role = "medico" | "paciente";
 
@@ -28,39 +29,7 @@ export default function LoginScreen() {
           />
         </View>
 
-        <View style={styles.tabs}>
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityState={{ selected: role === "medico" }}
-            style={[styles.tab, role === "medico" && styles.tabActive]}
-            onPress={() => setRole("medico")}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                role === "medico" && styles.tabTextActive,
-              ]}
-            >
-              Médico
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityState={{ selected: role === "paciente" }}
-            style={[styles.tab, role === "paciente" && styles.tabActive]}
-            onPress={() => setRole("paciente")}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                role === "paciente" && styles.tabTextActive,
-              ]}
-            >
-              Paciente
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <TabsLogin role={role} setRole={setRole} />
 
         <LoginForm role={role} />
 

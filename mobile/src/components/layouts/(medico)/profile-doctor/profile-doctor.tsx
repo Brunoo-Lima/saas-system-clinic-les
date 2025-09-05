@@ -1,10 +1,10 @@
 import { Text, View } from "react-native";
 import styles from "./styles";
 
-export default function ConsultationScreen() {
+export default function ProfileDoctor() {
   return (
     <View style={styles.container}>
-      <Text>Consultas</Text>
+      <Text style={styles.title}>Perfil do médico</Text>
     </View>
   );
 }
