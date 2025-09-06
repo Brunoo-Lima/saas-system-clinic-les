@@ -1,7 +1,7 @@
 import { IAddress } from "./IAddress";
 
 export interface IAppointment {
-  id: string;
+  id: number;
   date: string;
   time: string;
   doctor: string;

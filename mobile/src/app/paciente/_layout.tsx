@@ -28,7 +28,7 @@ export default function PacienteLayout() {
           ),
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="configuracoes"
         options={{
           title: "Configurações",
@@ -36,7 +36,7 @@ export default function PacienteLayout() {
             <Ionicons name="settings-outline" size={size} color={color} />
           ),
         }}
-      />
+      /> */}
     </Tabs>
   );
 }
