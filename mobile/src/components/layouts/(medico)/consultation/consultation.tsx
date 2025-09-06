@@ -3,10 +3,11 @@ import styles from "./styles";
 import { consultationList } from "@/mocks/consultation-list";
 import Header from "@/components/header/header";
 import { Card } from "./card/card";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Consultation() {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Header title="Consultas" />
 
       <ScrollView style={styles.scroll}>
@@ -16,6 +17,6 @@ export default function Consultation() {
           ))}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

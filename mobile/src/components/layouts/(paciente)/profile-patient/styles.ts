@@ -19,6 +19,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
   },
+  avatarContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 2,
+    borderColor: "#ccc",
+  },
+
+  button: {
+    marginTop: 18,
+    backgroundColor: "#2b6cb0",
+    paddingVertical: 12,
+    borderRadius: 8,
+    width: "100%",
+    alignItems: "center",
+    maxWidth: 250,
+  },
+
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
 });
 
 export default styles;

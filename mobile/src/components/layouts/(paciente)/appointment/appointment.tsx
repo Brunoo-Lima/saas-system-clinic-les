@@ -1,13 +1,13 @@
-import { Text, ScrollView, TouchableOpacity, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import styles from "./styles";
 import { appointmentList } from "@/mocks/appointment-list";
-import { CheckIcon, XIcon } from "lucide-react-native";
 import Header from "@/components/header/header";
 import { Card } from "./card/card";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export const Appointment = () => {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Header title="Agendamentos" />
 
       <ScrollView style={styles.scroll}>
@@ -17,6 +17,6 @@ export const Appointment = () => {
           ))}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };

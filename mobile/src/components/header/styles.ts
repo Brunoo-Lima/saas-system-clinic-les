@@ -5,10 +5,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    height: 56,
+    height: 70,
     width: "100%",
     backgroundColor: "#155dfb",
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
   },
   headerTitle: {
     fontSize: 24,

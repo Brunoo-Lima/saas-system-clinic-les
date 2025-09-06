@@ -5,10 +5,10 @@ const styles = StyleSheet.create({
     width: 300,
     maxWidth: 300,
     backgroundColor: "#fafafa",
-    boxShadow: "rgba(0, 0, 0, 0.1) 0px 4px 12px",
+    boxShadow: "rgba(0, 0, 0, 0.1) 0px 2px 8px",
     borderRadius: 12,
     padding: 20,
-    elevation: 6,
+    elevation: 3,
 
     flexDirection: "column",
   },
