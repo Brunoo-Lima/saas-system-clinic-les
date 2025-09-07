@@ -7,4 +7,9 @@ export class Scheduling extends EntityDomain {
     ){
         super()
     }
+    
+    public get date() : Date {
+        return this.schedulingProps.date
+    }
+    
 }

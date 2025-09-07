@@ -8,5 +8,22 @@ export class Address extends EntityDomain {
     ) {
         super()
     }
-
+    public get props (){
+        return this.addressProps
+    }
+    public get nameAddress() {
+        return this.addressProps.nameAddress
+    }
+    public get neighborhood() {
+        return this.addressProps.neighborhood
+    }
+    public get street() {
+        return this.addressProps.street
+    }
+    
+    public get number() {
+        return this.addressProps.number
+    }
+    
+    
 }

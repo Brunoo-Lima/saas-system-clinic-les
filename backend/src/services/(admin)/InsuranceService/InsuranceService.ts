@@ -7,15 +7,15 @@ import { ValidSpecialtyToInsurance } from "../../../domain/validators/InsuranceV
 import { ValidatorController } from "../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../helpers/ResponseHandler";
 import { InsuranceDTO } from "../../../infrastructure/dto/InsuranceDTO";
-import { InsuranceRepository } from "../../../infrastructure/repositories/InsurancesRepository/InsurancesRepository";
-import { IRepository } from "../../../infrastructure/repositories/IRepository";
+import { InsuranceRepository } from "../../../infrastructure/database/repositories/InsurancesRepository/InsurancesRepository";
+import { IRepository } from "../../../infrastructure/database/repositories/IRepository";
 
 export class CreateInsuranceService {
     private repository: IRepository;
-    constructor(){
+    constructor() {
         this.repository = new InsuranceRepository()
     }
-    async execute(insuranceDTO: InsuranceDTO){
+    async execute(insuranceDTO: InsuranceDTO) {
         try {
             const specialties = insuranceDTO.specialties.map((sp) => {
                 const specialty = new SpecialtyBuilder().build()
@@ -24,25 +24,25 @@ export class CreateInsuranceService {
             })
 
             const insuranceDomain = new InsuranceBuilder()
-            .setType(insuranceDTO.type)
-            .setSpecialties(specialties.filter((s) => {if(s.getUUIDHash() !== "") return s})).build()
-    
-            const validatorController = new ValidatorController(`C-${insuranceDomain.constructor.name}`)
+                .setType(insuranceDTO.type)
+                .setSpecialties(specialties.filter((s) => { if (s.getUUIDHash() !== "") return s })).build()
+
+            const validatorController = new ValidatorController()
             validatorController.setValidator(`C-${insuranceDomain.constructor.name}`, [
                 new RequiredGeneralData(Object.keys(insuranceDomain)),
                 new ValidSpecialtyToInsurance(),
                 new InsuranceExists()
             ])
-            const insuranceIsValid = await validatorController.process(insuranceDomain, this.repository)
-            
-            if(!insuranceIsValid.success) return insuranceIsValid
+            const insuranceIsValid = await validatorController.process(`C-${insuranceDomain.constructor.name}`, insuranceDomain, this.repository)
+
+            if (!insuranceIsValid.success) return insuranceIsValid
             const insuranceInserted = await this.repository.create(insuranceDomain)
 
-            if("error" in insuranceInserted) return insuranceInserted
+            if ("error" in insuranceInserted) return insuranceInserted
 
-            return ResponseHandler.success(insuranceInserted, "Insurance")
+            return ResponseHandler.success(insuranceInserted, "Insurance added")
 
-        } catch(e) {
+        } catch (e) {
             return ResponseHandler.error((e as Error).message)
         }
     }

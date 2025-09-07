@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { ResponseHandler } from "../helpers/ResponseHandler";
 import { UserBuilder } from "../domain/entities/EntityUser/UserBuilder";
 import { validJWToken } from "../helpers/validJWToken";
-import { UserRepository } from "../infrastructure/repositories/UserRepository/UserRepository";
+import { UserRepository } from "../infrastructure/database/repositories/UserRepository/UserRepository";
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   try {

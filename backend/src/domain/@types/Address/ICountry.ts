@@ -1,3 +1,3 @@
 export interface ICountry {
-    name: string
+    name?: string
 }

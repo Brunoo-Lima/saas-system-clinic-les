@@ -1,9 +1,9 @@
 import { eq, ilike, inArray, or, and } from "drizzle-orm";
-import { EntityDomain } from "../../../domain/entities/EntityDomain";
-import { Insurance } from "../../../domain/entities/EntityInsurance/Insurance";
-import { ResponseHandler } from "../../../helpers/ResponseHandler";
-import db from "../../database/connection";
-import { insuranceTable, insuranceToSpecialtyTable, specialtyTable } from "../../database/schema";
+import { EntityDomain } from "../../../../domain/entities/EntityDomain";
+import { Insurance } from "../../../../domain/entities/EntityInsurance/Insurance";
+import { ResponseHandler } from "../../../../helpers/ResponseHandler";
+import db from "../../connection";
+import { insuranceTable, insuranceToSpecialtyTable, specialtyTable } from "../../schema";
 import { IRepository } from "../IRepository";
 
 export class InsuranceRepository implements IRepository {
@@ -86,8 +86,17 @@ export class InsuranceRepository implements IRepository {
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    findAllEntity(entity?: EntityDomain): Promise<any[]> {
-        throw new Error("Method not implemented.");
+    async findAllEntity(insurance?: Insurance | Array<Insurance>): Promise<any> {
+        try{ 
+            const insurancesFormatted = Array.isArray(insurance) ? insurance : [insurance]
+            const insurances = await db.select().from(insuranceTable)
+            .where(
+                inArray(insuranceTable.type, insurancesFormatted.map((ins) => ins?.type ?? ""))
+            )
+            return insurances
+        } catch (e) {
+            return ResponseHandler.error("Failed to find the insurances")
+        }
     }
 
 }
