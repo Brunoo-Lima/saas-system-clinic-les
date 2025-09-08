@@ -3,27 +3,23 @@ import { IProcessValidator } from "./IProcessValidator";
 
 export class ValidatorController {
     private validatorsClasses = new Map<string, IProcessValidator[]>();
-    private className: string;
+    public async process(className: string, entity: EntityDomain | Array<EntityDomain>, ...args: any){
 
-    constructor(className: string) {
-        this.className = className;
-        this.validatorsClasses.set(className, []);
-    }
-    public async process(entity: EntityDomain | Array<EntityDomain>, ...args: any){
-
-        const validators = this.validatorsClasses.get(this.className);
+        const validators = this.validatorsClasses.get(className);
         if(!validators) return { success: true, message: "No validators to process"};
         
         const results = await Promise.all(validators.map(validator => validator.valid(entity, ...args)));
         const fails = results.filter(r => !r.success);
 
         if(fails.length > 0){
-            return { success: false, message: fails.map(f => f.message)};
+            const messages = fails.map(f => Array.isArray(f.message) ? f.message[0] : f.message)
+            return { success: false, message: messages};
         }
         return { success: true, message: "All validations passed" };
     }
 
     public setValidator(className: string, validator: IProcessValidator | IProcessValidator[]) {
+        
         if(!this.validatorsClasses.has(className)){
             this.validatorsClasses.set(className, []);
         }

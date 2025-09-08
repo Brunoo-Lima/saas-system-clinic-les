@@ -1,10 +1,10 @@
-import { User } from "../../../domain/entities/EntityUser/User";
+import { User } from "../../../../domain/entities/EntityUser/User";
 import { IUserRepository } from "./IUserRepository";
-import db from "../../database/connection";
-import { ResponseHandler } from "../../../helpers/ResponseHandler";
+import db from "../../connection";
+import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { randomUUID } from "crypto";
 import { eq, or } from "drizzle-orm";
-import { userTable } from "../../database/schema";
+import { userTable } from "../../schema";
 
 export class UserRepository implements IUserRepository {
   async createUser(user: User) {

@@ -7,4 +7,18 @@ export class State extends EntityDomain {
     ) {
         super()
     }
+
+    public get name() {
+        return this.stateProps.name
+    }
+    
+    
+    public get country() {
+        return this.stateProps.country
+    }
+ 
+    
+    public get uf() {
+        return this.stateProps.uf
+    }
 }

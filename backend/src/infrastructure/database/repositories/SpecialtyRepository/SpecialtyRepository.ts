@@ -1,9 +1,9 @@
 import { and, eq, inArray, or } from "drizzle-orm";
-import { EntityDomain } from "../../../domain/entities/EntityDomain";
-import { Specialty } from "../../../domain/entities/EntitySpecialty/Specialty";
-import { ResponseHandler } from "../../../helpers/ResponseHandler";
-import db from "../../database/connection";
-import { specialtyTable } from "../../database/schema";
+import { EntityDomain } from "../../../../domain/entities/EntityDomain";
+import { Specialty } from "../../../../domain/entities/EntitySpecialty/Specialty";
+import { ResponseHandler } from "../../../../helpers/ResponseHandler";
+import db from "../../connection";
+import { specialtyTable } from "../../schema";
 import { IRepository } from "../IRepository";
 
 export class SpecialtyRepository implements IRepository {
@@ -20,42 +20,42 @@ export class SpecialtyRepository implements IRepository {
             return ResponseHandler.error(["Failed to save a specialty"])
         }
     }
-    async findEntity(specialties: Specialty | Array<Specialty>, limit?: number): Promise<any> {
+    async findEntity(specialties: Specialty | Array<Specialty>): Promise<any> {
         try {
-            if(Array.isArray(specialties)){
+            if (Array.isArray(specialties)) {
                 const namesMapped = specialties
                     .filter((s) => !!s.name)
                     .map((s) => s.name as string);
                 const specialtiesFounded = await db.select().from(specialtyTable)
-                .where(
-                    or(
-                        inArray(specialtyTable.name, namesMapped),
-                        inArray(
-                            specialtyTable.id,
-                            specialties
-                                .map((s) => s.getUUIDHash())
-                                .filter((id) => !!id)
+                    .where(
+                        or(
+                            inArray(specialtyTable.name, namesMapped),
+                            inArray(
+                                specialtyTable.id,
+                                specialties
+                                    .map((s) => s.getUUIDHash())
+                                    .filter((id) => !!id)
+                            )
                         )
                     )
-                )
                 return specialtiesFounded;
             }
             return await db.select().from(specialtyTable)
-            .where(
-                or(
-                    eq(specialtyTable.id, specialties.getUUIDHash()),
-                    eq(specialtyTable.name, specialties.name ?? ""),
-                    eq(specialtyTable.price, specialties.price  ?? 0),
+                .where(
                     or(
-                        and(
-                            eq(specialtyTable.id, specialties.getUUIDHash()),
-                            eq(specialtyTable.name, specialties.name ?? ""),
-                            eq(specialtyTable.price, specialties.price ?? 0)
+                        eq(specialtyTable.id, specialties.getUUIDHash()),
+                        eq(specialtyTable.name, specialties.name ?? ""),
+                        eq(specialtyTable.price, specialties.price ?? 0),
+                        or(
+                            and(
+                                eq(specialtyTable.id, specialties.getUUIDHash()),
+                                eq(specialtyTable.name, specialties.name ?? ""),
+                                eq(specialtyTable.price, specialties.price ?? 0)
+                            )
                         )
                     )
                 )
-            )
-    
+
         } catch (e) {
             return ResponseHandler.error("Failed to find the specialty")
         }

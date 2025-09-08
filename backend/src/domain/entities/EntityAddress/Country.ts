@@ -7,4 +7,9 @@ export class Country extends EntityDomain {
     ){
         super()
     }
+
+    public get name() {
+        return this.countryProps.name
+    }
+    
 }

@@ -1,0 +1,46 @@
+import { eq, ilike, or } from "drizzle-orm";
+import { Country } from "../../../../domain/entities/EntityAddress/Country";
+import { EntityDomain } from "../../../../domain/entities/EntityDomain";
+import { ResponseHandler } from "../../../../helpers/ResponseHandler";
+import db from "../../connection";
+import { countryTable } from "../../schema";
+import { IRepository } from "../IRepository";
+
+export class CountryRepository implements IRepository {
+    async create(country: Country): Promise<any> {
+        try {
+            const countryDb = await db.insert(countryTable).values({
+                id: country.getUUIDHash() ?? "",
+                name: country.name ?? ""
+            })
+            return countryDb
+        } catch (e) {
+            return ResponseHandler.error(["Failed to create country"])
+        }
+    }
+    async findEntity(country: Country): Promise<any> {
+        try {
+            const filters = []
+            if (country.getUUIDHash()) filters.push(eq(countryTable.id, country.getUUIDHash()))
+            if (country.name) filters.push(ilike(countryTable.name, country.name ?? ""))
+
+            const countriesFounded = await db.select().from(countryTable)
+                .where(
+                    or(...filters)
+                )
+            return countriesFounded
+        } catch (e) {
+            return ResponseHandler.error("Failed to find a country")
+        }
+    }
+    updateEntity(entity: EntityDomain): Promise<any> {
+        throw new Error("Method not implemented.");
+    }
+    deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
+    findAllEntity(entity?: EntityDomain): Promise<any[]> {
+        throw new Error("Method not implemented.");
+    }
+
+}

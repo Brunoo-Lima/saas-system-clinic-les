@@ -1,7 +1,6 @@
-import { Document } from "../../entities/Document"
 
-export interface IPerson {
-    name: string
-    dateOfBirth: Date
-    document: Document[] | null
+export interface IPerson  {
+    name?: string
+    dateOfBirth?: Date | undefined
+    cpf?: string
 }
