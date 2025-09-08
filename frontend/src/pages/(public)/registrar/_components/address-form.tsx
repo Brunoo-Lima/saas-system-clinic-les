@@ -1,14 +1,14 @@
-import { Row } from '@/components/ui/row';
+import { Row } from "@/components/ui/row";
 
-import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
-import { useForm } from 'react-hook-form';
+import FormInputCustom from "@/components/ui/form-custom/form-input-custom";
+import { useForm } from "react-hook-form";
 import {
   addressFormSchema,
   type AddressFormSchema,
-} from '@/validations/address-form-schema';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Form } from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
+} from "@/validations/address-form-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
 
 export const AddressForm = () => {
   const form = useForm<AddressFormSchema>({
@@ -50,7 +50,8 @@ export const AddressForm = () => {
               control={form.control}
             />
           </Row>
-          <div className="grid grid-cols-3 gap-3">
+
+          <div className="grid grid-cols-3 gap-4">
             <FormInputCustom
               name="city"
               label="Cidade"

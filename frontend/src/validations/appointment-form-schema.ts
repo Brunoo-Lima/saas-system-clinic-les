@@ -1,6 +1,9 @@
 import { z } from "zod";
 
 export const appointmentFormSchema = z.object({
+  specialtyId: z.string().min(1, {
+    message: "Especialidade é obrigatória.",
+  }),
   patientId: z.string().min(1, {
     message: "Paciente é obrigatório.",
   }),

@@ -34,6 +34,7 @@ const FormInputPriceCustom = <T extends FieldValues>({
             thousandSeparator="."
             customInput={Input}
             prefix="R$"
+            placeholder="R$ 0,00"
           />
           <FormMessage />
         </FormItem>

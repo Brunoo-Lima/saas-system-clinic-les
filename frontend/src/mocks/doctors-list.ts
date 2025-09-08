@@ -33,7 +33,7 @@ export const doctorsList = [
     justification: "",
     email: "j9iR9@example.com",
     phoneNumber: "11999999999",
-    dateOfBirth: "2000-01-01",
+    dateOfBirth: new Date("2000-01-01"),
     cpf: "12345678901",
     gender: "male",
     address: {
@@ -66,7 +66,7 @@ export const doctorsList = [
     justification: "",
     email: "j9iR9@example.com",
     phoneNumber: "11999999999",
-    dateOfBirth: "1970-05-01",
+    dateOfBirth: new Date("2000-01-01"),
     cpf: "12345678902",
     gender: "female",
     address: {
@@ -99,7 +99,7 @@ export const doctorsList = [
     justification: "",
     email: "j9iR9@example.com",
     phoneNumber: "11999999999",
-    dateOfBirth: "1980-01-15",
+    dateOfBirth: new Date("2000-01-01"),
     cpf: "12345678903",
     gender: "male",
     address: {
@@ -132,7 +132,7 @@ export const doctorsList = [
     justification: "",
     email: "j9iR9@example.com",
     phoneNumber: "11999999999",
-    dateOfBirth: "1990-12-02",
+    dateOfBirth: new Date("2000-01-01"),
     cpf: "12345678904",
     gender: "female",
     address: {

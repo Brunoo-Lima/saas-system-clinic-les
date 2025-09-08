@@ -1,6 +1,7 @@
 import {
   CalendarIcon,
   DollarSignIcon,
+  HandCoinsIcon,
   UserIcon,
   UsersIcon,
 } from "lucide-react";
@@ -23,9 +24,14 @@ export const StatsCards = ({
 }: StatsCardsProps) => {
   const stats = [
     {
-      title: "Faturamento",
+      title: "Faturamento total",
       value: totalRevenue ? formatCurrencyInCents(totalRevenue) : "R$ 0,00",
       icon: DollarSignIcon,
+    },
+    {
+      title: "Repasses",
+      value: "R$ 0,00",
+      icon: HandCoinsIcon,
     },
     {
       title: "Agendamentos",
@@ -45,7 +51,7 @@ export const StatsCards = ({
   ];
 
   return (
-    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
       {stats.map((stat) => {
         const Icon = stat.icon;
         return (

@@ -17,7 +17,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   agreementFormSchema,
@@ -35,6 +34,7 @@ import {
 import { CheckIcon } from "lucide-react";
 import { toast } from "sonner";
 import type { IAgreement } from "@/@types/IAgreement";
+import FormInputCustom from "@/components/ui/form-custom/form-input-custom";
 
 interface IUpsertAgreementFormProps {
   isOpen: boolean;
@@ -95,21 +95,15 @@ export const UpsertAgreementForm = ({
             : "Adicione um novo convênio."}
         </DialogDescription>
       </DialogHeader>
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
+          <FormInputCustom
             name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome do convênio</FormLabel>
-                <FormControl>
-                  <Input placeholder="Digite o nome do convênio" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Convênio"
+            control={form.control}
           />
+
           <FormField
             control={form.control}
             name="description"

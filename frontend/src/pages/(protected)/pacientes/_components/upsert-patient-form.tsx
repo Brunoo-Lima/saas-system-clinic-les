@@ -31,12 +31,21 @@ import {
   patientFormSchema,
   type PatientFormSchema,
 } from "@/validations/patient-form-schema";
-import { DatePickerCustom } from "@/components/ui/date-picker-custom";
 import { toast } from "sonner";
 import { agreementsList } from "@/mocks/agreements-list";
 import { Switch } from "@/components/ui/switch";
 import FormInputCustom from "@/components/ui/form-custom/form-input-custom";
 import FormSelectCustom from "@/components/ui/form-custom/form-select-custom";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
 
 interface IUpsertPatientFormProps {
   isOpen: boolean;
@@ -158,32 +167,58 @@ export const UpsertPatientForm = ({
             />
           </div>
 
-          <FormSelectCustom
-            name="gender"
-            label="Sexo"
-            options={[
-              { value: "male", label: "Masculino" },
-              { value: "female", label: "Feminino" },
-            ]}
-            control={form.control}
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="dateOfBirth"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Data de Nascimento</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP", { locale: ptBR })
+                          ) : (
+                            <span>Selecione uma data</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date: Date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="dateOfBirth"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Data de nascimento</FormLabel>
-                <FormControl>
-                  <DatePickerCustom
-                    selected={field.value}
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormSelectCustom
+              name="gender"
+              label="Sexo"
+              options={[
+                { value: "male", label: "Masculino" },
+                { value: "female", label: "Feminino" },
+              ]}
+              control={form.control}
+            />
+          </div>
 
           <div className="space-y-4 mt-8">
             <div className="flex items-center gap-4">

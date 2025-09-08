@@ -9,15 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
 import {
   specialtyFormSchema,
@@ -25,6 +17,7 @@ import {
 } from "@/validations/specialty-form-schema";
 import type { ISpecialty } from "@/@types/ISpecialty";
 import FormInputPriceCustom from "@/components/ui/form-custom/form-input-price-custom";
+import FormInputCustom from "@/components/ui/form-custom/form-input-custom";
 
 interface IUpsertSpecialtyFormProps {
   isOpen: boolean;
@@ -84,21 +77,10 @@ export const UpsertSpecialtyForm = ({
             : "Adicione uma nova especialidade."}
         </DialogDescription>
       </DialogHeader>
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome do convênio</FormLabel>
-                <FormControl>
-                  <Input placeholder="Digite o nome do convênio" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <FormInputCustom name="name" label="Nome" control={form.control} />
 
           <FormInputPriceCustom
             name="price"
