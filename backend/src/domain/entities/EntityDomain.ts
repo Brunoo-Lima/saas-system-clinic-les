@@ -2,13 +2,13 @@ import { randomUUID, UUID } from "crypto";
 
 export class EntityDomain {
     constructor(
-        private uuidHash: UUID = randomUUID(),
+        private uuidHash: UUID | string = randomUUID(),
         private createdAt: Date = new Date(),
         private updatedAt: Date = new Date()
     ){}
 
 
-	public getUUIDHash(): UUID  {
+	public getUUIDHash(): UUID | string {
 		return this.uuidHash;
 	}
 
@@ -23,7 +23,7 @@ export class EntityDomain {
 	}
 
 
-	public setUuidHash(value: UUID ) {
+	public setUuidHash(value: UUID | string) {
 		this.uuidHash = value;
 	}
 

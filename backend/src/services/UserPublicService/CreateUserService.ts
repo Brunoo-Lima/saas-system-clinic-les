@@ -1,10 +1,10 @@
-import { IUserRepository } from "../../infrastructure/repositories/UserRepository/IUserRepository";
+import { IUserRepository } from "../../infrastructure/database/repositories/UserRepository/IUserRepository";
 import { User } from "../../domain/entities/EntityUser/User";
 import { ValidatorController } from "../../domain/validators/ValidatorController";
 import { ValidatorEmail } from "../../domain/validators/UserValidator/ValidatorEmail";
 import { RequiredDataToUserCreate } from "../../domain/validators/UserValidator/RequiredDataToUserCreate";
 import { ResponseHandler } from "../../helpers/ResponseHandler";
-import { UserRepository } from "../../infrastructure/repositories/UserRepository/UserRepository";
+import { UserRepository } from "../../infrastructure/database/repositories/UserRepository/UserRepository";
 import { ValidatorUserExists } from "../../domain/validators/UserValidator/ValidatorUserExists";
 import { UserDTO } from "../../infrastructure/dto/userDTO";
 import { UserBuilder } from "../../domain/entities/EntityUser/UserBuilder";
@@ -25,9 +25,7 @@ export class CreateUserService {
         .setAvatar(userData.avatar || "")
         .setEmailVerified(userData.emailVerified || false)
         .build();
-      const validatorController = new ValidatorController(
-        `C-${userDomain.constructor.name}`
-      );
+      const validatorController = new ValidatorController();
 
       validatorController.setValidator(`C-${userDomain.constructor.name}`, [
         new ValidatorEmail(),
@@ -35,7 +33,7 @@ export class CreateUserService {
         new ValidatorUserExists()
       ]);
 
-      const userDataIsValid = await validatorController.process(userDomain, this.userRepository);
+      const userDataIsValid = await validatorController.process(`C-${userDomain.constructor.name}`, userDomain, this.userRepository);
       if (!userDataIsValid.success) return userDataIsValid;
 
       const newUser = await this.userRepository.createUser(userDomain);

@@ -44,6 +44,7 @@ export const stateTable = pgTable("state", {
 
 export const cityTable = pgTable("city", {
   id: uuid("id").primaryKey(),
+  cep: varchar("cep").notNull(),
   name: varchar("name").notNull(),
   state_id: uuid("state_id").references(() => stateTable.id)
 })
@@ -57,7 +58,7 @@ export const neighborhoodTable = pgTable("neighborhood", {
 export const addressTable = pgTable("address", {
   id: uuid("id").primaryKey(),
   name: varchar("name").notNull(),
-  cep: varchar("cep").notNull(),
+  number: varchar("number").notNull(),
   street: varchar("street").notNull(),
   neighborhood_id: uuid("neighborhood_id").references(() => neighborhoodTable.id)
 })
@@ -83,7 +84,8 @@ export const patientTable = pgTable("patient", {
   dateOfBirth: date("dateOfBirth").notNull(),
   contact1: varchar("contact1").notNull(),
   cpf: varchar("cpf").notNull().unique(),
-  user_id: uuid("user_id").references(() => userTable.id)
+  user_id: uuid("user_id").references(() => userTable.id),
+  address_id: uuid("address_id").references(() => addressTable.id)
 })
 
 // Doctors
@@ -92,7 +94,8 @@ export const doctorTable = pgTable("doctor", {
   crm: varchar("crm").notNull().unique(),
   contact1: varchar("contact1").notNull(),
   user_id: uuid("user_id").references(() => userTable.id),
-  clinic_id: uuid("clinic_id").references(() => clinicTable.id) 
+  clinic_id: uuid("clinic_id").references(() => clinicTable.id),
+  address_id: uuid("address_id").references(() => addressTable.id)
 })
 
 // Period
@@ -288,14 +291,19 @@ export const appointmentRelation = relations(movementsTable, ({one}) => ({
 
 /* 
   Paciente e Usuário 
+  Paciente e endereco
 */
-export const patientUserRelations = relations(patientTable, ({one, many}) => ({
+export const patientRelations = relations(patientTable, ({one, many}) => ({
   user: one(userTable,
     {
       fields: [patientTable.user_id],
       references: [userTable.id]
     }
-  )
+  ),
+  address: one(addressTable, {
+    fields: [patientTable.address_id],
+    references: [addressTable.id]
+  })
 }))
 
 
@@ -320,6 +328,10 @@ export const periodRelation = relations(periodDoctorTable, ({one}) => (
 */
 export const doctorRelation = relations(doctorTable, ({one, many}) => ({
     periods: many(periodDoctorTable),
+    address: one(addressTable, {
+      fields: [doctorTable.address_id],
+      references: [addressTable.id]
+    }),
     clinic: one(clinicTable, {
       fields: [doctorTable.clinic_id],
       references: [clinicTable.id]

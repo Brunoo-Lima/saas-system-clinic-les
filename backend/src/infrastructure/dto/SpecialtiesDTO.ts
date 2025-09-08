@@ -1,5 +1,6 @@
-export type specialtiesDTO = [
+export type SpecialtiesDTO = [
     {
+        id?: string,
         name: string,
         price: number
     }

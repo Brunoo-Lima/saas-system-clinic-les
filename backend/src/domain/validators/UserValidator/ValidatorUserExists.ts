@@ -1,5 +1,5 @@
 import { ResponseHandler } from "../../../helpers/ResponseHandler";
-import { IUserRepository } from "../../../infrastructure/repositories/UserRepository/IUserRepository";
+import { IUserRepository } from "../../../infrastructure/database/repositories/UserRepository/IUserRepository";
 import { User } from "../../entities/EntityUser/User";
 import { IProcessValidator } from "../IProcessValidator";
 

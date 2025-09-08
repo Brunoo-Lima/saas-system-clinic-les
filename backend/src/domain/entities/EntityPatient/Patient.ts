@@ -1,4 +1,5 @@
 import { IPatient } from "../../@types/Patient/IPatient";
+import { User } from "../EntityUser/User";
 import { Person } from "../Person";
 
 export class Patient extends Person {
@@ -7,8 +8,28 @@ export class Patient extends Person {
     ){
         super({
             dateOfBirth: patientProps.dateOfBirth,
-            document: patientProps.document,
-            name: patientProps.name
+            cpf: patientProps.cpf ?? "",
+            name: patientProps.name ?? ""
         })
     }
+    
+    public get props (){
+        return this.patientProps
+    }
+    public get user() : User | undefined{
+        return this.patientProps.user
+    }
+    
+    public get contact() {
+        return this.patientProps.contact
+    }
+    
+    public get insurances(){
+        return this.patientProps.insurances
+    }
+
+    public get address(){
+        return this.patientProps.address
+    }
+    
 }

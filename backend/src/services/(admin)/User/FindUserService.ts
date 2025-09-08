@@ -1,7 +1,7 @@
 import { User } from "../../../domain/entities/EntityUser/User";
 import { ResponseHandler } from "../../../helpers/ResponseHandler";
-import { IUserRepository } from "../../../infrastructure/repositories/UserRepository/IUserRepository";
-import { UserRepository } from "../../../infrastructure/repositories/UserRepository/UserRepository";
+import { IUserRepository } from "../../../infrastructure/database/repositories/UserRepository/IUserRepository";
+import { UserRepository } from "../../../infrastructure/database/repositories/UserRepository/UserRepository";
 
 export class FindUserService {
     private userRepository: IUserRepository;
