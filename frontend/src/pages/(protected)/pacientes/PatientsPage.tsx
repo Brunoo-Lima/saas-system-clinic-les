@@ -7,7 +7,7 @@ import {
   PageHeaderContent,
   PageTitle,
 } from '@/components/ui/page-container';
-import { AddPatientButton } from './_components/add-patient-button';
+import { AddPatientButton } from './_components/actions/add-patient-button';
 import { DataTable } from '@/components/ui/data-table';
 import { patientsTableColumns } from './_components/table/table-columns';
 import { Suspense, useEffect } from 'react';

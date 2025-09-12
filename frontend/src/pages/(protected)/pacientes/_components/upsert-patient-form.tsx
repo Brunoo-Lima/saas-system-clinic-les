@@ -48,6 +48,7 @@ import { CalendarIcon, RefreshCcwIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { InputPassword } from '@/components/ui/input-password';
 import type { IPatient } from '@/@types/IPatient';
+import { getPatientDefaultValues } from '../_helpers/get-patient-default-values';
 
 interface IUpsertPatientFormProps {
   isOpen: boolean;
@@ -63,32 +64,7 @@ export const UpsertPatientForm = ({
   const form = useForm<PatientFormSchema>({
     shouldUnregister: true,
     resolver: zodResolver(patientFormSchema),
-    defaultValues: {
-      name: patient?.name ?? '',
-      email: patient?.email ?? '',
-      password: patient?.password ?? '',
-      phoneNumber: patient?.phoneNumber ?? '',
-      gender: patient?.gender ?? undefined,
-      cpf: patient?.cpf ?? '',
-      dateOfBirth: patient?.dateOfBirth ?? new Date(),
-      hasInsurance: patient?.hasInsurance ?? false,
-      createUser: patient?.createUser ?? false,
-      insurance: {
-        name: patient?.name ?? '',
-        number: patient?.insurance?.number ?? '',
-        modality: patient?.insurance?.modality ?? 'apartamento',
-        validate: patient?.insurance?.validate ?? '',
-      },
-      address: patient?.address ?? {
-        zipCode: patient?.address?.zipCode ?? '',
-        street: patient?.address?.street ?? '',
-        number: patient?.address?.number ?? '',
-        neighborhood: patient?.address?.neighborhood ?? '',
-        city: patient?.address?.city ?? '',
-        state: patient?.address?.state ?? '',
-        country: patient?.address?.country ?? '',
-      },
-    },
+    defaultValues: getPatientDefaultValues(patient),
   });
 
   useEffect(() => {
@@ -131,10 +107,6 @@ export const UpsertPatientForm = ({
     onSuccess();
     toast.success('Paciente salvo com sucesso.');
   };
-
-  useEffect(() => {
-    console.log(form.formState.errors);
-  }, [form.formState.errors]);
 
   return (
     <DialogContent className="w-full sm:max-w-lg lg:max-w-2xl max-h-[90vh]  overflow-y-auto">
