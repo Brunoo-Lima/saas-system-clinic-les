@@ -2,7 +2,7 @@ import { DefaultLayout } from '@/components/default-layout/default-layout';
 import { AccessPage } from '@/pages/(protected)/acessos/AccessPage';
 import AppointmentPage from '@/pages/(protected)/agendamentos/AppointmentPage';
 import HistoricAppointmentPage from '@/pages/(protected)/agendamentos/historico-de-agendamentos/HistoricAppointmentPage';
-import { AgreementsPage } from '@/pages/(protected)/convenios/AgreementsPage';
+import { InsurancePage } from '@/pages/(protected)/convenios/InsurancePage';
 import { DashboardPage } from '@/pages/(protected)/dashboard/DashboardPage';
 import SpecialtiesPage from '@/pages/(protected)/especialidades/SpecialtiesPage';
 import HistoricPage from '@/pages/(protected)/historico/HistoricPage';
@@ -45,7 +45,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'convenios',
-        element: <AgreementsPage />,
+        element: <InsurancePage />,
       },
       {
         path: 'historico',

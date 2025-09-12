@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Dialog } from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
+import { Dialog } from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,7 +7,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,33 +18,30 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { EditIcon, MoreVerticalIcon, TrashIcon } from "lucide-react";
-import { useState } from "react";
-import { UpsertAgreementForm } from "./upsert-agreement-form";
-import type { IAgreement } from "@/@types/IAgreement";
-import { toast } from "sonner";
+} from '@/components/ui/alert-dialog';
+import {
+  EditIcon,
+  MoreVerticalIcon,
+  RotateCcwKeyIcon,
+  TrashIcon,
+} from 'lucide-react';
+import { useState } from 'react';
+import { UpsertPatientForm } from '../upsert-patient-form';
+import type { IPatient } from '@/@types/IPatient';
+import { toast } from 'sonner';
 
-interface IActionsAgreementProps {
-  agreement: IAgreement;
+interface IActionsPatientProps {
+  patient: IPatient;
 }
-export const ActionsAgreement = ({ agreement }: IActionsAgreementProps) => {
-  const [upsertDialogIsOpen, setUpsertDialogIsOpen] = useState(false);
+export const ActionsPatient = ({ patient }: IActionsPatientProps) => {
+  const [upsertDialogIsOpen, setUpsertDialogIsOpen] = useState<boolean>(false);
 
-  // const deletePatientAction = useAction(deletePatient, {
-  //   onSuccess: () => {
-  //     toast.success("Paciente deletado com sucesso.");
-  //   },
-  //   onError: () => {
-  //     toast.error("Erro ao deletar paciente.");
-  //   },
-  // });
+  const handleDeletePatientClick = () => {
+    if (!patient) return;
+  };
 
-  const handleDeleteAgreementClick = () => {
-    if (!agreement) return;
-
-    // deletePatientAction.execute({ id: patient.id });
-    toast.success("Convênio deletado com sucesso.");
+  const handleGenerateNewPassword = () => {
+    toast.success('Nova senha enviada para email!');
   };
 
   return (
@@ -57,32 +54,36 @@ export const ActionsAgreement = ({ agreement }: IActionsAgreementProps) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuLabel>{agreement.name}</DropdownMenuLabel>
+            <DropdownMenuLabel>{patient.name}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setUpsertDialogIsOpen(true)}>
               <EditIcon />
               Editar
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleGenerateNewPassword}>
+              <RotateCcwKeyIcon />
+              Reenviar senha
+            </DropdownMenuItem>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                  <TrashIcon />
-                  Excluir
+                  <TrashIcon color="#de3737" />
+                  <p className="text-red-500">Excluir</p>
                 </DropdownMenuItem>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>
-                    Tem certeza que deseja deletar esse convênio?
+                    Tem certeza que deseja deletar esse paciente?
                   </AlertDialogTitle>
                   <AlertDialogDescription>
                     Essa ação não pode ser revertida. Isso irá deletar o
-                    convênio.
+                    paciente e todas as consultas agendadas.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteAgreementClick}>
+                  <AlertDialogAction onClick={handleDeletePatientClick}>
                     Deletar
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -91,9 +92,9 @@ export const ActionsAgreement = ({ agreement }: IActionsAgreementProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <UpsertAgreementForm
+        <UpsertPatientForm
           isOpen={upsertDialogIsOpen}
-          agreement={agreement}
+          patient={patient}
           onSuccess={() => setUpsertDialogIsOpen(false)}
         />
       </Dialog>

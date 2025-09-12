@@ -1,9 +1,10 @@
-import type { IAgreement } from "@/@types/IAgreement";
-import { usePagination } from "@/hooks/use-pagination";
-import { agreementsList } from "@/mocks/agreements-list";
-import { createContext, useMemo, useState, type ChangeEvent } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import type { IInsurance } from '@/@types/IInsurance';
+import { usePagination } from '@/hooks/use-pagination';
+import { insurancesList } from '@/mocks/insurances-list';
+import { createContext, useMemo, useState, type ChangeEvent } from 'react';
 
-interface IAgreementsContextProps {
+interface IInsurancesContextProps {
   searchTerm: string;
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
   selectedSpecialty: string | null;
@@ -11,27 +12,27 @@ interface IAgreementsContextProps {
   page: number;
   setPage: React.Dispatch<React.SetStateAction<number>>;
   totalPages: number;
-  paginatedData: IAgreement[];
+  paginatedData: IInsurance[];
   handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
   handlePage: (page: number) => void;
   handleDelete: (id: number) => void;
 }
 
-export const AgreementsContext = createContext<
-  IAgreementsContextProps | undefined
+export const InsurancesContext = createContext<
+  IInsurancesContextProps | undefined
 >(undefined);
 
-export const AgreementsProvider = ({
+export const InsuranceProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(
-    null
+    null,
   );
   const [filteredList, setFilteredList] =
-    useState<IAgreement[]>(agreementsList);
+    useState<IInsurance[]>(insurancesList);
   const itemsPerPage = 10;
 
   const filtered = useMemo(() => {
@@ -39,13 +40,13 @@ export const AgreementsProvider = ({
 
     if (searchTerm) {
       data = data.filter((patient) =>
-        patient.name.toLowerCase().includes(searchTerm.toLowerCase())
+        patient.name.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
     if (selectedSpecialty) {
       data = data.filter((patient) =>
-        patient.specialties.filter((s) => s.slug === selectedSpecialty)
+        patient.specialties.filter((s) => s.name === selectedSpecialty),
       );
     }
 
@@ -54,7 +55,7 @@ export const AgreementsProvider = ({
 
   const { totalPages, page, setPage, paginatedData } = usePagination(
     filtered,
-    itemsPerPage
+    itemsPerPage,
   );
 
   const handlePage = (page: number) => {
@@ -85,8 +86,8 @@ export const AgreementsProvider = ({
   };
 
   return (
-    <AgreementsContext.Provider value={contextValue}>
+    <InsurancesContext.Provider value={contextValue}>
       {children}
-    </AgreementsContext.Provider>
+    </InsurancesContext.Provider>
   );
 };
