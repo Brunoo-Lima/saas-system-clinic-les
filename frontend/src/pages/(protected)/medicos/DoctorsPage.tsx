@@ -6,22 +6,16 @@ import {
   PageHeader,
   PageHeaderContent,
   PageTitle,
-} from "@/components/ui/page-container";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { AddDoctorButton } from "./_components/add-doctor-button";
-import { CardDoctor } from "./_components/card-doctor";
-import { Suspense, useEffect } from "react";
-import { useDoctor } from "@/hooks/use-doctor";
-import { InputSearch } from "@/components/ui/input-search";
-import { Button } from "@/components/ui/button";
-import { ChevronDownIcon } from "lucide-react";
-import { PaginationComponent } from "@/components/pagination-component";
-import { medicalSpecialties } from "./_constants";
+} from '@/components/ui/page-container';
+
+import { AddDoctorButton } from './_components/actions/add-doctor-button';
+import { CardDoctor } from './_components/card-doctor';
+import { Suspense, useEffect } from 'react';
+import { useDoctor } from '@/hooks/use-doctor';
+import { InputSearch } from '@/components/ui/input-search';
+import { PaginationComponent } from '@/components/pagination-component';
+import { medicalSpecialties } from './_constants';
+import { Dropdown } from './_components/actions/dropdown';
 
 export const DoctorsPage = () => {
   const {
@@ -38,7 +32,7 @@ export const DoctorsPage = () => {
   } = useDoctor();
 
   useEffect(() => {
-    document.title = "Médicos";
+    document.title = 'Médicos';
   }, []);
 
   return (
@@ -64,52 +58,22 @@ export const DoctorsPage = () => {
           />
 
           <div className="flex items-center gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="ml-auto">
-                  Gênero <ChevronDownIcon />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuCheckboxItem
-                  checked={selectedGender === "male"}
-                  onCheckedChange={(checked) =>
-                    setSelectedGender(checked ? "male" : null)
-                  }
-                >
-                  Masculino
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={selectedGender === "female"}
-                  onCheckedChange={(checked) =>
-                    setSelectedGender(checked ? "female" : null)
-                  }
-                >
-                  Feminino
-                </DropdownMenuCheckboxItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Dropdown
+              label="Gênero"
+              items={[
+                { value: 'male', label: 'Masculino' },
+                { value: 'female', label: 'Feminino' },
+              ]}
+              value={selectedGender}
+              onChange={setSelectedGender}
+            />
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="ml-auto">
-                  Especialidade <ChevronDownIcon />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="left-0">
-                {medicalSpecialties.map((specialty) => (
-                  <DropdownMenuCheckboxItem
-                    key={specialty.value}
-                    checked={selectedSpecialty === specialty.value}
-                    onCheckedChange={(checked) =>
-                      setSelectedSpecialty(checked ? specialty.value : null)
-                    }
-                  >
-                    {specialty.label}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Dropdown
+              label="Especialidade"
+              items={medicalSpecialties}
+              value={selectedSpecialty}
+              onChange={setSelectedSpecialty}
+            />
           </div>
         </div>
 
