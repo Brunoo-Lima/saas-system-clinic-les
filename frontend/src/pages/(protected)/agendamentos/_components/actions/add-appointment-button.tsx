@@ -6,7 +6,7 @@ import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 
 import type { IPatient } from '@/@types/IPatient';
 import type { IDoctor } from '@/@types/IDoctor';
-import { AddAppointmentForm } from './add-appointment-form';
+import { AddAppointmentForm } from '../add-appointment-form';
 
 interface IAddAppointmentButtonProps {
   patients: IPatient[];

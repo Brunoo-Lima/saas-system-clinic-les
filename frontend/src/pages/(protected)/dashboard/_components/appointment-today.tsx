@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DataTable } from "@/components/ui/data-table";
-import { CalendarIcon } from "lucide-react";
-import { appointmentsTableColumns } from "../../agendamentos/_components/table-columns";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DataTable } from '@/components/ui/data-table';
+import { CalendarIcon } from 'lucide-react';
+import { appointmentsTableColumns } from '../../agendamentos/_components/table/table-columns';
 
 export const AppointmentToday = () => {
   return (

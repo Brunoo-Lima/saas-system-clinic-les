@@ -1,7 +1,7 @@
-import type { IDoctor } from "@/@types/IDoctor";
-import { usePagination } from "@/hooks/use-pagination";
-import { doctorsList } from "@/mocks/doctors-list";
-import { createContext, useMemo, useState, type ChangeEvent } from "react";
+import type { IDoctor } from '@/@types/IDoctor';
+import { usePagination } from '@/hooks/use-pagination';
+import { doctorsList } from '@/mocks/doctors-list';
+import { createContext, useMemo, useState, type ChangeEvent } from 'react';
 
 interface IDoctorContextProps {
   searchTerm: string;
@@ -20,17 +20,17 @@ interface IDoctorContextProps {
 }
 
 export const DoctorContext = createContext<IDoctorContextProps | undefined>(
-  undefined
+  undefined,
 );
 
 export const DoctorProvider = ({ children }: { children: React.ReactNode }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(
-    null
+    null,
   );
   const [filteredList, setFilteredList] = useState<IDoctor[]>(
-    doctorsList as IDoctor[]
+    doctorsList as IDoctor[],
   );
   const itemsPerPage = 6;
 
@@ -39,7 +39,7 @@ export const DoctorProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (searchTerm) {
       data = data.filter((doctor) =>
-        doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
+        doctor.name.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
@@ -48,15 +48,19 @@ export const DoctorProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     if (selectedSpecialty) {
-      data = data.filter((doctor) => doctor.specialty === selectedSpecialty);
+      data = data.filter((doctor) =>
+        doctor.specialties.some(
+          (s) => s.specialty.toLowerCase() === selectedSpecialty.toLowerCase(),
+        ),
+      );
     }
 
     return data;
-  }, [selectedGender, selectedSpecialty, searchTerm]);
+  }, [selectedGender, selectedSpecialty, searchTerm, filteredList]);
 
   const { totalPages, page, setPage, paginatedData } = usePagination(
     filtered,
-    itemsPerPage
+    itemsPerPage,
   );
 
   const handlePage = (page: number) => {
