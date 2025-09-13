@@ -30,7 +30,7 @@ import { UpsertDoctorForm } from './upsert-doctor-form';
 import { toast } from 'sonner';
 // import { getAvailability } from "../_helpers/availability";
 interface ICardDoctorProps {
-  doctor: IDoctor; //retorna as props do banco
+  doctor: IDoctor;
 }
 export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
   const [isUpsertDoctorDialogOpen, setIsUpsertDoctorDialogOpen] =
@@ -50,6 +50,10 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
     if (!doctor) return;
 
     toast.success('Médico deletado com sucesso.');
+  };
+
+  const handleSendNewPassword = () => {
+    toast.success('Nova senha enviada para email!');
   };
 
   return (
@@ -106,31 +110,41 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
             isOpen={isUpsertDoctorDialogOpen}
           />
         </Dialog>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="outline" className="w-full">
-              <TrashIcon />
-              Deletar médico
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                Tem certeza que deseja deletar esse médico?
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                Essa ação não pode ser revertida. Isso irá deletar o médico e
-                todas as consultas agendadas.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteDoctorClick}>
-                Deletar
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <div className="grid grid-cols-2 gap-2 w-full">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" className="w-full">
+                <TrashIcon />
+                Deletar médico
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Tem certeza que deseja deletar esse médico?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Essa ação não pode ser revertida. Isso irá deletar o médico e
+                  todas as consultas agendadas.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteDoctorClick}>
+                  Deletar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleSendNewPassword}
+          >
+            Enviar nova senha
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );
