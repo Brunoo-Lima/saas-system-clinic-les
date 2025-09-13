@@ -1,16 +1,16 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
-} from "@/components/ui/card";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import { CalendarIcon, ClockIcon, DollarSignIcon } from "lucide-react";
-import { useState } from "react";
+} from '@/components/ui/card';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
+import { CalendarIcon, ClockIcon, DollarSignIcon } from 'lucide-react';
+import { useState } from 'react';
 
 import {
   AlertDialog,
@@ -22,13 +22,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { TrashIcon } from "lucide-react";
-import { formatCurrencyInCents } from "@/utils/format-currency-in-cents";
-import type { IDoctor } from "@/@types/IDoctor";
-import { UpsertDoctorForm } from "./upsert-doctor-form";
-import { toast } from "sonner";
-import { getAvailability } from "../_helpers/availability";
+} from '@/components/ui/alert-dialog';
+import { TrashIcon } from 'lucide-react';
+import { formatCurrencyInCents } from '@/utils/format-currency-in-cents';
+import type { IDoctor } from '@/@types/IDoctor';
+import { UpsertDoctorForm } from './upsert-doctor-form';
+import { toast } from 'sonner';
+// import { getAvailability } from "../_helpers/availability";
 interface ICardDoctorProps {
   doctor: IDoctor; //retorna as props do banco
 }
@@ -37,29 +37,19 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
     useState(false);
 
   const doctorInitials = doctor.name
-    .split(" ")
+    .split(' ')
     .map((name) => name[0])
     .slice(1, 3)
-    .join("");
+    .join('');
 
-  const availability = getAvailability(doctor);
+  // const availability = getAvailability(doctor);
 
-  console.log(availability);
-
-  // const deleteDoctorAction = useAction(deleteDoctor, {
-  //   onSuccess: () => {
-  //     toast.success("Médico deletado com sucesso.");
-  //   },
-  //   onError: () => {
-  //     toast.error("Erro ao deletar médico.");
-  //   },
-  // });
+  // console.log(availability);
 
   const handleDeleteDoctorClick = () => {
     if (!doctor) return;
 
-    // deleteDoctorAction.execute({ id: doctor.id });
-    toast.success("Médico deletado com sucesso.");
+    toast.success('Médico deletado com sucesso.');
   };
 
   return (
@@ -71,7 +61,9 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
           </Avatar>
           <div>
             <h3 className="text-sm font-medium">{doctor.name}</h3>
-            <p className="text-muted-foreground text-sm">{doctor.specialty}</p>
+            <p className="text-muted-foreground text-sm">
+              {doctor.specialties.map((s) => s.specialty).join(', ')}
+            </p>
           </div>
         </div>
       </CardHeader>

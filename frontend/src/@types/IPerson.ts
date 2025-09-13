@@ -1,9 +1,6 @@
 import type { IAddress } from './IAddress';
 
-export enum Gender {
-  MASCULINO = 'male',
-  FEMININO = 'female',
-}
+export type Gender = 'male' | 'female';
 
 export interface IPerson {
   name: string;

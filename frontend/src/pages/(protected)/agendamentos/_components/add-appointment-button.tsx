@@ -1,12 +1,12 @@
-import { PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { PlusIcon } from 'lucide-react';
+import { useState } from 'react';
 
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 
-import type { IPatient } from "@/@types/IPatient";
-import type { IDoctor } from "@/@types/IDoctor";
-import { AddAppointmentForm } from "./add-appointment-form";
+import type { IPatient } from '@/@types/IPatient';
+import type { IDoctor } from '@/@types/IDoctor';
+import { AddAppointmentForm } from './add-appointment-form';
 
 interface IAddAppointmentButtonProps {
   patients: IPatient[];

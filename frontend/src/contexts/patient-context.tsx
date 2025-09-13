@@ -18,7 +18,7 @@ interface IPatientContextProps {
 }
 
 export const PatientContext = createContext<IPatientContextProps | undefined>(
-  undefined
+  undefined,
 );
 
 export const PatientProvider = ({
@@ -36,20 +36,20 @@ export const PatientProvider = ({
 
     if (searchTerm) {
       data = data.filter((patient) =>
-        patient.name.toLowerCase().includes(searchTerm.toLowerCase())
+        patient.name.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
     if (selectedGender) {
-      data = data.filter((patient) => patient.sex === selectedGender);
+      data = data.filter((patient) => patient.gender === selectedGender);
     }
 
     return data;
-  }, [selectedGender, searchTerm]);
+  }, [selectedGender, searchTerm, filteredList]);
 
   const { totalPages, page, setPage, paginatedData } = usePagination(
     filtered,
-    itemsPerPage
+    itemsPerPage,
   );
 
   const handlePage = (page: number) => {
