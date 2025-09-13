@@ -3,19 +3,18 @@ import { City } from "../../../../domain/entities/EntityAddress/City";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
-import { cityTable, stateTable } from "../../schema";
+import { cityTable, stateTable } from "../../Schema/AddressSchema";
 import { IRepository } from "../IRepository";
 
 export class CityRepository implements IRepository {
-    async create(city: City): Promise<any> {
+    async create(city: City, tx: any): Promise<any> {
         try {
-            const cityInserted = await db.insert(cityTable).values({
+            const dbUse = tx ? tx : db
+            return await dbUse.insert(cityTable).values({
                 id: city.getUUIDHash() ?? "",
-                cep: city.cep ?? "",
                 name: city.name ?? "",
                 state_id: city.state?.getUUIDHash()
-            })
-            return cityInserted
+            }).returning()
         } catch(e) {
             return ResponseHandler.error("Failed to create a City")
         }

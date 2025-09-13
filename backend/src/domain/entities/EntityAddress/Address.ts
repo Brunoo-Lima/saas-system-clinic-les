@@ -14,11 +14,14 @@ export class Address extends EntityDomain {
     public get nameAddress() {
         return this.addressProps.nameAddress
     }
-    public get neighborhood() {
-        return this.addressProps.neighborhood
+    public get city() {
+        return this.addressProps.city
     }
     public get street() {
         return this.addressProps.street
+    }
+    public get cep(){
+        return this.addressProps.cep;
     }
     
     public get number() {

@@ -18,14 +18,20 @@ export class CreateInsuranceService {
     async execute(insuranceDTO: InsuranceDTO) {
         try {
             const specialties = insuranceDTO.specialties.map((sp) => {
-                const specialty = new SpecialtyBuilder().build()
-                specialty.setUuidHash(sp ?? "") // Use the correct property name for the id
+                const specialty = new SpecialtyBuilder()
+                .setPrice(sp.price ?? 0)
+                .setName(sp.name)
+                .setAmountTransferred(sp.amountTransferred ?? 0)
+                .build()
+                specialty.setUuidHash(sp.id ?? "") // Use the correct property name for the id
                 return specialty
             })
 
             const insuranceDomain = new InsuranceBuilder()
                 .setType(insuranceDTO.type)
-                .setSpecialties(specialties.filter((s) => { if (s.getUUIDHash() !== "") return s })).build()
+                .setSpecialties(
+                    specialties.filter((s) => { if (s.getUUIDHash() !== "") return s })
+                ).build()
 
             const validatorController = new ValidatorController()
             validatorController.setValidator(`C-${insuranceDomain.constructor.name}`, [

@@ -3,26 +3,29 @@ import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Patient } from "../../../../domain/entities/EntityPatient/Patient";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
-import { addressTable, patientTable, patientToInsuranceTable, userTable } from "../../schema";
+import { addressTable} from "../../Schema/AddressSchema";
 import { IRepository } from "../IRepository";
+import { patientTable, patientToInsuranceTable } from "../../Schema/PatientSchema";
+import { userTable } from "../../Schema/UserSchema";
 
 export class PatientRepository implements IRepository {
-    async create(patient: Patient): Promise<any> {
+    async create(patient: Patient, tx: any): Promise<any> {
         try {
             const userID = patient.user?.getUUIDHash()
-            const patientInserted = await db.insert(patientTable).values(
+            const dbUse = tx ? tx : db
+            const patientInserted = await dbUse.insert(patientTable).values(
                 {
                     id: patient.getUUIDHash(),
                     contact1: patient.contact ?? "",
                     cpf: patient.cpf ?? "",
                     name: patient.name ?? "",
                     dateOfBirth: patient.dateOfBirth?.toDateString() ?? "",
-                    user_id: userID && userID !== "" ? userID : null // UUID ou nulo, essa é a tipagem default do drizzle
+                    user_id: userID && userID !== "" ? userID : null, // UUID ou nulo, essa é a tipagem default do drizzle
+                    address_id: patient.address?.getUUIDHash()
                 }
             ).returning()
             return patientInserted;
         } catch (e) {
-            console.log(e)
             return ResponseHandler.error("Failed to create a new patient")
         }
     }

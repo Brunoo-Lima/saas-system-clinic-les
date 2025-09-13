@@ -41,25 +41,16 @@ export class PatientFactory {
     const city = new CityBuilder()
       .setState(state)
       .setName(patientDTO.address.city.name)
-      .setZipCode(patientDTO.address.city.zipcode)
       .build();
     city.setUuidHash(patientDTO.address.city.id ?? city.getUUIDHash());
-
-    // Neighborhood
-    const neighborhood = new NeighborhoodBuilder()
-      .setCity(city)
-      .setName(patientDTO.address.neighborhood.name)
-      .build();
-    neighborhood.setUuidHash(
-      patientDTO.address.neighborhood.id ?? neighborhood.getUUIDHash()
-    );
 
     // Address
     const address = new AddressBuilder()
       .setNameAddress(patientDTO.address.name)
       .setNumber(patientDTO.address.number)
+      .setCep(patientDTO.address.cep)
+      .setCity(city)
       .setStreet(patientDTO.address.street)
-      .setNeighborhood(neighborhood)
       .build();
 
     // Patient

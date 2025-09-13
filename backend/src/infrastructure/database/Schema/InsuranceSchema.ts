@@ -1,32 +1,40 @@
-import { relations } from "drizzle-orm";
 import {
   pgTable,
+  uuid,
   primaryKey,
   real,
-  uuid,
+  varchar,
 } from "drizzle-orm/pg-core";
-import { insuranceTable } from "./InsuranceSchema";
-import { specialtyTable } from "../Specialty/SpecialtySchema";
+import { specialtyTable } from "./SpecialtySchema";
+import { relations } from "drizzle-orm";
 
+
+// Tabela de planos de saúde
+export const insuranceTable = pgTable("insurance", {
+  id: uuid("ins_id").primaryKey(),
+  type: varchar("ins_type").notNull(),
+});
+
+
+
+// RELACIONAMENTOS
 // Tabela de relacionamento intermediaria: Plano de saude e Especialidade
 export const insuranceToSpecialtyTable = pgTable(
   "insurance_to_specialty",
   {
     price: real("isp_price").default(0).notNull(),
+    amountTransferred: real("isp_amount_transferred").default(0),
     insurance_id: uuid("insurance_id").references(() => insuranceTable.id),
     specialty_id: uuid("specialty_id").references(() => specialtyTable.id),
   },
   (t) => [
     {
       pk: primaryKey({
-      columns: [t.insurance_id, t.specialty_id],
-    }),
+        columns: [t.insurance_id, t.specialty_id],
+      }),
     }
   ]
 );
-
-// Relacionamentos de tabelas intermediarias (Many to Many)
-
 
 
 // Relacionamento intermediario entre: Planos de saude e especialidades

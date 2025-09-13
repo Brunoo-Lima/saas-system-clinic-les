@@ -3,27 +3,30 @@ import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Insurance } from "../../../../domain/entities/EntityInsurance/Insurance";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
-import { insuranceTable, insuranceToSpecialtyTable, specialtyTable } from "../../schema";
+import { insuranceTable, insuranceToSpecialtyTable  } from "../../Schema/InsuranceSchema";
 import { IRepository } from "../IRepository";
+import { specialtyTable } from "../../Schema/SpecialtySchema";
 
 export class InsuranceRepository implements IRepository {
     async create(insurance: Insurance): Promise<any> {
         try {
             return await db.transaction(async (tx) => {
-                const idsSpecialties = insurance.specialties!.map((sp) => sp.getUUIDHash())
+                const specialties = insurance.specialties!.filter((sp) => sp.getUUIDHash() !== "")
                 const insuranceInserted = await tx.insert(insuranceTable)
                     .values({
                         id: insurance.getUUIDHash(),
-                        type: insurance.type ?? ""
+                        type: insurance.type ?? "",
                     }).returning({
                         id: insuranceTable.id
                     })
 
                 const insurancePerSpecialty = await tx.insert(insuranceToSpecialtyTable)
-                    .values(idsSpecialties.map((id) => {
+                    .values(specialties.map((sp) => {
                         return {
+                            amountTransferred: sp.amountTransferred,
+                            price: sp.price,
                             insurance_id: insuranceInserted[0]?.id, // assuming Insurance has an id property
-                            specialty_id: id, // replace with actual property for specialty id
+                            specialty_id: sp.getUUIDHash(), // replace with actual property for specialty id
                         }
                     })).returning()
 

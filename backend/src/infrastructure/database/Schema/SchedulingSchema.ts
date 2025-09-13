@@ -4,10 +4,10 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import { doctorTable } from "../Doctor/DoctorSchema";
-import { patientTable } from "../Patient/PatientSchema";
-import { insuranceTable } from "../Insurance/InsuranceSchema";
-import { specialtyTable } from "../Specialty/SpecialtySchema";
+import { doctorTable } from "./DoctorSchema";
+import { patientTable } from "./PatientSchema";
+import { insuranceTable } from "./InsuranceSchema";
+import { specialtyTable } from "./SpecialtySchema";
 
 
 //Agendamentos

@@ -1,5 +1,5 @@
-import { IResponseHandler, ResponseHandler } from "../../../helpers/ResponseHandler";
-import { specialtyTable } from "../../../infrastructure/database/schema";
+import { ResponseHandler } from "../../../helpers/ResponseHandler";
+import { specialtyTable } from "../../../infrastructure/database/Schema/SpecialtySchema";
 import { IRepository } from "../../../infrastructure/database/repositories/IRepository";
 import { Specialty } from "../../entities/EntitySpecialty/Specialty";
 import { IProcessValidator } from "../IProcessValidator";

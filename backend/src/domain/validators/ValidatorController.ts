@@ -1,3 +1,4 @@
+import { ResponseHandler } from "../../helpers/ResponseHandler";
 import { EntityDomain } from "../entities/EntityDomain";
 import { IProcessValidator } from "./IProcessValidator";
 
@@ -13,9 +14,9 @@ export class ValidatorController {
 
         if(fails.length > 0){
             const messages = fails.map(f => Array.isArray(f.message) ? f.message[0] : f.message)
-            return { success: false, message: messages};
+            return ResponseHandler.error(messages)
         }
-        return { success: true, message: "All validations passed" };
+        return ResponseHandler.success(results, "All validations passed");
     }
 
     public setValidator(className: string, validator: IProcessValidator | IProcessValidator[]) {

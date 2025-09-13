@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
     pgTable,
     uuid,
@@ -23,17 +24,37 @@ export const cityTable = pgTable("city", {
     state_id: uuid("fk_sta_cty_id").references(() => stateTable.id)
 })
 
-export const neighborhoodTable = pgTable("neighborhood", {
-    id: uuid("id").primaryKey(),
-    name: varchar("name").notNull(),
-    city_id: uuid("city_id").references(() => cityTable.id)
-})
-
 export const addressTable = pgTable("address", {
     id: uuid("add_id").primaryKey(),
     name: varchar("add_name").notNull(),
     number: varchar("add_number").notNull(),
     street: varchar("add_street").notNull(),
     cep: varchar("add_cep").notNull(),
-    city_id: uuid("fk_add_cty_id").references(() => neighborhoodTable.id)
+    city_id: uuid("fk_add_cty_id").references(() => cityTable.id)
 })
+
+
+// Relations
+
+// Address Relations
+export const countryRelations = relations(countryTable, ({ many }) => ({
+  states: many(stateTable)
+}))
+
+// Estado → País e Cidades
+export const stateRelations = relations(stateTable, ({ one, many }) => ({
+  country: one(countryTable, {
+    fields: [stateTable.country_id],
+    references: [countryTable.id],
+  }),
+  cities: many(cityTable)
+}))
+
+
+// Endereço → Cidade
+export const addressRelation = relations(addressTable, ({ one }) => ({
+  neighborhood: one(cityTable, {
+    fields: [addressTable.city_id],
+    references: [cityTable.id],
+  })
+}))

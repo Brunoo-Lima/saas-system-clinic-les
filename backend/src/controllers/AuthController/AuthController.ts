@@ -12,12 +12,16 @@ export class AuthController {
       const userDomain = new UserBuilder()
         .setEmail(userData.email)
         .setPassword(userData.password)
+        .setRole(userData.role)
         .build();
 
       const userService = new FindUserService();
       const userExists = await userService.execute(userDomain);
       if (!userExists.success) {
         return res.status(400).json(ResponseHandler.error("User not found"));
+      }
+      if(userExists.data?.role && userExists.data.role !== userDomain.role){
+        return res.status(400).json(ResponseHandler.error("The role invalid to this user !"))
       }
       const token = jwt.sign(
         userExists.data,

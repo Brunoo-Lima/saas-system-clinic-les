@@ -14,7 +14,10 @@ import { PatientRepository } from "../../../infrastructure/database/repositories
 import { CountryRepository } from "../../../infrastructure/database/repositories/CountryRepository/CountryRepository";
 import { StateRepository } from "../../../infrastructure/database/repositories/StateRepository/StateRepository";
 import { CityRepository } from "../../../infrastructure/database/repositories/CityRepository/CityRepository";
-import { NeighborhoodRepository } from "../../../infrastructure/database/repositories/NeighborhoodRepository/NeighbohoodRepository";
+import { findOrCreate } from "../../../infrastructure/database/repositories/findOrCreate";
+import { State } from "../../../domain/entities/EntityAddress/State";
+import { City } from "../../../domain/entities/EntityAddress/City";
+import { Country } from "../../../domain/entities/EntityAddress/Country";
 
 export class CreatePatientService {
     private repository: IRepository;
@@ -22,23 +25,20 @@ export class CreatePatientService {
     private countryRepository: IRepository;
     private stateRepository: IRepository;
     private cityRepository: IRepository;
-    private neighborhoodRepository: IRepository;
     constructor() {
         this.repository = new PatientRepository()
         this.addressRepository = new AddressRepository()
         this.countryRepository = new CountryRepository()
         this.stateRepository = new StateRepository()
         this.cityRepository = new CityRepository()
-        this.neighborhoodRepository = new NeighborhoodRepository()
     }
     async execute(patientDTO: PatientDTO) {
         try {
 
             const patientDomain = PatientFactory.createFromDTO(patientDTO)
             const validatorController = new ValidatorController();
-
             validatorController.setValidator(patientDomain.constructor.name, [
-                new RequiredGeneralData(Object.keys(patientDomain.props), ["user_id"]),
+                new RequiredGeneralData(Object.keys(patientDomain.props)),
                 new EntityExits(),
                 new FormatDateValidator()
             ])
@@ -55,61 +55,26 @@ export class CreatePatientService {
             const addressIsValid = await validatorController.process(`C-${patientDomain.address.constructor.name}`, patientDomain.address, this.addressRepository)
             if (!addressIsValid.success) { return addressIsValid }
 
-            const entitiesInserted = await db.transaction(async () => {
-                // Cria o paciente
-                const patientInserted = await this.repository.create(patientDomain);
-                const neighborhood = patientDomain.address?.neighborhood;
-                const city = neighborhood?.city;
-                const state = city?.state;
-                const country = state?.country;
+            const entitiesInserted = await db.transaction(async (tx) => {
+                const addressDomain = patientDomain.address as Address;
+                const cityDomain = patientDomain.address?.city as City;
+                const stateDomain = patientDomain.address?.city?.state as State;
+                const countryDomain = patientDomain.address?.city?.state?.country as Country;
 
-                // Garantir hierarquia das entidades (busca ou cria)
-                const countryEntity = await this.countryRepository.findEntity(country!);
-                const stateEntity = await this.stateRepository.findEntity(state!);
-                const cityEntity = await this.cityRepository.findEntity(city!);
-                const neighborhoodEntity = await this.neighborhoodRepository.findEntity(neighborhood!);
+                await findOrCreate(this.countryRepository, countryDomain, tx);
+                await findOrCreate(this.stateRepository, stateDomain, tx);
+                await findOrCreate(this.cityRepository, cityDomain, tx);
+                await findOrCreate(this.addressRepository, addressDomain, tx);
 
-                if (Array.isArray(countryEntity)) { country?.setUuidHash(countryEntity[0].id) }
-                if (Array.isArray(stateEntity)) { state?.setUuidHash(stateEntity[0].id) }
-                if (Array.isArray(cityEntity)) { city?.setUuidHash(cityEntity[0].id) }
-                if (Array.isArray(neighborhoodEntity)) { neighborhood?.setUuidHash(neighborhoodEntity[0].id) }
+                const patientInserted = await this.repository.create(patientDomain, tx);
 
-                if ("success" in countryEntity) { return countryEntity }
-                if ("success" in stateEntity) { return stateEntity }
-                if ("success" in cityEntity) { return cityEntity }
-                if ("success" in neighborhoodEntity) { return neighborhoodEntity }
-
-
-                if (!Array.isArray(countryEntity)) { 
-                    const countryInserted = await this.countryRepository.create(country!)
-                    country?.setUuidHash(countryInserted[0].id)
-                }
-                if (!Array.isArray(stateEntity)) { 
-                    const stateInserted = await this.stateRepository.create(state!)
-                    country?.setUuidHash(stateInserted[0].id)
-                }
-                if (!Array.isArray(cityEntity)) { 
-                    const cityInserted = await this.cityRepository.create(city!)
-                    country?.setUuidHash(cityInserted[0].id)
-                }
-                if (!Array.isArray(neighborhoodEntity)) { 
-                    const neighborhoodInserted = await this.neighborhoodRepository.create(neighborhood!)
-                    country?.setUuidHash(neighborhoodInserted[0].id)
-                }
-
-                const addressInserted = await this.addressRepository.create(patientDomain.address!)
-                // Retorna dados
-                return {
-                    patient: patientInserted[0],
-                    address: addressInserted[0],
-                };
+                return patientInserted[0];
             });
 
 
-            if (!entitiesInserted.patient || !entitiesInserted.address) { return ResponseHandler.error("All entities cannot be created in database...") }
+            if (!entitiesInserted) { return ResponseHandler.error("All entities cannot be created in database...") }
             return ResponseHandler.success({
                 ...entitiesInserted,
-                ...entitiesInserted
             }, "Success, patient inserted.")
 
         } catch (e) {

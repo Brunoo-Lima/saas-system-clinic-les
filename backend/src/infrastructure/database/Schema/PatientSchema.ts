@@ -1,16 +1,29 @@
-import {patientTable} from './PatientSchema';
-import { relations } from "drizzle-orm";
-import {insuranceTable} from '../Insurance/InsuranceSchema';
-import { userTable } from '../User/UserSchema';
-import { addressTable } from '../Address/AddressSchema';
+import { userTable } from './UserSchema'
+import { addressTable } from './AddressSchema'
 import {
   pgTable,
-  primaryKey,
   uuid,
+  varchar,
+  primaryKey,
+  date,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { insuranceTable } from './InsuranceSchema';
+
+// Pacientes
+export const patientTable = pgTable("patient", {
+  id: uuid("pat_id").primaryKey(),
+  name: varchar("pat_name").notNull(),
+  dateOfBirth: date("pat_dateOfBirth").notNull(),
+  contact1: varchar("pat_contact1").notNull(),
+  cpf: varchar("pat_cpf").notNull().unique(),
+  user_id: uuid("fk_pat_use_id").references(() => userTable.id),
+  address_id: uuid("fk_pat_add_id").references(() => addressTable.id)
+})
 
 
 
+// RELACIONAMENTOS
 // Tabela de relacionamento intermediaria: Paciente e Plano de saude
 export const patientToInsuranceTable = pgTable(
   "patient_to_insurance",
@@ -20,7 +33,7 @@ export const patientToInsuranceTable = pgTable(
   },
   (t) => [
     {
-        pk: primaryKey({ // Chave primaria composta
+      pk: primaryKey({ // Chave primaria composta
         columns: [t.patient_id, t.insurance_id]
       })
     }
@@ -29,8 +42,8 @@ export const patientToInsuranceTable = pgTable(
 
 //Relacionamento da tabela de relacionamento 
 export const patientToInsuranceRelations = relations(
-  patientToInsuranceTable, 
-  ({one}) => ({
+  patientToInsuranceTable,
+  ({ one }) => ({
     patient: one(patientTable, {
       fields: [patientToInsuranceTable.patient_id],
       references: [patientTable.id]
@@ -46,7 +59,7 @@ export const patientToInsuranceRelations = relations(
   Paciente e Usuário 
   Paciente e endereco
 */
-export const patientRelations = relations(patientTable, ({one, many}) => ({
+export const patientRelations = relations(patientTable, ({ one, many }) => ({
   user: one(userTable,
     {
       fields: [patientTable.user_id],

@@ -1,8 +1,9 @@
-import { Neighborhood } from "../../entities/EntityAddress/Neighborhood"
+import { City } from "../../entities/EntityAddress/City"
 
 export interface IAddress {
     nameAddress?: string
-    neighborhood?: Neighborhood,
+    city?: City,
+    cep?: string,
     number?: string,
     street?: string
 }
