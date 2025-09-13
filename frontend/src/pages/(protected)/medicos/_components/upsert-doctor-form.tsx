@@ -4,7 +4,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -12,43 +12,40 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/form';
+
 import {
   doctorFormSchema,
   type DoctorFormSchema,
-} from "@/validations/doctor-form-schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, type Resolver } from "react-hook-form";
-import { medicalSpecialties } from "../_constants";
-import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
-import type { IDoctor } from "@/@types/IDoctor";
-import { toast } from "sonner";
-import FormInputCustom from "@/components/ui/form-custom/form-input-custom";
+} from '@/validations/doctor-form-schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useFieldArray, useForm, type Resolver } from 'react-hook-form';
+import { medicalSpecialties } from '../_constants';
+import { Button } from '@/components/ui/button';
+import { useEffect } from 'react';
+import type { IDoctor } from '@/@types/IDoctor';
+import { toast } from 'sonner';
+import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
 
-import { timeOptions } from "@/utils/generate-time";
-import { getDoctorDefaultValues } from "../_helpers/get-doctor-default-values";
-import { WEEK_DAYS } from "../_constants/WEEK-DAYS";
-import { WeekDayAvailabilityField } from "./fields/WeekDayAvailabilityField";
-import FormSelectCustom from "@/components/ui/form-custom/form-select-custom";
-import FormInputPhoneCustom from "@/components/ui/form-custom/form-input-phone-custom";
+import { timeOptions } from '@/utils/generate-time';
+import { getDoctorDefaultValues } from '../_helpers/get-doctor-default-values';
+import { WEEK_DAYS } from '../_constants/WEEK-DAYS';
+import { WeekDayAvailabilityField } from './fields/WeekDayAvailabilityField';
+import FormSelectCustom from '@/components/ui/form-custom/form-select-custom';
+import FormInputPhoneCustom from '@/components/ui/form-custom/form-input-phone-custom';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
+} from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { CalendarIcon, RefreshCcwIcon } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { InputPassword } from '@/components/ui/input-password';
+import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface IUpsertDoctorFormProps {
   doctor?: IDoctor;
@@ -67,44 +64,67 @@ export const UpsertDoctorForm = ({
     defaultValues: getDoctorDefaultValues(doctor),
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'specialties', // precisa bater com o schema
+  });
+
   useEffect(() => {
     if (isOpen) {
       form.reset(getDoctorDefaultValues(doctor));
     }
   }, [isOpen, form, doctor]);
 
-  // const upsertDoctorAction = useAction(upsertDoctor, {
-  //   onSuccess: () => {
-  //     toast.success("Médico adicionado com sucesso.");
-  //     onSuccess?.();
-  //   },
-  //   onError: () => {
-  //     toast.error("Erro ao adicionar médico.");
-  //   },
-  // });
+  const handleNewPasswordRandom = (length: number = 8) => {
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let password = '';
+
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * chars.length);
+      password += chars[randomIndex];
+    }
+
+    form.setValue('password', password, { shouldValidate: true });
+  };
+
+  const toggleSpecialty = (specialtyValue: string) => {
+    const index = fields.findIndex((f) => f.specialty === specialtyValue);
+    if (index >= 0) {
+      remove(index);
+    } else {
+      append({
+        specialty: specialtyValue,
+        availableWeekDay: [], // começa vazio
+      });
+    }
+  };
 
   const onSubmit = (data: DoctorFormSchema) => {
-    // upsertDoctorAction.execute({
-    //   ...values,
-    //   id: doctor?.id,
-    //   availableFromWeekDay: Number(values.availableFromWeekDay),
-    //   availableToWeekDay: Number(values.availableToWeekDay),
-    //   appointmentPriceInCents: values.appointmentPrice * 100,
-    // });
-    console.log(data);
+    const payload = {
+      ...data,
+      ...(form.watch('createUser') && {
+        user: {
+          email: data.email,
+          password: data.password,
+        },
+      }),
+    };
+
+    console.log(payload);
 
     onSuccess();
-    toast.success("Médico salvo com sucesso.");
+    toast.success('Médico salvo com sucesso.');
   };
 
   return (
     <DialogContent className="w-full sm:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-y-auto">
       <DialogHeader>
-        <DialogTitle>{doctor ? doctor.name : "Adicionar médico"}</DialogTitle>
+        <DialogTitle>{doctor ? doctor.name : 'Adicionar médico'}</DialogTitle>
         <DialogDescription>
           {doctor
-            ? "Edite as informações desse médico."
-            : "Adicione um novo médico."}
+            ? 'Edite as informações desse médico.'
+            : 'Adicione um novo médico.'}
         </DialogDescription>
       </DialogHeader>
 
@@ -130,43 +150,60 @@ export const UpsertDoctorForm = ({
 
           <FormField
             control={form.control}
-            name="specialty"
-            render={({ field }) => (
+            name="specialties"
+            render={() => (
               <FormItem>
-                <FormLabel>Especialidade</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione uma especialidade" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {medicalSpecialties.map((specialty) => (
-                      <SelectItem key={specialty.value} value={specialty.value}>
-                        {specialty.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormLabel>Especialidades</FormLabel>
+                <div className="space-y-2 grid grid-cols-2">
+                  {medicalSpecialties.map((specialty) => {
+                    const isChecked = fields.some(
+                      (f) => f.specialty === specialty.value,
+                    );
+
+                    return (
+                      <FormItem
+                        key={specialty.value}
+                        className="flex items-center space-x-2"
+                      >
+                        <FormControl>
+                          <Checkbox
+                            checked={isChecked}
+                            onCheckedChange={() =>
+                              toggleSpecialty(specialty.value)
+                            }
+                          />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          {specialty.label}
+                        </FormLabel>
+                      </FormItem>
+                    );
+                  })}
+                </div>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="availableWeekDay"
-            render={({ field }) => (
-              <WeekDayAvailabilityField
-                field={field}
-                weekDays={WEEK_DAYS}
-                timeOptions={timeOptions}
+          {fields.map((field, index) => (
+            <>
+              <strong key={field.id} className="py-2 block text-2xl">
+                {field.specialty}
+              </strong>
+              <FormField
+                key={field.id}
+                control={form.control}
+                name={`specialties.${index}.availableWeekDay`}
+                render={({ field }) => (
+                  <WeekDayAvailabilityField
+                    field={field}
+                    weekDays={WEEK_DAYS}
+                    timeOptions={timeOptions}
+                  />
+                )}
               />
-            )}
-          />
+            </>
+          ))}
 
           <strong className="py-2 block text-2xl">Dados pessoais</strong>
 
@@ -176,6 +213,58 @@ export const UpsertDoctorForm = ({
             placeholder="Digite o email"
             control={form.control}
           />
+
+          {/* Toggle para criar usuário */}
+          <div className="flex items-center gap-4">
+            <FormField
+              control={form.control}
+              name="createUser"
+              render={({ field }) => (
+                <FormItem className="flex items-center gap-4">
+                  <FormLabel>Criar login para o paciente?</FormLabel>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {form.watch('createUser') && (
+            <div className="flex flex-col gap-2">
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Senha</FormLabel>
+                    <FormControl>
+                      <InputPassword
+                        {...field}
+                        placeholder="Digite sua senha"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex items-center gap-2">
+                <p className="text-sm">Gerar senha aleatória: </p>
+                <Button
+                  className="size-8"
+                  variant={'ghost'}
+                  type="button"
+                  onClick={() => handleNewPasswordRandom()}
+                >
+                  <RefreshCcwIcon />
+                </Button>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-x-6">
             <FormInputCustom
@@ -203,14 +292,14 @@ export const UpsertDoctorForm = ({
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant={"outline"}
+                          variant={'outline'}
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
+                            'w-full pl-3 text-left font-normal',
+                            !field.value && 'text-muted-foreground',
                           )}
                         >
                           {field.value ? (
-                            format(field.value, "PPP", { locale: ptBR })
+                            format(field.value, 'PPP', { locale: ptBR })
                           ) : (
                             <span>Selecione uma data</span>
                           )}
@@ -224,7 +313,7 @@ export const UpsertDoctorForm = ({
                         selected={field.value}
                         onSelect={field.onChange}
                         disabled={(date: Date) =>
-                          date > new Date() || date < new Date("1900-01-01")
+                          date > new Date() || date < new Date('1900-01-01')
                         }
                       />
                     </PopoverContent>
@@ -238,8 +327,8 @@ export const UpsertDoctorForm = ({
               name="gender"
               label="Sexo"
               options={[
-                { value: "male", label: "Masculino" },
-                { value: "female", label: "Feminino" },
+                { value: 'male', label: 'Masculino' },
+                { value: 'female', label: 'Feminino' },
               ]}
               control={form.control}
             />
@@ -279,7 +368,7 @@ export const UpsertDoctorForm = ({
             control={form.control}
           />
 
-          <div className="grid grid-cols-2 gap-x-6">
+          <div className="grid grid-cols-3 gap-x-6">
             <FormInputCustom
               name="address.city"
               label="Cidade"
@@ -293,15 +382,22 @@ export const UpsertDoctorForm = ({
               placeholder="Digite o estado"
               control={form.control}
             />
+
+            <FormInputCustom
+              name="address.country"
+              label="País"
+              placeholder="Digite o país"
+              control={form.control}
+            />
           </div>
 
           <DialogFooter>
             <Button type="submit" disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting
-                ? "Salvando..."
+                ? 'Salvando...'
                 : doctor
-                ? "Salvar"
-                : "Adicionar"}
+                ? 'Salvar'
+                : 'Adicionar'}
             </Button>
           </DialogFooter>
         </form>

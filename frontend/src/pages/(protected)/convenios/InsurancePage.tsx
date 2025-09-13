@@ -7,33 +7,33 @@ import {
   PageHeaderContent,
   PageTitle,
 } from '@/components/ui/page-container';
-import { AddPatientButton } from './_components/actions/add-patient-button';
+import { AddInsuranceButton } from './_components/actions/add-insurance-button';
 import { DataTable } from '@/components/ui/data-table';
-import { patientsTableColumns } from './_components/table/table-columns';
-import { Suspense, useEffect } from 'react';
+import { insurancesTableColumns } from './_components/table/table-columns';
+import { useEffect } from 'react';
 import { InputSearch } from '@/components/ui/input-search';
-import { usePatient } from '@/hooks/use-patient';
 import { PaginationComponent } from '@/components/pagination-component';
+import { useInsurance } from '@/hooks/use-insurance';
 import { Dropdown } from './_components/actions/dropdown';
 
-export const PatientsPage = () => {
+export const InsurancePage = () => {
   const {
     searchTerm,
     handleSearch,
-    selectedGender,
-    setSelectedGender,
+    selectedSpecialty,
+    setSelectedSpecialty,
     paginatedData,
     page,
     handlePage,
     totalPages,
-  } = usePatient();
+  } = useInsurance();
 
   useEffect(() => {
-    document.title = 'Pacientes';
+    document.title = 'Convênios';
   }, []);
 
-  const handleChangeGender = (gender: string | null) => {
-    setSelectedGender(gender);
+  const handleChangeSpecialty = (checked: string | null) => {
+    setSelectedSpecialty(checked);
     handlePage(1);
   };
 
@@ -41,35 +41,33 @@ export const PatientsPage = () => {
     <PageContainer>
       <PageHeader>
         <PageHeaderContent>
-          <PageTitle>Pacientes</PageTitle>
+          <PageTitle>Convênios</PageTitle>
           <PageDescription>
-            Gerencie os pacientes da sua clínica
+            Gerencie os convênios da sua clínica
           </PageDescription>
         </PageHeaderContent>
 
         <PageActions>
-          <AddPatientButton />
+          <AddInsuranceButton />
         </PageActions>
       </PageHeader>
 
       <PageContent classNameCustom="flex flex-col gap-y-4">
-        <div className="flex justify-between">
+        <div className="flex md:justify-between justify-start gap-2  flex-wrap md:flex-nowrap ">
           <InputSearch
-            className="w-96"
-            placeholder="Buscar paciente"
+            className="md:w-96 w-full"
+            placeholder="Buscar convênio"
             value={searchTerm}
             onChange={handleSearch}
           />
 
           <Dropdown
-            selectedGender={selectedGender}
-            onChangeGender={handleChangeGender}
+            selectedSpecialty={selectedSpecialty}
+            onChangeSpecialty={handleChangeSpecialty}
           />
         </div>
 
-        <Suspense fallback={<div>Carregando...</div>}>
-          <DataTable columns={patientsTableColumns} data={paginatedData} />
-        </Suspense>
+        <DataTable columns={insurancesTableColumns} data={paginatedData} />
 
         <div className="flex-1 self-end">
           <PaginationComponent

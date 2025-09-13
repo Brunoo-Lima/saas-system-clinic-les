@@ -1,6 +1,6 @@
-import type { ISpecialty } from "./ISpecialty";
+import type { ISpecialty } from './ISpecialty';
 
-export interface IAgreement {
+export interface IInsurance {
   id: number;
   name: string;
   specialties: ISpecialty[];

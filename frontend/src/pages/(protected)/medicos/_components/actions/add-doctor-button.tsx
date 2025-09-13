@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { PlusIcon } from "lucide-react";
-import { UpsertDoctorForm } from "./upsert-doctor-form";
-import { useState } from "react";
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { PlusIcon } from 'lucide-react';
+import { UpsertDoctorForm } from '../upsert-doctor-form';
+import { useState } from 'react';
 
 export const AddDoctorButton = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);

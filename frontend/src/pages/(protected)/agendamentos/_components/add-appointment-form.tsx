@@ -1,20 +1,20 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { NumericFormat } from "react-number-format";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { CalendarIcon } from 'lucide-react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { NumericFormat } from 'react-number-format';
 
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import {
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -22,31 +22,31 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from '@/components/ui/popover';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 import {
   appointmentFormSchema,
   type AppointmentFormSchema,
-} from "@/validations/appointment-form-schema";
-import type { IPatient } from "@/@types/IPatient";
-import type { IDoctor } from "@/@types/IDoctor";
-import type { IAppointment } from "@/@types/IAppointment";
-import { availableTimes } from "@/mocks/available-times";
-import { specialtyList } from "@/mocks/specialty-list";
-import { toast } from "sonner";
+} from '@/validations/appointment-form-schema';
+import type { IPatient } from '@/@types/IPatient';
+import type { IDoctor } from '@/@types/IDoctor';
+import type { IAppointment } from '@/@types/IAppointment';
+import { availableTimes } from '@/mocks/available-times';
+import { specialtyList } from '@/mocks/specialty-list';
+import { toast } from 'sonner';
 
 interface IAddAppointmentFormProps {
   isOpen: boolean;
@@ -67,16 +67,16 @@ export const AddAppointmentForm = ({
     shouldUnregister: true,
     resolver: zodResolver(appointmentFormSchema),
     defaultValues: {
-      patientId: appointment?.patient.id ?? "",
-      doctorId: appointment?.doctor.id ?? "",
-      specialtyId: appointment?.specialty.id ?? "",
+      patientId: appointment?.patient.id ?? '',
+      doctorId: appointment?.doctor.id ?? '',
+      specialtyId: appointment?.specialty.id ?? '',
       appointmentPrice: 0,
       date: appointment?.date ?? undefined,
-      time: "",
+      time: '',
     },
   });
 
-  const selectedDoctorId = form.watch("doctorId");
+  const selectedDoctorId = form.watch('doctorId');
   // const selectedPatientId = form.watch("patientId");
   // const selectedDate = form.watch("date");
 
@@ -94,12 +94,12 @@ export const AddAppointmentForm = ({
   useEffect(() => {
     if (selectedDoctorId) {
       const selectedDoctor = doctors.find(
-        (doctor) => doctor.id.toString() === selectedDoctorId
+        (doctor) => doctor.id.toString() === selectedDoctorId,
       );
       if (selectedDoctor) {
         form.setValue(
-          "appointmentPrice",
-          selectedDoctor.servicePriceInCents / 100
+          'appointmentPrice',
+          selectedDoctor.servicePriceInCents / 100,
         );
       }
     }
@@ -108,12 +108,12 @@ export const AddAppointmentForm = ({
   useEffect(() => {
     if (isOpen) {
       form.reset({
-        patientId: appointment?.patient.id ?? "",
-        doctorId: appointment?.doctor.id ?? "",
-        specialtyId: appointment?.specialty.id ?? "",
+        patientId: appointment?.patient.id ?? '',
+        doctorId: appointment?.doctor.id ?? '',
+        specialtyId: appointment?.specialty.id ?? '',
         appointmentPrice: 0,
         date: appointment?.date ?? undefined,
-        time: "",
+        time: '',
       });
     }
   }, [isOpen, form, appointment]);
@@ -135,7 +135,7 @@ export const AddAppointmentForm = ({
     //   appointmentPriceInCents: values.appointmentPrice * 100,
     // });
     onSuccess();
-    toast.success("Agendamento salvo com sucesso.");
+    toast.success('Agendamento salvo com sucesso.');
   };
 
   // const isDateAvailable = (date: Date) => {
@@ -160,12 +160,12 @@ export const AddAppointmentForm = ({
     <DialogContent className="sm:max-w-[500px]">
       <DialogHeader>
         <DialogTitle>
-          {appointment ? "Editar agendamento" : "Novo agendamento"}
+          {appointment ? 'Editar agendamento' : 'Novo agendamento'}
         </DialogTitle>
         <DialogDescription>
           {appointment
-            ? "Edite as informações deste agendamento."
-            : "Crie um novo agendamento."}
+            ? 'Edite as informações deste agendamento.'
+            : 'Crie um novo agendamento.'}
         </DialogDescription>
       </DialogHeader>
 
@@ -251,7 +251,8 @@ export const AddAppointmentForm = ({
                   <SelectContent>
                     {doctors.map((doctor) => (
                       <SelectItem key={doctor.id} value={doctor.id.toString()}>
-                        {doctor.name} - {doctor.specialty}
+                        {doctor.name} -{' '}
+                        {doctor.specialties.map((s) => s.specialty).join(', ')}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -296,16 +297,16 @@ export const AddAppointmentForm = ({
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
-                        variant={"outline"}
+                        variant={'outline'}
                         // disabled={!isDateTimeEnabled}
                         className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !field.value && "text-muted-foreground"
+                          'w-full justify-start text-left font-normal',
+                          !field.value && 'text-muted-foreground',
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {field.value ? (
-                          format(field.value, "PPP", { locale: ptBR })
+                          format(field.value, 'PPP', { locale: ptBR })
                         ) : (
                           <span>Selecione uma data</span>
                         )}
@@ -353,7 +354,7 @@ export const AddAppointmentForm = ({
                         value={time.value}
                         disabled={!time.isAvailable}
                       >
-                        {time.label} {!time.isAvailable && "(Indisponível)"}
+                        {time.label} {!time.isAvailable && '(Indisponível)'}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -366,10 +367,10 @@ export const AddAppointmentForm = ({
           <DialogFooter>
             <Button type="submit" disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting
-                ? "Salvando..."
+                ? 'Salvando...'
                 : appointment
-                ? "Salvar alterações"
-                : "Criar agendamento"}
+                ? 'Salvar alterações'
+                : 'Criar agendamento'}
             </Button>
           </DialogFooter>
         </form>

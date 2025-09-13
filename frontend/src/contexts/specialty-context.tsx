@@ -1,7 +1,7 @@
-import type { ISpecialty } from "@/@types/ISpecialty";
-import { usePagination } from "@/hooks/use-pagination";
-import { specialtyList } from "@/mocks/specialty-list";
-import { createContext, useMemo, useState, type ChangeEvent } from "react";
+import type { ISpecialty } from '@/@types/ISpecialty';
+import { usePagination } from '@/hooks/use-pagination';
+import { specialtyList } from '@/mocks/specialty-list';
+import { createContext, useMemo, useState, type ChangeEvent } from 'react';
 
 interface ISpecialtyContextProps {
   searchTerm: string;
@@ -26,9 +26,9 @@ export const SpecialtyProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(
-    null
+    null,
   );
   const [filteredList, setFilteredList] = useState<ISpecialty[]>(specialtyList);
   const itemsPerPage = 10;
@@ -38,7 +38,7 @@ export const SpecialtyProvider = ({
 
     if (searchTerm) {
       data = data.filter((patient) =>
-        patient.name.toLowerCase().includes(searchTerm.toLowerCase())
+        patient.name.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
@@ -47,7 +47,7 @@ export const SpecialtyProvider = ({
 
   const { totalPages, page, setPage, paginatedData } = usePagination(
     filtered,
-    itemsPerPage
+    itemsPerPage,
   );
 
   const handlePage = (page: number) => {

@@ -1,8 +1,8 @@
-import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { ActionsAppointment } from "./actions-appointment";
-import type { IAppointment } from "@/@types/IAppointment";
+import type { ColumnDef } from '@tanstack/react-table';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { ActionsAppointment } from './actions-appointment';
+import type { IAppointment } from '@/@types/IAppointment';
 
 type AppointmentWithRelations = IAppointment & {
   patient: {
@@ -10,7 +10,7 @@ type AppointmentWithRelations = IAppointment & {
     name: string;
     email: string;
     phoneNumber: string;
-    sex: "male" | "female";
+    sex: 'male' | 'female';
   };
   doctor: {
     id: string;
@@ -21,23 +21,23 @@ type AppointmentWithRelations = IAppointment & {
 
 export const appointmentsTableColumns: ColumnDef<AppointmentWithRelations>[] = [
   {
-    id: "patient",
-    accessorKey: "patient.name",
-    header: "Paciente",
+    id: 'patient',
+    accessorKey: 'patient.name',
+    header: 'Paciente',
   },
   {
-    id: "doctor",
-    accessorKey: "doctor.name",
-    header: "Médico",
+    id: 'doctor',
+    accessorKey: 'doctor.name',
+    header: 'Médico',
     cell: (params) => {
       const appointment = params.row.original;
       return `${appointment.doctor.name}`;
     },
   },
   {
-    id: "date",
-    accessorKey: "date",
-    header: "Data e Hora",
+    id: 'date',
+    accessorKey: 'date',
+    header: 'Data e Hora',
     cell: (params) => {
       const appointment = params.row.original;
       return format(new Date(appointment.date), "dd/MM/yyyy 'às' HH:mm", {
@@ -46,25 +46,25 @@ export const appointmentsTableColumns: ColumnDef<AppointmentWithRelations>[] = [
     },
   },
   {
-    id: "specialty",
-    accessorKey: "doctor.specialty",
-    header: "Especialidade",
+    id: 'specialty',
+    accessorKey: 'doctor.specialty',
+    header: 'Especialidade',
   },
   {
-    id: "price",
-    accessorKey: "appointmentPriceInCents",
-    header: "Valor",
+    id: 'price',
+    accessorKey: 'appointmentPriceInCents',
+    header: 'Valor',
     cell: (params) => {
       const appointment = params.row.original;
       const price = appointment.appointmentPriceInCents / 100;
-      return new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
+      return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
       }).format(price);
     },
   },
   {
-    id: "actions",
+    id: 'actions',
     cell: (params) => {
       const appointment = params.row.original;
       return <ActionsAppointment appointment={appointment} />;

@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Dialog } from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
+import { Dialog } from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,7 +7,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,31 +18,23 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { EditIcon, MoreVerticalIcon, TrashIcon } from "lucide-react";
-import { useState } from "react";
-import { UpsertPatientForm } from "./upsert-patient-form";
-import type { IPatient } from "@/@types/IPatient";
+} from '@/components/ui/alert-dialog';
+import { EditIcon, MoreVerticalIcon, TrashIcon } from 'lucide-react';
+import { useState } from 'react';
+import { UpsertInsuranceForm } from '../upsert-insurance-form';
+import type { IInsurance } from '@/@types/IInsurance';
+import { toast } from 'sonner';
 
-interface IActionsPatientProps {
-  patient: IPatient;
+interface IActionsInsuranceProps {
+  insurance: IInsurance;
 }
-export const ActionsPatient = ({ patient }: IActionsPatientProps) => {
+export const ActionsInsurance = ({ insurance }: IActionsInsuranceProps) => {
   const [upsertDialogIsOpen, setUpsertDialogIsOpen] = useState(false);
 
-  // const deletePatientAction = useAction(deletePatient, {
-  //   onSuccess: () => {
-  //     toast.success("Paciente deletado com sucesso.");
-  //   },
-  //   onError: () => {
-  //     toast.error("Erro ao deletar paciente.");
-  //   },
-  // });
+  const handleDeleteInsuranceClick = () => {
+    if (!insurance) return;
 
-  const handleDeletePatientClick = () => {
-    if (!patient) return;
-
-    // deletePatientAction.execute({ id: patient.id });
+    toast.success('Convênio deletado com sucesso.');
   };
 
   return (
@@ -55,7 +47,7 @@ export const ActionsPatient = ({ patient }: IActionsPatientProps) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuLabel>{patient.name}</DropdownMenuLabel>
+            <DropdownMenuLabel>{insurance.name}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setUpsertDialogIsOpen(true)}>
               <EditIcon />
@@ -71,16 +63,16 @@ export const ActionsPatient = ({ patient }: IActionsPatientProps) => {
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>
-                    Tem certeza que deseja deletar esse paciente?
+                    Tem certeza que deseja deletar esse convênio?
                   </AlertDialogTitle>
                   <AlertDialogDescription>
                     Essa ação não pode ser revertida. Isso irá deletar o
-                    paciente e todas as consultas agendadas.
+                    convênio.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeletePatientClick}>
+                  <AlertDialogAction onClick={handleDeleteInsuranceClick}>
                     Deletar
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -89,9 +81,9 @@ export const ActionsPatient = ({ patient }: IActionsPatientProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <UpsertPatientForm
+        <UpsertInsuranceForm
           isOpen={upsertDialogIsOpen}
-          patient={patient}
+          insurance={insurance}
           onSuccess={() => setUpsertDialogIsOpen(false)}
         />
       </Dialog>

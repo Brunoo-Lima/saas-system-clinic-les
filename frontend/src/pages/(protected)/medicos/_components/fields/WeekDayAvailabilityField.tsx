@@ -1,9 +1,10 @@
-import type { DayAvailability } from "@/@types/IDoctor";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { FormItem, FormLabel } from "@/components/ui/form";
-import { useState } from "react";
-import type { ControllerRenderProps } from "react-hook-form";
+import type { DayAvailability } from '@/@types/IDoctor';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { FormItem, FormLabel } from '@/components/ui/form';
+import type { DoctorFormSchema } from '@/validations/doctor-form-schema';
+import { useState } from 'react';
+import type { ControllerRenderProps } from 'react-hook-form';
 
 interface WeekDay {
   label: string;
@@ -16,7 +17,11 @@ interface Interval {
 }
 
 interface IWeekDayAvailabilityFieldProps {
-  field: ControllerRenderProps<any, "availableWeekDay">;
+  // agora ele não é só "availableWeekDay", é algo dentro de specialties[x]
+  field: ControllerRenderProps<
+    DoctorFormSchema,
+    `specialties.${number}.availableWeekDay`
+  >;
   weekDays: WeekDay[];
   timeOptions: string[];
 }
@@ -27,12 +32,15 @@ export const WeekDayAvailabilityField = ({
   timeOptions,
 }: IWeekDayAvailabilityFieldProps) => {
   const [showIntervals, setShowIntervals] = useState<boolean>(false);
+
+  const value: DayAvailability[] = field.value ?? []; // evita undefined
+
   const updateIntervals = (
     day: string,
-    updater: (intervals: Interval[]) => Interval[]
+    updater: (intervals: Interval[]) => Interval[],
   ) => {
-    const newDays = field.value.map((d: DayAvailability) =>
-      d.day === day ? { ...d, intervals: updater(d.intervals) } : d
+    const newDays = value.map((d) =>
+      d.day === day ? { ...d, intervals: updater(d.intervals) } : d,
     );
     field.onChange(newDays);
   };
@@ -52,9 +60,7 @@ export const WeekDayAvailabilityField = ({
       {showIntervals && (
         <div className="flex flex-col gap-y-3">
           {weekDays.map((day) => {
-            const currentDay = field.value.find(
-              (d: DayAvailability) => d.day === day.value
-            );
+            const currentDay = value.find((d) => d.day === day.value);
 
             return (
               <div key={day.value} className="border rounded p-3">
@@ -64,14 +70,12 @@ export const WeekDayAvailabilityField = ({
                     onCheckedChange={(checked) => {
                       if (checked) {
                         field.onChange([
-                          ...field.value,
+                          ...value,
                           { day: day.value, intervals: [] },
                         ]);
                       } else {
                         field.onChange(
-                          field.value.filter(
-                            (d: DayAvailability) => d.day !== day.value
-                          )
+                          value.filter((d) => d.day !== day.value),
                         );
                       }
                     }}
@@ -81,71 +85,66 @@ export const WeekDayAvailabilityField = ({
 
                 {currentDay && (
                   <div className="mt-2 space-y-2">
-                    {currentDay.intervals.map(
-                      (interval: Interval, index: number) => (
-                        <div
-                          key={index}
-                          className="flex items-center space-x-2"
+                    {currentDay.intervals.map((interval, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        {/* Select From */}
+                        <select
+                          className="border p-1"
+                          value={interval.from}
+                          onChange={(e) =>
+                            updateIntervals(day.value, (intervals) =>
+                              intervals.map((i, iIdx) =>
+                                iIdx === index
+                                  ? { ...i, from: e.target.value }
+                                  : i,
+                              ),
+                            )
+                          }
                         >
-                          {/* Select From */}
-                          <select
-                            className="border p-1"
-                            value={interval.from}
-                            onChange={(e) =>
-                              updateIntervals(day.value, (intervals) =>
-                                intervals.map((i, iIdx) =>
-                                  iIdx === index
-                                    ? { ...i, from: e.target.value }
-                                    : i
-                                )
-                              )
-                            }
-                          >
-                            {timeOptions.map((t) => (
-                              <option key={t} value={t}>
-                                {t}
-                              </option>
-                            ))}
-                          </select>
+                          {timeOptions.map((t) => (
+                            <option key={t} value={t}>
+                              {t}
+                            </option>
+                          ))}
+                        </select>
 
-                          <span>às</span>
+                        <span>às</span>
 
-                          {/* Select To */}
-                          <select
-                            className="border p-1"
-                            value={interval.to}
-                            onChange={(e) =>
-                              updateIntervals(day.value, (intervals) =>
-                                intervals.map((i, iIdx) =>
-                                  iIdx === index
-                                    ? { ...i, to: e.target.value }
-                                    : i
-                                )
-                              )
-                            }
-                          >
-                            {timeOptions.map((t) => (
-                              <option key={t} value={t}>
-                                {t}
-                              </option>
-                            ))}
-                          </select>
+                        {/* Select To */}
+                        <select
+                          className="border p-1"
+                          value={interval.to}
+                          onChange={(e) =>
+                            updateIntervals(day.value, (intervals) =>
+                              intervals.map((i, iIdx) =>
+                                iIdx === index
+                                  ? { ...i, to: e.target.value }
+                                  : i,
+                              ),
+                            )
+                          }
+                        >
+                          {timeOptions.map((t) => (
+                            <option key={t} value={t}>
+                              {t}
+                            </option>
+                          ))}
+                        </select>
 
-                          {/* Remove interval */}
-                          <button
-                            type="button"
-                            className="text-red-500"
-                            onClick={() =>
-                              updateIntervals(day.value, (intervals) =>
-                                intervals.filter((_, iIdx) => iIdx !== index)
-                              )
-                            }
-                          >
-                            ❌
-                          </button>
-                        </div>
-                      )
-                    )}
+                        {/* Remove interval */}
+                        <button
+                          type="button"
+                          className="text-red-500"
+                          onClick={() =>
+                            updateIntervals(day.value, (intervals) =>
+                              intervals.filter((_, iIdx) => iIdx !== index),
+                            )
+                          }
+                        >
+                          ❌
+                        </button>
+                      </div>
+                    ))}
 
                     <Button
                       type="button"
@@ -153,7 +152,7 @@ export const WeekDayAvailabilityField = ({
                       onClick={() =>
                         updateIntervals(day.value, (intervals) => [
                           ...intervals,
-                          { from: "09:00", to: "10:00" },
+                          { from: '09:00', to: '10:00' },
                         ])
                       }
                     >

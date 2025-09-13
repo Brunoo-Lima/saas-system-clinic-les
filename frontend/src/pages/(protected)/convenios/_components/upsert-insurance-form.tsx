@@ -1,14 +1,14 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
 import {
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -16,13 +16,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
 import {
-  agreementFormSchema,
-  type AgreementFormSchema,
-} from "@/validations/agreement-form-schema";
-import { medicalSpecialties } from "../../medicos/_constants";
+  insuranceFormSchema,
+  type InsuranceFormSchema,
+} from '@/validations/insurance-form-schema';
+import { medicalSpecialties } from '../../medicos/_constants';
 import {
   Command,
   CommandEmpty,
@@ -30,38 +30,38 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
-import { CheckIcon } from "lucide-react";
-import { toast } from "sonner";
-import type { IAgreement } from "@/@types/IAgreement";
-import FormInputCustom from "@/components/ui/form-custom/form-input-custom";
+} from '@/components/ui/command';
+import { CheckIcon } from 'lucide-react';
+import { toast } from 'sonner';
+import type { IInsurance } from '@/@types/IInsurance';
+import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
 
-interface IUpsertAgreementFormProps {
+interface IUpsertInsuranceFormProps {
   isOpen: boolean;
-  agreement?: IAgreement;
+  insurance?: IInsurance;
   onSuccess: () => void;
 }
 
-export const UpsertAgreementForm = ({
-  agreement,
+export const UpsertInsuranceForm = ({
+  insurance,
   isOpen,
   onSuccess,
-}: IUpsertAgreementFormProps) => {
-  const form = useForm<AgreementFormSchema>({
+}: IUpsertInsuranceFormProps) => {
+  const form = useForm<InsuranceFormSchema>({
     shouldUnregister: true,
-    resolver: zodResolver(agreementFormSchema),
+    resolver: zodResolver(insuranceFormSchema),
     defaultValues: {
-      name: agreement?.name ?? "",
-      description: agreement?.description ?? "",
-      specialties: agreement?.specialties ?? [],
+      name: insurance?.name ?? '',
+      description: insurance?.description ?? '',
+      specialties: insurance?.specialties ?? [],
     },
   });
 
   useEffect(() => {
     if (isOpen) {
-      form.reset(agreement ?? {});
+      form.reset(insurance ?? {});
     }
-  }, [isOpen, form, agreement]);
+  }, [isOpen, form, insurance]);
 
   // const upsertPatientAction = useAction(upsertPatient, {
   //   onSuccess: () => {
@@ -73,26 +73,26 @@ export const UpsertAgreementForm = ({
   //   },
   // });
 
-  const onSubmit = (_values: AgreementFormSchema) => {
+  const onSubmit = (_values: InsuranceFormSchema) => {
     // upsertPatientAction.execute({
     //   ...values,
     //   id: patient?.id,
     // });
 
     onSuccess();
-    toast.success("Convênio salvo com sucesso.");
+    toast.success('Convênio salvo com sucesso.');
   };
 
   return (
     <DialogContent className="w-full sm:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle>
-          {agreement ? agreement.name : "Adicionar Convênio"}
+          {insurance ? insurance.name : 'Adicionar Convênio'}
         </DialogTitle>
         <DialogDescription>
-          {agreement
-            ? "Edite as informações desse convênio."
-            : "Adicione um novo convênio."}
+          {insurance
+            ? 'Edite as informações desse convênio.'
+            : 'Adicione um novo convênio.'}
         </DialogDescription>
       </DialogHeader>
 
@@ -139,7 +139,7 @@ export const UpsertAgreementForm = ({
                       <CommandGroup>
                         {medicalSpecialties.map((spec) => {
                           const isSelected = field.value.some(
-                            (s) => s.slug === spec.slug
+                            (s) => s.slug === spec.slug,
                           );
 
                           return (
@@ -149,8 +149,8 @@ export const UpsertAgreementForm = ({
                                 if (isSelected) {
                                   field.onChange(
                                     field.value.filter(
-                                      (s) => s.slug !== spec.slug
-                                    )
+                                      (s) => s.slug !== spec.slug,
+                                    ),
                                   );
                                 } else {
                                   field.onChange([
@@ -183,7 +183,7 @@ export const UpsertAgreementForm = ({
                         type="button"
                         onClick={() =>
                           field.onChange(
-                            field.value.filter((item) => item.slug !== s.slug)
+                            field.value.filter((item) => item.slug !== s.slug),
                           )
                         }
                         className="text-red-500 hover:text-red-700"
@@ -203,7 +203,7 @@ export const UpsertAgreementForm = ({
               disabled={form.formState.isSubmitting}
               className="w-full mt-4"
             >
-              {form.formState.isSubmitting ? "Salvando..." : "Salvar"}
+              {form.formState.isSubmitting ? 'Salvando...' : 'Salvar'}
             </Button>
           </DialogFooter>
         </form>

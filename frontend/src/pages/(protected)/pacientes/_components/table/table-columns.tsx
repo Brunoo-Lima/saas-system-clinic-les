@@ -1,0 +1,50 @@
+import { type ColumnDef } from '@tanstack/react-table';
+import { ActionsPatient } from './actions-patient';
+import type { IPatient } from '@/@types/IPatient';
+
+type Patient = IPatient;
+
+export const patientsTableColumns: ColumnDef<Patient>[] = [
+  {
+    id: 'name',
+    accessorKey: 'name',
+    header: 'Nome',
+  },
+  {
+    id: 'email',
+    accessorKey: 'email',
+    header: 'Email',
+  },
+  {
+    id: 'phoneNumber',
+    accessorKey: 'phoneNumber',
+    header: 'Telefone',
+
+    cell: (params) => {
+      const patient = params.row.original;
+      const phoneNumber = patient.phoneNumber;
+      if (!phoneNumber) return '';
+      const formatted = phoneNumber.replace(
+        /(\d{2})(\d{5})(\d{4})/,
+        '($1) $2-$3',
+      );
+      return formatted;
+    },
+  },
+  {
+    id: 'gender',
+    accessorKey: 'gender',
+    header: 'Sexo',
+    cell: (params) => {
+      const patient = params.row.original;
+      return patient.gender === 'male' ? 'Masculino' : 'Feminino';
+    },
+  },
+  {
+    id: 'actions',
+    cell: (params) => {
+      const patient = params.row.original;
+      return <ActionsPatient patient={patient} />;
+    },
+  },
+];
