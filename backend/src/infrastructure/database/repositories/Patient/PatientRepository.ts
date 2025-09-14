@@ -1,4 +1,4 @@
-import { eq, or } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Patient } from "../../../../domain/entities/EntityPatient/Patient";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -10,24 +10,30 @@ import { userTable } from "../../Schema/UserSchema";
 
 export class PatientRepository implements IRepository {
     async create(patient: Patient, tx: any): Promise<any> {
-        try {
-            const userID = patient.user?.getUUIDHash()
-            const dbUse = tx ? tx : db
-            const patientInserted = await dbUse.insert(patientTable).values(
-                {
-                    id: patient.getUUIDHash(),
-                    contact1: patient.contact ?? "",
-                    cpf: patient.cpf ?? "",
-                    name: patient.name ?? "",
-                    dateOfBirth: patient.dateOfBirth?.toDateString() ?? "",
-                    user_id: userID && userID !== "" ? userID : null, // UUID ou nulo, essa é a tipagem default do drizzle
-                    address_id: patient.address?.getUUIDHash()
-                }
-            ).returning()
-            return patientInserted;
-        } catch (e) {
-            return ResponseHandler.error("Failed to create a new patient")
-        }
+        
+        const userID = patient.user?.getUUIDHash()
+        const dbUse = tx ? tx : db
+        const patientInserted = await dbUse.insert(patientTable).values(
+            {
+                id: patient.getUUIDHash(),
+                contact1: patient.contact ?? "",
+                cpf: patient.cpf ?? "",
+                name: patient.name ?? "",
+                dateOfBirth: patient.dateOfBirth?.toDateString() ?? "",
+                user_id: userID && userID !== "" ? userID : null, // UUID ou nulo, essa é a tipagem default do drizzle
+                address_id: patient.address?.getUUIDHash()
+
+            }
+        ).returning()
+        await dbUse.insert(patientToInsuranceTable).values((patient.insurances ?? []).map((sp) => {
+            return {
+                insurance_id: sp.getUUIDHash(), // assuming Insurance has an id property
+                patient_id: patient.getUUIDHash(), // replace with actual property for specialty id
+            }
+        })).returning()
+        
+        return patientInserted;
+  
     }
     async findEntity(patient: Patient): Promise<any> {
         try {
@@ -36,11 +42,14 @@ export class PatientRepository implements IRepository {
                     .where(
                         or(
                             eq(patientTable.id, patient.getUUIDHash()),
-                            eq(patientTable.name, patient.name ?? ""),
-                            eq(patientTable.cpf, patient.cpf ?? ""),
+                            and(
+                                eq(patientTable.name, patient.name ?? ""),
+                                eq(patientTable.cpf, patient.cpf ?? ""),
+                            ),
+                            eq(userTable.id, patient.user?.getUUIDHash() ?? "")
                         )
                     ).leftJoin(patientToInsuranceTable,
-                        eq(patientToInsuranceTable.patient_id, patient.getUUIDHash())
+                        eq(patientToInsuranceTable.patient_id, patientTable.id)
                     ).leftJoin(addressTable,
                         eq(addressTable.id, patientTable.address_id)
                     ).leftJoin(userTable,

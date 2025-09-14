@@ -1,4 +1,4 @@
-import { eq, ilike, inArray, or, and } from "drizzle-orm";
+import { eq, inArray, or, and } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Insurance } from "../../../../domain/entities/EntityInsurance/Insurance";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -94,7 +94,10 @@ export class InsuranceRepository implements IRepository {
             const insurancesFormatted = Array.isArray(insurance) ? insurance : [insurance]
             const insurances = await db.select().from(insuranceTable)
             .where(
-                inArray(insuranceTable.type, insurancesFormatted.map((ins) => ins?.type ?? ""))
+                or(
+                    inArray(insuranceTable.type, insurancesFormatted.map((ins) => ins?.type ?? "")),
+                    inArray(insuranceTable.id, insurancesFormatted.map((ins) => ins?.getUUIDHash() ?? ""))
+                )
             )
             return insurances
         } catch (e) {

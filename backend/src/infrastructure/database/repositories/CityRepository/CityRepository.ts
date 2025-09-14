@@ -25,13 +25,13 @@ export class CityRepository implements IRepository {
             if (city.getUUIDHash()) filters.push(eq(cityTable.id, city.getUUIDHash()))
             if (city.name) filters.push(ilike(cityTable.name, city.name ?? ""))
 
-            const countriesFounded = await db.select().from(cityTable)
+            const citiesFounded = await db.select().from(cityTable)
                 .where(
                     or(...filters)
                 ).leftJoin(stateTable, 
                     eq(stateTable.id, cityTable.id)
                 )
-            return countriesFounded
+            return citiesFounded
         } catch(e){ 
             return ResponseHandler.error("Failed to find the City")
         }

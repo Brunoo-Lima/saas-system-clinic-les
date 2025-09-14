@@ -8,7 +8,10 @@ export const findOrCreate = async (
 ) => {
     const data = await repository.findEntity(entityDomain, tx);
 
-    if (data && Array.isArray(data) && data.length > 0) return data;
+    if (data && Array.isArray(data) && data.length > 0) {
+        entityDomain.setUuidHash(data[0].id);
+        return data
+    }
 
     const dataInserted = await repository.create(entityDomain, tx);
 

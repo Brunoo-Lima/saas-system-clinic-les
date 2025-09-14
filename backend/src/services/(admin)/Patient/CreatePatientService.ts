@@ -1,3 +1,4 @@
+import db from "../../../infrastructure/database/connection";
 import { Address } from "../../../domain/entities/EntityAddress/Address";
 import { PatientFactory } from "../../../domain/entities/EntityPatient/PatientFactory";
 import { PropsValidator } from "../../../domain/validators/AddressValidator/PropsValidator";
@@ -6,7 +7,6 @@ import { FormatDateValidator } from "../../../domain/validators/General/FormatDa
 import { RequiredGeneralData } from "../../../domain/validators/General/RequiredGeneralData";
 import { ValidatorController } from "../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../helpers/ResponseHandler";
-import db from "../../../infrastructure/database/connection";
 import { PatientDTO } from "../../../infrastructure/dto/PatientDTO";
 import { AddressRepository } from "../../../infrastructure/database/repositories/AddressRepository/AddressRepository";
 import { IRepository } from "../../../infrastructure/database/repositories/IRepository";
@@ -18,6 +18,8 @@ import { findOrCreate } from "../../../infrastructure/database/repositories/find
 import { State } from "../../../domain/entities/EntityAddress/State";
 import { City } from "../../../domain/entities/EntityAddress/City";
 import { Country } from "../../../domain/entities/EntityAddress/Country";
+import { InsuranceToPatient } from "../../../domain/validators/Patient/InsuranceToPatient";
+import { UserAlreadyVinculate } from "../../../domain/validators/Patient/UserAlreadyVinculate";
 
 export class CreatePatientService {
     private repository: IRepository;
@@ -25,6 +27,7 @@ export class CreatePatientService {
     private countryRepository: IRepository;
     private stateRepository: IRepository;
     private cityRepository: IRepository;
+
     constructor() {
         this.repository = new PatientRepository()
         this.addressRepository = new AddressRepository()
@@ -39,6 +42,8 @@ export class CreatePatientService {
             const validatorController = new ValidatorController();
             validatorController.setValidator(patientDomain.constructor.name, [
                 new RequiredGeneralData(Object.keys(patientDomain.props)),
+                new InsuranceToPatient(),
+                new UserAlreadyVinculate(),
                 new EntityExits(),
                 new FormatDateValidator()
             ])
@@ -56,26 +61,32 @@ export class CreatePatientService {
             if (!addressIsValid.success) { return addressIsValid }
 
             const entitiesInserted = await db.transaction(async (tx) => {
-                const addressDomain = patientDomain.address as Address;
-                const cityDomain = patientDomain.address?.city as City;
-                const stateDomain = patientDomain.address?.city?.state as State;
-                const countryDomain = patientDomain.address?.city?.state?.country as Country;
+                try {
+                    const addressDomain = patientDomain.address as Address;
+                    const cityDomain = patientDomain.address?.city as City;
+                    const stateDomain = patientDomain.address?.city?.state as State;
+                    const countryDomain = patientDomain.address?.city?.state?.country as Country;
 
-                await findOrCreate(this.countryRepository, countryDomain, tx);
-                await findOrCreate(this.stateRepository, stateDomain, tx);
-                await findOrCreate(this.cityRepository, cityDomain, tx);
-                await findOrCreate(this.addressRepository, addressDomain, tx);
-
-                const patientInserted = await this.repository.create(patientDomain, tx);
-
-                return patientInserted[0];
+                    await findOrCreate(this.countryRepository, countryDomain, tx);
+                    await findOrCreate(this.stateRepository, stateDomain, tx);
+                    await findOrCreate(this.cityRepository, cityDomain, tx);
+                    
+                    const addressInserted = await findOrCreate(this.addressRepository, addressDomain, tx);
+                    const patientInserted = await this.repository.create(patientDomain, tx);
+                    
+                    return ResponseHandler.success({
+                        patient:  patientInserted[0],
+                        address: addressInserted[0]
+                    }, "Entities inserted !")
+                    
+                } catch (e) {
+                    return ResponseHandler.error("Failed to create patient and all data")
+                }
             });
 
 
-            if (!entitiesInserted) { return ResponseHandler.error("All entities cannot be created in database...") }
-            return ResponseHandler.success({
-                ...entitiesInserted,
-            }, "Success, patient inserted.")
+            if (!entitiesInserted.success) { return ResponseHandler.error(entitiesInserted.message) }
+            return entitiesInserted
 
         } catch (e) {
             return ResponseHandler.error((e as Error).message)

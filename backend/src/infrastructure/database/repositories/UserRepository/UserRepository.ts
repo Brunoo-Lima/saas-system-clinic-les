@@ -55,7 +55,6 @@ export class UserRepository implements IUserRepository {
             eq(userTable.id, user.getUUIDHash()),
             eq(userTable.email, user.email!)
           )
-
         )
       return userFounded || null;
 
