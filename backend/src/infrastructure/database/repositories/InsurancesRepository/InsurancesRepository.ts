@@ -1,29 +1,32 @@
-import { eq, ilike, inArray, or, and } from "drizzle-orm";
+import { eq, inArray, or, and } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Insurance } from "../../../../domain/entities/EntityInsurance/Insurance";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
-import { insuranceTable, insuranceToSpecialtyTable, specialtyTable } from "../../schema";
+import { insuranceTable, insuranceToSpecialtyTable  } from "../../Schema/InsuranceSchema";
 import { IRepository } from "../IRepository";
+import { specialtyTable } from "../../Schema/SpecialtySchema";
 
 export class InsuranceRepository implements IRepository {
     async create(insurance: Insurance): Promise<any> {
         try {
             return await db.transaction(async (tx) => {
-                const idsSpecialties = insurance.specialties!.map((sp) => sp.getUUIDHash())
+                const specialties = insurance.specialties!.filter((sp) => sp.getUUIDHash() !== "")
                 const insuranceInserted = await tx.insert(insuranceTable)
                     .values({
                         id: insurance.getUUIDHash(),
-                        type: insurance.type ?? ""
+                        name: insurance.name ?? "",
                     }).returning({
                         id: insuranceTable.id
                     })
 
                 const insurancePerSpecialty = await tx.insert(insuranceToSpecialtyTable)
-                    .values(idsSpecialties.map((id) => {
+                    .values(specialties.map((sp) => {
                         return {
+                            amountTransferred: sp.amountTransferred,
+                            price: sp.price,
                             insurance_id: insuranceInserted[0]?.id, // assuming Insurance has an id property
-                            specialty_id: id, // replace with actual property for specialty id
+                            specialty_id: sp.getUUIDHash(), // replace with actual property for specialty id
                         }
                     })).returning()
 
@@ -48,20 +51,20 @@ export class InsuranceRepository implements IRepository {
             const whereCondition = specialtyFilter
                 ? and(
                     or(
-                        eq(insuranceTable.type, insurance.type ?? ""),
+                        eq(insuranceTable.name, insurance.name ?? ""),
                         eq(insuranceTable.id, insurance.getUUIDHash())
                     ),
                     specialtyFilter
                 )
                 : or(
-                    eq(insuranceTable.type, insurance.type ?? ""),
+                    eq(insuranceTable.name, insurance.name ?? ""),
                     eq(insuranceTable.id, insurance.getUUIDHash())
                 );
 
             return tx
                 .select({
                     id: insuranceTable.id,
-                    type: insuranceTable.type,
+                    type: insuranceTable.name,
                     specialtyName: specialtyTable.name,
                     specialtyId: specialtyTable.id,
                 })
@@ -91,7 +94,10 @@ export class InsuranceRepository implements IRepository {
             const insurancesFormatted = Array.isArray(insurance) ? insurance : [insurance]
             const insurances = await db.select().from(insuranceTable)
             .where(
-                inArray(insuranceTable.type, insurancesFormatted.map((ins) => ins?.type ?? ""))
+                or(
+                    inArray(insuranceTable.name, insurancesFormatted.map((ins) => ins?.name ?? "")),
+                    inArray(insuranceTable.id, insurancesFormatted.map((ins) => ins?.getUUIDHash() ?? ""))
+                )
             )
             return insurances
         } catch (e) {

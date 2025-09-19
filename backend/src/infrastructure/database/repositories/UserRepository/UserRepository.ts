@@ -4,7 +4,7 @@ import db from "../../connection";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { randomUUID } from "crypto";
 import { eq, or } from "drizzle-orm";
-import { userTable } from "../../schema";
+import { userTable } from "../../Schema/UserSchema";
 
 export class UserRepository implements IUserRepository {
   async createUser(user: User) {
@@ -23,6 +23,7 @@ export class UserRepository implements IUserRepository {
         }).returning({
           id: userTable.id,
           email: userTable.email,
+          password: userTable.password
         });
       return ResponseHandler.success(
         userInserted[0],
@@ -38,7 +39,7 @@ export class UserRepository implements IUserRepository {
       const user = await db
         .select()
         .from(userTable)
-        .where(eq(userTable.email, email),)
+        .where(eq(userTable.email, email))
         .limit(1);
       return user[0] || null;
     } catch (error) {
@@ -55,7 +56,6 @@ export class UserRepository implements IUserRepository {
             eq(userTable.id, user.getUUIDHash()),
             eq(userTable.email, user.email!)
           )
-
         )
       return userFounded || null;
 

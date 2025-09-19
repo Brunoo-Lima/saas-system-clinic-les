@@ -1,14 +1,14 @@
 import { IPatient } from "../../@types/Patient/IPatient";
 import { Address } from "../EntityAddress/Address";
-import { Insurance } from "../EntityInsurance/Insurance";
+import { CartInsurance } from "../EntityCartInsurance/CartInsurance";
 import { User } from "../EntityUser/User";
 import { Patient } from "./Patient";
 
 export class PatientBuilder {
     private data: Partial<IPatient> = {};
     
-      setContact(contact: string = ""): this {
-        this.data.contact = contact
+      setPhone(phone: string = ""): this {
+        this.data.phone = phone
         return this;
       }
     
@@ -32,8 +32,8 @@ export class PatientBuilder {
         return this;
       }
 
-      setInsurances(insurances: Insurance[] = []): this {
-        this.data.insurances = insurances;
+      setCartInsurances(cartInsurances: CartInsurance[] = []): this {
+        this.data.cartInsurances = cartInsurances;
         return this;
       }
       
@@ -42,6 +42,10 @@ export class PatientBuilder {
         return this;
       }
       
+      setSex(sex: string = ""): this {
+        this.data.sex = sex
+        return this
+      }
       build(): Patient {
         return new Patient(
           this.data, // garante que todas as propriedades obrigatórias estão presentes

@@ -3,16 +3,17 @@ import { Country } from "../../../../domain/entities/EntityAddress/Country";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
-import { countryTable } from "../../schema";
+import { countryTable } from "../../Schema/AddressSchema";
 import { IRepository } from "../IRepository";
 
 export class CountryRepository implements IRepository {
-    async create(country: Country): Promise<any> {
+    async create(country: Country, tx: any): Promise<any> {
         try {
-            const countryDb = await db.insert(countryTable).values({
+            const dbUse = tx ? tx : db
+            const countryDb = await dbUse.insert(countryTable).values({
                 id: country.getUUIDHash() ?? "",
                 name: country.name ?? ""
-            })
+            }).returning()
             return countryDb
         } catch (e) {
             return ResponseHandler.error(["Failed to create country"])

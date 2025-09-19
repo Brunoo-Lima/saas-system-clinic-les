@@ -1,6 +1,6 @@
 import { IAddress } from "../../../@types/Address/IAddress";
 import { Address } from "../Address";
-import { Neighborhood } from "../Neighborhood";
+import { City } from "../City";
 
 export class AddressBuilder {
     private data: Partial<IAddress> = {};
@@ -13,18 +13,24 @@ export class AddressBuilder {
       setNumber(number: string = ""): this {
         this.data.number = number;
         return this;
-      }
-    
-      setNeighborhood(neighborhood: Neighborhood): this {
-        this.data.neighborhood = neighborhood;
-        return this;
-      }
+      }  
     
       setStreet(street: string = ""): this {
         this.data.street = street;
         return this;
       }
-
+      setCity(city: City): this {
+        this.data.city = city;
+        return this
+      }
+      setCep(cep: string = ""): this {
+        this.data.cep = cep
+        return this
+      }
+      setNeighborhood(neighborhood: string = ""): this {
+        this.data.neighborhood = neighborhood
+        return this
+      }
       build(): Address {
         return new Address(
           this.data, // garante que todas as propriedades obrigatórias estão presentes

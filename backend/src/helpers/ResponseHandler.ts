@@ -13,7 +13,7 @@ export class ResponseHandler {
     };
   }
 
-  public static error<T>(message: string | string[], data?: T) {
+  public static error<T>(message: string | string[] | any, data?: T) {
     const messageFormatted = Array.isArray(message) ? message : [message]
     return {
       success: false,

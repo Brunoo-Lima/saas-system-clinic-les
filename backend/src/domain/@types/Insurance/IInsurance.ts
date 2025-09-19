@@ -1,6 +1,9 @@
+import { Modality } from "../../entities/EntityModality/Modality"
 import { Specialty } from "../../entities/EntitySpecialty/Specialty"
 
 export interface IInsurance {
-    type?: string
+    id?: string
+    name?: string
+    modalities?: Array<Modality>
     specialties?: Array<Specialty>
 }

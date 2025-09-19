@@ -11,8 +11,8 @@ export class EntityExits implements IProcessValidator {
             const entityReceived = this.entityDomain ? this.entityDomain : entity
             const entityExists = await repository.findEntity(entityReceived)
             if ("success" in entityExists && !entityExists.success) { return entityExists }
-            if (entityExists.length) { return ResponseHandler.error(`${entityReceived.constructor.name}  already exists in database`) }
-            return ResponseHandler.success(entityReceived, `${entityReceived.constructor.name} not found in database, you can inserted !`)
+            if (entityExists.length) { return ResponseHandler.error(`${entityReceived.constructor.name} already exists in database or cannot be connected`, entityExists) }
+            return ResponseHandler.success(entityExists, `${entityReceived.constructor.name} not found in database, you can inserted !`)
 
         } catch (e) {
             return ResponseHandler.error((e as Error).message)

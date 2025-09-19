@@ -9,6 +9,7 @@ import { ResponseHandler } from "../../../helpers/ResponseHandler";
 import { InsuranceDTO } from "../../../infrastructure/dto/InsuranceDTO";
 import { InsuranceRepository } from "../../../infrastructure/database/repositories/InsurancesRepository/InsurancesRepository";
 import { IRepository } from "../../../infrastructure/database/repositories/IRepository";
+import { Modality } from "../../../domain/entities/EntityModality/Modality";
 
 export class CreateInsuranceService {
     private repository: IRepository;
@@ -18,14 +19,27 @@ export class CreateInsuranceService {
     async execute(insuranceDTO: InsuranceDTO) {
         try {
             const specialties = insuranceDTO.specialties.map((sp) => {
-                const specialty = new SpecialtyBuilder().build()
-                specialty.setUuidHash(sp ?? "") // Use the correct property name for the id
+                const specialty = new SpecialtyBuilder()
+                .setPrice(sp.price ?? 0)
+                .setName(sp.name)
+                .setAmountTransferred(sp.amountTransferred ?? 0)
+                .build()
+                specialty.setUuidHash(sp.id ?? "") // Use the correct property name for the id
                 return specialty
+            })
+            const modalities = insuranceDTO.modalities?.map((md) => {
+                const modality = new Modality({
+                    type: md.type ?? ""
+                })
+                return modality
             })
 
             const insuranceDomain = new InsuranceBuilder()
-                .setType(insuranceDTO.type)
-                .setSpecialties(specialties.filter((s) => { if (s.getUUIDHash() !== "") return s })).build()
+                .setName(insuranceDTO.name)
+                .setModalities(modalities ?? [])
+                .setSpecialties(
+                    specialties.filter((s) => { if (s.getUUIDHash() !== "") return s })
+                ).build()
 
             const validatorController = new ValidatorController()
             validatorController.setValidator(`C-${insuranceDomain.constructor.name}`, [

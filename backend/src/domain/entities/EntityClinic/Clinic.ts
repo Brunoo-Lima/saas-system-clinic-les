@@ -1,5 +1,6 @@
 import { IClinic } from "../../@types/Clinic/IClinic";
 import { EntityDomain } from "../EntityDomain";
+import { User } from "../EntityUser/User";
 
 export class Clinic extends EntityDomain {
     constructor(
@@ -7,4 +8,9 @@ export class Clinic extends EntityDomain {
     ){
         super()
     }
+    
+    public get user() : User {
+        return this.clinicProps.user
+    }
+    
 }

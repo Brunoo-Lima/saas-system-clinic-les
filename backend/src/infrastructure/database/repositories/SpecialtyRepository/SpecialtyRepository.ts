@@ -1,18 +1,19 @@
-import { and, eq, inArray, or } from "drizzle-orm";
+import { and, eq, ilike, inArray, or } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Specialty } from "../../../../domain/entities/EntitySpecialty/Specialty";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
-import { specialtyTable } from "../../schema";
+import { specialtyTable } from "../../Schema/SpecialtySchema";
 import { IRepository } from "../IRepository";
 
 export class SpecialtyRepository implements IRepository {
     async create(specialties: Array<Specialty>, id?: string): Promise<any> {
         try {
 
-            const specialtiesMapped = specialties.map((s) => ({ id: s.getUUIDHash(), name: s.name!, price: s.price }))
+            const specialtiesMapped = specialties.map((s) => ({ id: s.getUUIDHash(), name: s.name! }))
             const specialtiesSaved = await db.insert(specialtyTable).values(specialtiesMapped).returning({
-                id: specialtyTable.id
+                id: specialtyTable.id,
+                name: specialtyTable.name
             })
             return specialtiesSaved
 
@@ -25,11 +26,11 @@ export class SpecialtyRepository implements IRepository {
             if (Array.isArray(specialties)) {
                 const namesMapped = specialties
                     .filter((s) => !!s.name)
-                    .map((s) => s.name as string);
+                    .map((s) => ilike(specialtyTable.name, s.name as string));
                 const specialtiesFounded = await db.select().from(specialtyTable)
                     .where(
                         or(
-                            inArray(specialtyTable.name, namesMapped),
+                            ...namesMapped,
                             inArray(
                                 specialtyTable.id,
                                 specialties
@@ -44,13 +45,11 @@ export class SpecialtyRepository implements IRepository {
                 .where(
                     or(
                         eq(specialtyTable.id, specialties.getUUIDHash()),
-                        eq(specialtyTable.name, specialties.name ?? ""),
-                        eq(specialtyTable.price, specialties.price ?? 0),
+                        ilike(specialtyTable.name, specialties.name ?? ""),
                         or(
                             and(
                                 eq(specialtyTable.id, specialties.getUUIDHash()),
-                                eq(specialtyTable.name, specialties.name ?? ""),
-                                eq(specialtyTable.price, specialties.price ?? 0)
+                                ilike(specialtyTable.name, specialties.name ?? ""),
                             )
                         )
                     )
