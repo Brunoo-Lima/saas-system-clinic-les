@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
     pgTable,
     uuid,
@@ -6,6 +7,9 @@ import {
     timestamp,
     varchar,
 } from "drizzle-orm/pg-core";
+import { patientTable } from "./PatientSchema";
+import { doctorTable } from "./DoctorSchema";
+import { clinicTable } from "./ClinicSchema";
 
 export const userTable = pgTable("users", {
   id: uuid("use_id").primaryKey(),
@@ -22,3 +26,11 @@ export const userTable = pgTable("users", {
     .$defaultFn(() => new Date())
     .notNull(),
 });
+
+export const userRelations = relations(userTable, ({ many }) => (
+  {
+    patients: many(patientTable),
+    doctors: many(doctorTable),
+    clinic: many(clinicTable)
+  })
+)

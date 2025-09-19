@@ -28,5 +28,8 @@ export class Address extends EntityDomain {
         return this.addressProps.number
     }
     
+    public get neighborhood(){
+        return this.addressProps.neighborhood
+    }
     
 }

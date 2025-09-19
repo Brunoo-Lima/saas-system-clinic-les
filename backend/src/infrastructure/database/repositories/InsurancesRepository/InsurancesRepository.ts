@@ -15,7 +15,7 @@ export class InsuranceRepository implements IRepository {
                 const insuranceInserted = await tx.insert(insuranceTable)
                     .values({
                         id: insurance.getUUIDHash(),
-                        type: insurance.type ?? "",
+                        name: insurance.name ?? "",
                     }).returning({
                         id: insuranceTable.id
                     })
@@ -51,20 +51,20 @@ export class InsuranceRepository implements IRepository {
             const whereCondition = specialtyFilter
                 ? and(
                     or(
-                        eq(insuranceTable.type, insurance.type ?? ""),
+                        eq(insuranceTable.name, insurance.name ?? ""),
                         eq(insuranceTable.id, insurance.getUUIDHash())
                     ),
                     specialtyFilter
                 )
                 : or(
-                    eq(insuranceTable.type, insurance.type ?? ""),
+                    eq(insuranceTable.name, insurance.name ?? ""),
                     eq(insuranceTable.id, insurance.getUUIDHash())
                 );
 
             return tx
                 .select({
                     id: insuranceTable.id,
-                    type: insuranceTable.type,
+                    type: insuranceTable.name,
                     specialtyName: specialtyTable.name,
                     specialtyId: specialtyTable.id,
                 })
@@ -95,7 +95,7 @@ export class InsuranceRepository implements IRepository {
             const insurances = await db.select().from(insuranceTable)
             .where(
                 or(
-                    inArray(insuranceTable.type, insurancesFormatted.map((ins) => ins?.type ?? "")),
+                    inArray(insuranceTable.name, insurancesFormatted.map((ins) => ins?.name ?? "")),
                     inArray(insuranceTable.id, insurancesFormatted.map((ins) => ins?.getUUIDHash() ?? ""))
                 )
             )

@@ -1,9 +1,9 @@
 import "dotenv/config";
 import { Request, Response } from "express";
-import { ResponseHandler } from "../../helpers/ResponseHandler";
-import { UserBuilder } from "../../domain/entities/EntityUser/UserBuilder";
-import { FindUserService } from "../../services/(admin)/User/FindUserService";
 import jwt from "jsonwebtoken";
+import { UserBuilder } from "../../../domain/entities/EntityUser/UserBuilder";
+import { FindUserService } from "../../../services/(admin)/User/FindUserService";
+import { ResponseHandler } from "../../../helpers/ResponseHandler";
 
 export class AuthController {
   async handle(req: Request, res: Response) {

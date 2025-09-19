@@ -26,8 +26,9 @@ export const cityTable = pgTable("city", {
 
 export const addressTable = pgTable("address", {
     id: uuid("add_id").primaryKey(),
-    name: varchar("add_name").notNull(),
+    name: varchar("add_name").notNull().unique(),
     number: varchar("add_number").notNull(),
+    neighborhood: varchar("add_neighborhood").notNull(),
     street: varchar("add_street").notNull(),
     cep: varchar("add_cep").notNull(),
     city_id: uuid("fk_add_cty_id").references(() => cityTable.id)

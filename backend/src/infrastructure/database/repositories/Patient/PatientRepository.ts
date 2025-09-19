@@ -5,7 +5,7 @@ import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
 import { addressTable} from "../../Schema/AddressSchema";
 import { IRepository } from "../IRepository";
-import { patientTable, patientToInsuranceTable } from "../../Schema/PatientSchema";
+import { patientTable, patientToCartInsuranceTable } from "../../Schema/PatientSchema";
 import { userTable } from "../../Schema/UserSchema";
 
 export class PatientRepository implements IRepository {
@@ -16,7 +16,7 @@ export class PatientRepository implements IRepository {
         const patientInserted = await dbUse.insert(patientTable).values(
             {
                 id: patient.getUUIDHash(),
-                contact1: patient.contact ?? "",
+                phone: patient.phone ?? "",
                 cpf: patient.cpf ?? "",
                 name: patient.name ?? "",
                 dateOfBirth: patient.dateOfBirth?.toDateString() ?? "",
@@ -25,9 +25,9 @@ export class PatientRepository implements IRepository {
 
             }
         ).returning()
-        await dbUse.insert(patientToInsuranceTable).values((patient.insurances ?? []).map((sp) => {
+        await dbUse.insert(patientToCartInsuranceTable).values((patient.cartInsurances ?? []).map((cts) => {
             return {
-                insurance_id: sp.getUUIDHash(), // assuming Insurance has an id property
+                cart_insurance_id: cts.getUUIDHash(), // assuming Insurance has an id property
                 patient_id: patient.getUUIDHash(), // replace with actual property for specialty id
             }
         })).returning()
@@ -48,8 +48,8 @@ export class PatientRepository implements IRepository {
                             ),
                             eq(userTable.id, patient.user?.getUUIDHash() ?? "")
                         )
-                    ).leftJoin(patientToInsuranceTable,
-                        eq(patientToInsuranceTable.patient_id, patientTable.id)
+                    ).leftJoin(patientToCartInsuranceTable,
+                        eq(patientToCartInsuranceTable.patient_id, patientTable.id)
                     ).leftJoin(addressTable,
                         eq(addressTable.id, patientTable.address_id)
                     ).leftJoin(userTable,

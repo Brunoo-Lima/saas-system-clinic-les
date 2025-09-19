@@ -23,6 +23,7 @@ export class UserRepository implements IUserRepository {
         }).returning({
           id: userTable.id,
           email: userTable.email,
+          password: userTable.password
         });
       return ResponseHandler.success(
         userInserted[0],

@@ -19,7 +19,7 @@ export class FindInsuranceService {
             })
 
             const insuranceDomain = new InsuranceBuilder()
-                .setType(insuranceDTO.type)
+                .setName(insuranceDTO.name)
                 .setSpecialties(specialties?.filter((s) => { if (s.getUUIDHash() !== "") return s }))
                 .build()
 

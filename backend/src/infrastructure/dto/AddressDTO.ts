@@ -1,4 +1,4 @@
-export interface IAddressDTO {
+export interface AddressDTO {
     name: string,
     street: string,
     number: string,

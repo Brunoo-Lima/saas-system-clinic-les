@@ -18,7 +18,7 @@ import { findOrCreate } from "../../../infrastructure/database/repositories/find
 import { State } from "../../../domain/entities/EntityAddress/State";
 import { City } from "../../../domain/entities/EntityAddress/City";
 import { Country } from "../../../domain/entities/EntityAddress/Country";
-import { InsuranceToPatient } from "../../../domain/validators/Patient/InsuranceToPatient";
+// import { InsuranceToPatient } from "../../../domain/validators/Patient/InsuranceToPatient";
 import { UserAlreadyVinculate } from "../../../domain/validators/Patient/UserAlreadyVinculate";
 
 export class CreatePatientService {
@@ -42,7 +42,7 @@ export class CreatePatientService {
             const validatorController = new ValidatorController();
             validatorController.setValidator(patientDomain.constructor.name, [
                 new RequiredGeneralData(Object.keys(patientDomain.props)),
-                new InsuranceToPatient(),
+                // new InsuranceToPatient(),
                 new UserAlreadyVinculate(),
                 new EntityExits(),
                 new FormatDateValidator()

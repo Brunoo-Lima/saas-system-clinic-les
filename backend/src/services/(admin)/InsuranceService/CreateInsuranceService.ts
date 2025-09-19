@@ -9,6 +9,7 @@ import { ResponseHandler } from "../../../helpers/ResponseHandler";
 import { InsuranceDTO } from "../../../infrastructure/dto/InsuranceDTO";
 import { InsuranceRepository } from "../../../infrastructure/database/repositories/InsurancesRepository/InsurancesRepository";
 import { IRepository } from "../../../infrastructure/database/repositories/IRepository";
+import { Modality } from "../../../domain/entities/EntityModality/Modality";
 
 export class CreateInsuranceService {
     private repository: IRepository;
@@ -26,9 +27,16 @@ export class CreateInsuranceService {
                 specialty.setUuidHash(sp.id ?? "") // Use the correct property name for the id
                 return specialty
             })
+            const modalities = insuranceDTO.modalities?.map((md) => {
+                const modality = new Modality({
+                    type: md.type ?? ""
+                })
+                return modality
+            })
 
             const insuranceDomain = new InsuranceBuilder()
-                .setType(insuranceDTO.type)
+                .setName(insuranceDTO.name)
+                .setModalities(modalities ?? [])
                 .setSpecialties(
                     specialties.filter((s) => { if (s.getUUIDHash() !== "") return s })
                 ).build()

@@ -8,7 +8,7 @@ import {
   date,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { insuranceTable } from './InsuranceSchema';
+import { cartInsuranceTable } from './CartInsuranceSchema';
 
 // Pacientes
 export const patientTable = pgTable("patient", {
@@ -25,32 +25,32 @@ export const patientTable = pgTable("patient", {
 
 // RELACIONAMENTOS
 // Tabela de relacionamento intermediaria: Paciente e Plano de saude
-export const patientToInsuranceTable = pgTable(
+export const patientToCartInsuranceTable = pgTable(
   "patient_to_insurance",
   {
-    patient_id: uuid("fk_pin_pat_id").references(() => patientTable.id),
-    insurance_id: uuid("fk_pin_ins_id").references(() => insuranceTable.id)
+    patient_id: uuid("fk_pti_pat_id").references(() => patientTable.id),
+    cart_insurance_id: uuid("fk_pti_cti_id").references(() => cartInsuranceTable.id)
   },
   (t) => [
     {
       pk: primaryKey({ // Chave primaria composta
-        columns: [t.patient_id, t.insurance_id]
+        columns: [t.patient_id, t.cart_insurance_id]
       })
     }
   ]
 )
 
 //Relacionamento da tabela de relacionamento 
-export const patientToInsuranceRelations = relations(
-  patientToInsuranceTable,
+export const patientToCartInsuranceRelations = relations(
+  patientToCartInsuranceTable,
   ({ one }) => ({
     patient: one(patientTable, {
-      fields: [patientToInsuranceTable.patient_id],
+      fields: [patientToCartInsuranceTable.patient_id],
       references: [patientTable.id]
     }),
-    insurance: one(insuranceTable, {
-      fields: [patientToInsuranceTable.insurance_id],
-      references: [insuranceTable.id]
+    insurance: one(cartInsuranceTable, {
+      fields: [patientToCartInsuranceTable.cart_insurance_id],
+      references: [cartInsuranceTable.id]
     })
   })
 )

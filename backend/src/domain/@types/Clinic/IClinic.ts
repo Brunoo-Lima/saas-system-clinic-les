@@ -4,11 +4,12 @@ import { Specialty } from "../../entities/EntitySpecialty/Specialty"
 import { User } from "../../entities/EntityUser/User"
 
 export interface IClinic {
-    name: string
-    insurances: Array<Insurance>
-    timeToConfirm: number // Tempo para disparar a confirmacao de agendamento
-    specialties: Array<Specialty>
-    contact: string
-    user:User,
-    address: Address
+    name?: string
+    insurances?: Array<Insurance>
+    timeToConfirm?: number // Tempo para disparar a confirmacao de agendamento
+    specialties?: Array<Specialty>
+    phone?: string
+    user?: User,
+    cnpj?: string;
+    address?: Address
 }

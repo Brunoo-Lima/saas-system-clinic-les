@@ -27,6 +27,10 @@ export class AddressBuilder {
         this.data.cep = cep
         return this
       }
+      setNeighborhood(neighborhood: string = ""): this {
+        this.data.neighborhood = neighborhood
+        return this
+      }
       build(): Address {
         return new Address(
           this.data, // garante que todas as propriedades obrigatórias estão presentes

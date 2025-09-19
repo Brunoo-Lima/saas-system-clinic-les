@@ -16,7 +16,9 @@ export const doctorTable = pgTable("doctor", {
   id: uuid("dct_id").primaryKey(),
   crm: varchar("dct_crm").notNull().unique(),
   cpf: varchar("dct_cpf").notNull(),
-  contact: varchar("dct_contact").notNull(),
+  sex: varchar("dct_sex").notNull(),
+  date_of_birth: varchar("dct_date_of_birth"),
+  phone: varchar("dct_phone").notNull(),
   user_id: uuid("fk_dct_use_id").references(() => userTable.id),
   clinic_id: uuid("fk_dct_cli_id").references(() => clinicTable.id),
   address_id: uuid("fk_dct_add_id").references(() => addressTable.id)

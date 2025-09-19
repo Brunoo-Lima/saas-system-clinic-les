@@ -10,14 +10,16 @@ import { addressTable } from "./AddressSchema";
 import { insuranceTable } from "./InsuranceSchema";
 import { doctorTable } from "./DoctorSchema";
 import { relations } from "drizzle-orm/relations";
+import { userTable } from "./UserSchema";
 
 // Clinica
 export const clinicTable = pgTable("clinic", {
   id: uuid("cli_id").primaryKey(),
   name: varchar("cli_name").notNull().unique(),
-  priceOfConsult: real("cli_price_of_consult").default(0).notNull(),
+  cnpj: varchar("cli_cnpj").notNull().unique(),
   timeToConfirmScheduling: time("cli_time_to_confirm_scheduling").notNull(),
-  contact: varchar("cli_contact").notNull(),
+  phone: varchar("cli_phone").notNull(),
+  user_id: uuid("fk_cli_use_id").references(() => userTable.id),
   address_id: uuid("fk_cli_add_id").references(() => addressTable.id)
 })
 
@@ -56,6 +58,10 @@ export const clinicToInsuranceRelation = relations(clinicToInsuranceTable, ({ on
 // Clinica Relations
 export const clinicRelations = relations(clinicTable, ({ one, many }) => ({
   doctor: many(doctorTable),
+  user: one(userTable, {
+    fields: [clinicTable.user_id],
+    references: [userTable.id]
+  }),
   address: one(addressTable, {
     fields: [clinicTable.address_id],
     references: [addressTable.id]

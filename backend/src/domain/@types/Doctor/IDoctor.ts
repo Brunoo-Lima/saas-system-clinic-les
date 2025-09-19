@@ -7,7 +7,7 @@ import { IPerson } from "../Person/IPerson"
 export interface IDoctor extends IPerson{
     crm: string
     specialties: Array<Specialty>
-    contacts: string
+    phone: string
     periodsToWork: Array<Period>
     user: User
     clinic: Clinic

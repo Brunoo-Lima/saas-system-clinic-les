@@ -8,11 +8,16 @@ export class Insurance extends EntityDomain {
         super()
     }
     
-    public get type() {
-        return this.insuranceProps.type
+    public get name() {
+        return this.insuranceProps.name
     }
     
     public get specialties() {
         return this.insuranceProps.specialties
     }
+
+    public get modalities() {
+        return this.insuranceProps.modalities
+    }
+   
 }
