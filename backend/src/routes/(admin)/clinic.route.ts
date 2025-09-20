@@ -5,9 +5,11 @@ import { privateRoute } from '../../middlewares/privateRoute';
 
 const ClinicRoutes: Router = Router();
 
-ClinicRoutes.post('/clinic', authMiddleware, privateRoute, (req, res, next) => {
-  const createClinicController = new CreateClinicController();
-  return createClinicController.handle(req, res, next);
-});
+ClinicRoutes.post(
+  '/clinic',
+  authMiddleware,
+  privateRoute,
+  new CreateClinicController().handle,
+);
 
 export { ClinicRoutes };

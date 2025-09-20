@@ -3,15 +3,12 @@ import { ResponseHandler } from '../../../helpers/ResponseHandler';
 import { CreateClinicService } from '../../../services/(admin)/Clinic/CreateClinicService';
 import { Clinic } from '../../../domain/entities/EntityClinic/Clinic';
 
-interface AuthRequest extends Request {
-  user?: any;
-}
-
 export class CreateClinicController {
-  async handle(req: AuthRequest, res: Response, next: NextFunction) {
+  async handle(req: Request, res: Response, next: NextFunction) {
     try {
       const { cnpj, name, timeToConfirmScheduling, phone } = req.body;
-      const userId = req.user.id;
+
+      const userId = (req as any).user.id;
 
       // if (!clinic) {
       //   return res

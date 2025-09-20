@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { userRoutes } from './createUser.route';
+import { userRoutes } from './user.route';
 import { authRoutes } from './auth.route';
 import { specialtyRoutes } from './(admin)/specialties.route';
 import { insuranceRoutes } from './(admin)/insurances.route';
