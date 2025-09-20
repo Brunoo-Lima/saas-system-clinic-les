@@ -6,7 +6,7 @@ import { clinicTable } from '../../Schema/ClinicSchema';
 import { IClinicRepository } from './IClinicRepository';
 
 export class ClinicRepository implements IClinicRepository {
-  async create(clinic: Clinic): Promise<any> {
+  async create(clinic: Clinic, userId: string): Promise<any> {
     try {
       if (
         !clinic.name ||
@@ -24,7 +24,7 @@ export class ClinicRepository implements IClinicRepository {
           cnpj: clinic.cnpj,
           phone: clinic.phone,
           address_id: null,
-          user_id: null,
+          user_id: userId,
           timeToConfirmScheduling: clinic.timeToConfirmScheduling,
         })
         .returning();

@@ -10,7 +10,7 @@ export class CreateClinicService {
     this.repository = new ClinicRepository();
   }
 
-  async execute(clinic: Clinic) {
+  async execute(clinic: Clinic, userId: string) {
     const clinicAlreadyExists = await this.repository.findByCnpj(
       clinic.cnpj as string,
     );
@@ -20,7 +20,7 @@ export class CreateClinicService {
     }
 
     try {
-      const clinicCreated = await this.repository.create(clinic);
+      const clinicCreated = await this.repository.create(clinic, userId);
 
       return clinicCreated;
     } catch (error) {

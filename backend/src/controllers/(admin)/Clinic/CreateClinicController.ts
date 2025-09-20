@@ -1,12 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 import { ResponseHandler } from '../../../helpers/ResponseHandler';
-import { CreateClinicService } from '../../../services/(public)/Clinic/CreateClinicService';
+import { CreateClinicService } from '../../../services/(admin)/Clinic/CreateClinicService';
 import { Clinic } from '../../../domain/entities/EntityClinic/Clinic';
 
+interface AuthRequest extends Request {
+  user?: any;
+}
+
 export class CreateClinicController {
-  async handle(req: Request, res: Response, next: NextFunction) {
+  async handle(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { cnpj, name, timeToConfirmScheduling, phone } = req.body;
+      const userId = req.user.id;
 
       // if (!clinic) {
       //   return res
@@ -16,12 +21,15 @@ export class CreateClinicController {
 
       const clinicService = new CreateClinicService();
 
-      const clinicCreated = await clinicService.execute({
-        cnpj,
-        name,
-        timeToConfirmScheduling,
-        phone,
-      } as Clinic);
+      const clinicCreated = await clinicService.execute(
+        {
+          cnpj,
+          name,
+          timeToConfirmScheduling,
+          phone,
+        } as Clinic,
+        userId,
+      );
 
       if (!clinicCreated.success) {
         return res.status(400).json(clinicCreated);
