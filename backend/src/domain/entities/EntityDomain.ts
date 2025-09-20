@@ -1,38 +1,33 @@
-import { randomUUID, UUID } from "crypto";
+import { randomUUID, UUID } from 'crypto';
 
 export class EntityDomain {
-    constructor(
-        private uuidHash: UUID | string = randomUUID(),
-        private createdAt: Date = new Date(),
-        private updatedAt: Date = new Date()
-    ){}
+  constructor(
+    private uuidHash: UUID | string = randomUUID(),
+    private createdAt: Date = new Date(),
+    private updatedAt: Date = new Date(),
+  ) {}
 
+  public getUUIDHash(): UUID | string {
+    return this.uuidHash;
+  }
 
-	public getUUIDHash(): UUID | string {
-		return this.uuidHash;
-	}
+  public getCreatedAt(): Date {
+    return this.createdAt;
+  }
 
+  public getUpdatedAt(): Date {
+    return this.updatedAt;
+  }
 
-	public getCreatedAt(): Date  {
-		return this.createdAt;
-	}
+  public setUuidHash(value: UUID | string) {
+    this.uuidHash = value;
+  }
 
+  public setCreatedAt(value: Date) {
+    this.createdAt = value;
+  }
 
-	public getUpdatedAt(): Date  {
-		return this.updatedAt;
-	}
-
-
-	public setUuidHash(value: UUID | string) {
-		this.uuidHash = value;
-	}
-
-
-	public setCreatedAt(value: Date ) {
-		this.createdAt = value;
-	}
-
-	public setUpdatedAt(value: Date ) {
-		this.updatedAt = value;
-	}
+  public setUpdatedAt(value: Date) {
+    this.updatedAt = value;
+  }
 }

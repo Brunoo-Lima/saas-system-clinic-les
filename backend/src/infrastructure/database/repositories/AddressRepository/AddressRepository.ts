@@ -3,20 +3,20 @@ import { Address } from "../../../../domain/entities/EntityAddress/Address";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
-import { addressTable } from "../../schema";
+import { addressTable } from "../../Schema/AddressSchema";
 import { IRepository } from "../IRepository";
 
 export class AddressRepository implements IRepository {
-    async create(address: Address): Promise<any> {
-
-
-        const addressInserted = await db.insert(addressTable).values({
+    async create(address: Address, tx: any): Promise<any> {
+        const dbUse = tx ? tx : db
+        const addressInserted = await dbUse.insert(addressTable).values({
             id: address.getUUIDHash(),
             name: address.nameAddress as string,
             number: address.number as string,
+            cep: address.cep as string,
             street: address.street as string,
-            neighborhood_id: address.neighborhood?.getUUIDHash()
-        })
+            city_id: address.city?.getUUIDHash()
+        }).returning()
 
         return addressInserted
 

@@ -5,7 +5,7 @@ export interface IResponseHandler {
 }
 
 export class ResponseHandler {
-  public static success<T>(data?: T, message: string = "Success") {
+  public static success<T>(data?: T, message: string = 'Success') {
     return {
       success: true,
       data: data ?? null,
@@ -13,8 +13,8 @@ export class ResponseHandler {
     };
   }
 
-  public static error<T>(message: string | string[], data?: T) {
-    const messageFormatted = Array.isArray(message) ? message : [message]
+  public static error<T>(message: string | string[] | any, data?: T) {
+    const messageFormatted = Array.isArray(message) ? message : [message];
     return {
       success: false,
       data: data ?? null,

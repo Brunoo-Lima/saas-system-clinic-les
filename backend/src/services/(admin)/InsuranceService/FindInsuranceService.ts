@@ -14,12 +14,12 @@ export class FindInsuranceService {
         try {
             const specialties = insuranceDTO.specialties?.map((sp) => {
                 const specialty = new SpecialtyBuilder().build()
-                specialty.setUuidHash(sp ?? "") // Use the correct property name for the id
+                specialty.setUuidHash(sp.id ?? "") // Use the correct property name for the id
                 return specialty
             })
 
             const insuranceDomain = new InsuranceBuilder()
-                .setType(insuranceDTO.type)
+                .setName(insuranceDTO.name)
                 .setSpecialties(specialties?.filter((s) => { if (s.getUUIDHash() !== "") return s }))
                 .build()
 

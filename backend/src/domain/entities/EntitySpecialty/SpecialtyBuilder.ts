@@ -15,6 +15,10 @@ export class SpecialtyBuilder {
     return this;
   }
 
+  setAmountTransferred(amount: number){
+    this.data.amountTransferred = amount
+    return this
+  }
   build(): Specialty {
     return new Specialty({
       ...this.data, // sobrescreve defaults se vier do builder

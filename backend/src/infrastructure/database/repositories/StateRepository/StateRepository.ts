@@ -3,18 +3,19 @@ import { State } from "../../../../domain/entities/EntityAddress/State";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
-import { countryTable, stateTable } from "../../schema";
+import { countryTable, stateTable } from "../../Schema/AddressSchema";
 import { IRepository } from "../IRepository";
 
 export class StateRepository implements IRepository{
-    async create(state: State): Promise<any> {
+    async create(state: State, tx: any): Promise<any> {
         try {
-            const stateInserted = await db.insert(stateTable).values({
+            const dbUse = tx ? tx : db
+            return await dbUse.insert(stateTable).values({
                 id: state.getUUIDHash() ?? "",
                 name: state.name ?? "",
+                uf: state.uf ?? "",
                 country_id: state.country?.getUUIDHash()
-            })
-            return stateInserted
+            }).returning()
         } catch(e) {
             return ResponseHandler.error("Failed to create a state")
         }
@@ -34,6 +35,7 @@ export class StateRepository implements IRepository{
             )
             return statesFounded
         } catch (e) {
+            console.log(e)
             return ResponseHandler.error("Failed to find a state")
         }
     }

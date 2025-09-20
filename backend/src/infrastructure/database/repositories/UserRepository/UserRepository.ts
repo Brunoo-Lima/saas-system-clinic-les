@@ -1,10 +1,10 @@
-import { User } from "../../../../domain/entities/EntityUser/User";
-import { IUserRepository } from "./IUserRepository";
-import db from "../../connection";
-import { ResponseHandler } from "../../../../helpers/ResponseHandler";
-import { randomUUID } from "crypto";
-import { eq, or } from "drizzle-orm";
-import { userTable } from "../../schema";
+import { User } from '../../../../domain/entities/EntityUser/User';
+import { IUserRepository } from './IUserRepository';
+import db from '../../connection';
+import { ResponseHandler } from '../../../../helpers/ResponseHandler';
+import { randomUUID } from 'crypto';
+import { eq, or } from 'drizzle-orm';
+import { userTable } from '../../Schema/UserSchema';
 
 export class UserRepository implements IUserRepository {
   async createUser(user: User) {
@@ -17,20 +17,17 @@ export class UserRepository implements IUserRepository {
           emailVerified: user.emailVerified,
           password: user.password!,
           role: user.role!,
-          avatar: user.avatar || "",
+          avatar: user.avatar || '',
           createdAt: new Date(),
           updatedAt: new Date(),
-        }).returning({
-          id: userTable.id,
-          email: userTable.email,
-        });
+        })
+        .returning();
       return ResponseHandler.success(
-        userInserted[0],
-        "User created successfully."
+        userInserted,
+        'User created successfully.',
       );
     } catch (error) {
-
-      return ResponseHandler.error(["Failed to create user in repository"]);
+      return ResponseHandler.error(['Failed to create user in repository']);
     }
   }
   async getUserByEmail(email: string): Promise<any> {
@@ -38,11 +35,11 @@ export class UserRepository implements IUserRepository {
       const user = await db
         .select()
         .from(userTable)
-        .where(eq(userTable.email, email),)
+        .where(eq(userTable.email, email))
         .limit(1);
       return user[0] || null;
     } catch (error) {
-      return ResponseHandler.error(["Failed to find user in repository"]);
+      return ResponseHandler.error(['Failed to find user in repository']);
     }
   }
   async findUser(user: User): Promise<any> {
@@ -53,23 +50,21 @@ export class UserRepository implements IUserRepository {
         .where(
           or(
             eq(userTable.id, user.getUUIDHash()),
-            eq(userTable.email, user.email!)
-          )
-
-        )
+            eq(userTable.email, user.email!),
+          ),
+        );
       return userFounded || null;
-
     } catch (error) {
-      return ResponseHandler.error(["Failed to find user in repository"]);
+      return ResponseHandler.error(['Failed to find user in repository']);
     }
   }
   updateUser(id: string, user: User): Promise<any> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   deleteUser(id: string): Promise<void> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   getAllUsers(): Promise<any[]> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 }

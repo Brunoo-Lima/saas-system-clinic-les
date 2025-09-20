@@ -20,16 +20,20 @@ export class Patient extends Person {
         return this.patientProps.user
     }
     
-    public get contact() {
-        return this.patientProps.contact
+    public get phone() {
+        return this.patientProps.phone
     }
     
-    public get insurances(){
-        return this.patientProps.insurances
+    public get cartInsurances(){
+        return this.patientProps.cartInsurances
     }
 
     public get address(){
         return this.patientProps.address
+    }
+
+    public get sex(){
+        return this.patientProps.sex
     }
     
 }

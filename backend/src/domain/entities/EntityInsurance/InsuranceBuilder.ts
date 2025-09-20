@@ -1,4 +1,5 @@
 import { IInsurance } from "../../@types/Insurance/IInsurance";
+import { Modality } from "../EntityModality/Modality";
 import { Specialty } from "../EntitySpecialty/Specialty";
 import { Insurance } from "./Insurance";
 
@@ -6,8 +7,8 @@ export class InsuranceBuilder {
   private data: Partial<IInsurance> = {};
 
 
-  setType(type: string): this {
-    this.data.type = type;
+  setName(name: string): this {
+    this.data.name = name;
     return this;
   }
 
@@ -15,6 +16,11 @@ export class InsuranceBuilder {
   setSpecialties(specialties: Array<Specialty>): this {
     this.data.specialties = specialties;
     return this;
+  }
+
+  setModalities(modalities: Array<Modality>): this{
+    this.data.modalities = modalities
+    return this
   }
 
   build(): Insurance {

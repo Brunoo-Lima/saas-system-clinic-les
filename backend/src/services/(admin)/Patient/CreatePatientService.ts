@@ -1,3 +1,4 @@
+import db from "../../../infrastructure/database/connection";
 import { Address } from "../../../domain/entities/EntityAddress/Address";
 import { PatientFactory } from "../../../domain/entities/EntityPatient/PatientFactory";
 import { PropsValidator } from "../../../domain/validators/AddressValidator/PropsValidator";
@@ -6,7 +7,6 @@ import { FormatDateValidator } from "../../../domain/validators/General/FormatDa
 import { RequiredGeneralData } from "../../../domain/validators/General/RequiredGeneralData";
 import { ValidatorController } from "../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../helpers/ResponseHandler";
-import db from "../../../infrastructure/database/connection";
 import { PatientDTO } from "../../../infrastructure/dto/PatientDTO";
 import { AddressRepository } from "../../../infrastructure/database/repositories/AddressRepository/AddressRepository";
 import { IRepository } from "../../../infrastructure/database/repositories/IRepository";
@@ -14,7 +14,12 @@ import { PatientRepository } from "../../../infrastructure/database/repositories
 import { CountryRepository } from "../../../infrastructure/database/repositories/CountryRepository/CountryRepository";
 import { StateRepository } from "../../../infrastructure/database/repositories/StateRepository/StateRepository";
 import { CityRepository } from "../../../infrastructure/database/repositories/CityRepository/CityRepository";
-import { NeighborhoodRepository } from "../../../infrastructure/database/repositories/NeighborhoodRepository/NeighbohoodRepository";
+import { findOrCreate } from "../../../infrastructure/database/repositories/findOrCreate";
+import { State } from "../../../domain/entities/EntityAddress/State";
+import { City } from "../../../domain/entities/EntityAddress/City";
+import { Country } from "../../../domain/entities/EntityAddress/Country";
+// import { InsuranceToPatient } from "../../../domain/validators/Patient/InsuranceToPatient";
+import { UserAlreadyVinculate } from "../../../domain/validators/Patient/UserAlreadyVinculate";
 
 export class CreatePatientService {
     private repository: IRepository;
@@ -22,23 +27,23 @@ export class CreatePatientService {
     private countryRepository: IRepository;
     private stateRepository: IRepository;
     private cityRepository: IRepository;
-    private neighborhoodRepository: IRepository;
+
     constructor() {
         this.repository = new PatientRepository()
         this.addressRepository = new AddressRepository()
         this.countryRepository = new CountryRepository()
         this.stateRepository = new StateRepository()
         this.cityRepository = new CityRepository()
-        this.neighborhoodRepository = new NeighborhoodRepository()
     }
     async execute(patientDTO: PatientDTO) {
         try {
 
             const patientDomain = PatientFactory.createFromDTO(patientDTO)
             const validatorController = new ValidatorController();
-
             validatorController.setValidator(patientDomain.constructor.name, [
-                new RequiredGeneralData(Object.keys(patientDomain.props), ["user_id"]),
+                new RequiredGeneralData(Object.keys(patientDomain.props)),
+                // new InsuranceToPatient(),
+                new UserAlreadyVinculate(),
                 new EntityExits(),
                 new FormatDateValidator()
             ])
@@ -55,62 +60,33 @@ export class CreatePatientService {
             const addressIsValid = await validatorController.process(`C-${patientDomain.address.constructor.name}`, patientDomain.address, this.addressRepository)
             if (!addressIsValid.success) { return addressIsValid }
 
-            const entitiesInserted = await db.transaction(async () => {
-                // Cria o paciente
-                const patientInserted = await this.repository.create(patientDomain);
-                const neighborhood = patientDomain.address?.neighborhood;
-                const city = neighborhood?.city;
-                const state = city?.state;
-                const country = state?.country;
+            const entitiesInserted = await db.transaction(async (tx) => {
+                try {
+                    const addressDomain = patientDomain.address as Address;
+                    const cityDomain = patientDomain.address?.city as City;
+                    const stateDomain = patientDomain.address?.city?.state as State;
+                    const countryDomain = patientDomain.address?.city?.state?.country as Country;
 
-                // Garantir hierarquia das entidades (busca ou cria)
-                const countryEntity = await this.countryRepository.findEntity(country!);
-                const stateEntity = await this.stateRepository.findEntity(state!);
-                const cityEntity = await this.cityRepository.findEntity(city!);
-                const neighborhoodEntity = await this.neighborhoodRepository.findEntity(neighborhood!);
-
-                if (Array.isArray(countryEntity)) { country?.setUuidHash(countryEntity[0].id) }
-                if (Array.isArray(stateEntity)) { state?.setUuidHash(stateEntity[0].id) }
-                if (Array.isArray(cityEntity)) { city?.setUuidHash(cityEntity[0].id) }
-                if (Array.isArray(neighborhoodEntity)) { neighborhood?.setUuidHash(neighborhoodEntity[0].id) }
-
-                if ("success" in countryEntity) { return countryEntity }
-                if ("success" in stateEntity) { return stateEntity }
-                if ("success" in cityEntity) { return cityEntity }
-                if ("success" in neighborhoodEntity) { return neighborhoodEntity }
-
-
-                if (!Array.isArray(countryEntity)) { 
-                    const countryInserted = await this.countryRepository.create(country!)
-                    country?.setUuidHash(countryInserted[0].id)
+                    await findOrCreate(this.countryRepository, countryDomain, tx);
+                    await findOrCreate(this.stateRepository, stateDomain, tx);
+                    await findOrCreate(this.cityRepository, cityDomain, tx);
+                    
+                    const addressInserted = await findOrCreate(this.addressRepository, addressDomain, tx);
+                    const patientInserted = await this.repository.create(patientDomain, tx);
+                    
+                    return ResponseHandler.success({
+                        patient:  patientInserted[0],
+                        address: addressInserted[0]
+                    }, "Entities inserted !")
+                    
+                } catch (e) {
+                    return ResponseHandler.error("Failed to create patient and all data")
                 }
-                if (!Array.isArray(stateEntity)) { 
-                    const stateInserted = await this.stateRepository.create(state!)
-                    country?.setUuidHash(stateInserted[0].id)
-                }
-                if (!Array.isArray(cityEntity)) { 
-                    const cityInserted = await this.cityRepository.create(city!)
-                    country?.setUuidHash(cityInserted[0].id)
-                }
-                if (!Array.isArray(neighborhoodEntity)) { 
-                    const neighborhoodInserted = await this.neighborhoodRepository.create(neighborhood!)
-                    country?.setUuidHash(neighborhoodInserted[0].id)
-                }
-
-                const addressInserted = await this.addressRepository.create(patientDomain.address!)
-                // Retorna dados
-                return {
-                    patient: patientInserted[0],
-                    address: addressInserted[0],
-                };
             });
 
 
-            if (!entitiesInserted.patient || !entitiesInserted.address) { return ResponseHandler.error("All entities cannot be created in database...") }
-            return ResponseHandler.success({
-                ...entitiesInserted,
-                ...entitiesInserted
-            }, "Success, patient inserted.")
+            if (!entitiesInserted.success) { return ResponseHandler.error(entitiesInserted.message) }
+            return entitiesInserted
 
         } catch (e) {
             return ResponseHandler.error((e as Error).message)

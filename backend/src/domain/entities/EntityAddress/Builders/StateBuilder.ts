@@ -1,7 +1,6 @@
 
 import { IState } from "../../../@types/Address/IState";
 import { Country } from "../Country";
-import { Neighborhood } from "../Neighborhood";
 import { State } from "../State";
 
 export class StateBuilder {

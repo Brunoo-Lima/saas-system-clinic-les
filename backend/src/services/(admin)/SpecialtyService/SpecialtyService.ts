@@ -21,7 +21,7 @@ export class SpecialtyService {
             if (!Array.isArray(specialtyDTO)) return ResponseHandler.error(["Specialties should be an array !"])
             if (specialtyDTO.length >= 50) return ResponseHandler.error(["Sorry...but you can save only 50 registers per call."])
 
-            const specialties = specialtyDTO.map((s) => new SpecialtyBuilder().setPrice(s.price).setName(s.name).build())
+            const specialties = specialtyDTO.map((s) => new SpecialtyBuilder().setName(s.name ?? "").build())
             validatorController.setValidator(`C-${Specialty.constructor.name}`, [
                 new RequiredGeneralData(Object.keys(specialties)),
                 new SpecialtyExists()
