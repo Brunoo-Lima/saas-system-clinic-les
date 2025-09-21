@@ -9,7 +9,11 @@ export class Modality extends EntityDomain{
     }
     
     public get name() : string {
-        return this.modalityProps.type
+        return this.modalityProps.name
+    }
+    
+    public get props() {
+        return this.modalityProps
     }
     
 }

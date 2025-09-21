@@ -19,12 +19,11 @@ class EmailService {
   }
 
   async sendMail(userInformation: any) {
-    console.log(userInformation)
     await this.transporter.sendMail({
       from: `"LifeCare" <${process.env.EMAIL_USER}>`,
       to: userInformation.email,
       subject: "Boas vindas",
-      html: generateEmail()
+      html: generateEmail(userInformation)
     });
   }
 }

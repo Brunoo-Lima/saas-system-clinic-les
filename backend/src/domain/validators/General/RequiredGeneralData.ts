@@ -12,12 +12,12 @@ export class RequiredGeneralData implements IProcessValidator {
             const keys = objectKeys ? objectKeys : this.keys
             if (!keys) return ResponseHandler.error("You should be only a key to validated")
             if (!keys.length) return ResponseHandler.success(entity, "Does't exists required data.")
-
+            
             for (const ent of entityValidate) {
                 for (const k of keys) {
                     if (this.ignoreKeysIfnotExists?.length && k in this.ignoreKeysIfnotExists) { continue }
-                    if (!(typeof k as keyof EntityDomain)) return ResponseHandler.error(`This key: ${k} not exists in object`)
-                    if (!(ent as any)[k]) return ResponseHandler.error(`This key: ${k} is required.`)
+                    if (!(typeof k as keyof EntityDomain)) return ResponseHandler.error(`This key: ${k} not exists in object ${ent.constructor.name}`)
+                    if (!(ent as any)[k]) return ResponseHandler.error(`This key: ${k} is required in ${ent.constructor.name}.`)
                 }
             }
             return ResponseHandler.success(entity, "All data is valid !")

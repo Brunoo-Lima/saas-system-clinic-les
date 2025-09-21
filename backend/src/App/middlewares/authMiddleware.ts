@@ -27,18 +27,20 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
       .setPassword(decoded.data.password)
       .setRole(decoded.data.role)
       .build()
-
+    if(decoded.data.id){
+      userDomain.setUuidHash(decoded.data.id)
+    }
     const userRepository = new UserRepository()
-    const user = await userRepository.findUser(userDomain) as ResponseHandler | any;
+    const user = await userRepository.findEntity(userDomain) as ResponseHandler | any;
 
     if ("success" in user && !user.success) {
       return res.status(401).json(ResponseHandler.error(user.message));
     }
-    if (!userDomain.password || user[0].password !== userDomain.password) { return ResponseHandler.error("Incorrect email or password"); }
-    if ((user[0].role !== userDomain.role)) {
+    if (!userDomain.password || user.password !== userDomain.password) { return ResponseHandler.error("Incorrect email or password"); }
+    if ((user.role !== userDomain.role)) {
       return res.status(401).json(ResponseHandler.error("Access denied !"))
     }
-    (req as any).user = user[0];
+    (req as any).user = user;
     next(); // seguir para a rota
   } catch (error) {
     return res.status(500).json(ResponseHandler.error("Token internal error"));

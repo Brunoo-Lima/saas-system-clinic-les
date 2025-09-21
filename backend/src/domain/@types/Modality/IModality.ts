@@ -1,4 +1,4 @@
 export interface IModality {
     id?: string
-    type: string
+    name: string
 }

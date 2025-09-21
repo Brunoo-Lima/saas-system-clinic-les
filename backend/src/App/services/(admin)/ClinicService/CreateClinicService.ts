@@ -75,7 +75,7 @@ export class CreateClinicService {
         await findOrCreate(this.cityRepository, cityDomain, tx);  
         
         const addressInserted = await findOrCreate(this.addressRepository, addressDomain, tx);
-        const clinicInserted = await this.repository.create(clinic)
+        const clinicInserted = await this.repository.create(clinic, tx)
 
         return {
           address: addressInserted[0],

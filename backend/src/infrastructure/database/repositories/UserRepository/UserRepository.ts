@@ -5,15 +5,20 @@ import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { randomUUID } from "crypto";
 import { eq, or } from "drizzle-orm";
 import { userTable } from "../../Schema/UserSchema";
+import { IRepository } from "../IRepository";
+import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 
-export class UserRepository implements IUserRepository {
-  async createUser(user: User) {
+export class UserRepository implements IRepository {
+
+  async create(user: User, tx?: any) {
     try {
-      const userInserted = await db
+      const dbUse = tx ? tx : db
+      const userInserted = await dbUse
         .insert(userTable)
         .values({
           id: user.getUUIDHash().toString() || randomUUID(),
           email: user.email!,
+          username: user.username,
           emailVerified: user.emailVerified,
           password: user.password!,
           role: user.role!,
@@ -23,7 +28,8 @@ export class UserRepository implements IUserRepository {
         }).returning({
           id: userTable.id,
           email: userTable.email,
-          password: userTable.password
+          password: userTable.password,
+          username: userTable.username
         });
       return ResponseHandler.success(
         userInserted[0],
@@ -46,30 +52,30 @@ export class UserRepository implements IUserRepository {
       return ResponseHandler.error(["Failed to find user in repository"]);
     }
   }
-  async findUser(user: User): Promise<any> {
+  async findEntity(user: User): Promise<any> {
     try {
       const userFounded = await db
         .select()
         .from(userTable)
         .where(
           or(
-            eq(userTable.id, user.getUUIDHash()),
+            eq(userTable.id, user.getUUIDHash() ?? ""),
             eq(userTable.email, user.email!)
           )
         )
-      return userFounded || null;
+      return userFounded[0] || null;
 
     } catch (error) {
       return ResponseHandler.error(["Failed to find user in repository"]);
     }
   }
-  updateUser(id: string, user: User): Promise<any> {
+  updateEntity(entity: EntityDomain): Promise<any> {
     throw new Error("Method not implemented.");
   }
-  deleteUser(id: string): Promise<void> {
+  deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  getAllUsers(): Promise<any[]> {
+  findAllEntity(entity?: EntityDomain | Array<EntityDomain>): Promise<any[]> {
     throw new Error("Method not implemented.");
   }
 }

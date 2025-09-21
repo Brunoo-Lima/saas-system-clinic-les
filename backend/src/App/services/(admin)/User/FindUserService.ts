@@ -1,10 +1,10 @@
 import { User } from "../../../../domain/entities/EntityUser/User";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
-import { IUserRepository } from "../../../../infrastructure/database/repositories/UserRepository/IUserRepository";
+import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { UserRepository } from "../../../../infrastructure/database/repositories/UserRepository/UserRepository";
 
 export class FindUserService {
-    private userRepository: IUserRepository;
+    private userRepository: IRepository;
 
     constructor() {
         this.userRepository = new UserRepository();
@@ -15,7 +15,7 @@ export class FindUserService {
                 return ResponseHandler.error("Email is required to find a user");
             }
 
-            const foundUser = await this.userRepository.getUserByEmail(user.email);
+            const foundUser = await this.userRepository.findEntity(user);
             if (!foundUser) {
                 return ResponseHandler.error("User not found");
             }

@@ -6,7 +6,6 @@ export class ValidatorEmail implements IProcessValidator {
         const email = entity.email;
         if (!email) { return ResponseHandler.error("Email is required.") }
 
-
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) { return ResponseHandler.error("Invalid email format.") }
 

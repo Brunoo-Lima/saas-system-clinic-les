@@ -14,6 +14,7 @@ export class PropsValidator implements IProcessValidator {
             const state = city?.state
             const country = state?.country
             const entities = [city, state, country] as const;
+   
             for(const [k, v] of Object.entries(address.props)){
                 if(!v) { return ResponseHandler.error(`The address cannot be values undefined in ${k}`)}
             }

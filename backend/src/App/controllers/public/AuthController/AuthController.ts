@@ -17,7 +17,6 @@ export class AuthController {
 
       const userService = new FindUserService();
       const userExists = await userService.execute(userDomain);
-      
       if (!userExists.success || userExists.data.password !== userDomain.password) {
         return res.status(400).json(ResponseHandler.error('User not found'));
       }

@@ -33,9 +33,7 @@ export class CreateInsuranceService {
                 return specialty
             })
             const modalities = insuranceDTO.modalities?.map((md) => {
-                const modality = new Modality({                    
-                    type: md.type ?? ""
-                })
+                const modality = new Modality({ name: md.name ?? "" })
                 if(md.id){ modality.setUuidHash(md.id)}
                 return modality
             })
@@ -59,8 +57,10 @@ export class CreateInsuranceService {
             
             const entitiesInserted = await db.transaction(async (tx) => {
                 const modalitiesInserted = await Promise.all((insuranceDomain.modalities ?? []).map(async (mod) => {
-                    return await findOrCreate(this.modalityRepository, mod, tx)
+                    const result = await findOrCreate(this.modalityRepository, mod, tx);
+                    return result[0];
                 }))
+                console.log(modalitiesInserted)
                 const insuranceInserted = await this.repository.create(insuranceDomain)
                 return {
                     insurance: insuranceInserted[0],

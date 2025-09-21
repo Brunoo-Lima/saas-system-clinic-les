@@ -12,7 +12,6 @@ export class CreatePatientController {
             )
             const service = new CreatePatientService()
             const patientInserted = await service.execute(patientDTO)
-            if (!patientInserted.success) { return res.status(400).json(patientInserted) }
             return res.status(200).json(patientInserted)
 
         } catch (e) {

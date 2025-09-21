@@ -4,13 +4,14 @@ import { ValidatorEmail } from "../../../domain/validators/UserValidator/Validat
 import { ValidatorUserExists } from "../../../domain/validators/UserValidator/ValidatorUserExists";
 import { ValidatorController } from "../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../helpers/ResponseHandler";
+import { IRepository } from "../../../infrastructure/database/repositories/IRepository";
 import { IUserRepository } from "../../../infrastructure/database/repositories/UserRepository/IUserRepository";
 import { UserRepository } from "../../../infrastructure/database/repositories/UserRepository/UserRepository";
 import { UserDTO } from "../../../infrastructure/dto/UserDTO";
 import Queue from "../../../infrastructure/queue/Queue";
 
 export class CreateUserService {
-    private userRepository: IUserRepository;
+    private userRepository: IRepository;
 
     constructor() {
         this.userRepository = new UserRepository();
@@ -20,6 +21,7 @@ export class CreateUserService {
         try {
             const userDomain = new UserBuilder()
                 .setEmail(userData.email)
+                .setUsername(userData.username)
                 .setPassword(userData.password)
                 .setRole(userData.role)
                 .setAvatar(userData.avatar || "")
@@ -36,7 +38,7 @@ export class CreateUserService {
             const userDataIsValid = await validatorController.process(`C-${userDomain.constructor.name}`, userDomain, this.userRepository);
             if (!userDataIsValid.success) return userDataIsValid;
 
-            const newUser = await this.userRepository.createUser(userDomain);
+            const newUser = await this.userRepository.create(userDomain);
             await Queue.publish(newUser.data);
 
             return newUser;

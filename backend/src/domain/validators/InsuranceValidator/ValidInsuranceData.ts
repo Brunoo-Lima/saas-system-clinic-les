@@ -6,13 +6,11 @@ import { IProcessValidator } from "../IProcessValidator";
 export class ValidInsuranceData implements IProcessValidator {
     async valid(insurances: Insurance | Array<Insurance>, repository: IRepository) {
         try {
-
-            let insurancesFiltered: any[] = []
-            if (Array.isArray(insurances)) {
-                insurancesFiltered = insurances.filter(
-                    (ins) => ins?.getUUIDHash() !== "" || ins?.name !== ""
-                )
-            }
+            const insuranceMapped = Array.isArray(insurances) ? insurances : [insurances]
+            const insurancesFiltered: any[] = insuranceMapped.filter(
+                (ins) => ins?.getUUIDHash() !== "" || ins?.name !== ""
+            )
+            
             if (insurancesFiltered.length === 0) return ResponseHandler.error("You should be the name of insurance or id !")
             if (insurancesFiltered.length) {
                 for (const insurance of insurancesFiltered) {
@@ -26,7 +24,6 @@ export class ValidInsuranceData implements IProcessValidator {
             return ResponseHandler.success("Insurance don't exists")
 
         } catch (e) {
-            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }

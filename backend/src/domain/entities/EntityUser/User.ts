@@ -3,6 +3,7 @@ import { EntityDomain } from "../EntityDomain";
 export interface IUser {
   email?: string;
   emailVerified?: boolean;
+  username?: string,
   password?: string;
   role?: "admin" | "doctor" | "patient";
   avatar?: string;
@@ -25,6 +26,11 @@ export class User extends EntityDomain {
     return this.dataUser.password;
   }
 
+  
+  public get username() {
+    return this.dataUser.username
+  }
+  
   public get role() {
     return this.dataUser.role;
   }
