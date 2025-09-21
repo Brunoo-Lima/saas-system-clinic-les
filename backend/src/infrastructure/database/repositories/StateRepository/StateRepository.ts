@@ -33,9 +33,8 @@ export class StateRepository implements IRepository{
             ).leftJoin(countryTable, 
                 eq(countryTable.id, stateTable.id)
             )
-            return statesFounded
+            return statesFounded[0]?.state
         } catch (e) {
-            console.log(e)
             return ResponseHandler.error("Failed to find a state")
         }
     }

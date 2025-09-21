@@ -9,7 +9,7 @@ import { Clinic } from './Clinic';
 export class ClinicBuilder {
   private data: Partial<IClinic> = {};
 
-  setName(name: string): this {
+  setName(name: string = ""): this {
     this.data.name = name;
     return this;
   }

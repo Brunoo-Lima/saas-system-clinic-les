@@ -1,104 +1,86 @@
-import { eq } from 'drizzle-orm';
+import { eq, ilike, or } from 'drizzle-orm';
 import { Clinic } from '../../../../domain/entities/EntityClinic/Clinic';
 import { ResponseHandler } from '../../../../helpers/ResponseHandler';
 import db from '../../connection';
-import { clinicTable } from '../../Schema/ClinicSchema';
-import { IClinicRepository } from './IClinicRepository';
+import { clinicTable, clinicToInsuranceTable, clinicToSpecialtyTable } from '../../Schema/ClinicSchema';
+import { IRepository } from '../IRepository';
+import { EntityDomain } from '../../../../domain/entities/EntityDomain';
 
-export class ClinicRepository implements IClinicRepository {
-  async create(clinic: Clinic, userId: string): Promise<any> {
+export class ClinicRepository implements IRepository {
+  async create(clinic: Clinic, tx?: any): Promise<any> {
     try {
-      if (
-        !clinic.name ||
-        !clinic.cnpj ||
-        !clinic.phone ||
-        !clinic.timeToConfirmScheduling
-      ) {
-        return ResponseHandler.error(['Missing required fields']);
+      // Se for enviado um tx da transaction usamos ela.
+      const dbUse = tx ? tx : db
+      const clinicInserted = await dbUse.insert(clinicTable).values({
+        id: clinic.getUUIDHash(),
+        cnpj: clinic.cnpj ?? "",
+        name: clinic.name ?? "",
+        phone: clinic.phone ?? "",
+        timeToConfirmScheduling: clinic.timeToConfirmScheduling ?? "",
+        address_id: clinic.address?.getUUIDHash(),
+        created_at: clinic.getCreatedAt(),
+        updated_at: clinic.getUpdatedAt(),
+        user_id: clinic.user?.getUUIDHash() 
+      }).returning()
+      
+      if(clinic.insurances && clinic.insurances.length !== 0){
+        await dbUse.insert(clinicToInsuranceTable).values(clinic.insurances.map((ins) => {
+          return {
+            clinic_id: clinic.getUUIDHash(),
+            insurance_id: ins.getUUIDHash(),
+          }
+        }) ?? [])
       }
 
-      const clinicInserted = await db
-        .insert(clinicTable)
-        .values({
-          name: clinic.name,
-          cnpj: clinic.cnpj,
-          phone: clinic.phone,
-          address_id: null,
-          user_id: userId,
-          timeToConfirmScheduling: clinic.timeToConfirmScheduling,
-        })
-        .returning();
-
-      return ResponseHandler.success(
-        clinicInserted[0],
-        'Clinic created successfully.',
-      );
-    } catch (e) {
-      return ResponseHandler.error(['Failed to save a clinic']);
+      await dbUse.insert(clinicToSpecialtyTable).values(clinic.specialties?.map((spe) => {
+        return {
+        clinic_id: clinic.getUUIDHash(),
+        price: spe.price,
+        specialty_id: spe.getUUIDHash()
+      }
+      }) ?? [])
+      
+      return clinicInserted
+    } catch(e) {
+      return ResponseHandler.error("Failed to create the clinic !")
     }
   }
+async findEntity(clinic: Clinic): Promise<any> {
+  try {
+    const filters = [];
 
-  async findAll(): Promise<any> {
-    try {
-      const clinics = await db.select().from(clinicTable);
-      return clinics;
-    } catch (e) {
-      return ResponseHandler.error(['Failed to find clinics']);
+    if (clinic.getUUIDHash()) {
+      filters.push(eq(clinicTable.id, clinic.getUUIDHash()));
     }
-  }
 
-  async findById(id: string): Promise<any> {
-    try {
-      const clinic = await db
-        .select()
-        .from(clinicTable)
-        .where(eq(clinicTable.id, id));
-      return clinic;
-    } catch (e) {
-      return ResponseHandler.error(['Failed to find clinic by id']);
+    if (clinic.name) {
+      filters.push(ilike(clinicTable.name, clinic.name ?? ""));
     }
-  }
 
-  async findByCnpj(cnpj: string): Promise<any> {
-    try {
-      const clinic = await db
-        .select()
-        .from(clinicTable)
-        .where(eq(clinicTable.cnpj, cnpj));
-
-      return clinic[0] || null;
-    } catch (e) {
-      return ResponseHandler.error([
-        'Failed to find clinic by cnpj',
-      ]) as Partial<Clinic> | null;
+    if (clinic.cnpj) {
+      filters.push(eq(clinicTable.cnpj, clinic.cnpj));
     }
-  }
 
-  async update(id: string, data: Partial<Clinic>): Promise<any> {
-    try {
-      const clinic = await db
-        .update(clinicTable)
-        .set(data)
-        .where(eq(clinicTable.id, id))
-        .returning();
+    const clinicFounded = await db
+      .select()
+      .from(clinicTable)
+      .where(or(...filters));
 
-      return ResponseHandler.success(
-        clinic[0] as Partial<Clinic>,
-        'Clinic updated successfully.',
-      ) as Partial<Clinic> | null;
-    } catch (e) {
-      return ResponseHandler.error([
-        'Failed to update clinic',
-      ]) as Partial<Clinic> | null;
-    }
-  }
+    return clinicFounded;
 
-  async delete(id: string): Promise<any> {
-    try {
-      await db.delete(clinicTable).where(eq(clinicTable.id, id));
-      return true;
-    } catch (e) {
-      return ResponseHandler.error(['Failed to delete clinic']);
-    }
+  } catch (e) {
+    return ResponseHandler.error("Failed to find the clinic");
   }
+}
+
+  updateEntity(entity: EntityDomain): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  findAllEntity(entity?: EntityDomain | Array<EntityDomain>): Promise<any[]> {
+    throw new Error('Method not implemented.');
+  }
+  
 }

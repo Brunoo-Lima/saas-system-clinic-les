@@ -1,0 +1,77 @@
+import { InsuranceBuilder } from "../../../../domain/entities/EntityInsurance/InsuranceBuilder";
+import { SpecialtyBuilder } from "../../../../domain/entities/EntitySpecialty/SpecialtyBuilder";
+import { RequiredGeneralData } from "../../../../domain/validators/General/RequiredGeneralData";
+import { InsuranceExists } from "../../../../domain/validators/InsuranceValidator/InsuranceExists";
+import { ValidSpecialtyToInsurance } from "../../../../domain/validators/InsuranceValidator/ValidSpecialtyToInsurance";
+import { ValidatorController } from "../../../../domain/validators/ValidatorController";
+import { ResponseHandler } from "../../../../helpers/ResponseHandler";
+import { InsuranceDTO } from "../../../../infrastructure/dto/InsuranceDTO";
+import { InsuranceRepository } from "../../../../infrastructure/database/repositories/InsurancesRepository/InsurancesRepository";
+import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
+import { Modality } from "../../../../domain/entities/EntityModality/Modality";
+import db from "../../../../infrastructure/database/connection";
+import { findOrCreate } from "../../../../infrastructure/database/repositories/findOrCreate";
+import { ModalityRepository } from "../../../../infrastructure/database/repositories/ModalityRepository/ModalityRepository";
+
+export class CreateInsuranceService {
+    private repository: IRepository;
+    private modalityRepository: IRepository;
+
+    constructor() {
+        this.repository = new InsuranceRepository()
+        this.modalityRepository = new ModalityRepository()
+    }
+    async execute(insuranceDTO: InsuranceDTO) {
+        try {
+            const specialties = insuranceDTO.specialties.map((sp) => {
+                const specialty = new SpecialtyBuilder()
+                .setPrice(sp.price ?? 0)
+                .setName(sp.name)
+                .setAmountTransferred(sp.amountTransferred ?? 0)
+                .build()
+                specialty.setUuidHash(sp.id ?? "") // Use the correct property name for the id
+                return specialty
+            })
+            const modalities = insuranceDTO.modalities?.map((md) => {
+                const modality = new Modality({                    
+                    type: md.type ?? ""
+                })
+                if(md.id){ modality.setUuidHash(md.id)}
+                return modality
+            })
+
+            const insuranceDomain = new InsuranceBuilder()
+                .setName(insuranceDTO.name)
+                .setModalities(modalities ?? [])
+                .setSpecialties(
+                    specialties.filter((s) => { if (s.getUUIDHash() !== "") return s })
+                ).build()
+
+            const validatorController = new ValidatorController()
+            validatorController.setValidator(`C-${insuranceDomain.constructor.name}`, [
+                new RequiredGeneralData(Object.keys(insuranceDomain)),
+                new ValidSpecialtyToInsurance(),
+                new InsuranceExists()
+            ])
+
+            const insuranceIsValid = await validatorController.process(`C-${insuranceDomain.constructor.name}`, insuranceDomain, this.repository)
+            if (!insuranceIsValid.success) return insuranceIsValid
+            
+            const entitiesInserted = await db.transaction(async (tx) => {
+                const modalitiesInserted = await Promise.all((insuranceDomain.modalities ?? []).map(async (mod) => {
+                    return await findOrCreate(this.modalityRepository, mod, tx)
+                }))
+                const insuranceInserted = await this.repository.create(insuranceDomain)
+                return {
+                    insurance: insuranceInserted[0],
+                    modalities: modalitiesInserted
+                }
+            })
+            
+            if (!entitiesInserted.insurance) return ResponseHandler.error("Insurance and modalities cannot be inserted in database")
+            return ResponseHandler.success(entitiesInserted, "Insurance added")
+        } catch (e) {
+            return ResponseHandler.error((e as Error).message)
+        }
+    }
+}

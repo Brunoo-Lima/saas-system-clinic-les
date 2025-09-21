@@ -8,4 +8,8 @@ export class Modality extends EntityDomain{
         super()
     }
     
+    public get name() : string {
+        return this.modalityProps.type
+    }
+    
 }

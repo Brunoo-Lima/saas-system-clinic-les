@@ -3,7 +3,7 @@ import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Insurance } from "../../../../domain/entities/EntityInsurance/Insurance";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
-import { insuranceTable, insuranceToSpecialtyTable  } from "../../Schema/InsuranceSchema";
+import { insuranceTable, insuranceToModalitiesTable, insuranceToSpecialtyTable } from "../../Schema/InsuranceSchema";
 import { IRepository } from "../IRepository";
 import { specialtyTable } from "../../Schema/SpecialtySchema";
 
@@ -30,9 +30,17 @@ export class InsuranceRepository implements IRepository {
                         }
                     })).returning()
 
-                return insurancePerSpecialty
+                const insurancePerModality = await tx.insert(insuranceToModalitiesTable).values(insurance.modalities?.map((md) => {
+                    return {
+                        insurance_id: insurance.getUUIDHash(),
+                        modality_id: md.getUUIDHash()
+                    }
+                }) ?? []).returning()
+
+                return [...insuranceInserted, ...insurancePerModality, ...insurancePerSpecialty]
             })
         } catch (e) {
+            console.log(e)
             return ResponseHandler.error("Failed to create a new Insurance")
         }
     }
@@ -47,20 +55,18 @@ export class InsuranceRepository implements IRepository {
                             .filter((sp) => sp !== "")
                     )
                     : undefined;
-
             const whereCondition = specialtyFilter
                 ? and(
                     or(
                         eq(insuranceTable.name, insurance.name ?? ""),
-                        eq(insuranceTable.id, insurance.getUUIDHash())
+                        eq(insuranceTable.id, insurance.getUUIDHash() ?? "")
                     ),
                     specialtyFilter
                 )
                 : or(
                     eq(insuranceTable.name, insurance.name ?? ""),
-                    eq(insuranceTable.id, insurance.getUUIDHash())
+                    eq(insuranceTable.id, insurance.getUUIDHash() ?? "")
                 );
-
             return tx
                 .select({
                     id: insuranceTable.id,
@@ -90,15 +96,15 @@ export class InsuranceRepository implements IRepository {
         throw new Error("Method not implemented.");
     }
     async findAllEntity(insurance?: Insurance | Array<Insurance>): Promise<any> {
-        try{ 
+        try {
             const insurancesFormatted = Array.isArray(insurance) ? insurance : [insurance]
             const insurances = await db.select().from(insuranceTable)
-            .where(
-                or(
-                    inArray(insuranceTable.name, insurancesFormatted.map((ins) => ins?.name ?? "")),
-                    inArray(insuranceTable.id, insurancesFormatted.map((ins) => ins?.getUUIDHash() ?? ""))
+                .where(
+                    or(
+                        inArray(insuranceTable.name, insurancesFormatted.map((ins) => ins?.name ?? "")),
+                        inArray(insuranceTable.id, insurancesFormatted.map((ins) => ins?.getUUIDHash() ?? ""))
+                    )
                 )
-            )
             return insurances
         } catch (e) {
             return ResponseHandler.error("Failed to find the insurances")
