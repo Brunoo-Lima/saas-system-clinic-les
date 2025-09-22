@@ -25,40 +25,25 @@ const specialtyAvailabilitySchema = z.object({
     .min(1, { message: 'Selecione pelo menos um dia de disponibilidade' }),
 });
 
-export const doctorFormSchema = z
-  .object({
-    name: z.string().trim().min(1, { message: 'Nome é obrigatório.' }),
-    crm: z.string().trim().min(1, { message: 'CRM é obrigatório.' }),
-    cpf: z.string().trim().min(1, { message: 'CPF é obrigatório.' }),
-    password: z
-      .string()
-      .trim()
-      .min(8, { message: 'A senha deve ter pelo menos 8 caracteres' })
-      .optional(),
-    phoneNumber: z
-      .string()
-      .trim()
-      .min(1, { message: 'Telefone é obrigatório.' }),
-    email: z.string().trim().min(1, { message: 'E-mail é obrigatório.' }),
-    dateOfBirth: z.date({ message: 'Data de nascimento é obrigatória.' }),
-    gender: z.enum(['male', 'female'], { message: 'Gênero é obrigatório.' }),
-    specialties: z
-      .array(specialtyAvailabilitySchema)
-      .min(1, { message: 'Selecione pelo menos uma especialidade' }),
-    status: z.boolean().default(true),
-    createUser: z.boolean(),
-    justification: z.string().optional(),
-    address: addressFormSchema,
-  })
-  .superRefine((data, ctx) => {
-    // valida senha obrigatória quando for criar usuário
-    if (data.createUser && (!data.password || data.password.length < 8)) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['password'],
-        message: 'Senha é obrigatória e deve ter pelo menos 8 caracteres',
-      });
-    }
-  });
+export const doctorFormSchema = z.object({
+  name: z.string().trim().min(1, { message: 'Nome é obrigatório.' }),
+  crm: z.string().trim().min(1, { message: 'CRM é obrigatório.' }),
+  cpf: z.string().trim().min(1, { message: 'CPF é obrigatório.' }),
+  password: z
+    .string()
+    .trim()
+    .min(8, { message: 'A senha deve ter pelo menos 8 caracteres' })
+    .optional(),
+  phoneNumber: z.string().trim().min(1, { message: 'Telefone é obrigatório.' }),
+  email: z.string().trim().min(1, { message: 'E-mail é obrigatório.' }),
+  dateOfBirth: z.date({ message: 'Data de nascimento é obrigatória.' }),
+  gender: z.enum(['male', 'female'], { message: 'Gênero é obrigatório.' }),
+  specialties: z
+    .array(specialtyAvailabilitySchema)
+    .min(1, { message: 'Selecione pelo menos uma especialidade' }),
+  status: z.boolean().default(true),
+  justification: z.string().optional(),
+  address: addressFormSchema,
+});
 
 export type DoctorFormSchema = z.infer<typeof doctorFormSchema>;

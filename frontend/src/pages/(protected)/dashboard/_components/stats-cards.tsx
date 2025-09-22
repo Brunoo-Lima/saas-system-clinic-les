@@ -3,11 +3,10 @@ import {
   DollarSignIcon,
   HandCoinsIcon,
   UserIcon,
-  UsersIcon,
-} from "lucide-react";
+} from 'lucide-react';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatCurrencyInCents } from "@/utils/format-currency-in-cents";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatCurrencyInCents } from '@/utils/format-currency-in-cents';
 
 interface StatsCardsProps {
   totalRevenue: number | null;
@@ -24,29 +23,24 @@ export const StatsCards = ({
 }: StatsCardsProps) => {
   const stats = [
     {
-      title: "Faturamento total",
-      value: totalRevenue ? formatCurrencyInCents(totalRevenue) : "R$ 0,00",
+      title: 'Faturamento total',
+      value: totalRevenue ? formatCurrencyInCents(totalRevenue) : 'R$ 0,00',
       icon: DollarSignIcon,
     },
     {
-      title: "Repasses",
-      value: "R$ 0,00",
+      title: 'Repasses',
+      value: 'R$ 0,00',
       icon: HandCoinsIcon,
     },
     {
-      title: "Agendamentos",
+      title: 'Agendamentos',
       value: totalAppointments.toString(),
       icon: CalendarIcon,
     },
     {
-      title: "Pacientes",
-      value: totalPatients.toString(),
+      title: 'Pacientes/Médicos',
+      value: totalPatients.toString() + '/' + totalDoctors.toString(),
       icon: UserIcon,
-    },
-    {
-      title: "Médicos",
-      value: totalDoctors.toString(),
-      icon: UsersIcon,
     },
   ];
 
