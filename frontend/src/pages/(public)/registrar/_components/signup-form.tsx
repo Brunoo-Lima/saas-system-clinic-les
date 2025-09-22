@@ -1,51 +1,50 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import type { SubmitHandler } from "react-hook-form";
-import { useForm } from "react-hook-form";
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
-import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from '@/components/ui/button';
+import { Form } from '@/components/ui/form';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+
+import { PersonalForm } from './personal-form';
+import { AddressForm } from './address-form';
 import {
-  registerFormUserSchema,
-  type RegisterFormUserSchema,
-} from "@/validations/signup-form-user-schema";
-import { PersonalForm } from "./personal-form";
-import { AddressForm } from "./address-form";
+  registerFormClinicSchema,
+  type RegisterFormClinicSchema,
+} from '@/validations/signup-form-clinic-schema';
 
 export default function SignupForm() {
   const navigate = useNavigate();
-  const form = useForm<RegisterFormUserSchema>({
-    resolver: zodResolver(registerFormUserSchema),
+  const form = useForm<RegisterFormClinicSchema>({
+    resolver: zodResolver(registerFormClinicSchema),
     defaultValues: {
-      name: "",
-      gender: "Masculino",
-      birth_date: new Date(),
-      cpf: "",
-      email: "",
-      password: "",
-      confirm_password: "",
+      name: '',
+      cnpj: '',
+      email: '',
+      password: '',
+      confirm_password: '',
       address: {
-        zipCode: "",
-        neighborhood: "",
-        street: "",
-        number: "",
-        city: "",
-        state: "",
-        country: "",
+        zipCode: '',
+        neighborhood: '',
+        street: '',
+        number: '',
+        city: '',
+        state: '',
+        country: 'Brasil',
       },
     },
   });
 
-  const onSubmit: SubmitHandler<RegisterFormUserSchema> = (data) => {
+  const onSubmit: SubmitHandler<RegisterFormClinicSchema> = (data) => {
     // if (address)
     // 	return toast.warning("Preencha ao menos um endereço");
 
     console.log(data);
 
-    navigate("/dashboard");
+    navigate('/dashboard');
   };
 
   //preciso melhorar essa parte, depende como o backend vai ser criado
