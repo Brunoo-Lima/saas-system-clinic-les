@@ -11,7 +11,6 @@ export const getDoctorDefaultValues = (doctor?: IDoctor): DoctorFormSchema => ({
   specialties: doctor?.specialties ?? [],
   gender: doctor?.gender ?? 'male',
   status: doctor?.status ?? true,
-  createUser: doctor?.createUser ?? false,
   justification: doctor?.justification ?? '',
   address: {
     zipCode: doctor?.address?.zipCode ?? '',
@@ -20,6 +19,6 @@ export const getDoctorDefaultValues = (doctor?: IDoctor): DoctorFormSchema => ({
     number: doctor?.address?.number ?? '',
     state: doctor?.address?.state ?? '',
     city: doctor?.address?.city ?? '',
-    country: doctor?.address?.country ?? '',
+    country: doctor?.address?.country ?? 'Brasil',
   },
 });

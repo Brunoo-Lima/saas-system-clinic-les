@@ -17,16 +17,16 @@ import {
 import React, { Suspense, useEffect, useState } from 'react';
 
 const AllAppointments = React.lazy(
-  () => import('./_components/all-appointments')
+  () => import('./_components/all-appointments'),
 );
 const ScheduledAppointments = React.lazy(
-  () => import('./_components/scheduled-appointments')
+  () => import('./_components/scheduled-appointments'),
 );
 const FinishedAppointments = React.lazy(
-  () => import('./_components/finished-appointments')
+  () => import('./_components/finished-appointments'),
 );
 const CanceledAppointments = React.lazy(
-  () => import('./_components/canceled-appointments')
+  () => import('./_components/canceled-appointments'),
 );
 
 export default function HistoricAppointmentPage() {

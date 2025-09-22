@@ -94,12 +94,10 @@ export const UpsertPatientForm = ({
   ) => {
     const payload = {
       ...values,
-      ...(form.watch('createUser') && {
-        user: {
-          email: values.email,
-          password: values.password,
-        },
-      }),
+      user: {
+        email: values.email,
+        password: values.password,
+      },
     };
 
     console.log(payload);
@@ -168,57 +166,33 @@ export const UpsertPatientForm = ({
             control={form.control}
           />
 
-          {/* Toggle para criar usuário */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-2">
             <FormField
               control={form.control}
-              name="createUser"
+              name="password"
               render={({ field }) => (
-                <FormItem className="flex items-center gap-4">
-                  <FormLabel>Criar login para o paciente?</FormLabel>
+                <FormItem>
+                  <FormLabel>Senha</FormLabel>
                   <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <InputPassword {...field} placeholder="Digite sua senha" />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
-          </div>
 
-          {form.watch('createUser') && (
-            <div className="flex flex-col gap-2">
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Senha</FormLabel>
-                    <FormControl>
-                      <InputPassword
-                        {...field}
-                        placeholder="Digite sua senha"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex items-center gap-2">
-                <p className="text-sm">Gerar senha aleatória: </p>
-                <Button
-                  className="size-8"
-                  variant={'ghost'}
-                  type="button"
-                  onClick={() => handleNewPasswordRandom()}
-                >
-                  <RefreshCcwIcon />
-                </Button>
-              </div>
+            <div className="flex items-center gap-2">
+              <p className="text-sm">Gerar senha aleatória: </p>
+              <Button
+                className="size-8"
+                variant={'ghost'}
+                type="button"
+                onClick={() => handleNewPasswordRandom()}
+              >
+                <RefreshCcwIcon />
+              </Button>
             </div>
-          )}
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <FormField

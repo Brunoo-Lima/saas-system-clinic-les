@@ -1,10 +1,10 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
   Sidebar,
   SidebarContent,
@@ -16,65 +16,53 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from '@/components/ui/sidebar';
 import {
   CalendarDaysIcon,
   DnaIcon,
   HeartHandshakeIcon,
-  HistoryIcon,
   LayoutDashboardIcon,
   LogOut,
   MoonIcon,
   StethoscopeIcon,
   SunIcon,
-  UserLockIcon,
   UsersRoundIcon,
-} from "lucide-react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { useTheme } from "../ui/theme-provider";
-import { Button } from "../ui/button";
+} from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useTheme } from '../ui/theme-provider';
+import { Button } from '../ui/button';
 
 const items = [
   {
-    title: "Dashboard",
-    url: "/dashboard",
+    title: 'Dashboard',
+    url: '/dashboard',
     icon: LayoutDashboardIcon,
   },
 
   {
-    title: "Agendamentos",
-    url: "/agendamentos",
+    title: 'Agendamentos',
+    url: '/agendamentos',
     icon: CalendarDaysIcon,
   },
   {
-    title: "Médicos",
-    url: "/medicos",
+    title: 'Médicos',
+    url: '/medicos',
     icon: StethoscopeIcon,
   },
   {
-    title: "Pacientes",
-    url: "/pacientes",
+    title: 'Pacientes',
+    url: '/pacientes',
     icon: UsersRoundIcon,
   },
   {
-    title: "Convênios",
-    url: "/convenios",
+    title: 'Convênios',
+    url: '/convenios',
     icon: HeartHandshakeIcon,
   },
   {
-    title: "Especialidades",
-    url: "/especialidades",
+    title: 'Especialidades',
+    url: '/especialidades',
     icon: DnaIcon,
-  },
-  {
-    title: "Acessos",
-    url: "/acessos",
-    icon: UserLockIcon,
-  },
-  {
-    title: "Histórico",
-    url: "/historico",
-    icon: HistoryIcon,
   },
 ];
 
@@ -89,11 +77,11 @@ export const AppSidebar = () => {
     // await authClient.signOut({
     //   fetchOptions: { onSuccess: () => router.push("/login") },
     // });
-    navigate("/");
+    navigate('/');
   };
 
   const handleChangeTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
   return (
@@ -177,7 +165,7 @@ export const AppSidebar = () => {
                   Sair
                 </DropdownMenuItem>
 
-                <DropdownMenuItem onClick={() => navigate("/perfil")}>
+                <DropdownMenuItem onClick={() => navigate('/perfil')}>
                   Perfil
                 </DropdownMenuItem>
               </DropdownMenuContent>

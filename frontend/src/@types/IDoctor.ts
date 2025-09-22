@@ -6,7 +6,6 @@ export interface IDoctor extends IPerson {
   servicePriceInCents: number;
   specialties: ISpecialtyDoctor[];
   status: boolean;
-  createUser: boolean;
   justification?: string;
 }
 

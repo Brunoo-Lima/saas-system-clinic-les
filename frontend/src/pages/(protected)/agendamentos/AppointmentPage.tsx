@@ -43,7 +43,7 @@ export default function AppointmentPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate('/agendamentos/historico')}
+            onClick={() => navigate('/agendamentos/historico-de-agendamentos')}
           >
             <HistoryIcon /> Histórico de agendamentos
           </Button>
