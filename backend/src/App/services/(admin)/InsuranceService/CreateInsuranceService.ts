@@ -60,7 +60,6 @@ export class CreateInsuranceService {
                     const result = await findOrCreate(this.modalityRepository, mod, tx);
                     return result[0];
                 }))
-                console.log(modalitiesInserted)
                 const insuranceInserted = await this.repository.create(insuranceDomain)
                 return {
                     insurance: insuranceInserted[0],

@@ -146,6 +146,7 @@ export const generateEmail = (userInformation: any) => {
                             <p>Seus dados de acesso:</p>
                             <p><strong>E-mail:</strong> ${userInformation.email}<br>
                             <strong>Nº de cadastro:</strong> ${userInformation.id}</p>
+                            <strong>Senha temporária:</strong> ${userInformation.password ?? ""}</p>
                             
                             <div style="text-align: center;">
                                 <a href="#" class="button">Acessar Minha Área do Paciente</a>

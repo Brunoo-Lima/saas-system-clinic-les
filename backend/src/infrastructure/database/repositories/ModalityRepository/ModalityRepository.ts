@@ -1,4 +1,4 @@
-import { and, eq, inArray, or } from "drizzle-orm";
+import { and, eq, inArray, notInArray, or } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Modality } from "../../../../domain/entities/EntityModality/Modality";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -7,8 +7,16 @@ import { modalityTable } from "../../Schema/ModalitiesSchema";
 import { IRepository } from "../IRepository";
 
 export class ModalityRepository implements IRepository {
-    async create(modalities: Modality , tx?: any): Promise<any> {
+    async create(modalities: Modality | Array<Modality>, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
+        if (Array.isArray(modalities)) {
+            return db.insert(modalityTable).values(modalities.map((mod) => {
+                return {
+                    id: mod.getUUIDHash(),
+                    name: mod.name
+                }
+            })).returning()
+        }
         const modalitiesInserted = await dbUse.insert(modalityTable).values({
             id: modalities.getUUIDHash(),
             name: modalities.name
@@ -41,8 +49,41 @@ export class ModalityRepository implements IRepository {
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    findAllEntity(entity?: EntityDomain | Array<EntityDomain>): Promise<any[]> {
-        throw new Error("Method not implemented.");
-    }
+    async findAllEntity(modality: Array<Modality>) {
+        try {
+            const modalityFiltered = modality.filter(
+                (mod) => (mod.name && mod.name !== "") || (mod.getUUIDHash() && mod.getUUIDHash() !== "")
+            );
 
+            // Nenhum filtro -> retorna tudo
+            if (modalityFiltered.length === 0) {
+                return await db.select().from(modalityTable);
+            }
+
+            const conditions = modalityFiltered.map((mod) => {
+                const id = mod.getUUIDHash();
+                const name = mod.name;
+
+                if (id && name) {
+                    // se tiver os dois -> AND
+                    return and(eq(modalityTable.id, id), eq(modalityTable.name, name));
+                } else if (id) {
+                    // só id
+                    return eq(modalityTable.id, id);
+                } else if (name) {
+                    // só name
+                    return eq(modalityTable.name, name);
+                }
+            });
+
+            const modalitiesFounded = await db
+                .select()
+                .from(modalityTable)
+                .where(or(...conditions));
+
+            return modalitiesFounded;
+        } catch (e) {
+            return ResponseHandler.error("Failed to find the modalities");
+        }
+    }
 }

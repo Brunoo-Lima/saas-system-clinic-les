@@ -10,7 +10,7 @@ import { ResponseHandler } from  "../../../../helpers/ResponseHandler";
 import { PatientDTO } from  "../../../../infrastructure/dto/PatientDTO";
 import { AddressRepository } from  "../../../../infrastructure/database/repositories/AddressRepository/AddressRepository";
 import { IRepository } from  "../../../../infrastructure/database/repositories/IRepository";
-import { PatientRepository } from  "../../../../infrastructure/database/repositories/Patient/PatientRepository";
+import { PatientRepository } from  "../../../../infrastructure/database/repositories/PatientRepository/PatientRepository";
 import { CountryRepository } from  "../../../../infrastructure/database/repositories/CountryRepository/CountryRepository";
 import { StateRepository } from  "../../../../infrastructure/database/repositories/StateRepository/StateRepository";
 import { CityRepository } from  "../../../../infrastructure/database/repositories/CityRepository/CityRepository";

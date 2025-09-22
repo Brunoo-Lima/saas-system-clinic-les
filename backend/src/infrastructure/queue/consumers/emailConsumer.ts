@@ -10,11 +10,15 @@ export async function startConsumer() {
   await channel.assertQueue(queue, { durable: true });
   channel.consume(queue, async (msg) => {
     if (msg !== null) {
-      const user = JSON.parse(msg.content.toString());
-      await EmailService.sendMail(user);
-      
-      // Após o processaamento, ele remove da fila, informando para o Rabbit que já foi processado
-      channel.ack(msg);
+      try {
+        const user = JSON.parse(msg.content.toString());
+        await EmailService.sendMail(user);
+      } catch (e) {
+        console.log(e)
+      } finally {
+        // Após o processaamento, ele remove da fila, informando para o Rabbit que já foi processado
+        channel.ack(msg);
+      }
     }
   });
 }
