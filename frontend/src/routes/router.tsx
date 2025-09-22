@@ -44,7 +44,7 @@ export const router = createBrowserRouter([
         element: <InsurancePage />,
       },
       {
-        path: '/agendamentos/historico',
+        path: '/agendamentos/historico-de-agendamentos',
         element: <HistoricAppointmentPage />,
       },
       {
