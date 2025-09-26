@@ -46,7 +46,7 @@ export default function Dashboard() {
     <SafeAreaView style={styles.container}>
       <Header title="Ganhos do Médico" />
 
-      <ScrollView style={styles.scroll}>
+      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           <View style={styles.containerFilter}>
             <Text>Selecione o mês</Text>
@@ -78,7 +78,7 @@ export default function Dashboard() {
               labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
               style: { borderRadius: 16 },
               propsForDots: {
-                r: '6',
+                r: '4',
                 strokeWidth: '2',
                 stroke: '#2b6cb0',
               },
@@ -108,6 +108,7 @@ export default function Dashboard() {
             height={250}
             yAxisLabel="R$ "
             yAxisSuffix=""
+            withInnerLines={false}
             chartConfig={{
               backgroundColor: '#ffffff',
               backgroundGradientFrom: '#ffffff',
@@ -116,11 +117,8 @@ export default function Dashboard() {
               barPercentage: 0.5,
               color: (opacity = 0.2) => `rgba(43, 108, 176, ${opacity})`,
               labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-              propsForLabels: {
-                fontFamily: undefined, // usa a fonte padrão do sistema
-              },
             }}
-            style={{ borderRadius: 16 }}
+            style={{ marginVertical: 8, borderRadius: 16 }}
           />
         </View>
       </ScrollView>

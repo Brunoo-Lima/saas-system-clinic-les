@@ -6,6 +6,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    flex: 1,
   },
 
   content: {
@@ -21,8 +22,11 @@ const styles = StyleSheet.create({
   },
 
   scroll: {
-    paddingInlineEnd: 25,
+    paddingTop: 32,
+    paddingBottom: 12,
+    height: '100%',
   },
+
   containerFilter: {
     width: '100%',
     paddingHorizontal: 16,
