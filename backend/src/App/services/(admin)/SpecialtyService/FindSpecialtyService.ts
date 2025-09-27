@@ -1,6 +1,6 @@
 import { SpecialtyBuilder } from "../../../../domain/entities/EntitySpecialty/SpecialtyBuilder";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
-import { SpecialtiesDTO } from "../../../../infrastructure/dto/SpecialtiesDTO";
+import { SpecialtiesDTO } from "../../../../infrastructure/DTO/SpecialtiesDTO";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { SpecialtyRepository } from "../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository";
 

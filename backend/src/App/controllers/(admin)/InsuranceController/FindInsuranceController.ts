@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { FindInsuranceService } from "../../../services/(admin)/InsuranceService/FindInsuranceService";
-import { InsuranceDTO } from "../../../../infrastructure/dto/InsuranceDTO";
+import { InsuranceDTO } from "../../../../infrastructure/DTO/InsuranceDTO";
 
 export class FindInsuranceController {
     async handle(req: Request, res: Response, next: NextFunction) {

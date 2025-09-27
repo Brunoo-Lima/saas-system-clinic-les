@@ -4,7 +4,7 @@ import { RequiredGeneralData } from "../../../../domain/validators/General/Requi
 import { SpecialtyExists } from "../../../../domain/validators/SpecialtyValidator/SpecialtiesExists"
 import { ValidatorController } from "../../../../domain/validators/ValidatorController"
 import { ResponseHandler } from "../../../../helpers/ResponseHandler"
-import { SpecialtiesDTO } from "../../../../infrastructure/dto/SpecialtiesDTO"
+import { SpecialtiesDTO } from "../../../../infrastructure/DTO/SpecialtiesDTO"
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository"
 import { SpecialtyRepository } from "../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository"
 

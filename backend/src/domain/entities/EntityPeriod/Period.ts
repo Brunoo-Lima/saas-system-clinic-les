@@ -7,4 +7,23 @@ export class Period extends EntityDomain {
     ){
         super()
     }
+    
+    public get dayWeek () {
+        return this.periodProps.dayWeek
+    }
+    
+    public get periodType() {
+        return this.periodProps.periodType
+    }
+    
+    public get timeFrom() {
+        return this.periodProps.timeFrom
+    }
+    
+    public get timeTo() {
+        return this.periodProps.timeTo
+    }
+    public get props(){
+        return this.periodProps
+    }
 }

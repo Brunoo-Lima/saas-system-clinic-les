@@ -7,6 +7,7 @@ import { ResponseHandler } from "../../../helpers/ResponseHandler";
 import { IRepository } from "../../../infrastructure/database/repositories/IRepository";
 import { IUserRepository } from "../../../infrastructure/database/repositories/UserRepository/IUserRepository";
 import { UserRepository } from "../../../infrastructure/database/repositories/UserRepository/UserRepository";
+import { userTable } from "../../../infrastructure/database/Schema/UserSchema";
 import { UserDTO } from "../../../infrastructure/dto/UserDTO";
 import Queue from "../../../infrastructure/queue/Queue";
 
@@ -39,9 +40,10 @@ export class CreateUserService {
             if (!userDataIsValid.success) return userDataIsValid;
 
             const newUser = await this.userRepository.create(userDomain);
-            await Queue.publish(newUser.data);
+            const {password, ...userResponse} = newUser.data
 
-            return newUser;
+            await Queue.publish(userResponse);
+            return ResponseHandler.success(userResponse, "Success ! User was inserted.");
 
         } catch (error) {
             return ResponseHandler.error("Failed to create user", [

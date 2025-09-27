@@ -10,7 +10,7 @@ export class ModalityRepository implements IRepository {
     async create(modalities: Modality | Array<Modality>, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
         if (Array.isArray(modalities)) {
-            return db.insert(modalityTable).values(modalities.map((mod) => {
+            return dbUse.insert(modalityTable).values(modalities.map((mod) => {
                 return {
                     id: mod.getUUIDHash(),
                     name: mod.name

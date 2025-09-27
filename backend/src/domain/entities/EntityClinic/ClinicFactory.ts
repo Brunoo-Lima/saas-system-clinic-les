@@ -16,12 +16,12 @@ export class ClinicFactory {
         insurance.setUuidHash(ins.id ?? '');
         return insurance;
       }) ?? [];
-    
+
     const specialties = clinicDTO.specialties?.map((spe) => {
       const specialty = new SpecialtyBuilder()
-      .setName(spe.name)
-      .setPrice(spe.price ?? 0)
-      .build();
+        .setName(spe.name)
+        .setPrice(spe.price ?? 0)
+        .build();
       specialty.setUuidHash(spe.id ?? '');
       return specialty;
     });
@@ -76,7 +76,8 @@ export class ClinicFactory {
       .setInsurances(insurances ?? [])
       .setAddress(address)
       .build();
-
+    
+    clinic.setUuidHash(clinicDTO.id ?? clinic.getUUIDHash())
     return clinic;
   }
 }
