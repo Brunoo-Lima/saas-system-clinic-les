@@ -1,6 +1,6 @@
 export interface IPeriod {
-    periodType: "morning" | "afternoon" | "night"
+    periodType: "morning" | "afternoon" | "night" | "default"
     dayWeek: number
-    timeFrom: number
-    timeTo: number
+    timeFrom: string
+    timeTo: string
 }

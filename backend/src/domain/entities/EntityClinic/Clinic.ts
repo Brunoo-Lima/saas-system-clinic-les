@@ -6,8 +6,6 @@ import { User } from '../EntityUser/User';
 export class Clinic extends EntityDomain {
   constructor(private clinicProps: IClinic) {
     super();
-    if (!clinicProps.name) throw new Error('Clinic name is required');
-    if (!clinicProps.cnpj) throw new Error('Clinic CNPJ is required');
   }
 
   public get name() {
@@ -33,4 +31,18 @@ export class Clinic extends EntityDomain {
   public get address(): Address | null | undefined {
     return this.clinicProps.address;
   }
+  
+  public get insurances() {
+    return this.clinicProps.insurances
+  }
+  
+  
+  public get specialties() {
+    return this.clinicProps.specialties
+  }
+  
+  public get props() {
+    return this.clinicProps
+  }
+  
 }

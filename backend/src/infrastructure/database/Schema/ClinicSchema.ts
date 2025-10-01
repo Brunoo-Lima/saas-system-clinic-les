@@ -12,6 +12,7 @@ import { insuranceTable } from './InsuranceSchema';
 import { doctorTable } from './DoctorSchema';
 import { relations } from 'drizzle-orm/relations';
 import { userTable } from './UserSchema';
+import { specialtyTable } from './SpecialtySchema';
 
 // Clinica
 export const clinicTable = pgTable('clinic', {
@@ -35,7 +36,6 @@ export const clinicTable = pgTable('clinic', {
 export const clinicToInsuranceTable = pgTable(
   'clinic_to_insurance',
   {
-    price: real('cin_price').default(0).notNull(), // Preço a clinica cobra por especilidade
     clinic_id: uuid('fk_cin_cli_id').references(() => clinicTable.id),
     insurance_id: uuid('fk_cin_ins_id').references(() => insuranceTable.id),
   },
@@ -47,6 +47,22 @@ export const clinicToInsuranceTable = pgTable(
     },
   ],
 );
+
+export const clinicToSpecialtyTable = pgTable(
+  "clinic_to_specialty",
+  {
+    price: real('csp_price').default(0).notNull(), // Preço a clinica cobra por especilidade
+    specialty_id: uuid("fk_csp_spe_id").references(() => specialtyTable.id),
+    clinic_id: uuid("fk_csp_cli_id").references(() => clinicTable.id)
+  }, 
+  (t) => [
+    {
+      pk: primaryKey({
+        columns: [t.clinic_id, t.specialty_id]
+      })
+    }
+  ]
+)
 
 // Relacionamento intermediario entre: Clinica e Plano de saude
 export const clinicToInsuranceRelation = relations(
@@ -62,6 +78,17 @@ export const clinicToInsuranceRelation = relations(
     }),
   }),
 );
+
+export const clinicToSpecialtyRelation = relations(clinicToSpecialtyTable, ({ one }) => ({
+  clinic: one(clinicTable, {
+    fields: [clinicToSpecialtyTable.clinic_id],
+    references: [clinicTable.id]
+  }),
+  specialty: one(specialtyTable, {
+    fields: [clinicToSpecialtyTable.specialty_id],
+    references: [specialtyTable.id]
+  })
+}))
 
 // Clinica Relations
 export const clinicRelations = relations(clinicTable, ({ one, many }) => ({

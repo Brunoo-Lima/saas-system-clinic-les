@@ -9,6 +9,11 @@ export class UserBuilder {
     return this;
   }
 
+  setUsername(username: string = ""): this{
+    this.data.username = username
+    return this
+  }
+
   setEmail(email: string = ""): this {
     this.data.email = email;
     return this;

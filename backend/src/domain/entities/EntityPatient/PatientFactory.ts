@@ -3,32 +3,45 @@ import { AddressBuilder } from "../EntityAddress/Builders/AddressBuilder";
 import { CityBuilder } from "../EntityAddress/Builders/CityBuilder";
 import { StateBuilder } from "../EntityAddress/Builders/StateBuilder";
 import { Country } from "../EntityAddress/Country";
-import { CartInsuranceBuilder } from "../EntityCartInsurance/CartInsuranceBuilder";
+import { CartInsuranceBuilder } from "../EntityCardInsurance/CardInsuranceBuilder";
 import { InsuranceBuilder } from "../EntityInsurance/InsuranceBuilder";
+import { Modality } from "../EntityModality/Modality";
 import { UserBuilder } from "../EntityUser/UserBuilder";
 import { PatientBuilder } from "./PatientBuilder";
 
 export class PatientFactory {
   static createFromDTO(patientDTO: PatientDTO) {
     // Insurances
-    const cartInsurances = patientDTO.cartInsurances.map((ctIns) => {
+    const cardInsurances = patientDTO.cardInsurances.map((ctIns) => {
       const insurance = new InsuranceBuilder()
         .setName(ctIns.insurance.name as string)
         .build();
       insurance.setUuidHash(ctIns.insurance.id ?? "");
 
-      const cartInsurance = new CartInsuranceBuilder()
-      .setCartNumber(ctIns.cartInsuranceNumber)
-      .setInsurance(insurance)
-      .setValidate(ctIns.validate)
-      .build()
+      const modality = new Modality({
+        name: ctIns.modality.name,
+      })
+      modality.setUuidHash(ctIns.modality.id ?? modality.getUUIDHash())
 
-      return cartInsurance;
+      const cardInsurance = new CartInsuranceBuilder()
+        .setCardNumber(ctIns.cardInsuranceNumber)
+        .setModality(modality)
+        .setInsurance(insurance)
+        .setValidate(ctIns.validate)
+        .build()
+
+      return cardInsurance;
     });
 
     // User
-    const user = new UserBuilder().build();
-    user.setUuidHash(patientDTO.user.id ?? "");
+    const user = new UserBuilder()
+      .setAvatar(patientDTO.user.avatar)
+      .setEmail(patientDTO.user.email)
+      .setPassword(patientDTO.user.password)
+      .setRole("patient")
+      .setUsername(patientDTO.user.username)
+      .build();
+    user.setUuidHash(patientDTO.user.id ?? user.getUUIDHash());
 
     // Country
     const country = new Country({ name: patientDTO.address.country.name });
@@ -55,6 +68,7 @@ export class PatientFactory {
     const address = new AddressBuilder()
       .setNameAddress(patientDTO.address.name)
       .setNumber(patientDTO.address.number)
+      .setNeighborhood(patientDTO.address.neighborhood)
       .setCep(patientDTO.address.cep)
       .setCity(city)
       .setStreet(patientDTO.address.street)
@@ -69,7 +83,7 @@ export class PatientFactory {
       )
       .setName(patientDTO.name)
       .setUser(user)
-      .setCartInsurances(cartInsurances)
+      .setCartInsurances(cardInsurances)
       .setAddress(address)
       .build();
 

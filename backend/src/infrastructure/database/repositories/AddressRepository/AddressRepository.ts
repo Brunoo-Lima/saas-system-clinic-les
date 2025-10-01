@@ -13,6 +13,7 @@ export class AddressRepository implements IRepository {
             id: address.getUUIDHash(),
             name: address.nameAddress as string,
             number: address.number as string,
+            neighborhood: address.neighborhood ?? "",
             cep: address.cep as string,
             street: address.street as string,
             city_id: address.city?.getUUIDHash()

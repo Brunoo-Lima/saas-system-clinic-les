@@ -31,7 +31,7 @@ export class CityRepository implements IRepository {
                 ).leftJoin(stateTable, 
                     eq(stateTable.id, cityTable.id)
                 )
-            return citiesFounded
+            return citiesFounded[0]?.city
         } catch(e){ 
             return ResponseHandler.error("Failed to find the City")
         }

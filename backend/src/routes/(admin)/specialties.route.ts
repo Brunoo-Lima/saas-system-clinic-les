@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import { authMiddleware } from '../../middlewares/authMiddleware';
-import { privateRoute } from '../../middlewares/privateRoute';
-import { CreateSpecialtiesController } from '../../controllers/(admin)/SpecialtiesController/CreateSpecialtiesController';
-import { FindSpecialtyController } from '../../controllers/(admin)/SpecialtiesController/FindSpecialtiesController';
+import { authMiddleware } from '../../App/middlewares/authMiddleware';
+import { privateRoute } from '../../App/middlewares/privateRoute';
+
+import { CreateSpecialtiesController } from '../../App/controllers/(admin)/SpecialtiesController/CreateSpecialtiesController';
+import { FindSpecialtyController } from '../../App/controllers/(admin)/SpecialtiesController/FindSpecialtiesController';
 
 const specialtyRoutes: Router = Router();
 specialtyRoutes.post(

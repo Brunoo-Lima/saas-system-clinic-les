@@ -10,11 +10,6 @@ export class CityBuilder {
         return this;
     }
 
-    setZipCode(cep: string = ""): this {
-        this.data.cep = cep;
-        return this;
-    }
-
     setState(state: State): this {
         this.data.state = state;
         return this;

@@ -1,4 +1,4 @@
-import { IResponseHandler, ResponseHandler } from "../../../helpers/ResponseHandler";
+import { ResponseHandler } from "../../../helpers/ResponseHandler";
 import { Scheduling } from "../../entities/EntityScheduling/Scheduling";
 import { Person } from "../../entities/Person";
 import { IProcessValidator } from "../IProcessValidator";
