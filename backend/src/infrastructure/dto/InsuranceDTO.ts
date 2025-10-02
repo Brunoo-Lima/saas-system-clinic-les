@@ -1,9 +1,9 @@
-import { IModality } from "../../domain/@types/Modality/IModality";
+import { ModalityDTO } from "./ModalityDTO";
 import { SpecialtiesDTO } from "./SpecialtiesDTO";
 
 export interface InsuranceDTO {
     id?: string,
     name: string,
-    modalities?: Array<IModality>
+    modalities?: Array<ModalityDTO>
     specialties: SpecialtiesDTO
 }

@@ -4,8 +4,9 @@ import { Insurance } from "../../entities/EntityInsurance/Insurance";
 import { IProcessValidator } from "../IProcessValidator";
 
 export class InsuranceExists implements IProcessValidator {
-    async valid(insurance: Insurance, repository: IRepository) {
+    async valid(insurance: Insurance | Array<Insurance>, repository: IRepository) {
         try {
+
             const insuranceFounded = await repository.findEntity(insurance)
             if (insuranceFounded.length) return ResponseHandler.error("Insurance already exists")
             return ResponseHandler.success("Insurance don't exists")

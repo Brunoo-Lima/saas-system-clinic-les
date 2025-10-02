@@ -1,7 +1,7 @@
 // src/services/EmailService.js
 import "dotenv/config";
 import nodemailer from "nodemailer";
-import {generateEmail} from "../templates/welcome-user";
+import { generateEmail } from "../templates/welcome-user";
 
 class EmailService {
   private transporter: any
@@ -19,13 +19,16 @@ class EmailService {
   }
 
   async sendMail(userInformation: any) {
-    console.log(userInformation)
-    await this.transporter.sendMail({
-      from: `"LifeCare" <${process.env.EMAIL_USER}>`,
-      to: userInformation.email,
-      subject: "Boas vindas",
-      html: generateEmail()
-    });
+    try {
+      await this.transporter.sendMail({
+        from: `"LifeCare" <${process.env.EMAIL_USER}>`,
+        to: userInformation.email,
+        subject: "Boas vindas",
+        html: generateEmail(userInformation)
+      });
+    } catch(e){
+      console.log(e)
+    }
   }
 }
 

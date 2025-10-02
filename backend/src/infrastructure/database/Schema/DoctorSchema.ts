@@ -15,6 +15,7 @@ import { relations } from "drizzle-orm";
 export const doctorTable = pgTable("doctor", {
   id: uuid("dct_id").primaryKey(),
   crm: varchar("dct_crm").notNull().unique(),
+  name: varchar("dct_name").notNull(),
   cpf: varchar("dct_cpf").notNull(),
   sex: varchar("dct_sex").notNull(),
   date_of_birth: varchar("dct_date_of_birth"),

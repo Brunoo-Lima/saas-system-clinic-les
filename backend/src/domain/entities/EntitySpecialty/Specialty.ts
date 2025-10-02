@@ -16,4 +16,9 @@ export class Specialty extends EntityDomain {
     public get amountTransferred(){
         return this.specialtyProps.amountTransferred
     }
+
+    public get props() {
+        return  this.specialtyProps
+    }
+    
 }

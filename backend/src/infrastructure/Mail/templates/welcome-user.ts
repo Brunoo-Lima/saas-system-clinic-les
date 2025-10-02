@@ -1,4 +1,4 @@
-export const generateEmail = () => {
+export const generateEmail = (userInformation: any) => {
     return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -131,7 +131,7 @@ export const generateEmail = () => {
                     <tr>
                         <td class="email-body">
                             <h2 style="margin-top: 0; color: #1a7db7;">Seja bem-vindo(a) à LifeCare!</h2>
-                            <p>Olá [Nome do Usuário],</p>
+                            <p>Olá ${userInformation.username},</p>
                             <p>É com grande satisfação que damos as boas-vindas à <strong>LifeCare</strong>! Sua conta foi criada com sucesso e agora você faz parte da nossa família de cuidados com a saúde.</p>
                             
                             <p>Na LifeCare, nossa missão é proporcionar atendimento médico de excelência com compassion e profissionalismo. Com nossa plataforma, você pode:</p>
@@ -144,8 +144,9 @@ export const generateEmail = () => {
                             </div>
                             
                             <p>Seus dados de acesso:</p>
-                            <p><strong>E-mail:</strong> [email do usuário]<br>
-                            <strong>Nº de cadastro:</strong> [número do paciente]</p>
+                            <p><strong>E-mail:</strong> ${userInformation.email}<br>
+                            <strong>Nº de cadastro:</strong> ${userInformation.id}</p>
+                            <strong>Senha temporária:</strong> ${userInformation.password ?? ""}</p>
                             
                             <div style="text-align: center;">
                                 <a href="#" class="button">Acessar Minha Área do Paciente</a>
