@@ -4,4 +4,5 @@ export interface IConsultation {
   time: string;
   patient: string;
   status: string;
+  orderCancel: boolean;
 }

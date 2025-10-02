@@ -1,18 +1,18 @@
-import styles from "./styles";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import styles from './styles';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Text,
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-} from "react-native";
-import { useState } from "react";
-import { LoginFormSchema, loginSchema } from "@/validation/login-form-schema";
-import { useRouter } from "expo-router";
+} from 'react-native';
+import { useState } from 'react';
+import { LoginFormSchema, loginSchema } from '@/validation/login-form-schema';
+import { useRouter } from 'expo-router';
 
 interface ILoginFormProps {
-  role: "paciente" | "medico";
+  role: 'paciente' | 'medico';
 }
 
 export const LoginForm = ({ role }: ILoginFormProps) => {
@@ -24,8 +24,8 @@ export const LoginForm = ({ role }: ILoginFormProps) => {
   } = useForm<LoginFormSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
   const [loading, setLoading] = useState(false);
@@ -35,12 +35,12 @@ export const LoginForm = ({ role }: ILoginFormProps) => {
     setTimeout(() => {
       setLoading(false);
 
-      console.log("Login:", { role, ...data });
+      console.log('Login:', { role, ...data });
 
-      if (role === "paciente") {
-        router.push("/paciente/agendamentos");
+      if (role === 'paciente') {
+        router.push('/paciente/agendamentos');
       } else {
-        router.push("/medico/consultas");
+        router.push('/medico/painel');
       }
     }, 1200);
   };
@@ -97,7 +97,7 @@ export const LoginForm = ({ role }: ILoginFormProps) => {
           <ActivityIndicator />
         ) : (
           <Text style={styles.buttonText}>
-            Entrar como {role === "medico" ? "Médico" : "Paciente"}
+            Entrar como {role === 'medico' ? 'Médico' : 'Paciente'}
           </Text>
         )}
       </TouchableOpacity>

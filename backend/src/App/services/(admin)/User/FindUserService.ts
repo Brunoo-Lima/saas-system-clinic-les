@@ -12,7 +12,7 @@ export class FindUserService {
   public async execute(user: User) {
     try {
       if (!user.email) {
-        return ResponseHandler.error('Email is required to find a user');
+        return ResponseHandler.error("Email is required to find a user");
       }
 
       const foundUser = await this.userRepository.findEntity(user);
