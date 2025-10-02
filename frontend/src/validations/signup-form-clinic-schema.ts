@@ -8,7 +8,7 @@ export const registerFormClinicSchema = z
       .string()
       .trim()
       .min(1, { message: 'O CNPJ é obrigatório' })
-      .max(14, { message: 'O CNPJ deve ter no.maxcdn 14 caracteres' }),
+      .max(14, { message: 'O CNPJ deve ter no máximo 14 caracteres' }),
     email: z
       .string()
       .trim()

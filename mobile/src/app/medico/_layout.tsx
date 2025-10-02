@@ -1,19 +1,28 @@
-import { Ionicons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { Tabs } from 'expo-router';
 
 export default function MedicoLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#2563eb",
-        tabBarInactiveTintColor: "gray",
+        tabBarActiveTintColor: '#2563eb',
+        tabBarInactiveTintColor: 'gray',
       }}
     >
       <Tabs.Screen
+        name="painel"
+        options={{
+          title: 'Dashboard',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="pie-chart" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="consultas"
         options={{
-          title: "Consultas",
+          title: 'Consultas',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="calendar-outline" size={size} color={color} />
           ),
@@ -22,21 +31,12 @@ export default function MedicoLayout() {
       <Tabs.Screen
         name="perfil"
         options={{
-          title: "Perfil",
+          title: 'Perfil',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}
       />
-      {/* <Tabs.Screen
-        name="configuracoes"
-        options={{
-          title: "Configurações",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings-outline" size={size} color={color} />
-          ),
-        }}
-      /> */}
     </Tabs>
   );
 }
