@@ -22,7 +22,7 @@ export class UserRepository implements IRepository {
           emailVerified: user.emailVerified,
           password: user.password!,
           role: user.role!,
-          avatar: user.avatar || "",
+          avatar: user.avatar || '',
           createdAt: new Date(),
           updatedAt: new Date(),
         }).returning({
@@ -32,12 +32,11 @@ export class UserRepository implements IRepository {
           username: userTable.username
         });
       return ResponseHandler.success(
-        userInserted[0],
-        "User created successfully."
+        userInserted,
+        'User created successfully.',
       );
     } catch (error) {
-
-      return ResponseHandler.error(["Failed to create user in repository"]);
+      return ResponseHandler.error(['Failed to create user in repository']);
     }
   }
   async getUserByEmail(email: string): Promise<any> {
@@ -49,7 +48,7 @@ export class UserRepository implements IRepository {
         .limit(1);
       return user[0] || null;
     } catch (error) {
-      return ResponseHandler.error(["Failed to find user in repository"]);
+      return ResponseHandler.error(['Failed to find user in repository']);
     }
   }
   async findEntity(user: User): Promise<any> {
@@ -66,7 +65,7 @@ export class UserRepository implements IRepository {
       return userFounded[0] || null;
 
     } catch (error) {
-      return ResponseHandler.error(["Failed to find user in repository"]);
+      return ResponseHandler.error(['Failed to find user in repository']);
     }
   }
   updateEntity(entity: EntityDomain): Promise<any> {

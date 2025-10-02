@@ -9,7 +9,6 @@ export type IModality =
 export interface IPatient extends IPerson {
   id: number;
   hasInsurance?: boolean;
-  createUser?: boolean;
   insurance?: {
     name: string;
     number: string;

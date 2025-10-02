@@ -12,7 +12,6 @@ export const getPatientDefaultValues = (
   cpf: patient?.cpf ?? '',
   dateOfBirth: patient?.dateOfBirth ?? new Date(),
   hasInsurance: patient?.hasInsurance ?? false,
-  createUser: patient?.createUser ?? false,
   insurance: {
     name: patient?.name ?? '',
     number: patient?.insurance?.number ?? '',
@@ -26,6 +25,6 @@ export const getPatientDefaultValues = (
     neighborhood: patient?.address?.neighborhood ?? '',
     city: patient?.address?.city ?? '',
     state: patient?.address?.state ?? '',
-    country: patient?.address?.country ?? '',
+    country: patient?.address?.country ?? 'Brasil',
   },
 });
