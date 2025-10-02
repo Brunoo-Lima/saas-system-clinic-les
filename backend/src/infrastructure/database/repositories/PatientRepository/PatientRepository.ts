@@ -5,7 +5,7 @@ import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
 import { addressTable } from "../../Schema/AddressSchema";
 import { IRepository } from "../IRepository";
-import { patientTable, patientToCartInsuranceTable } from "../../Schema/PatientSchema";
+import { patientTable, patientToCardInsuranceTable } from "../../Schema/PatientSchema";
 import { userTable } from "../../Schema/UserSchema";
 
 export class PatientRepository implements IRepository {
@@ -26,9 +26,9 @@ export class PatientRepository implements IRepository {
             }
         ).returning()
 
-        await dbUse.insert(patientToCartInsuranceTable).values((patient.cardInsurances ?? []).map((cts) => {
+        await dbUse.insert(patientToCardInsuranceTable).values((patient.cardInsurances ?? []).map((cts) => {
             return {
-                cart_insurance_id: cts.getUUIDHash(), // assuming Insurance has an id property
+                card_insurance_id: cts.getUUIDHash(), // assuming Insurance has an id property
                 patient_id: patient.getUUIDHash(), // replace with actual property for specialty id
             }
         })).returning()
@@ -49,8 +49,8 @@ export class PatientRepository implements IRepository {
                             ),
                             eq(userTable.id, patient.user?.getUUIDHash() ?? "")
                         )
-                    ).leftJoin(patientToCartInsuranceTable,
-                        eq(patientToCartInsuranceTable.patient_id, patientTable.id)
+                    ).leftJoin(patientToCardInsuranceTable,
+                        eq(patientToCardInsuranceTable.patient_id, patientTable.id)
                     ).leftJoin(addressTable,
                         eq(addressTable.id, patientTable.address_id)
                     ).leftJoin(userTable,
