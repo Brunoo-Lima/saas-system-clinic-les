@@ -38,6 +38,8 @@ export const ActionsPatient = ({ patient }: IActionsPatientProps) => {
 
   const handleDeletePatientClick = () => {
     if (!patient) return;
+
+    toast.success('Paciente deletado com sucesso!');
   };
 
   const handleGenerateNewPassword = () => {

@@ -8,17 +8,12 @@ import { DoctorsPage } from '@/pages/(protected)/medicos/DoctorsPage';
 import { PatientsPage } from '@/pages/(protected)/pacientes/PatientsPage';
 import ProfilePage from '@/pages/(protected)/perfil/ProfilePage';
 import { LoginPage } from '@/pages/(public)/LoginPage';
-import SignupPage from '@/pages/(public)/registrar/SignupPage';
 import { createBrowserRouter } from 'react-router-dom';
 
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <LoginPage />,
-  },
-  {
-    path: '/registrar',
-    element: <SignupPage />,
   },
   {
     element: <DefaultLayout />,
