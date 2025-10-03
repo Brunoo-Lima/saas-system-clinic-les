@@ -7,4 +7,5 @@ export interface IUser {
   role?: 'admin' | 'doctor' | 'patient';
   avatar?: string;
   profileCompleted: boolean;
+  token?: string;
 }

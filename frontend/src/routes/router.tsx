@@ -1,4 +1,5 @@
 import { DefaultLayout } from '@/components/default-layout/default-layout';
+import AuthProvider from '@/hooks/use-auth';
 import AppointmentPage from '@/pages/(protected)/agendamentos/AppointmentPage';
 import HistoricAppointmentPage from '@/pages/(protected)/agendamentos/historico-de-agendamentos/HistoricAppointmentPage';
 import { ProfileCompletePage } from '@/pages/(protected)/completar-perfil/ProfileCompletePage';
@@ -17,7 +18,11 @@ export const router = createBrowserRouter([
     element: <LoginPage />,
   },
   {
-    element: <DefaultLayout />,
+    element: (
+      <AuthProvider>
+        <DefaultLayout />
+      </AuthProvider>
+    ),
     children: [
       {
         path: '/dashboard',

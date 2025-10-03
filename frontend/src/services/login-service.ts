@@ -7,28 +7,26 @@ interface ILoginServiceProps {
   role: 'admin' | 'doctor' | 'patient';
 }
 
-interface ILoginServiceProps {
-  email: string;
-  password: string;
-  role: 'admin' | 'doctor' | 'patient';
-}
-
 export const loginService = async ({
   email,
   password,
   role,
 }: ILoginServiceProps) => {
   try {
-    const { data, status } = await api.post('/auth', { email, password, role });
+    const response = await api.post('/auth', {
+      email,
+      password,
+      role,
+    });
 
-    if (status !== 200 || data.success === false) {
-      const message = Array.isArray(data.message)
-        ? data.message.join(', ')
-        : data.message || 'Erro desconhecido';
-      throw new Error(message);
+    // Lê o token dentro de data.data.token ou data.token
+    const token = response.data?.token || response.data?.data?.token;
+
+    if (!token) {
+      throw new Error('Erro ao autenticar usuário');
     }
 
-    return data;
+    return { token };
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
       const message = Array.isArray(error.response?.data?.message)

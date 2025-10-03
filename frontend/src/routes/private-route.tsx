@@ -5,13 +5,13 @@ import { useAuth } from '@/hooks/use-auth';
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const { user } = useAuth();
 
-  if (!user) {
+  if (!user?.token) {
     return <Navigate to="/" replace />;
   }
 
-  if (!user.profileCompleted) {
-    return <Navigate to="/completar-perfil" replace />;
-  }
+  // if (!user.profileCompleted) {
+  //   return <Navigate to="/completar-perfil" replace />;
+  // }
 
   return children;
 }

@@ -2,8 +2,6 @@
 'use client';
 
 import type { IUser } from '@/@types/IUser';
-import { getUser } from '@/services/get-user-service';
-import { loginService } from '@/services/login-service';
 import {
   createContext,
   type ReactNode,
@@ -21,16 +19,11 @@ export interface AuthToken {
 }
 
 interface IAuthProvider {
-  user: IUser;
-  setUser: React.Dispatch<SetStateAction<IUser>>;
-  authToken: AuthToken;
-  setAuthToken: React.Dispatch<SetStateAction<AuthToken>>;
+  user: IUser | null;
+  setUser: React.Dispatch<SetStateAction<IUser | null>>;
+  authToken: AuthToken | null;
+  setAuthToken: React.Dispatch<SetStateAction<AuthToken | null>>;
   isAuthenticated: boolean;
-  login: (
-    email: string,
-    password: string,
-    role: 'admin' | 'doctor' | 'patient',
-  ) => Promise<void>;
   logout: () => void;
   loading: boolean;
 }
@@ -41,107 +34,49 @@ interface ChildrenProps {
 const AuthContext = createContext({} as IAuthProvider);
 
 const AuthProvider = ({ children }: ChildrenProps) => {
-  const [authToken, setAuthToken] = useState<AuthToken>({} as AuthToken);
-  const [user, setUser] = useState<IUser>({} as IUser);
-  const [loading, setLoading] = useState(true);
+  const [authToken, setAuthToken] = useState<AuthToken | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const storageToken =
-        localStorage.getItem('@token:accessToken') ||
-        sessionStorage.getItem('@token:accessToken');
+      const storedToken =
+        localStorage.getItem('@user:token') ||
+        sessionStorage.getItem('@user:token');
 
-      const email =
-        localStorage.getItem('@user:email') ||
-        sessionStorage.getItem('@user:email');
-
-      if (storageToken) {
+      if (storedToken) {
         try {
-          setAuthToken({ token: storageToken });
-
-          const data = await getUser(email!);
-          setUser({
-            email: data.email,
-            username: data.username,
-            role: data.role,
-            profileCompleted: data.profileCompleted,
-          });
-        } catch (error) {
+          setAuthToken({ token: storedToken });
+        } catch {
           logout();
         }
       } else {
         navigate('/');
       }
-
       setLoading(false);
     };
 
     fetchUserData();
   }, [navigate]);
 
+  // Redireciona se já estiver logado
   useEffect(() => {
-    const accessToken = localStorage.getItem('@token:accessToken');
-
-    if (accessToken && location.pathname === '/') {
+    const token = localStorage.getItem('@user:token');
+    if (token && location.pathname === '/') {
       navigate('/dashboard');
     }
   }, [navigate, location.pathname]);
 
   useEffect(() => {
-    if (!loading && user?.email) {
+    if (!loading && user?.token) {
       if (!user.profileCompleted && location.pathname !== '/completar-perfil') {
         navigate('/completar-perfil');
       }
     }
-  }, [authToken.token, loading, location.pathname, navigate]);
-
-  const login = async (
-    email: string,
-    password: string,
-    role: 'admin' | 'doctor' | 'patient',
-  ) => {
-    try {
-      const {
-        user: userData,
-        jwt,
-        refreshToken,
-      } = await loginService({
-        email,
-        password,
-        role,
-      });
-
-      if (userData && jwt) {
-        setAuthToken({ token: jwt });
-        setUser({
-          email: userData.email,
-          username: userData.username,
-          role: userData.role,
-          profileCompleted: userData.profileCompleted,
-        });
-      }
-
-      localStorage.setItem('@token:accessToken', jwt);
-      localStorage.setItem('@token:refreshToken', refreshToken);
-      localStorage.setItem('@user:email', userData.email);
-
-      // remove o localStorage quando a página for fechada
-      localStorage.setItem('removeLocalStorageOnClose', 'true');
-
-      window.addEventListener('beforeunload', () => {
-        localStorage.removeItem('@token:accessToken');
-        localStorage.removeItem('@token:refreshToken');
-      });
-
-      navigate('/dashboard');
-    } catch (error: any) {
-      // toast.error('Email ou senha incorretos.');
-    }
-    setLoading(false);
-  };
+  }, [authToken?.token, loading, location.pathname, navigate]);
 
   const logout = () => {
     localStorage.removeItem('@token:accessToken');
@@ -155,11 +90,10 @@ const AuthProvider = ({ children }: ChildrenProps) => {
     () => ({
       user,
       setUser,
-      isAuthenticated: !!user.email,
+      isAuthenticated: !!authToken?.token,
       logout,
       authToken,
       setAuthToken,
-      login,
       loading,
     }),
     [user, authToken, loading],

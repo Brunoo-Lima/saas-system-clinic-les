@@ -1,4 +1,3 @@
-import type { IUser } from '@/@types/IUser';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -8,7 +7,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
 import { InputPassword } from '@/components/ui/input-password';
 import { loginService } from '@/services/login-service';
 import { loginSchema, type LoginSchema } from '@/validations/login-form-schema';
@@ -25,26 +24,19 @@ export const LoginForm = () => {
     defaultValues: {
       email: '',
       password: '',
+      role: 'admin',
     },
   });
 
-  const onSubmit = async (user: IUser) => {
-    if (!user.email || !user.password) return;
-
+  const onSubmit = async (user: LoginSchema) => {
     try {
-      const {
-        jwt,
-        refreshToken,
-        user: userData,
-      } = await loginService({
+      const { token } = await loginService({
         email: user.email,
         password: user.password,
-        role: 'doctor',
+        role: 'admin',
       });
 
-      localStorage.setItem('@token:accessToken', jwt);
-      localStorage.setItem('@token:refreshToken', refreshToken);
-      localStorage.setItem('@user:email', userData.email);
+      localStorage.setItem('@user:token', token);
 
       navigate('/dashboard');
     } catch (error: any) {
@@ -59,18 +51,11 @@ export const LoginForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-3">
-        <FormField
+        <FormInputCustom
           control={form.control}
           name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>E-mail</FormLabel>
-              <FormControl>
-                <Input placeholder="Digite seu e-mail" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="E-mail"
+          placeholder="E-mail"
         />
 
         <FormField
