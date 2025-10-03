@@ -7,7 +7,7 @@ import { cardInsuranceTable } from "../../Schema/CardInsuranceSchema";
 import { IRepository } from "../IRepository";
 
 export class CardInsuranceRepository implements IRepository {
-    async create(cardInsurance: CardInsurance | Array<CardInsurance>, tx?: any): Promise<any> {
+    async create(cardInsurance: CardInsurance | Array<CardInsurance>, tx?: any, patient_id: string = ""): Promise<any> {
         const dbUse = tx ? tx : db
         const cardInsurancesFiltered = Array.isArray(cardInsurance) ? cardInsurance : [cardInsurance]
         const cardInsuranceInserted = await dbUse.insert(cardInsuranceTable).values(cardInsurancesFiltered.map((ct) => {
@@ -16,7 +16,7 @@ export class CardInsuranceRepository implements IRepository {
                 cardNumber: ct.cardNumber ?? "",
                 validate: ct.validate?.toString() ?? "",
                 insurance_id: ct.insurance?.getUUIDHash(),
-                patient_id: ct.patient?.getUUIDHash(),
+                patient_id: patient_id,
                 modality_id: ct.modality?.getUUIDHash()
             }
         })).returning()

@@ -56,7 +56,6 @@ export class CreatePatientService {
             const cardInsurances = patientDTO.cardInsurances.map((card) => {
                 const cardInsurance = CardInsuranceFactory.createFromDTO(card)
                 cardInsurance.setUuidHash(card.id ?? cardInsurance.getUUIDHash())
-            
                 return cardInsurance
             })
 
@@ -110,7 +109,7 @@ export class CreatePatientService {
 
                     const addressInserted = await findOrCreate(this.addressRepository, addressDomain, tx);
                     const userInserted = await this.userRepository.create(patientDomain.user as User, tx)
-                    const cartInsurance = await this.cardInsuranceRepository.create(cardInsurances!, tx)
+                    const cartInsurance = await this.cardInsuranceRepository.create(cardInsurances!, tx, patientDomain.getUUIDHash() ?? "")
                     const { password, ...userOmitted } = userInserted.data
                     const patientInserted = await this.repository.create(patientDomain, tx);
 
