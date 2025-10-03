@@ -1,6 +1,7 @@
 import { DefaultLayout } from '@/components/default-layout/default-layout';
 import AppointmentPage from '@/pages/(protected)/agendamentos/AppointmentPage';
 import HistoricAppointmentPage from '@/pages/(protected)/agendamentos/historico-de-agendamentos/HistoricAppointmentPage';
+import { ProfileCompletePage } from '@/pages/(protected)/completar-perfil/ProfileCompletePage';
 import { InsurancePage } from '@/pages/(protected)/convenios/InsurancePage';
 import { DashboardPage } from '@/pages/(protected)/dashboard/DashboardPage';
 import SpecialtiesPage from '@/pages/(protected)/especialidades/SpecialtiesPage';
@@ -45,6 +46,10 @@ export const router = createBrowserRouter([
       {
         path: '/perfil',
         element: <ProfilePage />,
+      },
+      {
+        path: '/completar-perfil',
+        element: <ProfileCompletePage />,
       },
       {
         path: '/especialidades',

@@ -67,6 +67,7 @@ const AuthProvider = ({ children }: ChildrenProps) => {
             email: data.email,
             username: data.username,
             role: data.role,
+            profileCompleted: data.profileCompleted,
           });
         } catch (error) {
           logout();
@@ -90,8 +91,10 @@ const AuthProvider = ({ children }: ChildrenProps) => {
   }, [navigate, location.pathname]);
 
   useEffect(() => {
-    if (!loading && !authToken.token && location.pathname !== '/') {
-      navigate('/');
+    if (!loading && user?.email) {
+      if (!user.profileCompleted && location.pathname !== '/completar-perfil') {
+        navigate('/completar-perfil');
+      }
     }
   }, [authToken.token, loading, location.pathname, navigate]);
 
@@ -117,6 +120,7 @@ const AuthProvider = ({ children }: ChildrenProps) => {
           email: userData.email,
           username: userData.username,
           role: userData.role,
+          profileCompleted: userData.profileCompleted,
         });
       }
 

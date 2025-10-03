@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -12,15 +12,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { InputPassword } from "@/components/ui/input-password";
+} from '@/components/ui/form';
+import { InputPassword } from '@/components/ui/input-password';
 import {
   passwordFormSchema,
   type PasswordFormSchema,
-} from "@/validations/password-form-schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+} from '@/validations/password-form-schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 
 interface IFormChangePasswordProps {
   isOpen: boolean;
@@ -35,8 +35,8 @@ export const FormChangePassword = ({
     shouldUnregister: true,
     resolver: zodResolver(passwordFormSchema),
     defaultValues: {
-      password: "",
-      confirmPassword: "",
+      password: '',
+      confirmPassword: '',
     },
   });
 
@@ -76,7 +76,7 @@ export const FormChangePassword = ({
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Confirmar senha</FormLabel>
                 <FormControl>
                   <InputPassword placeholder="Confirme a senha" {...field} />
                 </FormControl>
@@ -91,7 +91,7 @@ export const FormChangePassword = ({
               disabled={form.formState.isSubmitting}
               className="w-full"
             >
-              {form.formState.isSubmitting ? "Salvando..." : "Salvar"}
+              {form.formState.isSubmitting ? 'Salvando...' : 'Salvar'}
             </Button>
           </DialogFooter>
         </form>

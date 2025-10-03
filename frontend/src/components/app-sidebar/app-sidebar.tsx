@@ -31,6 +31,7 @@ import {
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useTheme } from '../ui/theme-provider';
 import { Button } from '../ui/button';
+// import { useAuth } from '@/hooks/use-auth';
 
 const items = [
   {
@@ -69,20 +70,17 @@ const items = [
 export const AppSidebar = () => {
   const { setTheme, theme } = useTheme();
   const navigate = useNavigate();
-  // const router = useRouter();
-  // const session = authClient.useSession();
-  // const pathname = usePathname();
+  // const { user } = useAuth();
 
   const handleSignOut = async () => {
-    // await authClient.signOut({
-    //   fetchOptions: { onSuccess: () => router.push("/login") },
-    // });
     navigate('/');
   };
 
   const handleChangeTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
+
+  // if (!user) return;
 
   return (
     <Sidebar>
@@ -101,7 +99,10 @@ export const AppSidebar = () => {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton
+                    asChild
+                    // disabled={user.profileCompleted === false}
+                  >
                     <NavLink to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>

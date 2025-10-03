@@ -6,4 +6,5 @@ export interface IUser {
   passwordConfirmed?: string;
   role?: 'admin' | 'doctor' | 'patient';
   avatar?: string;
+  profileCompleted: boolean;
 }
