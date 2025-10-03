@@ -1,6 +1,7 @@
 import { ICardInsurance } from "../../@types/CardInsurance/ICardInsurance";
 import { Insurance } from "../EntityInsurance/Insurance";
 import { Modality } from "../EntityModality/Modality";
+import { Patient } from "../EntityPatient/Patient";
 import { CardInsurance } from "./CardInsurance";
 
 export class CartInsuranceBuilder {

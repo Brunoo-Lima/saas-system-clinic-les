@@ -8,7 +8,7 @@ import { IRepository } from "../../../infrastructure/database/repositories/IRepo
 import { IUserRepository } from "../../../infrastructure/database/repositories/UserRepository/IUserRepository";
 import { UserRepository } from "../../../infrastructure/database/repositories/UserRepository/UserRepository";
 import { userTable } from "../../../infrastructure/database/Schema/UserSchema";
-import { UserDTO } from "../../../infrastructure/dto/UserDTO";
+import { UserDTO } from "../../../infrastructure/DTO/UserDTO";
 import Queue from "../../../infrastructure/queue/Queue";
 
 export class CreateUserService {
@@ -26,6 +26,7 @@ export class CreateUserService {
                 .setPassword(userData.password)
                 .setRole(userData.role)
                 .setAvatar(userData.avatar || "")
+                .setProfileCompleted(userData.profileCompleted)
                 .setEmailVerified(userData.emailVerified || false)
                 .build();
             const validatorController = new ValidatorController();
@@ -40,7 +41,7 @@ export class CreateUserService {
             if (!userDataIsValid.success) return userDataIsValid;
 
             const newUser = await this.userRepository.create(userDomain);
-            const {password, ...userResponse} = newUser.data
+            const { password, ...userResponse } = newUser.data
 
             await Queue.publish(userResponse);
             return ResponseHandler.success(userResponse, "Success ! User was inserted.");

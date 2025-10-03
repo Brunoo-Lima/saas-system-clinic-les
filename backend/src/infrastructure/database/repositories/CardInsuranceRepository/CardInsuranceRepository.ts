@@ -3,29 +3,23 @@ import { CardInsurance } from "../../../../domain/entities/EntityCardInsurance/C
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
-import { cardInsuranceTable, cardToModalityTable } from "../../Schema/CardInsuranceSchema";
+import { cardInsuranceTable } from "../../Schema/CardInsuranceSchema";
 import { IRepository } from "../IRepository";
 
 export class CardInsuranceRepository implements IRepository {
     async create(cardInsurance: CardInsurance | Array<CardInsurance>, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
         const cardInsurancesFiltered = Array.isArray(cardInsurance) ? cardInsurance : [cardInsurance]
-
         const cardInsuranceInserted = await dbUse.insert(cardInsuranceTable).values(cardInsurancesFiltered.map((ct) => {
             return {
                 id: ct.getUUIDHash() ?? "",
                 cardNumber: ct.cardNumber ?? "",
                 validate: ct.validate?.toString() ?? "",
-                insurance_id: ct.insurance?.getUUIDHash()
-            }
-        })).returning()
-
-        await dbUse.insert(cardToModalityTable).values(cardInsurancesFiltered.map((ct) => {
-            return {
-                cardInsurance_id: ct.getUUIDHash(),
+                insurance_id: ct.insurance?.getUUIDHash(),
+                patient_id: ct.patient?.getUUIDHash(),
                 modality_id: ct.modality?.getUUIDHash()
             }
-        }))
+        })).returning()
 
         return cardInsuranceInserted[0]
     }

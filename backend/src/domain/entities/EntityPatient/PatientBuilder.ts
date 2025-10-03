@@ -1,6 +1,5 @@
 import { IPatient } from "../../@types/Patient/IPatient";
 import { Address } from "../EntityAddress/Address";
-import { CardInsurance } from "../EntityCardInsurance/CardInsurance";
 import { User } from "../EntityUser/User";
 import { Patient } from "./Patient";
 
@@ -29,11 +28,6 @@ export class PatientBuilder {
 
   setName(name: string = ""): this {
     this.data.name = name;
-    return this;
-  }
-
-  setCartInsurances(cartInsurances: CardInsurance[] = []): this {
-    this.data.cardInsurances = cartInsurances;
     return this;
   }
 

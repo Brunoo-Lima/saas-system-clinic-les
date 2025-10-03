@@ -4,6 +4,7 @@ import {
   primaryKey,
   real,
   varchar,
+  timestamp,
 } from "drizzle-orm/pg-core";
 import { specialtyTable } from "./SpecialtySchema";
 import { relations } from "drizzle-orm";
@@ -14,6 +15,12 @@ import { modalityTable } from "./ModalitiesSchema";
 export const insuranceTable = pgTable("insurance", {
   id: uuid("ins_id").primaryKey(),
   name: varchar("ins_type").notNull(),
+  createdAt: timestamp("use_createdAt")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("use_updatedAt")
+    .$defaultFn(() => new Date())
+    .notNull()
 });
 
 

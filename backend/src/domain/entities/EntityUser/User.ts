@@ -2,6 +2,7 @@ import { EntityDomain } from "../EntityDomain";
 
 export interface IUser {
   email?: string;
+  profileCompleted?: boolean,
   emailVerified?: boolean;
   username?: string,
   password?: string;
@@ -26,6 +27,9 @@ export class User extends EntityDomain {
     return this.dataUser.password;
   }
 
+  public get profileCompleted() {
+    return this.dataUser.profileCompleted
+  }
   
   public get username() {
     return this.dataUser.username

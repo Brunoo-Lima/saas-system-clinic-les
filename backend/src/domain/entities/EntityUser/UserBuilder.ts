@@ -34,6 +34,10 @@ export class UserBuilder {
     return this;
   }
 
+  setProfileCompleted(complete: boolean = false): this {
+    this.data.profileCompleted = complete
+    return this;
+  }
   build(): User {
     return new User({
       emailVerified: false, // default

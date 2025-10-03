@@ -7,7 +7,7 @@ import { FormatDateValidator } from "../../../../domain/validators/General/Forma
 import { RequiredGeneralData } from "../../../../domain/validators/General/RequiredGeneralData";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
-import { PatientDTO } from "../../../../infrastructure/dto/PatientDTO";
+import { PatientDTO } from "../../../../infrastructure/DTO/PatientDTO";
 import { AddressRepository } from "../../../../infrastructure/database/repositories/AddressRepository/AddressRepository";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { PatientRepository } from "../../../../infrastructure/database/repositories/PatientRepository/PatientRepository";
@@ -18,7 +18,6 @@ import { findOrCreate } from "../../../../infrastructure/database/repositories/f
 import { State } from "../../../../domain/entities/EntityAddress/State";
 import { City } from "../../../../domain/entities/EntityAddress/City";
 import { Country } from "../../../../domain/entities/EntityAddress/Country";
-// import { InsuranceToPatient } from  "../../../../domain/validators/Patient/InsuranceToPatient";
 import { UserAlreadyVinculate } from "../../../../domain/validators/Patient/UserAlreadyVinculate";
 import { ValidatorEmail } from "../../../../domain/validators/UserValidator/ValidatorEmail";
 import { RequiredDataToUserCreate } from "../../../../domain/validators/UserValidator/RequiredDataToUserCreate";
@@ -28,6 +27,7 @@ import { User } from "../../../../domain/entities/EntityUser/User";
 import Queue from "../../../../infrastructure/queue/Queue";
 import { CardInsuranceRepository } from "../../../../infrastructure/database/repositories/CardInsuranceRepository/CardInsuranceRepository";
 import { CardInsuranceVinculate } from "../../../../domain/validators/CardInsuranceValidator/CardInsuranceVinculate";
+import { CardInsuranceFactory } from "../../../../domain/entities/EntityCardInsurance/CardInsuranceFactory";
 
 export class CreatePatientService {
     private repository: IRepository;
@@ -52,8 +52,14 @@ export class CreatePatientService {
         try {
 
             const validatorController = new ValidatorController();
-
             const patientDomain = PatientFactory.createFromDTO(patientDTO)
+            const cardInsurances = patientDTO.cardInsurances.map((card) => {
+                const cardInsurance = CardInsuranceFactory.createFromDTO(card)
+                cardInsurance.setUuidHash(card.id ?? cardInsurance.getUUIDHash())
+            
+                return cardInsurance
+            })
+
             validatorController.setValidator(patientDomain.constructor.name, [
                 new RequiredGeneralData(Object.keys(patientDomain.props)),
                 new UserAlreadyVinculate(),
@@ -73,13 +79,13 @@ export class CreatePatientService {
                 new ValidatorUserExists()
             ])
 
-            if (patientDomain.cardInsurances && patientDomain.cardInsurances.length) {
+            if (cardInsurances && cardInsurances.length) {
                 validatorController.setValidator(`C-CardInsurances`, [
                     new CardInsuranceVinculate(),
-                    new RequiredGeneralData(Object.keys(patientDomain.cardInsurances[0]?.props ?? {}))
+                    new RequiredGeneralData(Object.keys(cardInsurances[0]?.props ?? {}))
                 ])
 
-                const cardInsuranceIsValid = await validatorController.process(`C-CardInsurances`, patientDomain.cardInsurances!, this.cardInsuranceRepository)
+                const cardInsuranceIsValid = await validatorController.process(`C-CardInsurances`, cardInsurances!, this.cardInsuranceRepository)
                 if (!cardInsuranceIsValid.success) return cardInsuranceIsValid;
             }
 
@@ -104,7 +110,7 @@ export class CreatePatientService {
 
                     const addressInserted = await findOrCreate(this.addressRepository, addressDomain, tx);
                     const userInserted = await this.userRepository.create(patientDomain.user as User, tx)
-                    const cartInsurance = await this.cardInsuranceRepository.create(patientDomain.cardInsurances!, tx)
+                    const cartInsurance = await this.cardInsuranceRepository.create(cardInsurances!, tx)
                     const { password, ...userOmitted } = userInserted.data
                     const patientInserted = await this.repository.create(patientDomain, tx);
 
