@@ -31,14 +31,15 @@ export class ClinicRepository implements IRepository {
           }
         }) ?? [])
       }
-
-      await dbUse.insert(clinicToSpecialtyTable).values(clinic.specialties?.map((spe) => {
-        return {
-        clinic_id: clinic.getUUIDHash(),
-        price: spe.price,
-        specialty_id: spe.getUUIDHash()
+      if(clinic.specialties && clinic.specialties.length !== 0){
+          await dbUse.insert(clinicToSpecialtyTable).values(clinic.specialties?.map((spe) => {
+            return {
+            clinic_id: clinic.getUUIDHash(),
+            price: spe.price,
+            specialty_id: spe.getUUIDHash()
+          }
+        }) ?? [])
       }
-      }) ?? [])
       
       return clinicInserted
     } catch(e) {
