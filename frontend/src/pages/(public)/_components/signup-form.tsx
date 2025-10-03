@@ -32,7 +32,7 @@ const SignUpForm = () => {
 
   const onSubmit = async (user: RegisterFormSchema) => {
     try {
-      await createUserService({
+      const { status } = await createUserService({
         email: user.email,
         username: user.name,
         password: user.password,
@@ -40,12 +40,17 @@ const SignUpForm = () => {
         role: user.role,
         avatar: '',
         emailVerified: false,
+        profileCompleted: false,
       });
 
-      toast.success('Conta criada com sucesso.');
-      navigate('/');
+      if (status === 201) {
+        toast.success('Conta criada com sucesso.');
+        navigate('/');
+      }
     } catch (error: any) {
       toast.error(error.message);
+    } finally {
+      // form.reset();
     }
   };
 

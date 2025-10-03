@@ -4,13 +4,13 @@ import axios from 'axios';
 
 export const createUserService = async (user: IUser) => {
   try {
-    const { data, status } = await api.post('/user', { user });
+    const { data, status } = await api.post('/user', user);
 
     if (status !== 200 || data.success === false) {
       throw new Error(data.message);
     }
 
-    return data;
+    return { data, status };
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
       const message = Array.isArray(error.response?.data?.message)
