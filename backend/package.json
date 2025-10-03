@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev src/server.ts",
-    "dev:consumer": "ts-node-dev src/consumers.ts"
+    "dev:consumer": "ts-node-dev src/consumers.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "start:consumer": "node dist/consumers.js"
   },
   "keywords": [],
   "author": "",

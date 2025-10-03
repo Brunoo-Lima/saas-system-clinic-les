@@ -20,7 +20,7 @@ import { findOrCreate } from "../../../../infrastructure/database/repositories/f
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { StateRepository } from "../../../../infrastructure/database/repositories/StateRepository/StateRepository";
 import { UserRepository } from "../../../../infrastructure/database/repositories/UserRepository/UserRepository";
-import { DoctorDTO } from "../../../../infrastructure/DTO/DoctorDTO";
+import { DoctorDTO } from "../../../../infrastructure/dto/DoctorDTO";
 import Queue from "../../../../infrastructure/queue/Queue";
 
 export class CreateDoctorService {

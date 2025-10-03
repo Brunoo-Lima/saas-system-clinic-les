@@ -7,6 +7,7 @@ import { clinicTable } from "../../Schema/ClinicSchema";
 import { doctorTable, doctorToSpecialtyTable } from "../../Schema/DoctorSchema";
 import { IRepository } from "../IRepository";
 import { periodDoctorTable } from "../../Schema/PeriodSchema";
+import { specialtyTable } from "../../Schema/SpecialtySchema";
 
 export class DoctorRepository implements IRepository {
     async create(doctor: Doctor, tx?: any): Promise<any> {
@@ -61,19 +62,39 @@ export class DoctorRepository implements IRepository {
                     'timeFrom', ${periodDoctorTable.timeFrom},
                     'timeTo', ${periodDoctorTable.timeTo}
                 )
-                )`.as("periods")
+                )`.as("periods"),
+                specialties: sql`
+                    json_agg(
+                        json_build_object(
+                            'id', ${specialtyTable.id},
+                            'name', ${specialtyTable.name}
+                        )
+                    )
+                `
             })
             .from(doctorTable)
             .innerJoin(clinicTable, eq(clinicTable.id, doctorTable.clinic_id))
             .innerJoin(periodDoctorTable, eq(periodDoctorTable.doctor_id, doctorTable.id))
+            .leftJoin(
+                doctorToSpecialtyTable,
+                eq(doctorToSpecialtyTable.doctor_id, doctorTable.id)
+            )
+            .leftJoin(
+                specialtyTable,
+                eq(specialtyTable.id, doctorToSpecialtyTable.specialty_id)
+            )
             .where(
                 or(
                     eq(doctorTable.id, doctor.getUUIDHash()),
                     eq(doctorTable.crm, doctor.crm ?? ""),
-                    eq(doctorTable.cpf, doctor.cpf ?? "")
+                    eq(doctorTable.cpf, doctor.cpf ?? ""),
+                    eq(doctorTable.name, doctor.name ?? "")
                 )
             )
-            .groupBy(doctorTable.id, clinicTable.id);
+            .groupBy(
+                doctorTable.id, 
+                clinicTable.id
+            );
             return doctorFounded
         } catch (e) {
             return ResponseHandler.error("Failed to find the doctor")
