@@ -8,7 +8,7 @@ export class EntityExistsToInserted implements IProcessValidator {
         try {
             const entityExists = await repository.findEntity(entity)
             if("success" in entityExists && !entityExists.success) return entityExists
-            if(Array.isArray(entityExists) && !entityExists.length) return ResponseHandler.error("The clinic cannot be connected because this not exists !")
+            if(Array.isArray(entityExists) && !entityExists.length) return ResponseHandler.error(`The ${entity.constructor.name} cannot be connected because this not exists !`)
             return ResponseHandler.success(entityExists, `${entity.constructor.name} exists, you can insert !`)
         } catch(e){
             return ResponseHandler.error((e as Error).message)

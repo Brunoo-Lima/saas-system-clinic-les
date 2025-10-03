@@ -6,6 +6,7 @@ import {
   varchar,
   primaryKey,
   date,
+  timestamp,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { cardInsuranceTable } from './CardInsuranceSchema';
@@ -19,9 +20,14 @@ export const patientTable = pgTable("patient", {
   sex: varchar("pat_sex").notNull(),
   cpf: varchar("pat_cpf").notNull().unique(),
   user_id: uuid("fk_pat_use_id").references(() => userTable.id),
-  address_id: uuid("fk_pat_add_id").references(() => addressTable.id)
+  address_id: uuid("fk_pat_add_id").references(() => addressTable.id),
+  createdAt: timestamp("use_createdAt")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("use_updatedAt")
+    .$defaultFn(() => new Date())
+    .notNull(),
 })
-
 
 /* 
   Paciente e Usuário 

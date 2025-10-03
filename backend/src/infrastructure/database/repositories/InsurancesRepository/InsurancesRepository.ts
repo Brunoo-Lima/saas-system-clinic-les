@@ -1,4 +1,4 @@
-import { eq, inArray, or, and } from "drizzle-orm";
+import { eq, inArray, or, and, sql } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Insurance } from "../../../../domain/entities/EntityInsurance/Insurance";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -40,7 +40,6 @@ export class InsuranceRepository implements IRepository {
                 return [...insuranceInserted, ...insurancePerModality, ...insurancePerSpecialty]
             })
         } catch (e) {
-            console.log(e)
             return ResponseHandler.error("Failed to create a new Insurance")
         }
     }
@@ -67,15 +66,19 @@ export class InsuranceRepository implements IRepository {
                     eq(insuranceTable.name, insurance.name ?? ""),
                     eq(insuranceTable.id, insurance.getUUIDHash() ?? "")
                 );
-            return tx
-                .select({
-                    id: insuranceTable.id,
-                    type: insuranceTable.name,
-                    specialtyName: specialtyTable.name,
-                    specialtyId: specialtyTable.id,
+            return tx.select({
+                id: insuranceTable.id,
+                type: insuranceTable.name,
+                specialties: sql`
+                json_agg(
+                json_build_object(
+                    'id', ${specialtyTable.id},
+                    'name', ${specialtyTable.name}
+                    )
+                    )
+                `
                 })
                 .from(insuranceTable)
-                .where(whereCondition)
                 .leftJoin(
                     insuranceToSpecialtyTable,
                     eq(insuranceToSpecialtyTable.insurance_id, insuranceTable.id)
@@ -83,7 +86,10 @@ export class InsuranceRepository implements IRepository {
                 .leftJoin(
                     specialtyTable,
                     eq(specialtyTable.id, insuranceToSpecialtyTable.specialty_id)
-                );
+                )
+                .where(whereCondition)
+                .groupBy(insuranceTable.id, insuranceTable.name);
+
         });
     }
 

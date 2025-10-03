@@ -23,10 +23,6 @@ export class Patient extends Person {
     public get phone() {
         return this.patientProps.phone
     }
-    
-    public get cardInsurances(){
-        return this.patientProps.cardInsurances
-    }
 
     public get address(){
         return this.patientProps.address

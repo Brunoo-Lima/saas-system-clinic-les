@@ -1,37 +1,62 @@
 import { relations } from "drizzle-orm";
 import {
-    pgTable,
-    uuid,
-    varchar,
+  pgTable,
+  timestamp,
+  uuid,
+  varchar,
 } from "drizzle-orm/pg-core";
 
 // Address Schemas
 export const countryTable = pgTable("country", {
-    id: uuid("cou_id").primaryKey(),
-    name: varchar("cou_name").notNull()
+  id: uuid("cou_id").primaryKey(),
+  name: varchar("cou_name").notNull(),
+  createdAt: timestamp("use_createdAt")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("use_updatedAt")
+    .$defaultFn(() => new Date())
+    .notNull()
 })
 
 export const stateTable = pgTable("state", {
-    id: uuid("sta_id").primaryKey(),
-    name: varchar("sta_name").notNull(),
-    uf: varchar("sta_uf").notNull(),
-    country_id: uuid("fk_sta_cou_id").references(() => countryTable.id)
+  id: uuid("sta_id").primaryKey(),
+  name: varchar("sta_name").notNull(),
+  uf: varchar("sta_uf").notNull(),
+  country_id: uuid("fk_sta_cou_id").references(() => countryTable.id),
+  createdAt: timestamp("use_createdAt")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("use_updatedAt")
+    .$defaultFn(() => new Date())
+    .notNull()
 })
 
 export const cityTable = pgTable("city", {
-    id: uuid("cty_id").primaryKey(),
-    name: varchar("cty_name").notNull(),
-    state_id: uuid("fk_sta_cty_id").references(() => stateTable.id)
+  id: uuid("cty_id").primaryKey(),
+  name: varchar("cty_name").notNull(),
+  state_id: uuid("fk_sta_cty_id").references(() => stateTable.id),
+  createdAt: timestamp("use_createdAt")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("use_updatedAt")
+    .$defaultFn(() => new Date())
+    .notNull()
 })
 
 export const addressTable = pgTable("address", {
-    id: uuid("add_id").primaryKey(),
-    name: varchar("add_name").notNull().unique(),
-    number: varchar("add_number").notNull(),
-    neighborhood: varchar("add_neighborhood").notNull(),
-    street: varchar("add_street").notNull(),
-    cep: varchar("add_cep").notNull(),
-    city_id: uuid("fk_add_cty_id").references(() => cityTable.id)
+  id: uuid("add_id").primaryKey(),
+  name: varchar("add_name").notNull().unique(),
+  number: varchar("add_number").notNull(),
+  neighborhood: varchar("add_neighborhood").notNull(),
+  street: varchar("add_street").notNull(),
+  cep: varchar("add_cep").notNull(),
+  city_id: uuid("fk_add_cty_id").references(() => cityTable.id),
+  createdAt: timestamp("use_createdAt")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("use_updatedAt")
+    .$defaultFn(() => new Date())
+    .notNull()
 })
 
 

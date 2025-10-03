@@ -1,38 +1,13 @@
-import { PatientDTO } from "../../../infrastructure/dto/PatientDTO";
+import { PatientDTO } from "../../../infrastructure/DTO/PatientDTO";
 import { AddressBuilder } from "../EntityAddress/Builders/AddressBuilder";
 import { CityBuilder } from "../EntityAddress/Builders/CityBuilder";
 import { StateBuilder } from "../EntityAddress/Builders/StateBuilder";
 import { Country } from "../EntityAddress/Country";
-import { CartInsuranceBuilder } from "../EntityCardInsurance/CardInsuranceBuilder";
-import { InsuranceBuilder } from "../EntityInsurance/InsuranceBuilder";
-import { Modality } from "../EntityModality/Modality";
 import { UserBuilder } from "../EntityUser/UserBuilder";
 import { PatientBuilder } from "./PatientBuilder";
 
 export class PatientFactory {
   static createFromDTO(patientDTO: PatientDTO) {
-    // Insurances
-    const cardInsurances = patientDTO.cardInsurances.map((ctIns) => {
-      const insurance = new InsuranceBuilder()
-        .setName(ctIns.insurance.name as string)
-        .build();
-      insurance.setUuidHash(ctIns.insurance.id ?? "");
-
-      const modality = new Modality({
-        name: ctIns.modality.name,
-      })
-      modality.setUuidHash(ctIns.modality.id ?? modality.getUUIDHash())
-
-      const cardInsurance = new CartInsuranceBuilder()
-        .setCardNumber(ctIns.cardInsuranceNumber)
-        .setModality(modality)
-        .setInsurance(insurance)
-        .setValidate(ctIns.validate)
-        .build()
-
-      return cardInsurance;
-    });
-
     // User
     const user = new UserBuilder()
       .setAvatar(patientDTO.user.avatar)
@@ -83,7 +58,6 @@ export class PatientFactory {
       )
       .setName(patientDTO.name)
       .setUser(user)
-      .setCartInsurances(cardInsurances)
       .setAddress(address)
       .build();
 

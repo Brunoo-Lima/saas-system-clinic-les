@@ -1,7 +1,7 @@
-import { IInsurance } from "../../domain/@types/Insurance/IInsurance"
-import { IModality } from "../../domain/@types/Modality/IModality";
 import { AddressDTO } from "./AddressDTO";
+import { CardDTO } from "./CardDTO";
 import { UserDTO } from "./UserDTO";
+
 
 export interface PatientDTO {
     user: UserDTO,
@@ -10,13 +10,6 @@ export interface PatientDTO {
     dateOfBirth: string,
     cpf: string,
     phone: string,
-    cardInsurances: [
-        {
-            insurance: IInsurance,
-            cardInsuranceNumber: string
-            validate: Date;
-            modality: IModality
-        }
-    ],
+    cardInsurances: Array<CardDTO>
     address: AddressDTO
 }

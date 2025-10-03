@@ -18,6 +18,7 @@ export class UserRepository implements IRepository {
         .values({
           id: user.getUUIDHash().toString() || randomUUID(),
           email: user.email!,
+          profileCompleted: user.profileCompleted,
           username: user.username,
           emailVerified: user.emailVerified,
           password: user.password!,

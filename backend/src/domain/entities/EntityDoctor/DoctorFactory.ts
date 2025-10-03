@@ -1,4 +1,4 @@
-import { DoctorDTO } from "../../../infrastructure/dto/DoctorDTO";
+import { DoctorDTO } from "../../../infrastructure/DTO/DoctorDTO";
 import { AddressBuilder } from "../EntityAddress/Builders/AddressBuilder";
 import { CityBuilder } from "../EntityAddress/Builders/CityBuilder";
 import { StateBuilder } from "../EntityAddress/Builders/StateBuilder";
@@ -71,7 +71,7 @@ export class DoctorFactory {
         const clinic = ClinicFactory.createFromDTO(doctorDTO.clinic ?? {})
         const specialties = doctorDTO.specialties?.map((spe) => {
             const specialty = new SpecialtyBuilder()
-            .setName(spe.name).build()
+                .setName(spe.name).build()
             specialty.setUuidHash(spe.id ?? specialty.getUUIDHash())
             return specialty
         }) ?? []
