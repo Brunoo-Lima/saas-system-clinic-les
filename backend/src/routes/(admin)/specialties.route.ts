@@ -4,6 +4,7 @@ import { privateRoute } from '../../App/middlewares/privateRoute';
 
 import { CreateSpecialtiesController } from '../../App/controllers/(admin)/SpecialtiesController/CreateSpecialtiesController';
 import { FindSpecialtyController } from '../../App/controllers/(admin)/SpecialtiesController/FindSpecialtiesController';
+import { UpdateSpecialtiesController } from '../../App/controllers/(admin)/SpecialtiesController/UpdateSpecialtiesController';
 
 const specialtyRoutes: Router = Router();
 specialtyRoutes.post(
@@ -18,5 +19,12 @@ specialtyRoutes.post(
   privateRoute,
   new FindSpecialtyController().handle,
 );
+
+specialtyRoutes.put(
+  '/specialty',
+  authMiddleware,
+  privateRoute,
+  new UpdateSpecialtiesController().handle
+)
 
 export { specialtyRoutes };

@@ -1,10 +1,12 @@
-import { eq, ilike, or } from 'drizzle-orm';
+import { eq, ilike, or, sql } from 'drizzle-orm';
 import { Clinic } from '../../../../domain/entities/EntityClinic/Clinic';
 import { ResponseHandler } from '../../../../helpers/ResponseHandler';
 import db from '../../connection';
 import { clinicTable, clinicToInsuranceTable, clinicToSpecialtyTable } from '../../Schema/ClinicSchema';
 import { IRepository } from '../IRepository';
 import { EntityDomain } from '../../../../domain/entities/EntityDomain';
+import { specialtyTable } from '../../Schema/SpecialtySchema';
+import { insuranceTable } from '../../Schema/InsuranceSchema';
 
 export class ClinicRepository implements IRepository {
   async create(clinic: Clinic, tx?: any): Promise<any> {
@@ -63,9 +65,49 @@ async findEntity(clinic: Clinic): Promise<any> {
     }
 
     const clinicFounded = await db
-      .select()
+      .select({
+        id: clinicTable.id,
+        name: clinicTable.name,
+        cnpj: clinicTable.cnpj,
+        specialties: sql`
+            json_agg(
+              json_build_object(
+                'id', ${specialtyTable.id},
+                'name', ${specialtyTable.name}
+              )
+          )
+        `,
+        insurances: sql`
+          json_agg(
+            json_build_object(
+              'id', ${insuranceTable.id},
+              'name', ${insuranceTable.name}
+            )
+          )
+        `
+      })
       .from(clinicTable)
-      .where(or(...filters));
+      .where(or(...filters))
+      .leftJoin(
+        clinicToSpecialtyTable,
+        eq(clinicToSpecialtyTable.clinic_id, clinicTable.id)
+      )
+      .leftJoin(
+        specialtyTable,
+        eq(specialtyTable.id, clinicToSpecialtyTable.specialty_id)
+      )
+      .leftJoin(
+        clinicToInsuranceTable,
+        eq(clinicToInsuranceTable.clinic_id, clinicTable.id)
+      ).leftJoin(
+        insuranceTable,
+        eq(insuranceTable.id, clinicToInsuranceTable.insurance_id)
+      )
+      .groupBy(
+        specialtyTable.id,
+        clinicTable.id,
+        insuranceTable.id
+      );
 
     return clinicFounded;
 
