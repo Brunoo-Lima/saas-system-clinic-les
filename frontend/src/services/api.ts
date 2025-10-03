@@ -10,8 +10,8 @@ api.interceptors.request.use(
   async (config) => {
     if (typeof window !== 'undefined') {
       const accessToken =
-        sessionStorage.getItem('@token:accessToken') ||
-        localStorage.getItem('@token:accessToken');
+        sessionStorage.getItem('@user:token') ||
+        localStorage.getItem('@user:token');
       if (
         accessToken &&
         !config.url?.includes('auth/local') &&
