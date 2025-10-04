@@ -4,7 +4,7 @@ import { privateRoute } from '../../App/middlewares/privateRoute';
 
 import { CreateSpecialtiesController } from '../../App/controllers/(admin)/SpecialtiesController/CreateSpecialtiesController';
 import { FindSpecialtyController } from '../../App/controllers/(admin)/SpecialtiesController/FindSpecialtiesController';
-import { UpdateSpecialtiesController } from '../../App/controllers/(admin)/SpecialtiesController/UpdateSpecialtiesController';
+import { GetSpecialtiesController } from '../../App/controllers/(admin)/SpecialtiesController/GetSpecialtiesController';
 
 const specialtyRoutes: Router = Router();
 specialtyRoutes.post(
@@ -20,11 +20,11 @@ specialtyRoutes.post(
   new FindSpecialtyController().handle,
 );
 
-specialtyRoutes.put(
-  '/specialty',
+specialtyRoutes.get(
+  '/specialty/findall',
   authMiddleware,
   privateRoute,
-  new UpdateSpecialtiesController().handle
+  new GetSpecialtiesController().handle
 )
 
 export { specialtyRoutes };
