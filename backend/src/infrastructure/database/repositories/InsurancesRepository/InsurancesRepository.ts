@@ -1,4 +1,4 @@
-import { eq, inArray, or, and, sql } from "drizzle-orm";
+import { eq, inArray, or, and, sql, isNotNull } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Insurance } from "../../../../domain/entities/EntityInsurance/Insurance";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -6,6 +6,7 @@ import db from "../../connection";
 import { insuranceTable, insuranceToModalitiesTable, insuranceToSpecialtyTable } from "../../Schema/InsuranceSchema";
 import { IRepository } from "../IRepository";
 import { specialtyTable } from "../../Schema/SpecialtySchema";
+import { modalityTable } from "../../Schema/ModalitiesSchema";
 
 export class InsuranceRepository implements IRepository {
     async create(insurance: Insurance): Promise<any> {
@@ -77,7 +78,7 @@ export class InsuranceRepository implements IRepository {
                     )
                     )
                 `
-                })
+            })
                 .from(insuranceTable)
                 .leftJoin(
                     insuranceToSpecialtyTable,
@@ -101,18 +102,53 @@ export class InsuranceRepository implements IRepository {
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    async findAllEntity(insurance?: Insurance | Array<Insurance>): Promise<any> {
+    async findAllEntity(insurance: Insurance | Array<Insurance>, limit: number, offset: number): Promise<any> {
         try {
             const insurancesFormatted = Array.isArray(insurance) ? insurance : [insurance]
-            const insurances = await db.select().from(insuranceTable)
-                .where(
-                    or(
-                        inArray(insuranceTable.name, insurancesFormatted.map((ins) => ins?.name ?? "")),
-                        inArray(insuranceTable.id, insurancesFormatted.map((ins) => ins?.getUUIDHash() ?? ""))
+            const filters = []
+            if (insurancesFormatted && insurancesFormatted.length && insurancesFormatted[0]?.getUUIDHash()) {
+                filters.push(inArray(insuranceTable.name, insurancesFormatted.map((ins) => ins?.name ?? "")))
+                filters.push(inArray(insuranceTable.id, insurancesFormatted.map((ins) => ins?.getUUIDHash() ?? "")))
+            }
+            const insurances = await db
+                .select({
+                    id: insuranceTable.id,
+                    type: insuranceTable.name,
+                    specialties: sql`
+                    (
+                        SELECT json_agg(
+                        json_build_object(
+                            'id', s.spe_id,
+                            'name', s.spe_name
+                        )
+                        )
+                        FROM ${insuranceToSpecialtyTable} its
+                        INNER JOIN specialty s ON s.spe_id = its.fk_isp_spe_id
+                        WHERE its.fk_isp_ins_id = ${insuranceTable.id}
                     )
-                )
+                    `.as("specialties"),
+                    modalities: sql`
+                    (
+                        SELECT json_agg(
+                        json_build_object(
+                            'id', m.mod_id,
+                            'name', m.mod_name
+                        )
+                        )
+                        FROM ${insuranceToModalitiesTable} itm
+                        INNER JOIN modality m ON m.mod_id = itm.fk_inm_mod_id
+                        WHERE itm.fk_inm_ins_id = ${insuranceTable.id}
+                    )
+                    `.as("modalities")
+                })
+                .from(insuranceTable)
+                .where(or(...filters, isNotNull(insuranceTable.id)))
+                .limit(limit)
+                .offset(offset);
+
             return insurances
         } catch (e) {
+            console.log(e)
             return ResponseHandler.error("Failed to find the insurances")
         }
     }
