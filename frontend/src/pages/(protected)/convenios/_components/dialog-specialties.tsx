@@ -8,14 +8,14 @@ import {
 } from '@/components/ui/dialog';
 
 interface ISpecialtyProps {
-  id: number;
-  name: string;
+  id: string;
+  name?: string;
   price: number;
   amountTransferred: number;
 }
 
 interface IDialogSpecialtiesProps {
-  specialties: ISpecialtyProps[];
+  specialties: ISpecialtyProps[] | [];
 }
 
 export const DialogSpecialties = ({ specialties }: IDialogSpecialtiesProps) => {
