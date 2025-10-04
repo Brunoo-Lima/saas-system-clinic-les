@@ -65,8 +65,17 @@ export class SpecialtyRepository implements IRepository {
     deleteEntity(entity: EntityDomain, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    findAllEntity(entity: EntityDomain, id?: string): Promise<any[]> {
-        throw new Error("Method not implemented.");
+    async findAllEntity(specialties: Array<Specialty>, limit: number, offset: number) {
+        try {
+            return await db
+                .select()
+                .from(specialtyTable)
+                .limit(limit)
+                .offset(offset)
+
+        } catch (e) {
+            return ResponseHandler.error("Failed to find the specialties")
+        }
     }
 
 }
