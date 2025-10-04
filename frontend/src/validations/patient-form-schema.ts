@@ -1,64 +1,41 @@
 import { z } from 'zod';
 import { addressFormSchema } from './address-form-schema';
 
-const insuranceSchema = z.object({
-  name: z.string().trim().min(1, {
-    message: 'Nome do convênio é obrigatório.',
+const cardInsuranceSchema = z.object({
+  insurance: z.object({
+    id: z.string().min(1, 'ID do convênio é obrigatório'),
+    name: z.string().optional(),
   }),
-  number: z
-    .string()
-    .min(3, 'O número da carteirinha deve ter pelo menos 3 caracteres')
-    .max(50, 'O número da carteirinha deve ter no máximo 50 caracteres'),
+  cardInsuranceNumber: z.string().min(1, 'Número da carteirinha é obrigatório'),
   validate: z.string().refine((date) => !isNaN(Date.parse(date)), {
     message: 'Data de validade inválida',
   }),
-  modality: z
-    .enum(['enfermaria', 'apartamento', 'executivo', 'empresarial'])
-    .optional(),
+  modality: z.object({
+    id: z.string().min(1, 'ID da modalidade é obrigatório'),
+  }),
 });
 
-export const patientFormSchema = z
-  .object({
-    name: z.string().trim().min(1, {
-      message: 'Nome é obrigatório.',
+export const patientFormSchema = z.object({
+  user: z
+    .object({
+      email: z.string().email('Email inválido'),
+      username: z.string().min(1, 'Nome de usuário é obrigatório'),
+      password: z.string().min(8, 'Senha deve ter pelo menos 8 caracteres'),
+      confirmPassword: z.string().min(8, 'Confirmação de senha é obrigatória'),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: 'Senhas não conferem',
+      path: ['confirmPassword'],
     }),
-    email: z.string().email({
-      message: 'Email inválido.',
-    }),
-    password: z
-      .string()
-      .trim()
-      .min(8, { message: 'A senha deve ter pelo menos 8 caracteres' })
-      .optional(),
-    cpf: z.string().trim().min(1, {
-      message: 'CPF é obrigatório.',
-    }),
-    dateOfBirth: z.date({
-      message: 'Data de nascimento é obrigatória.',
-    }),
-    phoneNumber: z.string().trim().min(1, {
-      message: 'Número de telefone é obrigatório.',
-    }),
-    gender: z.enum(['male', 'female'], {
-      message: 'Gênero é obrigatório.',
-    }),
-    hasInsurance: z.boolean(),
-    insurance: insuranceSchema.optional(),
-    address: addressFormSchema,
-  })
-  .superRefine((data, ctx) => {
-    if (data.hasInsurance) {
-      const result = insuranceSchema.safeParse(data.insurance);
-      if (!result.success) {
-        result.error.issues.forEach((issue) => {
-          ctx.addIssue({
-            code: 'custom',
-            path: ['insurance', ...(issue.path as string[])],
-            message: issue.message,
-          });
-        });
-      }
-    }
-  });
+  name: z.string().min(1, 'Nome é obrigatório'),
+  sex: z.enum(['male', 'female']),
+  dateOfBirth: z.string().refine((date) => !isNaN(Date.parse(date)), {
+    message: 'Data de nascimento inválida',
+  }),
+  cpf: z.string().min(1, 'CPF é obrigatório'),
+  phone: z.string().min(1, 'Telefone é obrigatório'),
+  cardInsurances: z.array(cardInsuranceSchema).optional(),
+  address: addressFormSchema,
+});
 
 export type PatientFormSchema = z.infer<typeof patientFormSchema>;

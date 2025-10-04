@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
   DialogContent,
@@ -32,9 +32,9 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { CheckIcon } from 'lucide-react';
-import { toast } from 'sonner';
 import type { IInsurance } from '@/@types/IInsurance';
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
+import { useCreateInsurance } from '@/services/insurance-service';
 
 interface IUpsertInsuranceFormProps {
   isOpen: boolean;
@@ -51,11 +51,31 @@ export const UpsertInsuranceForm = ({
     shouldUnregister: true,
     resolver: zodResolver(insuranceFormSchema),
     defaultValues: {
-      name: insurance?.name ?? '',
-      description: insurance?.description ?? '',
-      specialties: insurance?.specialties ?? [],
+      name: '',
+      modalities: [{ name: '' }],
+      specialties: [{ price: 0, amountTransferred: 0 }],
     },
   });
+
+  const {
+    fields: modalityFields,
+    append: appendModality,
+    remove: removeModality,
+  } = useFieldArray({
+    control: form.control,
+    name: 'modalities',
+  });
+
+  const {
+    fields: specialtyFields,
+    append: appendSpecialty,
+    remove: removeSpecialty,
+  } = useFieldArray({
+    control: form.control,
+    name: 'specialties',
+  });
+
+  const { mutate, isPending } = useCreateInsurance();
 
   useEffect(() => {
     if (isOpen) {
@@ -63,24 +83,20 @@ export const UpsertInsuranceForm = ({
     }
   }, [isOpen, form, insurance]);
 
-  // const upsertPatientAction = useAction(upsertPatient, {
-  //   onSuccess: () => {
-  //     toast.success("Paciente salvo com sucesso.");
-  //     onSuccess?.();
-  //   },
-  //   onError: () => {
-  //     toast.error("Erro ao salvar paciente.");
-  //   },
-  // });
-
-  const onSubmit = (_values: InsuranceFormSchema) => {
-    // upsertPatientAction.execute({
-    //   ...values,
-    //   id: patient?.id,
-    // });
-
-    onSuccess();
-    toast.success('Convênio salvo com sucesso.');
+  const onSubmit = (data: InsuranceFormSchema) => {
+    mutate(
+      {
+        name: data.name,
+        modalities: data.modalities,
+        specialties: data.specialties,
+      },
+      {
+        onSuccess: () => {
+          onSuccess();
+          form.reset();
+        },
+      },
+    );
   };
 
   return (
@@ -104,24 +120,74 @@ export const UpsertInsuranceForm = ({
             control={form.control}
           />
 
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descrição</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Digite a descrição do convênio"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div>
+            <FormLabel>Modalidades</FormLabel>
+            {modalityFields.map((field, index) => (
+              <div key={field.id} className="flex gap-2 mb-2">
+                <FormInputCustom
+                  name={`modalities.${index}.name`}
+                  label="Nome"
+                  control={form.control}
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => removeModality(index)}
+                >
+                  Remover
+                </Button>
+              </div>
+            ))}
+            <Button
+              type="button"
+              onClick={() => appendModality({ id: '', name: '' })}
+            >
+              Adicionar modalidade
+            </Button>
+          </div>
 
-          <FormField
+          {/* Especialidades */}
+          <div>
+            <FormLabel>Especialidades</FormLabel>
+            {specialtyFields.map((field, index) => (
+              <div key={field.id} className="grid grid-cols-3 gap-2 mb-2">
+                <FormInputCustom
+                  name={`specialties.${index}.id`}
+                  label="ID da especialidade"
+                  control={form.control}
+                />
+                <FormInputCustom
+                  name={`specialties.${index}.price`}
+                  label="Preço"
+                  type="number"
+                  control={form.control}
+                />
+                <FormInputCustom
+                  name={`specialties.${index}.amountTransferred`}
+                  label="Repasse"
+                  type="number"
+                  control={form.control}
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => removeSpecialty(index)}
+                >
+                  Remover
+                </Button>
+              </div>
+            ))}
+            <Button
+              type="button"
+              onClick={() =>
+                appendSpecialty({ id: '', price: 0, amountTransferred: 0 })
+              }
+            >
+              Adicionar especialidade
+            </Button>
+          </div>
+
+          {/* <FormField
             control={form.control}
             name="specialties"
             defaultValue={[]}
@@ -136,37 +202,31 @@ export const UpsertInsuranceForm = ({
                     />
                     <CommandList>
                       <CommandEmpty>Nenhum resultado.</CommandEmpty>
-                      <CommandGroup>
-                        {medicalSpecialties.map((spec) => {
-                          const isSelected = field.value.some(
-                            (s) => s.slug === spec.slug,
-                          );
+                    <CommandGroup>
+  {specialties.map((spec) => {
+    const isSelected = field.value.some((s) => s.id === spec.id);
 
-                          return (
-                            <CommandItem
-                              key={spec.slug}
-                              onSelect={() => {
-                                if (isSelected) {
-                                  field.onChange(
-                                    field.value.filter(
-                                      (s) => s.slug !== spec.slug,
-                                    ),
-                                  );
-                                } else {
-                                  field.onChange([
-                                    ...field.value,
-                                    { slug: spec.slug, name: spec.value },
-                                  ]);
-                                }
-                              }}
-                              className="flex items-center justify-between"
-                            >
-                              {spec.label}
-                              {isSelected && <CheckIcon size={16} />}
-                            </CommandItem>
-                          );
-                        })}
-                      </CommandGroup>
+    return (
+      <CommandItem
+        key={spec.id}
+        onSelect={() => {
+          if (isSelected) {
+            field.onChange(field.value.filter((s) => s.id !== spec.id));
+          } else {
+            field.onChange([
+              ...field.value,
+              { id: spec.id, name: spec.name },
+            ]);
+          }
+        }}
+        className="flex items-center justify-between"
+      >
+        {spec.name}
+        {isSelected && <CheckIcon size={16} />}
+      </CommandItem>
+    );
+  })}
+</CommandGroup>
                     </CommandList>
                   </Command>
                 </FormControl>
@@ -195,15 +255,11 @@ export const UpsertInsuranceForm = ({
                 </div>
               </FormItem>
             )}
-          />
+          /> */}
 
           <DialogFooter>
-            <Button
-              type="submit"
-              disabled={form.formState.isSubmitting}
-              className="w-full mt-4"
-            >
-              {form.formState.isSubmitting ? 'Salvando...' : 'Salvar'}
+            <Button type="submit" disabled={isPending} className="w-full mt-4">
+              {isPending ? 'Salvando...' : 'Salvar'}
             </Button>
           </DialogFooter>
         </form>

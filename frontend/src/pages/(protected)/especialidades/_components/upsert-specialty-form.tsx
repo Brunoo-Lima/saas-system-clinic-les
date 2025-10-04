@@ -50,12 +50,10 @@ export const UpsertSpecialtyForm = ({
       {
         onSuccess: () => {
           onSuccess();
-          // form.reset();
+          form.reset();
         },
       },
     );
-
-    console.log(data);
   };
 
   return (

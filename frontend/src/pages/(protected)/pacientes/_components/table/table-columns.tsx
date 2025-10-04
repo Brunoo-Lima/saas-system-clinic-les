@@ -12,17 +12,17 @@ export const patientsTableColumns: ColumnDef<Patient>[] = [
   },
   {
     id: 'email',
-    accessorKey: 'email',
     header: 'Email',
+    accessorFn: (row) => row.user?.email || '',
   },
   {
-    id: 'phoneNumber',
-    accessorKey: 'phoneNumber',
+    id: 'phone',
+    accessorKey: 'phone',
     header: 'Telefone',
 
     cell: (params) => {
       const patient = params.row.original;
-      const phoneNumber = patient.phoneNumber;
+      const phoneNumber = patient.phone;
       if (!phoneNumber) return '';
       const formatted = phoneNumber.replace(
         /(\d{2})(\d{5})(\d{4})/,
@@ -32,12 +32,12 @@ export const patientsTableColumns: ColumnDef<Patient>[] = [
     },
   },
   {
-    id: 'gender',
-    accessorKey: 'gender',
+    id: 'sex',
+    accessorKey: 'sex',
     header: 'Sexo',
     cell: (params) => {
       const patient = params.row.original;
-      return patient.gender === 'male' ? 'Masculino' : 'Feminino';
+      return patient.sex === 'male' ? 'Masculino' : 'Feminino';
     },
   },
   {

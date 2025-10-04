@@ -1,14 +1,12 @@
 import type { IAddress } from './IAddress';
 
-export type Gender = 'male' | 'female';
+export type Sex = 'male' | 'female';
 
 export interface IPerson {
   name: string;
-  email: string;
-  password?: string;
   cpf: string;
-  dateOfBirth: Date;
-  phoneNumber: string;
-  gender: Gender;
+  dateOfBirth: string;
+  phone: string;
+  sex: Sex;
   address: IAddress;
 }

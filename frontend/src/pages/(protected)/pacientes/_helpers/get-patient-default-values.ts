@@ -5,26 +5,44 @@ export const getPatientDefaultValues = (
   patient?: IPatient,
 ): PatientFormSchema => ({
   name: patient?.name ?? '',
-  email: patient?.email ?? '',
-  password: patient?.password ?? '',
-  phoneNumber: patient?.phoneNumber ?? '',
-  gender: patient?.gender ?? 'male',
-  cpf: patient?.cpf ?? '',
-  dateOfBirth: patient?.dateOfBirth ?? new Date(),
-  hasInsurance: patient?.hasInsurance ?? false,
-  insurance: {
-    name: patient?.name ?? '',
-    number: patient?.insurance?.number ?? '',
-    modality: patient?.insurance?.modality ?? 'apartamento',
-    validate: patient?.insurance?.validate ?? '',
+  user: {
+    email: patient?.user.email ?? '',
+    password: patient?.user.password ?? '',
+    confirmPassword: patient?.user.confirmPassword ?? '',
+    username: patient?.user.username ?? '',
   },
-  address: patient?.address ?? {
-    zipCode: patient?.address?.zipCode ?? '',
+  phone: patient?.phone ?? '',
+  sex: patient?.sex ?? 'male',
+  cpf: patient?.cpf ?? '',
+  dateOfBirth: patient?.dateOfBirth ?? '',
+  cardInsurances: patient?.cardInsurances ?? [
+    {
+      cardInsuranceNumber: '',
+      validate: '',
+      modality: {
+        id: '',
+      },
+      insurance: {
+        id: '',
+        name: '',
+      },
+    },
+  ],
+  address: {
+    name: patient?.address?.name ?? '',
+    cep: patient?.address?.cep ?? '',
     street: patient?.address?.street ?? '',
     number: patient?.address?.number ?? '',
     neighborhood: patient?.address?.neighborhood ?? '',
-    city: patient?.address?.city ?? '',
-    state: patient?.address?.state ?? '',
-    country: patient?.address?.country ?? 'Brasil',
+    city: {
+      name: patient?.address?.city?.name ?? '',
+    },
+    state: {
+      name: patient?.address?.state?.name ?? '',
+      uf: patient?.address?.state?.uf ?? '',
+    },
+    country: {
+      name: patient?.address?.country?.name ?? 'Brasil',
+    },
   },
 });

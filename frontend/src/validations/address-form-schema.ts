@@ -1,38 +1,20 @@
 import { z } from 'zod';
 
 export const addressFormSchema = z.object({
-  name: z.string().trim().min(1, {
-    message: 'Nome do endereço é obrigatório.',
-  }),
-  street: z.string().trim().min(1, {
-    message: 'Rua é obrigatória.',
-  }),
-  number: z.string().trim().min(1, {
-    message: 'Número é obrigatório.',
-  }),
-  neighborhood: z.string().trim().min(1, {
-    message: 'Bairro é obrigatório.',
-  }),
-  cep: z.string().trim().min(1, {
-    message: 'CEP é obrigatório.',
-  }),
+  name: z.string().min(1, 'Nome do endereço é obrigatório'),
+  street: z.string().min(1, 'Rua é obrigatória'),
+  number: z.string().min(1, 'Número é obrigatório'),
+  neighborhood: z.string().min(1, 'Bairro é obrigatório'),
+  cep: z.string().min(1, 'CEP é obrigatório'),
   city: z.object({
-    name: z.string().trim().min(1, {
-      message: 'Cidade é obrigatória.',
-    }),
+    name: z.string().optional(),
   }),
   state: z.object({
-    name: z.string().trim().min(1, {
-      message: 'Nome do estado é obrigatório.',
-    }),
-    uf: z.string().trim().length(2, {
-      message: 'UF deve ter 2 caracteres.',
-    }),
+    name: z.string().optional(),
+    uf: z.string().optional(),
   }),
   country: z.object({
-    name: z.string().trim().min(1, {
-      message: 'País é obrigatório.',
-    }),
+    name: z.string().optional(),
   }),
 });
 
