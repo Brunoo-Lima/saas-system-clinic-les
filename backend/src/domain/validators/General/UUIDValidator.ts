@@ -5,7 +5,7 @@ import { IProcessValidator } from "../IProcessValidator";
 export class UUIDValidator implements IProcessValidator {
     valid(entities: EntityDomain | Array<EntityDomain>){
         try {
-            const regex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+            const regex = /[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/gm
             if(Array.isArray(entities)){
                 for(const entity of entities){
                     if(!regex.test(entity.getUUIDHash())) { return ResponseHandler.error(`The ID of ${entity.constructor.name} is invalid !`)}

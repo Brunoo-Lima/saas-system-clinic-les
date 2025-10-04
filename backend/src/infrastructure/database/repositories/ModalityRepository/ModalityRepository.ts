@@ -23,8 +23,9 @@ export class ModalityRepository implements IRepository {
         }).returning()
         return modalitiesInserted
     }
-    async findEntity(modality: Modality | Array<Modality>, limit?: number): Promise<any> {
+    async findEntity(modality: Modality | Array<Modality>, tx?: any): Promise<any> {
         try {
+            const dbUse = tx ? tx : db
             let whereCondition;
             if (Array.isArray(modality)) {
                 whereCondition = or(
@@ -37,7 +38,7 @@ export class ModalityRepository implements IRepository {
                     eq(modalityTable.id, modality.getUUIDHash())
                 );
             }
-            const modalityFounded = await db.select().from(modalityTable).where(whereCondition)
+            const modalityFounded = await dbUse.select().from(modalityTable).where(whereCondition)
             return modalityFounded
         } catch (e) {
             return ResponseHandler.error("Failed to find the modality")

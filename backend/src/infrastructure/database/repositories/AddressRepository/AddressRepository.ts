@@ -22,24 +22,22 @@ export class AddressRepository implements IRepository {
         return addressInserted
 
     }
-    async findEntity(address: Address): Promise<any> {
-        try {
-            const filters = [
-                ilike(addressTable.name, address.nameAddress ?? "")
-            ]
-            const addressId = address.getUUIDHash()
+    async findEntity(address: Address, tx?: any): Promise<any> {
+        const dbUse = tx ? tx : db
+        const filters = [
+            ilike(addressTable.name, address.nameAddress ?? "")
+        ]
+        const addressId = address.getUUIDHash()
 
-            if (addressId && addressId !== "") filters.push(eq(addressTable.id, addressId))
-            const addressesFounded = await db.select().from(addressTable)
-                .where(
-                    or(
-                        ...filters
-                    )
+        if (addressId && addressId !== "") filters.push(eq(addressTable.id, addressId))
+        const addressesFounded = await dbUse.select().from(addressTable)
+            .where(
+                or(
+                    ...filters
                 )
-            return addressesFounded
-        } catch (e) {
-            return ResponseHandler.error("Failed to find a address")
-        }
+            )
+        return addressesFounded
+        
     }
     updateEntity(entity: EntityDomain): Promise<any> {
         throw new Error("Method not implemented.");

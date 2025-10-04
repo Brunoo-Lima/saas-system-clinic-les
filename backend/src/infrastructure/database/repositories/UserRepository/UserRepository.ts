@@ -11,35 +11,32 @@ import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 export class UserRepository implements IRepository {
 
   async create(user: User, tx?: any) {
-    try {
-      const dbUse = tx ? tx : db
-      const userInserted = await dbUse
-        .insert(userTable)
-        .values({
-          id: user.getUUIDHash().toString() || randomUUID(),
-          email: user.email!,
-          profileCompleted: user.profileCompleted,
-          username: user.username,
-          emailVerified: user.emailVerified,
-          password: user.password!,
-          role: user.role!,
-          avatar: user.avatar || "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }).returning({
-          id: userTable.id,
-          email: userTable.email,
-          password: userTable.password,
-          username: userTable.username
-        });
-      return ResponseHandler.success(
-        userInserted[0],
-        "User created successfully."
-      );
-    } catch (error) {
-
-      return ResponseHandler.error(["Failed to create user in repository"]);
-    }
+ 
+    const dbUse = tx ? tx : db
+    const userInserted = await dbUse
+      .insert(userTable)
+      .values({
+        id: user.getUUIDHash().toString() || randomUUID(),
+        email: user.email!,
+        profileCompleted: user.profileCompleted,
+        username: user.username,
+        emailVerified: user.emailVerified,
+        password: user.password!,
+        role: user.role!,
+        avatar: user.avatar || "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }).returning({
+        id: userTable.id,
+        email: userTable.email,
+        password: userTable.password,
+        username: userTable.username
+      });
+    return ResponseHandler.success(
+      userInserted[0],
+      "User created successfully."
+    );
+  
   }
   async getUserByEmail(email: string): Promise<any> {
     try {
