@@ -1,21 +1,21 @@
-import { ISpecialty } from "../../@types/Specialty/ISpecialty";
+import { ISpecialty } from "./types/ISpecialty";
 import { Specialty } from "./Specialty";
 
 
 export class SpecialtyBuilder {
   private data: Partial<ISpecialty> = {};
 
-  setName(name: string): this {
+  setName(name?: string): this {
     this.data.name = name;
     return this;
   }
 
-  setPrice(price: number): this {
-    this.data.price =price;
+  setPrice(price?: number): this {
+    this.data.price = price;
     return this;
   }
 
-  setAmountTransferred(amount: number){
+  setAmountTransferred(amount?: number) {
     this.data.amountTransferred = amount
     return this
   }

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { FindModalityService } from "../../../services/(admin)/Modality/FindModalityService";
+import { FindModalityService } from "../../../services/(admin)/ModalityService/FindModalityService";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { ModalityDTO } from "../../../../infrastructure/DTO/ModalityDTO";
 

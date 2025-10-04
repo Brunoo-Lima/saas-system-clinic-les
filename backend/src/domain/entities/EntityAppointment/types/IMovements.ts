@@ -1,5 +1,5 @@
-import { Doctor } from "../../entities/EntityDoctor/Doctor";
-import { Patient } from "../../entities/EntityPatient/Patient";
+import { Doctor } from "../../EntityDoctor/Doctor";
+import { Patient } from "../../EntityPatient/Patient";
 
 export interface IMovements {
     total: number,

@@ -15,6 +15,8 @@ export class PatientFactory {
       .setPassword(patientDTO.user?.password)
       .setRole("patient")
       .setUsername(patientDTO.user?.username)
+      .setEmailVerified(patientDTO.user?.emailVerified)
+      .setStatus(patientDTO.user?.status)
       .build();
     user.setUuidHash(patientDTO.user?.id ?? user.getUUIDHash());
 

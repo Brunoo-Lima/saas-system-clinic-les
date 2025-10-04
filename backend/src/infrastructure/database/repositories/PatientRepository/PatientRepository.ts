@@ -1,13 +1,14 @@
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Patient } from "../../../../domain/entities/EntityPatient/Patient";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
-import { addressTable } from "../../Schema/AddressSchema";
+import { addressTable, cityTable, countryRelations, countryTable, stateTable } from "../../Schema/AddressSchema";
 import { IRepository } from "../IRepository";
 import { patientTable } from "../../Schema/PatientSchema";
 import { userTable } from "../../Schema/UserSchema";
 import { cardInsuranceTable } from "../../Schema/CardInsuranceSchema";
+import { insuranceTable } from "../../Schema/InsuranceSchema";
 
 export class PatientRepository implements IRepository {
     async create(patient: Patient, tx: any): Promise<any> {
@@ -48,7 +49,7 @@ export class PatientRepository implements IRepository {
                         eq(addressTable.id, patientTable.address_id)
                     ).leftJoin(userTable,
                         eq(userTable.id, patientTable.user_id)
-                    ).leftJoin(cardInsuranceTable, 
+                    ).leftJoin(cardInsuranceTable,
                         eq(cardInsuranceTable.patient_id, patientTable.id)
                     )
 
@@ -59,14 +60,98 @@ export class PatientRepository implements IRepository {
             return ResponseHandler.error("Failed to find the patient.")
         }
     }
-    updateEntity(entity: EntityDomain): Promise<any> {
-        throw new Error("Method not implemented.");
+    async updateEntity(patient: Patient, tx?: any) {
+        const dbUse = tx ? tx : db
+        const patientUpdated = await dbUse
+            .update(patientTable)
+            .set({
+                cpf: patient.cpf,
+                dateOfBirth: patient.dateOfBirth?.toDateString() ?? undefined,
+                phone: patient.phone,
+                name: patient.name,
+                sex: patient.sex,
+                updatedAt: patient.getUpdatedAt()
+            }).where(
+                or(
+                    eq(patientTable.id, patient.getUUIDHash() ?? ""),
+                    eq(patientTable.cpf, patient.cpf ?? "")
+                )
+            )
+        return patientUpdated
     }
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    findAllEntity(entity?: EntityDomain): Promise<any[]> {
-        throw new Error("Method not implemented.");
+    async findAllEntity(patient: Patient, limit: number, offset: number) {
+        try {
+            const filters = []
+            if(patient){
+                filters.push(eq(patientTable.id, patient.getUUIDHash()))
+                filters.push(eq(patientTable.cpf, patient.cpf ?? ""))
+            }
+
+            const patientsFounded = await db
+            .select({
+                id: patientTable.id,
+                name: patientTable.name,
+                cpf: patientTable.cpf,
+                dateOfBirth: patientTable.dateOfBirth,
+                sex: patientTable.sex,
+                phone: patientTable.phone,
+                address: sql`
+                (
+                    SELECT json_build_object(
+                        'id', ${addressTable.id},
+                        'name', ${addressTable.name},
+                        'city', json_build_object(
+                            'id', ${cityTable.id},
+                            'name', ${cityTable.name}
+                        ),
+                        'state', json_build_object(
+                            'id', ${stateTable.id},
+                            'name', ${stateTable.name},
+                            'uf', ${stateTable.uf}
+                        ),
+                        'country', json_build_object(
+                            'id', ${countryTable.id},
+                            'name', ${countryTable.name}
+                        )
+                    )
+                    FROM ${addressTable}
+                    LEFT JOIN ${cityTable} ON ${cityTable.id} = ${addressTable.city_id}
+                    LEFT JOIN ${stateTable} ON ${stateTable.id} = ${cityTable.state_id}
+                    LEFT JOIN ${countryTable} ON ${countryTable.id} = ${stateTable.country_id} 
+                    WHERE ${addressTable.id} = ${patientTable.address_id}
+                )
+                `.as("address"),
+                cardInsurances: sql`(
+                    SELECT 
+                        json_agg(
+                            json_build_object(
+                                'id', ${cardInsuranceTable.id},
+                                'cardNumber', ${cardInsuranceTable.cardNumber},
+                                'validate', ${cardInsuranceTable.validate},
+                                'insurance', json_build_object(
+                                    'id', ${insuranceTable.id},
+                                    'name', ${insuranceTable.name}
+                                )
+                            )
+                        )
+                    FROM ${cardInsuranceTable} 
+                    INNER JOIN ${insuranceTable} ON ${insuranceTable.id} = ${cardInsuranceTable.insurance_id}
+                    WHERE ${insuranceTable.id} = ${cardInsuranceTable.insurance_id}
+                    AND ${patientTable.id} = ${cardInsuranceTable.patient_id}
+
+                )`.as('cardInsurances')
+            })
+            .from(patientTable)
+            .where(
+                or(...filters)
+            ).limit(limit).offset(offset)
+            return patientsFounded
+        } catch(e){
+            return ResponseHandler.error("Failed to find all patients")
+        }
     }
 
 }

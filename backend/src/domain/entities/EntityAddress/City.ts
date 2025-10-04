@@ -1,4 +1,4 @@
-import { ICity } from "../../@types/Address/ICity";
+import { ICity } from "./types/ICity";
 import { EntityDomain } from "../EntityDomain";
 
 export class City extends EntityDomain {
@@ -13,5 +13,5 @@ export class City extends EntityDomain {
     public get name() {
         return this.cityProps.name
     }
-    
+
 }

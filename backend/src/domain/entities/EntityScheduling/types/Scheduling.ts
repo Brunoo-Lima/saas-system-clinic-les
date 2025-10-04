@@ -1,7 +1,7 @@
-import { Doctor } from "../../entities/EntityDoctor/Doctor"
-import { Insurance } from "../../entities/EntityInsurance/Insurance"
-import { Patient } from "../../entities/EntityPatient/Patient"
-import { Specialty } from "../../entities/EntitySpecialty/Specialty"
+import { Doctor } from "../../EntityDoctor/Doctor"
+import { Insurance } from "../../EntityInsurance/Insurance"
+import { Patient } from "../../EntityPatient/Patient"
+import { Specialty } from "../../EntitySpecialty/Specialty"
 
 export interface IScheduling {
     date: Date

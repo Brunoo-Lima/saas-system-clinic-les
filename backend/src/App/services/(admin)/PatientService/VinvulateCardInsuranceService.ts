@@ -6,6 +6,7 @@ import { RequiredGeneralData } from "../../../../domain/validators/General/Requi
 import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
+import db from "../../../../infrastructure/database/connection";
 import { CardInsuranceRepository } from "../../../../infrastructure/database/repositories/CardInsuranceRepository/CardInsuranceRepository";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { PatientRepository } from "../../../../infrastructure/database/repositories/PatientRepository/PatientRepository";
@@ -22,9 +23,8 @@ export class VinculateCardInsuranceService {
     }
     async execute(patientDTO: PatientDTO){
         try {
-            const patientDomain = PatientFactory.createFromDTO(patientDTO)
+            const patientDomain = PatientFactory.createFromDTO(patientDTO)        
             patientDomain.setUuidHash(patientDTO.id ?? "")
-
             const cardInsurances = patientDTO.cardInsurances.map((cd) => CardInsuranceFactory.createFromDTO(cd))
 
             if(!Array.isArray(cardInsurances)) return ResponseHandler.error("You should be the card insurance")
@@ -46,7 +46,8 @@ export class VinculateCardInsuranceService {
             if(!cardInsurancesIsValid.success) return cardInsurancesIsValid
             if(!patientIsValid.success) return patientIsValid
 
-            return patientDomain
+            const cardInsuranceCreated = await this.cardInsuranceRepository.create(cardInsurances, undefined, patientDomain.getUUIDHash())
+            return ResponseHandler.success(cardInsuranceCreated, "Success ! Entities vinculate")
         } catch (e) {
             return ResponseHandler.error((e as Error).message)
         }

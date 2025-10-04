@@ -1,35 +1,35 @@
-import { IPatient } from "../../@types/Patient/IPatient";
+import { IPatient } from "./types/IPatient";
 import { User } from "../EntityUser/User";
 import { Person } from "../Person";
 
 export class Patient extends Person {
     constructor(
         private patientProps: IPatient
-    ){
+    ) {
         super({
             dateOfBirth: patientProps.dateOfBirth,
             cpf: patientProps.cpf ?? "",
             name: patientProps.name ?? ""
         })
     }
-    
-    public get props (){
+
+    public get props() {
         return this.patientProps
     }
-    public get user() : User | undefined{
+    public get user(): User | undefined {
         return this.patientProps.user
     }
-    
+
     public get phone() {
         return this.patientProps.phone
     }
 
-    public get address(){
+    public get address() {
         return this.patientProps.address
     }
 
-    public get sex(){
+    public get sex() {
         return this.patientProps.sex
     }
-    
+
 }

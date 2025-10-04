@@ -106,8 +106,26 @@ export class DoctorRepository implements IRepository {
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    findAllEntity(entity?: EntityDomain | Array<EntityDomain>): Promise<any> {
-        throw new Error("Method not implemented.");
+    async findAllEntity(doctor: Doctor, limit: number, offset: number): Promise<any> {
+        try {
+            const filters = []
+            if(doctor){
+                console.log(doctor)
+                filters.push(eq(doctorTable.id, doctor.getUUIDHash()))
+                filters.push(eq(doctorTable.crm, doctor.crm ?? "")) 
+                filters.push(eq(doctorTable.cpf, doctor.cpf ?? "")) 
+            }
+
+            const doctorsFounded = await db.select()
+            .from(doctorTable)
+            .where(
+                or(...filters)
+            ).limit(limit)
+            .offset(offset)
+            return doctorsFounded
+        } catch(e){
+            return ResponseHandler.error('Failed to find all doctors')
+        }
     }
 
 } 

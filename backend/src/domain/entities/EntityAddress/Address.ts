@@ -1,5 +1,5 @@
 // Update the import path below if the IAddress type is located elsewhere, for example:
-import { IAddress } from "../../@types/Address/IAddress";
+import { IAddress } from "./types/IAddress";
 import { EntityDomain } from "../EntityDomain";
 
 export class Address extends EntityDomain {
@@ -8,7 +8,7 @@ export class Address extends EntityDomain {
     ) {
         super()
     }
-    public get props (){
+    public get props() {
         return this.addressProps
     }
     public get nameAddress() {
@@ -20,16 +20,15 @@ export class Address extends EntityDomain {
     public get street() {
         return this.addressProps.street
     }
-    public get cep(){
+    public get cep() {
         return this.addressProps.cep;
     }
-    
     public get number() {
         return this.addressProps.number
     }
-    
-    public get neighborhood(){
+
+    public get neighborhood() {
         return this.addressProps.neighborhood
     }
-    
+
 }
