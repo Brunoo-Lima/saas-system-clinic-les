@@ -1,11 +1,10 @@
 import { toast } from 'sonner';
 import api from './api';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-interface ICreateInsuranceProps {
+interface InsuranceProps {
   name: string;
   modalities: {
-    id: string;
     name: string;
   }[];
   specialties: {
@@ -19,7 +18,7 @@ export const createInsurance = async ({
   name,
   modalities,
   specialties,
-}: ICreateInsuranceProps) => {
+}: InsuranceProps) => {
   const { data, status } = await api.post('/insurance', {
     name,
     modalities,
@@ -45,5 +44,42 @@ export function useCreateInsurance() {
     onError: (error: any) => {
       toast.error(error.message || 'Erro ao criar convênio.');
     },
+  });
+}
+
+export interface IInsuranceProps {
+  limit?: number;
+  offset?: number;
+}
+
+export const getAllInsurances = async ({
+  limit = 10,
+  offset = 0,
+}: IInsuranceProps) => {
+  const { data } = await api.get(
+    `/insurance/findall/?limit=${limit}&offset=${offset}`,
+  );
+
+  return data.data;
+};
+
+interface Insurance {
+  id: string;
+  name: string;
+  modalities: {
+    id: string;
+    name: string;
+  }[];
+  specialties: {
+    id: string;
+    price: number;
+    amountTransferred: number;
+  }[];
+}
+
+export function useGetAllInsurances(params?: IInsuranceProps) {
+  return useQuery<Insurance[]>({
+    queryKey: ['insurances'],
+    queryFn: () => getAllInsurances(params || {}),
   });
 }

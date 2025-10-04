@@ -12,14 +12,21 @@ export const insurancesTableColumns: ColumnDef<Insurance>[] = [
     header: 'ID',
   },
   {
-    id: 'name',
-    accessorKey: 'name',
+    id: 'type',
+    accessorKey: 'type',
     header: 'Nome',
   },
   {
-    id: 'description',
-    accessorKey: 'description',
-    header: 'Descrição',
+    id: 'modalities',
+    accessorKey: 'modalities',
+    header: 'Modalidade',
+    cell: (params) => {
+      const modalities = params.row.original.modalities;
+
+      return modalities.length > 1
+        ? modalities.map((modality) => modality.name).join(' - ')
+        : ' - ';
+    },
   },
   {
     id: 'specialties',

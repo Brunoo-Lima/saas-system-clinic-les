@@ -4,10 +4,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form';
 
-import type { Control, FieldValues, Path } from "react-hook-form";
-import { Input } from "../input";
+import type { Control, FieldValues, Path } from 'react-hook-form';
+import { Input } from '../input';
 
 interface IFormInputProps<T extends FieldValues>
   extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -22,7 +22,7 @@ const FormInputCustom = <T extends FieldValues>({
   name,
   label,
   placeholder,
-  type = "text",
+  type = 'text',
   control,
 }: IFormInputProps<T>) => (
   <FormField

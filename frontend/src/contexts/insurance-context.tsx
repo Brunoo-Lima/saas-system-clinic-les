@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import type { IInsurance } from '@/@types/IInsurance';
 import { usePagination } from '@/hooks/use-pagination';
-import { insurancesList } from '@/mocks/insurances-list';
-import { createContext, useMemo, useState, type ChangeEvent } from 'react';
+import { useGetAllInsurances } from '@/services/insurance-service';
+import { createContext, useState, type ChangeEvent } from 'react';
 
 interface IInsurancesContextProps {
   searchTerm: string;
@@ -31,30 +31,15 @@ export const InsuranceProvider = ({
   const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(
     null,
   );
-  const [filteredList, setFilteredList] =
-    useState<IInsurance[]>(insurancesList);
   const itemsPerPage = 10;
 
-  const filtered = useMemo(() => {
-    let data = filteredList;
-
-    if (searchTerm) {
-      data = data.filter((patient) =>
-        patient.name.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-    }
-
-    if (selectedSpecialty) {
-      data = data.filter((patient) =>
-        patient.specialties.filter((s) => s.name === selectedSpecialty),
-      );
-    }
-
-    return data;
-  }, [selectedSpecialty, searchTerm]);
+  const { data: filteredList = [] } = useGetAllInsurances({
+    limit: itemsPerPage,
+    offset: 0,
+  });
 
   const { totalPages, page, setPage, paginatedData } = usePagination(
-    filtered,
+    filteredList,
     itemsPerPage,
   );
 
@@ -68,7 +53,7 @@ export const InsuranceProvider = ({
   };
 
   const handleDelete = (id: number) => {
-    setFilteredList((prev) => prev.filter((p) => p.id !== id));
+    // setFilteredList((prev) => prev.filter((p) => p.id !== id));
   };
 
   const contextValue = {

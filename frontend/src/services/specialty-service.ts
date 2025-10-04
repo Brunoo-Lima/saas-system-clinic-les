@@ -1,6 +1,6 @@
 import { toast } from 'sonner';
 import api from './api';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface ICreateSpecialtyProps {
   id?: string;
@@ -34,5 +34,32 @@ export function useCreateSpecialty() {
     onError: (error: any) => {
       toast.error(error.message || 'Erro ao criar especialidade.');
     },
+  });
+}
+
+export interface ISpecialtyProps {
+  limit?: number;
+  offset?: number;
+}
+
+export const getSpecialties = async ({
+  limit = 10,
+  offset = 0,
+}: ISpecialtyProps) => {
+  const { data } = await api.get(
+    `/specialty/findall/?offset=${offset}&limit=${limit}`,
+  );
+  return data.data;
+};
+
+interface ISpecialty {
+  id: string;
+  name: string;
+}
+
+export function useGetSpecialties(params?: ISpecialtyProps) {
+  return useQuery<ISpecialty[]>({
+    queryKey: ['specialties', params],
+    queryFn: () => getSpecialties(params || {}),
   });
 }

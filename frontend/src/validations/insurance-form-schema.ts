@@ -11,6 +11,7 @@ export const insuranceFormSchema = z.object({
   ),
   specialties: z.array(
     z.object({
+      id: z.string().min(1, 'ID da especialidade é obrigatório'),
       price: z.coerce.number().min(0, 'Preço deve ser maior que 0'),
       amountTransferred: z.coerce.number().min(0, 'Valor deve ser maior que 0'),
     }),

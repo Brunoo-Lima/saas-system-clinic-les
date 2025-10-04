@@ -3,4 +3,6 @@ export interface ISpecialty {
   name: string;
   price?: number;
   slug?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
