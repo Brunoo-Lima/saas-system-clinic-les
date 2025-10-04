@@ -19,5 +19,7 @@ export class Insurance extends EntityDomain {
     public get modalities() {
         return this.insuranceProps.modalities
     }
-   
+    public get props() {
+        return this.insuranceProps
+    }
 }

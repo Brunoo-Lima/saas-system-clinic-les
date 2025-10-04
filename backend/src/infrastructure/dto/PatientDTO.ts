@@ -4,6 +4,7 @@ import { UserDTO } from "./UserDTO";
 
 
 export interface PatientDTO {
+    id?: string;
     user: UserDTO,
     sex: string,
     name: string,

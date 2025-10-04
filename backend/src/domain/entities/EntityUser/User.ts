@@ -1,14 +1,14 @@
 import { EntityDomain } from "../EntityDomain";
 
 export interface IUser {
-  email?: string;
-  profileCompleted?: boolean,
-  emailVerified?: boolean;
-  username?: string,
-  password?: string;
+  email?: string | undefined;
+  profileCompleted?: boolean | undefined,
+  emailVerified?: boolean | undefined;
+  username?: string | undefined,
+  password?: string | undefined;
   role?: "admin" | "doctor" | "patient";
-  avatar?: string;
-  status?: boolean
+  avatar?: string | undefined;
+  status?: boolean | undefined
 }
 
 export class User extends EntityDomain {

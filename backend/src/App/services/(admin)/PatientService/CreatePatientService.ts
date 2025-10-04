@@ -28,6 +28,9 @@ import Queue from "../../../../infrastructure/queue/Queue";
 import { CardInsuranceRepository } from "../../../../infrastructure/database/repositories/CardInsuranceRepository/CardInsuranceRepository";
 import { CardInsuranceVinculate } from "../../../../domain/validators/CardInsuranceValidator/CardInsuranceVinculate";
 import { CardInsuranceFactory } from "../../../../domain/entities/EntityCardInsurance/CardInsuranceFactory";
+import { EntityExistsToInserted } from "../../../../domain/validators/General/EntityExistsToInserted";
+import { Modality } from "../../../../domain/entities/EntityModality/Modality";
+import { ModalityRepository } from "../../../../infrastructure/database/repositories/ModalityRepository/ModalityRepository";
 
 export class CreatePatientService {
     private repository: IRepository;
@@ -37,6 +40,7 @@ export class CreatePatientService {
     private cityRepository: IRepository;
     private userRepository: IRepository;
     private cardInsuranceRepository: IRepository;
+    private modalityRepository: IRepository;
 
     constructor() {
         this.repository = new PatientRepository()
@@ -46,7 +50,7 @@ export class CreatePatientService {
         this.cityRepository = new CityRepository()
         this.userRepository = new UserRepository()
         this.cardInsuranceRepository = new CardInsuranceRepository()
-
+        this.modalityRepository = new ModalityRepository()
     }
     async execute(patientDTO: PatientDTO) {
         try {
@@ -78,13 +82,19 @@ export class CreatePatientService {
                 new ValidatorUserExists()
             ])
 
-            if (cardInsurances && cardInsurances.length) {
+            if (cardInsurances && cardInsurances.some((cd) => cd.cardNumber !== "")) {
                 validatorController.setValidator(`C-CardInsurances`, [
                     new CardInsuranceVinculate(),
-                    new RequiredGeneralData(Object.keys(cardInsurances[0]?.props ?? {}))
+                    new RequiredGeneralData(Object.keys(cardInsurances[0]?.props ?? {})),
                 ])
-
+                validatorController.setValidator("F-Modality", [
+                    new EntityExistsToInserted()
+                ])
                 const cardInsuranceIsValid = await validatorController.process(`C-CardInsurances`, cardInsurances!, this.cardInsuranceRepository)
+                const modalities = cardInsurances.filter((cd) => cd.modality).map((cd) => cd.modality) as Modality[]
+                const modalitiesIsValid = await validatorController.process('F-Modality', modalities, this.modalityRepository)
+
+                if (!modalitiesIsValid.success) return modalitiesIsValid
                 if (!cardInsuranceIsValid.success) return cardInsuranceIsValid;
             }
 
@@ -97,34 +107,31 @@ export class CreatePatientService {
             if (!addressIsValid.success) { return addressIsValid }
 
             const entitiesInserted = await db.transaction(async (tx) => {
-                try {
-                    const addressDomain = patientDomain.address as Address;
-                    const cityDomain = patientDomain.address?.city as City;
-                    const stateDomain = patientDomain.address?.city?.state as State;
-                    const countryDomain = patientDomain.address?.city?.state?.country as Country;
+                let cardInsuranceInserted;
+                const addressDomain = patientDomain.address as Address;
+                const cityDomain = patientDomain.address?.city as City;
+                const stateDomain = patientDomain.address?.city?.state as State;
+                const countryDomain = patientDomain.address?.city?.state?.country as Country;
 
-                    await findOrCreate(this.countryRepository, countryDomain, tx);
-                    await findOrCreate(this.stateRepository, stateDomain, tx);
-                    await findOrCreate(this.cityRepository, cityDomain, tx);
+                await findOrCreate(this.countryRepository, countryDomain, tx);
+                await findOrCreate(this.stateRepository, stateDomain, tx);
+                await findOrCreate(this.cityRepository, cityDomain, tx);
 
-                    const addressInserted = await findOrCreate(this.addressRepository, addressDomain, tx);
-                    const userInserted = await this.userRepository.create(patientDomain.user as User, tx)
-                    const cartInsurance = await this.cardInsuranceRepository.create(cardInsurances!, tx, patientDomain.getUUIDHash() ?? "")
-                    const { password, ...userOmitted } = userInserted.data
-                    const patientInserted = await this.repository.create(patientDomain, tx);
+                const addressInserted = await findOrCreate(this.addressRepository, addressDomain, tx);
+                const userInserted = await this.userRepository.create(patientDomain.user as User, tx)
+                const { password, ...userOmitted } = userInserted.data
+                const patientInserted = await this.repository.create(patientDomain, tx);
 
-                    // Disparo do email para a fila.
-                    await Queue.publish(userInserted.data)
-                    return ResponseHandler.success({
-                        patient: patientInserted[0],
-                        address: addressInserted[0],
-                        cartInsurance: cartInsurance,
-                        user: userOmitted
-                    }, "Entities inserted !")
+                if(cardInsurances.some((cd) => cd.cardNumber !== "")) cardInsuranceInserted = await this.cardInsuranceRepository.create(cardInsurances!, tx, patientDomain.getUUIDHash() ?? "")
 
-                } catch (e) {
-                    return ResponseHandler.error("Failed to create patient and all data")
-                }
+                // Disparo do email para a fila.
+                await Queue.publish(userInserted.data)
+                return ResponseHandler.success({
+                    patient: patientInserted[0],
+                    address: addressInserted[0],
+                    cartInsurance: cardInsuranceInserted,
+                    user: userOmitted
+                }, "Entities inserted !")
             });
 
             if (!entitiesInserted.success || !entitiesInserted.data) { return ResponseHandler.error(entitiesInserted.message) }

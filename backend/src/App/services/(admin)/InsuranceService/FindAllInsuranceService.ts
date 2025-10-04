@@ -14,8 +14,11 @@ export class FindAllInsuranceService {
             let offsetClean;
             let limitClean;
 
-            const insurance = new InsuranceBuilder().build()
-            insurance.setUuidHash(id ?? "")
+            let insurance;
+            if(id){
+                insurance = new InsuranceBuilder().build()
+                insurance.setUuidHash(id ?? "")
+            }
 
             if (offset && limit && regex.test(offset) && regex.test(limit)) {
                 offsetClean = Number(offset)

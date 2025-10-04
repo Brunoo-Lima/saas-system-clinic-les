@@ -6,43 +6,37 @@ import db from "../../connection";
 import { insuranceTable, insuranceToModalitiesTable, insuranceToSpecialtyTable } from "../../Schema/InsuranceSchema";
 import { IRepository } from "../IRepository";
 import { specialtyTable } from "../../Schema/SpecialtySchema";
-import { modalityTable } from "../../Schema/ModalitiesSchema";
 
 export class InsuranceRepository implements IRepository {
-    async create(insurance: Insurance): Promise<any> {
-        try {
-            return await db.transaction(async (tx) => {
-                const specialties = insurance.specialties!.filter((sp) => sp.getUUIDHash() !== "")
-                const insuranceInserted = await tx.insert(insuranceTable)
-                    .values({
-                        id: insurance.getUUIDHash(),
-                        name: insurance.name ?? "",
-                    }).returning({
-                        id: insuranceTable.id
-                    })
+    async create(insurance: Insurance, tx?: any): Promise<any> {
+        const dbUse = tx ? tx : db
 
-                const insurancePerSpecialty = await tx.insert(insuranceToSpecialtyTable)
-                    .values(specialties.map((sp) => {
-                        return {
-                            amountTransferred: sp.amountTransferred,
-                            price: sp.price,
-                            insurance_id: insuranceInserted[0]?.id, // assuming Insurance has an id property
-                            specialty_id: sp.getUUIDHash(), // replace with actual property for specialty id
-                        }
-                    })).returning()
+        const specialties = insurance.specialties!.filter((sp) => sp.getUUIDHash() !== "")
+        const insuranceInserted = await dbUse.insert(insuranceTable)
+        .values({
+            id: insurance.getUUIDHash(),
+            name: insurance.name ?? "",
+        }).returning()
 
-                const insurancePerModality = await tx.insert(insuranceToModalitiesTable).values(insurance.modalities?.map((md) => {
-                    return {
-                        insurance_id: insurance.getUUIDHash(),
-                        modality_id: md.getUUIDHash()
-                    }
-                }) ?? []).returning()
+        const insurancePerSpecialty = await dbUse.insert(insuranceToSpecialtyTable)
+        .values(specialties.map((sp) => {
+            return {
+                amountTransferred: sp.amountTransferred,
+                price: sp.price,
+                insurance_id: insurance.getUUIDHash(), // assuming Insurance has an id property
+                specialty_id: sp.getUUIDHash(), // replace with actual property for specialty id
+            }
+        })).returning()
 
-                return [...insuranceInserted, ...insurancePerModality, ...insurancePerSpecialty]
-            })
-        } catch (e) {
-            return ResponseHandler.error("Failed to create a new Insurance")
-        }
+        const insurancePerModality = await dbUse.insert(insuranceToModalitiesTable).values(insurance.modalities?.map((md) => {
+            return {
+                insurance_id: insurance.getUUIDHash(),
+                modality_id: md.getUUIDHash()
+            }
+        }) ?? []).returning()
+
+      return [...insuranceInserted, ...insurancePerModality, ...insurancePerSpecialty]
+  
     }
     async findEntity(insurance: Insurance) {
         return db.transaction(async (tx) => {
@@ -72,13 +66,25 @@ export class InsuranceRepository implements IRepository {
                 type: insuranceTable.name,
                 specialties: sql`
                 json_agg(
-                json_build_object(
-                    'id', ${specialtyTable.id},
-                    'name', ${specialtyTable.name}
+                    json_build_object(
+                        'id', ${specialtyTable.id},
+                        'name', ${specialtyTable.name}
+                        )
+                )`,
+                modalities: sql`
+                    (
+                        SELECT json_agg(
+                        json_build_object(
+                            'id', m.mod_id,
+                            'name', m.mod_name
+                        )
+                        )
+                        FROM ${insuranceToModalitiesTable} itm
+                        INNER JOIN modality m ON m.mod_id = itm.fk_inm_mod_id
+                        WHERE itm.fk_inm_ins_id = ${insuranceTable.id}
                     )
-                    )
-                `
-            })
+                    `.as("modalities")
+                })
                 .from(insuranceTable)
                 .leftJoin(
                     insuranceToSpecialtyTable,
@@ -109,6 +115,8 @@ export class InsuranceRepository implements IRepository {
             if (insurancesFormatted && insurancesFormatted.length && insurancesFormatted[0]?.getUUIDHash()) {
                 filters.push(inArray(insuranceTable.name, insurancesFormatted.map((ins) => ins?.name ?? "")))
                 filters.push(inArray(insuranceTable.id, insurancesFormatted.map((ins) => ins?.getUUIDHash() ?? "")))
+            } else {
+                filters.push( isNotNull(insuranceTable.id))
             }
             const insurances = await db
                 .select({
@@ -142,7 +150,7 @@ export class InsuranceRepository implements IRepository {
                     `.as("modalities")
                 })
                 .from(insuranceTable)
-                .where(or(...filters, isNotNull(insuranceTable.id)))
+                .where(or(...filters))
                 .limit(limit)
                 .offset(offset);
 

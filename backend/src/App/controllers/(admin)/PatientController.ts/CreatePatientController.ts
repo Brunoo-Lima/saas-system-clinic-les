@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
-import { CreatePatientService } from "../../../services/(admin)/Patient/CreatePatientService";
+import { CreatePatientService } from "../../../services/(admin)/PatientService/CreatePatientService";
 import { PatientDTO } from "../../../../infrastructure/DTO/PatientDTO";
 
 export class CreatePatientController {
