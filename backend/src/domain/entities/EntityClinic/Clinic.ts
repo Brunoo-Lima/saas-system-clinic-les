@@ -1,7 +1,7 @@
-import { IClinic } from '../../@types/Clinic/IClinic';
 import { Address } from '../EntityAddress/Address';
 import { EntityDomain } from '../EntityDomain';
 import { User } from '../EntityUser/User';
+import { IClinic } from './types/IClinic';
 
 export class Clinic extends EntityDomain {
   constructor(private clinicProps: IClinic) {

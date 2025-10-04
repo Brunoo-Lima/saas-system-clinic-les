@@ -4,12 +4,10 @@ import {
   pgTable,
   uuid,
   varchar,
-  primaryKey,
   date,
   timestamp,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { cardInsuranceTable } from './CardInsuranceSchema';
 
 // Pacientes
 export const patientTable = pgTable("patient", {

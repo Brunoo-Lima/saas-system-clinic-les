@@ -1,4 +1,4 @@
-import { IPeriod } from "../../@types/Period/IPeriod";
+import { IPeriod } from "./types/IPeriod";
 import { EntityDomain } from "../EntityDomain";
 
 export class Period extends EntityDomain {

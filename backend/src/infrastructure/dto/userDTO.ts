@@ -1,10 +1,11 @@
 export interface UserDTO {
-  id: string,
-  email: string;
-  profileCompleted: boolean;
-  username: string;
-  emailVerified?: boolean;
-  password?: string;
+  id: string | undefined,
+  email: string | undefined;
+  status: boolean | undefined;
+  profileCompleted: boolean | undefined;
+  username: string | undefined;
+  emailVerified?: boolean | undefined;
+  password?: string | undefined;
   role: "admin" | "doctor" | "patient";
-  avatar?: string;
+  avatar?: string | undefined;
 }

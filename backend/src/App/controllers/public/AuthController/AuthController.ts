@@ -28,13 +28,14 @@ export class AuthController {
       const token = jwt.sign(userExists.data, process.env.SECRET_KEY!, {
         expiresIn: '1d',
       });
+      const { password, role, ...userOmitted } = userExists.data
       return res
         .status(200)
-        .json(ResponseHandler.success({ token }, 'Authentication successful'));
+        .json(ResponseHandler.success({ token, user: userOmitted}, 'Authentication successful'));
     } catch (error) {
       return res
         .status(500)
-        .json(ResponseHandler.error('Internal server error.', error));
+        .json(ResponseHandler.error('Internal server error.'));
     }
   }
 }

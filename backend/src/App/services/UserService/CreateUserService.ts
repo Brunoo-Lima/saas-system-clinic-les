@@ -5,9 +5,7 @@ import { ValidatorUserExists } from "../../../domain/validators/UserValidator/Va
 import { ValidatorController } from "../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../helpers/ResponseHandler";
 import { IRepository } from "../../../infrastructure/database/repositories/IRepository";
-import { IUserRepository } from "../../../infrastructure/database/repositories/UserRepository/IUserRepository";
 import { UserRepository } from "../../../infrastructure/database/repositories/UserRepository/UserRepository";
-import { userTable } from "../../../infrastructure/database/Schema/UserSchema";
 import { UserDTO } from "../../../infrastructure/DTO/UserDTO";
 import Queue from "../../../infrastructure/queue/Queue";
 
@@ -28,6 +26,7 @@ export class CreateUserService {
                 .setAvatar(userData.avatar || "")
                 .setProfileCompleted(userData.profileCompleted)
                 .setEmailVerified(userData.emailVerified || false)
+                .setStatus(true)
                 .build();
             const validatorController = new ValidatorController();
 

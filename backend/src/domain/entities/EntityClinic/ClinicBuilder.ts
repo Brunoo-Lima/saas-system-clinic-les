@@ -1,10 +1,10 @@
-import { IClinic } from '../../@types/Clinic/IClinic';
-import { IInsurance } from '../../@types/Insurance/IInsurance';
+import { IInsurance } from '../EntityInsurance/types/IInsurance';
 import { Address } from '../EntityAddress/Address';
 import { Insurance } from '../EntityInsurance/Insurance';
 import { Specialty } from '../EntitySpecialty/Specialty';
 import { User } from '../EntityUser/User';
 import { Clinic } from './Clinic';
+import { IClinic } from './types/IClinic';
 
 export class ClinicBuilder {
   private data: Partial<IClinic> = {};

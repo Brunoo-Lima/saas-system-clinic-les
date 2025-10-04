@@ -4,6 +4,7 @@ import { privateRoute } from '../../App/middlewares/privateRoute';
 
 import { CreatePatientController } from '../../App/controllers/(admin)/PatientController.ts/CreatePatientController';
 import { VinculateCardInsuranceController } from '../../App/controllers/(admin)/PatientController.ts/VinculateCardInsuranceController';
+import { FindAllPatientController } from '../../App/controllers/(admin)/PatientController.ts/FindAllPatientController';
 
 const patientRoutes: Router = Router();
 
@@ -14,5 +15,7 @@ patientRoutes.post(
   new CreatePatientController().handle,
 );
 
-patientRoutes.put('/patient/card_insurance/vinculate', authMiddleware, privateRoute, new VinculateCardInsuranceController().handle)
+patientRoutes.post('/patient/card_insurance/vinculate', authMiddleware, privateRoute, new VinculateCardInsuranceController().handle)
+patientRoutes.get('/patient/findall', authMiddleware, privateRoute, new FindAllPatientController().handle)
+
 export { patientRoutes };

@@ -1,5 +1,6 @@
-import { IDoctor } from "../../@types/Doctor/IDoctor";
+
 import { Person } from "../Person";
+import { IDoctor } from "./types/IDoctor";
 
 export class Doctor extends Person {
     constructor(
