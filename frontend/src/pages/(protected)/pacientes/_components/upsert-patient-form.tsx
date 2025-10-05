@@ -31,7 +31,6 @@ import {
   patientFormSchema,
   type PatientFormSchema,
 } from '@/validations/patient-form-schema';
-import { toast } from 'sonner';
 import { insurancesList } from '@/mocks/insurances-list';
 import { Switch } from '@/components/ui/switch';
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
@@ -43,12 +42,13 @@ import {
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { enUS, ptBR } from 'date-fns/locale';
 import { CalendarIcon, RefreshCcwIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { InputPassword } from '@/components/ui/input-password';
 import type { IPatient } from '@/@types/IPatient';
 import { getPatientDefaultValues } from '../_helpers/get-patient-default-values';
+import { useCreatePatient } from '@/services/patient-service';
 
 interface IUpsertPatientFormProps {
   isOpen: boolean;
@@ -72,13 +72,16 @@ export const UpsertPatientForm = ({
     name: 'cardInsurances',
   });
 
+  const { mutate, isPending } = useCreatePatient();
+
   useEffect(() => {
     if (isOpen && patient) {
       form.reset(getPatientDefaultValues(patient));
     }
   }, [isOpen, patient, form]);
 
-  const hasInsurance = form.watch('cardInsurances')!.length > 0;
+  const cardInsurances = form.watch('cardInsurances');
+  const hasInsurance = cardInsurances ? cardInsurances.length > 0 : false;
 
   const handleNewPasswordRandom = (length: number = 8) => {
     const chars =
@@ -94,17 +97,80 @@ export const UpsertPatientForm = ({
     form.setValue('user.confirmPassword', password, { shouldValidate: true });
   };
 
-  const onSubmit: SubmitHandler<PatientFormSchema> = (values) => {
+  const formatDateToYYYYMMDD = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const onSubmit: SubmitHandler<PatientFormSchema> = async (values) => {
+    console.log('🎯 INICIANDO SUBMISSÃO...');
+
+    console.log('📦 Valores do formulário:', values);
+
+    const dateOfBirthString =
+      values.dateOfBirth instanceof Date
+        ? formatDateToYYYYMMDD(values.dateOfBirth)
+        : values.dateOfBirth;
+
+    const cardInsurances = Array.isArray(values.cardInsurances)
+      ? values.cardInsurances
+      : [];
+
     const payload = {
-      ...values,
-      dateOfBirth:
-        values.dateOfBirth instanceof Date
-          ? values.dateOfBirth.toISOString()
-          : values.dateOfBirth,
+      user: {
+        email: values.user.email,
+        username: values.user.username,
+        password: values.user.password,
+        confirmPassword: values.user.confirmPassword,
+      },
+      name: values.name,
+      sex: values.sex,
+      dateOfBirth: dateOfBirthString,
+      cpf: values.cpf,
+      phone: values.phone,
+      cardInsurances:
+        cardInsurances.length > 0
+          ? cardInsurances.map((insurance) => ({
+              insurance: {
+                id: insurance.insurance.id,
+                name: '',
+              },
+              cardInsuranceNumber: insurance.cardInsuranceNumber,
+              validate: insurance.validate,
+              modality: {
+                id: insurance.modality.id,
+              },
+            }))
+          : [],
+      address: {
+        name: values.address.street,
+        street: values.address.street,
+        number: values.address.number,
+        neighborhood: values.address.neighborhood,
+        cep: values.address.cep,
+        city: {
+          name: values.address.city.name,
+        },
+        state: {
+          name: values.address.state.name,
+          uf: values.address.state.uf,
+        },
+        country: {
+          name: values.address.country.name,
+        },
+      },
     };
-    console.log(payload);
-    onSuccess();
-    toast.success('Paciente salvo com sucesso.');
+
+    console.log('Payload enviado:', payload);
+
+    mutate(payload, {
+      onSuccess: () => {
+        onSuccess();
+        form.reset();
+      },
+    });
   };
 
   return (
@@ -159,6 +225,13 @@ export const UpsertPatientForm = ({
               )}
             />
           </div>
+
+          <FormInputCustom
+            name="user.username"
+            label="Nome do usuário do paciente"
+            placeholder="Digite o usuário do paciente"
+            control={form.control}
+          />
 
           <FormInputCustom
             name="user.email"
@@ -230,7 +303,14 @@ export const UpsertPatientForm = ({
                           )}
                         >
                           {field.value ? (
-                            format(field.value, 'PPP', { locale: ptBR })
+                            // Converter para Date antes de formatar
+                            format(
+                              field.value instanceof Date
+                                ? field.value
+                                : new Date(field.value),
+                              'PPP',
+                              { locale: ptBR },
+                            )
                           ) : (
                             <span>Selecione uma data</span>
                           )}
@@ -241,11 +321,18 @@ export const UpsertPatientForm = ({
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={field.value}
+                        selected={
+                          field.value instanceof Date
+                            ? field.value
+                            : field.value
+                            ? new Date(field.value)
+                            : undefined
+                        }
                         onSelect={field.onChange}
                         disabled={(date: Date) =>
                           date > new Date() || date < new Date('1900-01-01')
                         }
+                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>
@@ -258,8 +345,8 @@ export const UpsertPatientForm = ({
               name="sex"
               label="Sexo"
               options={[
-                { value: 'male', label: 'Masculino' },
-                { value: 'female', label: 'Feminino' },
+                { value: 'Male', label: 'Masculino' },
+                { value: 'Female', label: 'Feminino' },
               ]}
               control={form.control}
             />
@@ -352,6 +439,20 @@ export const UpsertPatientForm = ({
                 </Button>
               </div>
             ))}
+
+            <Button
+              type="button"
+              onClick={() =>
+                append({
+                  insurance: { id: '', name: '' },
+                  cardInsuranceNumber: '',
+                  validate: '',
+                  modality: { id: '' },
+                })
+              }
+            >
+              Adicionar convênio
+            </Button>
           </div>
 
           <div className="py-4">
@@ -419,12 +520,8 @@ export const UpsertPatientForm = ({
           </div>
 
           <DialogFooter>
-            <Button
-              type="submit"
-              disabled={form.formState.isSubmitting}
-              className="w-full mt-4"
-            >
-              {form.formState.isSubmitting ? 'Salvando...' : 'Salvar'}
+            <Button type="submit" disabled={isPending} className="w-full mt-4">
+              {isPending ? 'Salvando...' : 'Salvar'}
             </Button>
           </DialogFooter>
         </form>

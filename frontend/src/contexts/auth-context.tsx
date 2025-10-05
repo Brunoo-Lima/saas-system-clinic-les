@@ -1,5 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-
 import type { IUser } from '@/@types/IUser';
 import { loginService } from '@/services/login-service';
 import {

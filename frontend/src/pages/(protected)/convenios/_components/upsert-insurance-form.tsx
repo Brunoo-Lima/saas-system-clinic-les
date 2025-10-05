@@ -121,9 +121,6 @@ export const UpsertInsuranceForm = ({
         },
       },
     );
-
-    console.log('Dados enviados:', data);
-    console.log('Specialties:', data.specialties);
   };
 
   return (
@@ -215,8 +212,8 @@ export const UpsertInsuranceForm = ({
                                     {
                                       id: spec.id,
                                       name: spec.name,
-                                      price: 0, // inicializa com 0
-                                      amountTransferred: 0, // inicializa com 0
+                                      price: 0,
+                                      amountTransferred: 0,
                                     },
                                   ]);
                                 }

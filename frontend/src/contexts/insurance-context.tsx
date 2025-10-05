@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import type { IInsurance } from '@/@types/IInsurance';
 import { usePagination } from '@/hooks/use-pagination';
 import { useGetAllInsurances } from '@/services/insurance-service';

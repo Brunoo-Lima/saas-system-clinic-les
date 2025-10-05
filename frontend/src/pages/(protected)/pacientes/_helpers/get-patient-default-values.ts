@@ -12,22 +12,10 @@ export const getPatientDefaultValues = (
     username: patient?.user.username ?? '',
   },
   phone: patient?.phone ?? '',
-  sex: patient?.sex ?? 'male',
+  sex: patient?.sex ?? 'Male',
   cpf: patient?.cpf ?? '',
   dateOfBirth: patient?.dateOfBirth ?? '',
-  cardInsurances: patient?.cardInsurances ?? [
-    {
-      cardInsuranceNumber: '',
-      validate: '',
-      modality: {
-        id: '',
-      },
-      insurance: {
-        id: '',
-        name: '',
-      },
-    },
-  ],
+  cardInsurances: patient?.cardInsurances ?? [],
   address: {
     name: patient?.address?.name ?? '',
     cep: patient?.address?.cep ?? '',

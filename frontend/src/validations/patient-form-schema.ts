@@ -28,10 +28,8 @@ export const patientFormSchema = z.object({
       path: ['confirmPassword'],
     }),
   name: z.string().min(1, 'Nome é obrigatório'),
-  sex: z.enum(['male', 'female']),
-  dateOfBirth: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: 'Data de nascimento inválida',
-  }),
+  sex: z.enum(['Male', 'Female']),
+  dateOfBirth: z.union([z.date(), z.string()]),
   cpf: z.string().min(1, 'CPF é obrigatório'),
   phone: z.string().min(1, 'Telefone é obrigatório'),
   cardInsurances: z.array(cardInsuranceSchema).optional(),

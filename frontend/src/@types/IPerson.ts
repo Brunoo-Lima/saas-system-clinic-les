@@ -1,6 +1,6 @@
 import type { IAddress } from './IAddress';
 
-export type Sex = 'male' | 'female';
+export type Sex = 'Male' | 'Female';
 
 export interface IPerson {
   name: string;

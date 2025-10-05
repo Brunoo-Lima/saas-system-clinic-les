@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from './api';
 import { toast } from 'sonner';
+import type { IAddress } from '@/@types/IAddress';
 
 export interface IUserPayload {
   email: string;
@@ -25,42 +26,15 @@ export interface ICardInsurancePayload {
   modality: IModalityPayload;
 }
 
-export interface ICityPayload {
-  id?: string;
-  name?: string;
-}
-
-export interface IStatePayload {
-  id?: string;
-  name?: string;
-  uf?: string;
-}
-
-export interface ICountryPayload {
-  id?: string;
-  name?: string;
-}
-
-export interface IAddressPayload {
-  name: string;
-  street: string;
-  number: string;
-  neighborhood: string;
-  cep: string;
-  city: ICityPayload;
-  state: IStatePayload;
-  country: ICountryPayload;
-}
-
 export interface IPatientPayload {
   user: IUserPayload;
   name: string;
-  sex: 'Male' | 'Female' | 'Other';
+  sex: 'Male' | 'Female';
   dateOfBirth: string; // YYYY-MM-DD
   cpf: string;
   phone: string;
   cardInsurances: ICardInsurancePayload[];
-  address: IAddressPayload;
+  address: IAddress;
 }
 
 export const createPatient = async (patient: IPatientPayload) => {
