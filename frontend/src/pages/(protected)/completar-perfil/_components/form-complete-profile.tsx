@@ -34,6 +34,9 @@ import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
 import { useNavigate } from 'react-router-dom';
 import { useCreateClinic } from '@/services/clinic-service';
 import type { IClinic } from '@/@types/IClinic';
+import { useUpdateStatusProfileCompleted } from '@/services/user-clinic-service';
+import { useAuth } from '@/hooks/use-auth';
+import { toast } from 'sonner';
 
 const brazilianStates = [
   'AC',
@@ -102,26 +105,52 @@ export const FormCompleteProfile = () => {
       },
     },
   });
-
+  const { user, updateUser } = useAuth();
   const { mutate } = useCreateClinic();
+  const { mutate: updateStatusProfileCompleted } =
+    useUpdateStatusProfileCompleted();
 
   async function onSubmit(data: RegisterFormClinicSchema) {
+    if (!user?.id) {
+      toast.error('Usuário não encontrado ao completar cadastro.');
+      return;
+    }
+
     const payload: IClinic = {
       ...data,
-      specialties: data.specialties.map((s) => ({
-        id: s.id,
-        name: s.name ?? '', // se name for opcional
-        price: s.price,
-      })),
-      insurances: data.insurances.map((i) => ({
-        id: i.id,
-        name: i.name,
-      })),
+      specialties:
+        data.specialties?.map((s) => ({
+          id: s.id,
+          name: s.name ?? '',
+          price: s.price,
+        })) ?? [],
+
+      insurances:
+        data.insurances?.map((i) => ({
+          id: i.id,
+          name: i.name ?? '',
+        })) ?? [],
     };
 
     mutate(payload, {
       onSuccess: () => {
-        navigate('/dashboard');
+        updateStatusProfileCompleted(
+          {
+            id: user.id ?? '',
+            profileCompleted: true,
+          },
+          {
+            onSuccess: () => {
+              updateUser({ profileCompleted: true });
+
+              navigate('/dashboard', { replace: true });
+            },
+            onError: (error) => {
+              console.error('Erro ao atualizar status do perfil:', error);
+              toast.error('Erro ao completar perfil.');
+            },
+          },
+        );
       },
     });
   }
@@ -141,6 +170,12 @@ export const FormCompleteProfile = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <FormInputCustom
+                name="name"
+                label="Nome da clínica"
+                control={form.control}
+                placeholder="Nome da clínica"
+              />
               <div className="grid gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -245,7 +280,7 @@ export const FormCompleteProfile = () => {
                 />
               </div>
 
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-4">
                 <FormInputCustom
                   control={form.control}
                   name="address.city.name"
@@ -283,6 +318,13 @@ export const FormCompleteProfile = () => {
                       <FormMessage />
                     </FormItem>
                   )}
+                />
+
+                <FormInputCustom
+                  control={form.control}
+                  name="address.country.name"
+                  label="Pais"
+                  placeholder="Brasil"
                 />
               </div>
             </CardContent>

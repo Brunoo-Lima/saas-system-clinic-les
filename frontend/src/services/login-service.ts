@@ -19,14 +19,9 @@ export const loginService = async ({
       role,
     });
 
-    // Lê o token dentro de data.data.token ou data.token
-    const token = response.data?.token || response.data?.data?.token;
+    const { token, user } = response.data.data;
 
-    if (!token) {
-      throw new Error('Erro ao autenticar usuário');
-    }
-
-    return { token, data: response.data };
+    return { token, user };
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
       const message = Array.isArray(error.response?.data?.message)

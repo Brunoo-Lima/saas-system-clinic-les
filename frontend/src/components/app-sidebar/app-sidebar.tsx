@@ -93,10 +93,7 @@ export const AppSidebar = () => {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    disabled={user?.profileCompleted === false}
-                  >
+                  <SidebarMenuButton asChild disabled={!user?.profileCompleted}>
                     <NavLink to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
