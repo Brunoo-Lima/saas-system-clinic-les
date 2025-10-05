@@ -1,7 +1,7 @@
-import { Address } from '../../entities/EntityAddress/Address';
-import { Insurance } from '../../entities/EntityInsurance/Insurance';
-import { Specialty } from '../../entities/EntitySpecialty/Specialty';
-import { User } from '../../entities/EntityUser/User';
+import { Address } from "../../EntityAddress/Address";
+import { Insurance } from "../../EntityInsurance/Insurance";
+import { Specialty } from "../../EntitySpecialty/Specialty";
+import { User } from "../../EntityUser/User";
 
 export interface IClinic {
   name?: string;
