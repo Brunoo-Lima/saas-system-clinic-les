@@ -1,10 +1,10 @@
-import { ISpecialty } from "../../@types/Specialty/ISpecialty";
+import { ISpecialty } from "./types/ISpecialty";
 import { EntityDomain } from "../EntityDomain";
 
 export class Specialty extends EntityDomain {
     constructor(
         private specialtyProps: ISpecialty
-    ){
+    ) {
         super()
     }
     public get name() {
@@ -13,12 +13,12 @@ export class Specialty extends EntityDomain {
     public get price() {
         return this.specialtyProps.price
     }
-    public get amountTransferred(){
+    public get amountTransferred() {
         return this.specialtyProps.amountTransferred
     }
 
     public get props() {
-        return  this.specialtyProps
+        return this.specialtyProps
     }
-    
+
 }

@@ -18,11 +18,6 @@ export class RequiredDataToUserCreate implements IProcessValidator {
       }
     }
 
-    // if(user.password !== user.passwordConfirmed){
-    //     return ResponseHandler.error("Password and password confirmation do not match.")
-
-    // }
-
     return ResponseHandler.success(
       objectResponse,
       "All required data is present."

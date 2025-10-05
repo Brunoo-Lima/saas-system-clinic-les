@@ -1,5 +1,6 @@
-import { IDoctor } from "../../@types/Doctor/IDoctor";
+
 import { Person } from "../Person";
+import { IDoctor } from "./types/IDoctor";
 
 export class Doctor extends Person {
     constructor(
@@ -35,10 +36,6 @@ export class Doctor extends Person {
     
     public get specialties() {
         return this.doctorProps.specialties
-    }
-    
-    public get clinic() {
-        return this.doctorProps.clinic
     }
     
     public get address() {

@@ -1,9 +1,8 @@
-import { DoctorDTO } from "../../../infrastructure/dto/DoctorDTO";
+import { DoctorDTO } from "../../../infrastructure/DTOs/DoctorDTO";
 import { AddressBuilder } from "../EntityAddress/Builders/AddressBuilder";
 import { CityBuilder } from "../EntityAddress/Builders/CityBuilder";
 import { StateBuilder } from "../EntityAddress/Builders/StateBuilder";
 import { Country } from "../EntityAddress/Country";
-import { ClinicFactory } from "../EntityClinic/ClinicFactory";
 import { Period } from "../EntityPeriod/Period";
 import { SpecialtyBuilder } from "../EntitySpecialty/SpecialtyBuilder";
 import { UserBuilder } from "../EntityUser/UserBuilder";
@@ -68,10 +67,9 @@ export class DoctorFactory {
         }) ?? []
 
 
-        const clinic = ClinicFactory.createFromDTO(doctorDTO.clinic ?? {})
         const specialties = doctorDTO.specialties?.map((spe) => {
             const specialty = new SpecialtyBuilder()
-            .setName(spe.name).build()
+                .setName(spe.name).build()
             specialty.setUuidHash(spe.id ?? specialty.getUUIDHash())
             return specialty
         }) ?? []
@@ -86,7 +84,6 @@ export class DoctorFactory {
             .setPeriod(periods)
             .setName(doctorDTO.name)
             .setUser(user)
-            .setClinic(clinic)
             .setSex(doctorDTO.sex)
             .setCrm(doctorDTO.crm ?? "")
             .setSpecialties(specialties)

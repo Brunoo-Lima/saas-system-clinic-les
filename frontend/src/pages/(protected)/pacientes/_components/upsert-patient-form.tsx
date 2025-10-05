@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
-import { useForm, type SubmitHandler } from 'react-hook-form';
+import { useFieldArray, useForm, type SubmitHandler } from 'react-hook-form';
 import { PatternFormat } from 'react-number-format';
 
 import { Button } from '@/components/ui/button';
@@ -31,7 +31,6 @@ import {
   patientFormSchema,
   type PatientFormSchema,
 } from '@/validations/patient-form-schema';
-import { toast } from 'sonner';
 import { insurancesList } from '@/mocks/insurances-list';
 import { Switch } from '@/components/ui/switch';
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
@@ -49,6 +48,10 @@ import { Calendar } from '@/components/ui/calendar';
 import { InputPassword } from '@/components/ui/input-password';
 import type { IPatient } from '@/@types/IPatient';
 import { getPatientDefaultValues } from '../_helpers/get-patient-default-values';
+import {
+  useCreatePatient,
+  type IPatientPayload,
+} from '@/services/patient-service';
 
 interface IUpsertPatientFormProps {
   isOpen: boolean;
@@ -67,14 +70,21 @@ export const UpsertPatientForm = ({
     defaultValues: getPatientDefaultValues(patient),
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'cardInsurances',
+  });
+
+  const { mutate, isPending } = useCreatePatient();
+
   useEffect(() => {
     if (isOpen && patient) {
-      form.reset({
-        ...form.getValues(),
-        ...patient,
-      });
+      form.reset(getPatientDefaultValues(patient));
     }
   }, [isOpen, patient, form]);
+
+  const cardInsurances = form.watch('cardInsurances');
+  const hasInsurance = cardInsurances ? cardInsurances.length > 0 : false;
 
   const handleNewPasswordRandom = (length: number = 8) => {
     const chars =
@@ -86,24 +96,39 @@ export const UpsertPatientForm = ({
       password += chars[randomIndex];
     }
 
-    form.setValue('password', password, { shouldValidate: true });
+    form.setValue('user.password', password, { shouldValidate: true });
+    form.setValue('user.confirmPassword', password, { shouldValidate: true });
   };
 
-  const onSubmit: SubmitHandler<PatientFormSchema> = (
-    values: PatientFormSchema,
-  ) => {
-    const payload = {
+  const formatDateToYYYYMMDD = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const onSubmit: SubmitHandler<PatientFormSchema> = (values) => {
+    const dateOfBirthString =
+      values.dateOfBirth instanceof Date
+        ? formatDateToYYYYMMDD(values.dateOfBirth)
+        : values.dateOfBirth;
+
+    const cardInsurances = Array.isArray(values.cardInsurances)
+      ? values.cardInsurances
+      : [];
+
+    const payload: IPatientPayload = {
       ...values,
-      user: {
-        email: values.email,
-        password: values.password,
-      },
+      dateOfBirth: dateOfBirthString,
+      cardInsurances,
     };
 
-    console.log(payload);
-
-    onSuccess();
-    toast.success('Paciente salvo com sucesso.');
+    mutate(payload, {
+      onSuccess: () => {
+        onSuccess();
+        form.reset();
+      },
+    });
   };
 
   return (
@@ -137,7 +162,7 @@ export const UpsertPatientForm = ({
 
             <FormField
               control={form.control}
-              name="phoneNumber"
+              name="phone"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Número de telefone</FormLabel>
@@ -160,7 +185,14 @@ export const UpsertPatientForm = ({
           </div>
 
           <FormInputCustom
-            name="email"
+            name="user.username"
+            label="Nome do usuário do paciente"
+            placeholder="Digite o usuário do paciente"
+            control={form.control}
+          />
+
+          <FormInputCustom
+            name="user.email"
             label="Email"
             placeholder="exemplo@email.com"
             control={form.control}
@@ -169,12 +201,29 @@ export const UpsertPatientForm = ({
           <div className="flex flex-col gap-2">
             <FormField
               control={form.control}
-              name="password"
+              name="user.password"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Senha</FormLabel>
                   <FormControl>
                     <InputPassword {...field} placeholder="Digite sua senha" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="user.confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirme sua senha</FormLabel>
+                  <FormControl>
+                    <InputPassword
+                      {...field}
+                      placeholder="Digite sua confirmação de senha"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -205,14 +254,21 @@ export const UpsertPatientForm = ({
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant={'outline'}
+                          variant="outline"
                           className={cn(
                             'w-full pl-3 text-left font-normal',
                             !field.value && 'text-muted-foreground',
                           )}
                         >
                           {field.value ? (
-                            format(field.value, 'PPP', { locale: ptBR })
+                            // Converter para Date antes de formatar
+                            format(
+                              field.value instanceof Date
+                                ? field.value
+                                : new Date(field.value),
+                              'PPP',
+                              { locale: ptBR },
+                            )
                           ) : (
                             <span>Selecione uma data</span>
                           )}
@@ -223,11 +279,18 @@ export const UpsertPatientForm = ({
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={field.value}
+                        selected={
+                          field.value instanceof Date
+                            ? field.value
+                            : field.value
+                            ? new Date(field.value)
+                            : undefined
+                        }
                         onSelect={field.onChange}
                         disabled={(date: Date) =>
                           date > new Date() || date < new Date('1900-01-01')
                         }
+                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>
@@ -237,40 +300,43 @@ export const UpsertPatientForm = ({
             />
 
             <FormSelectCustom
-              name="gender"
+              name="sex"
               label="Sexo"
               options={[
-                { value: 'male', label: 'Masculino' },
-                { value: 'female', label: 'Feminino' },
+                { value: 'Male', label: 'Masculino' },
+                { value: 'Female', label: 'Feminino' },
               ]}
               control={form.control}
             />
           </div>
 
+          {/* Convênios */}
           <div className="space-y-4 mt-8">
             <div className="flex items-center gap-4">
-              <FormField
-                control={form.control}
-                name="hasInsurance"
-                render={({ field }) => (
-                  <FormItem className="flex items-center gap-4">
-                    <FormLabel>Tem convênio?</FormLabel>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
+              <Switch
+                checked={hasInsurance}
+                onCheckedChange={() =>
+                  hasInsurance
+                    ? remove(0)
+                    : append({
+                        insurance: { id: '', name: '' },
+                        cardInsuranceNumber: '',
+                        validate: '',
+                        modality: { id: '' },
+                      })
+                }
               />
+              <span>Tem convênio?</span>
             </div>
 
-            {form.watch('hasInsurance') && (
-              <div className="flex flex-col gap-y-4">
+            {fields.map((fieldItem, index) => (
+              <div
+                key={fieldItem.id}
+                className="flex flex-col gap-4 border p-4 rounded"
+              >
                 <FormField
                   control={form.control}
-                  name="insurance.name"
+                  name={`cardInsurances.${index}.insurance.id`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Convênio</FormLabel>
@@ -284,12 +350,9 @@ export const UpsertPatientForm = ({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {insurancesList.map((insurance) => (
-                            <SelectItem
-                              key={insurance.id}
-                              value={insurance.name}
-                            >
-                              {insurance.name}
+                          {insurancesList.map((ins) => (
+                            <SelectItem key={ins.id} value={ins.id.toString()}>
+                              {ins.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -299,24 +362,22 @@ export const UpsertPatientForm = ({
                   )}
                 />
 
-                <div className="grid grid-cols-2 gap-x-4">
-                  <FormInputCustom
-                    name="insurance.number"
-                    label="Número da carteirinha"
-                    placeholder="Digite o número"
-                    control={form.control}
-                  />
+                <FormInputCustom
+                  name={`cardInsurances.${index}.cardInsuranceNumber`}
+                  label="Número da carteirinha"
+                  placeholder="Digite o número"
+                  control={form.control}
+                />
 
-                  <FormInputCustom
-                    name="insurance.validate"
-                    label="Validade"
-                    placeholder="Digite a validade"
-                    control={form.control}
-                  />
-                </div>
+                <FormInputCustom
+                  name={`cardInsurances.${index}.validate`}
+                  label="Validade"
+                  placeholder="Digite a validade"
+                  control={form.control}
+                />
 
                 <FormSelectCustom
-                  name="insurance.modality"
+                  name={`cardInsurances.${index}.modality.id`}
                   label="Modalidade"
                   options={[
                     { value: 'apartamento', label: 'Apartamento' },
@@ -326,8 +387,30 @@ export const UpsertPatientForm = ({
                   ]}
                   control={form.control}
                 />
+
+                <Button
+                  variant="destructive"
+                  type="button"
+                  onClick={() => remove(index)}
+                >
+                  Remover convênio
+                </Button>
               </div>
-            )}
+            ))}
+
+            <Button
+              type="button"
+              onClick={() =>
+                append({
+                  insurance: { id: '', name: '' },
+                  cardInsuranceNumber: '',
+                  validate: '',
+                  modality: { id: '' },
+                })
+              }
+            >
+              Adicionar convênio
+            </Button>
           </div>
 
           <div className="py-4">
@@ -336,7 +419,7 @@ export const UpsertPatientForm = ({
 
           <div className="grid grid-cols-2 gap-4">
             <FormInputCustom
-              name="address.zipCode"
+              name="address.cep"
               label="CEP"
               placeholder="Digite o cep"
               control={form.control}
@@ -357,30 +440,46 @@ export const UpsertPatientForm = ({
             control={form.control}
           />
 
-          <FormInputCustom
-            name="address.street"
-            label="Rua"
-            placeholder="Digite o nome da rua"
-            control={form.control}
-          />
-
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <FormInputCustom
-              name="address.city"
+              name="address.street"
+              label="Rua"
+              placeholder="Digite o nome da rua"
+              control={form.control}
+            />
+
+            <FormInputCustom
+              name="address.name"
+              label="Nome identificador do endereço"
+              placeholder="Digite o nome identificador"
+              control={form.control}
+            />
+          </div>
+
+          <div className="grid grid-cols-4 gap-4">
+            <FormInputCustom
+              name="address.city.name"
               label="Cidade"
               placeholder="Digite o nome da cidade"
               control={form.control}
             />
 
             <FormInputCustom
-              name="address.state"
+              name="address.state.name"
               label="Estado"
               placeholder="Digite o nome do estado"
               control={form.control}
             />
 
             <FormInputCustom
-              name="address.country"
+              name="address.state.uf"
+              label="UF"
+              placeholder="Digite o UF"
+              control={form.control}
+            />
+
+            <FormInputCustom
+              name="address.country.name"
               label="País"
               placeholder="Digite o país"
               control={form.control}
@@ -388,12 +487,8 @@ export const UpsertPatientForm = ({
           </div>
 
           <DialogFooter>
-            <Button
-              type="submit"
-              disabled={form.formState.isSubmitting}
-              className="w-full mt-4"
-            >
-              {form.formState.isSubmitting ? 'Salvando...' : 'Salvar'}
+            <Button type="submit" disabled={isPending} className="w-full mt-4">
+              {isPending ? 'Salvando...' : 'Salvar'}
             </Button>
           </DialogFooter>
         </form>

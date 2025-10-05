@@ -28,7 +28,12 @@ export const StatsCards = ({
       icon: DollarSignIcon,
     },
     {
-      title: 'Repasses',
+      title: 'Repasse convênios',
+      value: 'R$ 0,00',
+      icon: HandCoinsIcon,
+    },
+    {
+      title: 'Repasse médicos',
       value: 'R$ 0,00',
       icon: HandCoinsIcon,
     },

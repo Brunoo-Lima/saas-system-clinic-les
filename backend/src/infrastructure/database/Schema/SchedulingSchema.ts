@@ -4,7 +4,8 @@ import {
   uuid,
   varchar,
   boolean,
-  real
+  real,
+  timestamp
 } from "drizzle-orm/pg-core";
 import { doctorTable } from "./DoctorSchema";
 import { patientTable } from "./PatientSchema";
@@ -24,4 +25,10 @@ export const schedulingTable = pgTable("scheduling", {
   patient_id: uuid("fk_sch_pat_id").references(() => patientTable.id),
   insurance_id: uuid("fk_sch_ins_id").references(() => insuranceTable.id),
   specialty_id: uuid("fk_sch_spe_id").references(() => specialtyTable.id),
+  createdAt: timestamp("use_createdAt")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("use_updatedAt")
+    .$defaultFn(() => new Date())
+    .notNull(),
 })

@@ -1,13 +1,14 @@
-import { ICardInsurance } from "../../@types/CardInsurance/ICardInsurance";
+import { ICardInsurance } from "./types/ICardInsurance";
 import { Insurance } from "../EntityInsurance/Insurance";
 import { Modality } from "../EntityModality/Modality";
+import { Patient } from "../EntityPatient/Patient";
 import { CardInsurance } from "./CardInsurance";
 
 export class CartInsuranceBuilder {
   private data: Partial<ICardInsurance> = {};
 
   setCardNumber(cardNumber: string): this {
-    this.data.cardNumber= cardNumber;
+    this.data.cardNumber = cardNumber;
     return this;
   }
 
@@ -21,7 +22,7 @@ export class CartInsuranceBuilder {
     this.data.insurance = insurance;
     return this;
   }
-  
+
   setModality(modality: Modality): this {
     this.data.modality = modality
     return this

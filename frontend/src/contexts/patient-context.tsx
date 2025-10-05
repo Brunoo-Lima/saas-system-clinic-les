@@ -1,7 +1,7 @@
 import type { IPatient } from '@/@types/IPatient';
 import { usePagination } from '@/hooks/use-pagination';
-import { patientsList } from '@/mocks/patients-list';
-import { createContext, useMemo, useState, type ChangeEvent } from 'react';
+import { useGetAllPatients } from '@/services/patient-service';
+import { createContext, useState, type ChangeEvent } from 'react';
 
 interface IPatientContextProps {
   searchTerm: string;
@@ -28,24 +28,28 @@ export const PatientProvider = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
-  const [filteredList, setFilteredList] = useState<IPatient[]>(patientsList);
   const itemsPerPage = 10;
 
-  const filtered = useMemo(() => {
-    let data = filteredList;
+  const { data: filtered = [] } = useGetAllPatients({
+    limit: itemsPerPage,
+    offset: 0,
+  });
 
-    if (searchTerm) {
-      data = data.filter((patient) =>
-        patient.name.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-    }
+  // const filtered = useMemo(() => {
+  //   let data = filteredList;
 
-    if (selectedGender) {
-      data = data.filter((patient) => patient.gender === selectedGender);
-    }
+  //   if (searchTerm) {
+  //     data = data.filter((patient) =>
+  //       patient.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  //     );
+  //   }
 
-    return data;
-  }, [selectedGender, searchTerm, filteredList]);
+  //   if (selectedGender) {
+  //     data = data.filter((patient) => patient.sex === selectedGender);
+  //   }
+
+  //   return data;
+  // }, [selectedGender, searchTerm, filteredList]);
 
   const { totalPages, page, setPage, paginatedData } = usePagination(
     filtered,
@@ -62,7 +66,7 @@ export const PatientProvider = ({
   };
 
   const handleDelete = (id: number) => {
-    setFilteredList((prev) => prev.filter((p) => p.id !== id));
+    // setFilteredList((prev) => prev.filter((p) => p.id !== id));
   };
 
   const contextValue = {

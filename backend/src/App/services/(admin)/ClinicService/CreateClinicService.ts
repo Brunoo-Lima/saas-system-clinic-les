@@ -15,10 +15,17 @@ import { CountryRepository } from '../../../../infrastructure/database/repositor
 import { StateRepository } from '../../../../infrastructure/database/repositories/StateRepository/StateRepository';
 import { CityRepository } from '../../../../infrastructure/database/repositories/CityRepository/CityRepository';
 import { RequiredGeneralData } from '../../../../domain/validators/General/RequiredGeneralData';
-import { SpecialtyExists } from '../../../../domain/validators/SpecialtyValidator/SpecialtiesExists';
 import { InsuranceRepository } from '../../../../infrastructure/database/repositories/InsurancesRepository/InsurancesRepository';
 import { ValidInsuranceData } from '../../../../domain/validators/InsuranceValidator/ValidInsuranceData';
 import { PropsValidator } from '../../../../domain/validators/AddressValidator/PropsValidator';
+import { EntityExistsToInserted } from '../../../../domain/validators/General/EntityExistsToInserted';
+import { SpecialtyRepository } from '../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository';
+import { UUIDValidator } from '../../../../domain/validators/General/UUIDValidator';
+import { User } from '../../../../domain/entities/EntityUser/User';
+import { UserRepository } from '../../../../infrastructure/database/repositories/UserRepository/UserRepository';
+import { Specialty } from '../../../../domain/entities/EntitySpecialty/Specialty';
+import { ClinicDTO } from '../../../../infrastructure/DTOs/ClinicDTO';
+import { ClinicFactory } from '../../../../domain/entities/EntityClinic/ClinicFactory';
 
 export class CreateClinicService {
   private repository: IRepository;
@@ -26,6 +33,8 @@ export class CreateClinicService {
   private countryRepository: IRepository;
   private stateRepository: IRepository;
   private cityRepository: IRepository;
+  private specialtiesRepository: IRepository;
+  private userRepository: IRepository;
 
   constructor() {
     this.repository = new ClinicRepository();
@@ -33,57 +42,79 @@ export class CreateClinicService {
     this.countryRepository = new CountryRepository()
     this.stateRepository = new StateRepository()
     this.cityRepository = new CityRepository()
+    this.specialtiesRepository = new SpecialtyRepository();
+    this.userRepository = new UserRepository()
   }
 
-  async execute(clinic: Clinic) {
+  async execute(clinic: ClinicDTO, userId:string) {
     try {
-      const validators = new ValidatorController()
-      const className = `C-${clinic.constructor.name}`
-      if (typeof clinic.address === "undefined" || !clinic.address) { return ResponseHandler.error("Address is required.") }
+      const clinicDomain = ClinicFactory.createFromDTO(clinic)
+      clinicDomain.user?.setUuidHash(userId)
 
-      validators.setValidator("specialties", [new SpecialtyExists()])
+      const validators = new ValidatorController()
+      const className = `C-${clinicDomain.constructor.name}`
+      if (typeof clinicDomain.address === "undefined" || !clinicDomain.address) { return ResponseHandler.error("Address is required.") }
+
+
       validators.setValidator(className, [
         new EntityExits(),
-        new RequiredGeneralData(Object.keys(clinic.props))
+        new RequiredGeneralData(Object.keys(clinicDomain.props))
       ])
 
-      validators.setValidator(`C-${clinic.address?.constructor.name}`, [
+      validators.setValidator(`C-${clinicDomain.address?.constructor.name}`, [
         new PropsValidator(),
         new EntityExits()
       ])
 
-      const clinicIsValidToInserted = await validators.process(className, clinic, this.repository)
-      const addressIsValid = await validators.process(`C-${clinic.address.constructor.name}`, clinic.address, this.addressRepository)
+      const entitiesValidated = await Promise.all([
+        await validators.process(className, clinicDomain, this.repository),
+        await validators.process(`C-${clinicDomain.address.constructor.name}`, clinicDomain.address, this.addressRepository)
+      ])
+      
+      const errors = entitiesValidated.filter((err) => !err.success)
+      if (errors.length) return ResponseHandler.error(errors.map((er) => er.message[0]))
 
-      if (!addressIsValid.success) { return addressIsValid }
-      if (!clinicIsValidToInserted.success) return clinicIsValidToInserted
-
-      if(clinic.insurances && clinic.insurances?.length !== 0){
+      console.log(clinicDomain.specialties)
+      if (clinicDomain.insurances && clinicDomain.insurances?.length !== 0) {
         validators.setValidator("insurances", [new ValidInsuranceData()])
-        const insurancesIsValid = await validators.process("insurances", clinic.insurances ?? [], new InsuranceRepository())
+        const insurancesIsValid = await validators.process("insurances", clinicDomain.insurances ?? [], new InsuranceRepository())
         if (!insurancesIsValid.success) return insurancesIsValid
       }
 
+      if (clinicDomain.specialties && clinicDomain.specialties?.length !== 0) {
+        validators.setValidator("F-Specialties", [
+          new RequiredGeneralData(Object.keys(clinicDomain.specialties[0]?.props!))
+        ])
+
+        const specialtiesValid = await validators.process("F-Specialties", clinicDomain.specialties ?? [], this.specialtiesRepository)
+        if (!specialtiesValid.success) return specialtiesValid
+      }
+
       const entitiesInserted = await db.transaction(async (tx) => {
-        const addressDomain = clinic.address as Address;
-        const cityDomain = clinic.address?.city as City;
-        const stateDomain = clinic.address?.city?.state as State;
-        const countryDomain = clinic.address?.city?.state?.country as Country;
+        const addressDomain = clinicDomain.address as Address;
+        const cityDomain = clinicDomain.address?.city as City;
+        const stateDomain = clinicDomain.address?.city?.state as State;
+        const countryDomain = clinicDomain.address?.city?.state?.country as Country;
 
         await findOrCreate(this.countryRepository, countryDomain, tx);
         await findOrCreate(this.stateRepository, stateDomain, tx);
-        await findOrCreate(this.cityRepository, cityDomain, tx);  
+        await findOrCreate(this.cityRepository, cityDomain, tx);
+        if(clinicDomain.specialties) {
+          await Promise.all(
+            clinicDomain.specialties?.map(async (sp) => await findOrCreate(this.specialtiesRepository, sp, tx))
+          )
+        }
         
         const addressInserted = await findOrCreate(this.addressRepository, addressDomain, tx);
-        const clinicInserted = await this.repository.create(clinic, tx)
+        const clinicInserted = await this.repository.create(clinicDomain, tx)
 
         return {
           address: addressInserted[0],
           clinic: clinicInserted
         }
       })
-      if(!entitiesInserted.address || !entitiesInserted.clinic) return ResponseHandler.error("Failed to inserted the clinic and/or the addresses in database !")
-      
+      if (!entitiesInserted.address || !entitiesInserted.clinic) return ResponseHandler.error("Failed to inserted the clinic and/or the addresses in database !")
+
       return ResponseHandler.success(entitiesInserted, "Success entities inserted !")
     } catch (error) {
       return ResponseHandler.error([

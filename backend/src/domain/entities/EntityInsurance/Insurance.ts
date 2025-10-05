@@ -1,17 +1,17 @@
-import { IInsurance } from "../../@types/Insurance/IInsurance";
+import { IInsurance } from "./types/IInsurance";
 import { EntityDomain } from "../EntityDomain";
 
 export class Insurance extends EntityDomain {
     constructor(
         private insuranceProps: IInsurance
-    ){
+    ) {
         super()
     }
-    
+
     public get name() {
         return this.insuranceProps.name
     }
-    
+
     public get specialties() {
         return this.insuranceProps.specialties
     }
@@ -19,5 +19,7 @@ export class Insurance extends EntityDomain {
     public get modalities() {
         return this.insuranceProps.modalities
     }
-   
+    public get props() {
+        return this.insuranceProps
+    }
 }

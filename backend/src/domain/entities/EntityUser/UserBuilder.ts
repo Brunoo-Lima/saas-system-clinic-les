@@ -9,36 +9,42 @@ export class UserBuilder {
     return this;
   }
 
-  setUsername(username: string = ""): this{
+  setUsername(username?: string | undefined): this{
     this.data.username = username
     return this
   }
 
-  setEmail(email: string = ""): this {
+  setEmail(email?: string | undefined): this {
     this.data.email = email;
     return this;
   }
 
-  setPassword(password: string = ""): this {
+  setPassword(password?: string | undefined): this {
     this.data.password = password;
     return this;
   }
 
-  setAvatar(avatar: string = ""): this {
+  setAvatar(avatar?: string | undefined): this {
     this.data.avatar = avatar;
     return this;
   }
 
-  setEmailVerified(validated: boolean = false): this {
+  setEmailVerified(validated?: boolean | undefined): this {
     this.data.emailVerified = validated;
     return this;
   }
 
+  setProfileCompleted(complete?: boolean | undefined): this {
+    this.data.profileCompleted = complete
+    return this;
+  }
+  setStatus(status?: boolean | undefined): this {
+    this.data.status = status
+    return this
+  }
+  
   build(): User {
     return new User({
-      emailVerified: false, // default
-      status: true,
-      avatar: "",
       ...this.data, // sobrescreve defaults se vier do builder
     });
   }

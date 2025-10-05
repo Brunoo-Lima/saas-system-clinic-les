@@ -59,14 +59,34 @@ export class SpecialtyRepository implements IRepository {
             return ResponseHandler.error("Failed to find the specialty")
         }
     }
-    updateEntity(entity: EntityDomain, id?: string): Promise<any> {
-        throw new Error("Method not implemented.");
+    async updateEntity(specialties: Array<Specialty>, tx?: any){
+        const dbUse = tx ? tx : db
+        const specialtiesInserted = await Promise.all(
+            specialties.map((sp) =>
+                dbUse.update(specialtyTable)
+                    .set({
+                        name: sp.name,
+                        updatedAt: sp.getUpdatedAt()
+                    })
+                    .where(eq(specialtyTable.id, sp.getUUIDHash())).returning() // condição para atualizar o registro correto
+            )
+        );
+        return specialtiesInserted
     }
     deleteEntity(entity: EntityDomain, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    findAllEntity(entity: EntityDomain, id?: string): Promise<any[]> {
-        throw new Error("Method not implemented.");
+    async findAllEntity(specialties: Array<Specialty>, limit: number, offset: number) {
+        try {
+            return await db
+                .select()
+                .from(specialtyTable)
+                .limit(limit)
+                .offset(offset)
+
+        } catch (e) {
+            return ResponseHandler.error("Failed to find the specialties")
+        }
     }
 
 }

@@ -1,32 +1,21 @@
 import { z } from 'zod';
 import { addressFormSchema } from './address-form-schema';
 
-export const registerFormClinicSchema = z
-  .object({
-    name: z.string().trim().min(1, { message: 'O nome é obrigatório' }),
-    cnpj: z
-      .string()
-      .trim()
-      .min(1, { message: 'O CNPJ é obrigatório' })
-      .max(14, { message: 'O CNPJ deve ter no máximo 14 caracteres' }),
-    email: z
-      .string()
-      .trim()
-      .min(1, { message: 'O e-mail é obrigatório' })
-      .email({ message: 'O e-mail deve ser um e-mail valido' }),
-    password: z
-      .string()
-      .trim()
-      .min(8, { message: 'A senha deve ter pelo menos 8 caracteres' }),
-    confirm_password: z
-      .string()
-      .trim()
-      .min(8, { message: 'A senha deve ter pelo menos 8 caracteres' }),
-    address: addressFormSchema,
-  })
-  .refine((data) => data.password === data.confirm_password, {
-    message: 'As senhas não coincidem',
-    path: ['confirm_password'],
-  });
+export const registerFormClinicSchema = z.object({
+  name: z.string().nonempty('Nome é obrigatório'),
+  phone: z.string().nonempty('Telefone é obrigatório'),
+  cnpj: z.string().nonempty('CNPJ é obrigatório'),
+  timeToConfirm: z
+    .string()
+    .nonempty('Tempo de confirmação é obrigatório')
+    .regex(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
+      message: 'Horário inválido. Use o formato HH:mm:ss',
+    }),
+  specialties: z.array(
+    z.object({ id: z.string(), name: z.string(), price: z.number() }),
+  ),
+  insurances: z.array(z.object({ id: z.string(), name: z.string() })),
+  address: addressFormSchema,
+});
 
 export type RegisterFormClinicSchema = z.infer<typeof registerFormClinicSchema>;

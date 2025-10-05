@@ -4,6 +4,7 @@ import {
   primaryKey,
   real,
   varchar,
+  timestamp,
 } from "drizzle-orm/pg-core";
 import { addressTable } from "./AddressSchema";
 import { userTable } from "./UserSchema";
@@ -21,8 +22,13 @@ export const doctorTable = pgTable("doctor", {
   date_of_birth: varchar("dct_date_of_birth"),
   phone: varchar("dct_phone").notNull(),
   user_id: uuid("fk_dct_use_id").references(() => userTable.id),
-  clinic_id: uuid("fk_dct_cli_id").references(() => clinicTable.id),
-  address_id: uuid("fk_dct_add_id").references(() => addressTable.id)
+  address_id: uuid("fk_dct_add_id").references(() => addressTable.id),
+  createdAt: timestamp("use_createdAt")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("use_updatedAt")
+    .$defaultFn(() => new Date())
+    .notNull()
 })
 
 
@@ -65,10 +71,6 @@ export const doctorRelation = relations(doctorTable, ({ one, many }) => ({
   address: one(addressTable, {
     fields: [doctorTable.address_id],
     references: [addressTable.id]
-  }),
-  clinic: one(clinicTable, {
-    fields: [doctorTable.clinic_id],
-    references: [clinicTable.id]
   })
 })
 )

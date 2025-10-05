@@ -11,15 +11,19 @@ import { Modality } from "../../../../domain/entities/EntityModality/Modality";
 import db from "../../../../infrastructure/database/connection";
 import { findOrCreate } from "../../../../infrastructure/database/repositories/findOrCreate";
 import { ModalityRepository } from "../../../../infrastructure/database/repositories/ModalityRepository/ModalityRepository";
-import { InsuranceDTO } from "../../../../infrastructure/DTO/InsuranceDTO";
+import { InsuranceDTO } from "../../../../infrastructure/DTOs/InsuranceDTO";
+import { EntityExistsToInserted } from "../../../../domain/validators/General/EntityExistsToInserted";
+import { SpecialtyRepository } from "../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository";
 
 export class CreateInsuranceService {
     private repository: IRepository;
     private modalityRepository: IRepository;
+    private specialtyRepository: IRepository;
 
     constructor() {
         this.repository = new InsuranceRepository()
         this.modalityRepository = new ModalityRepository()
+        this.specialtyRepository = new SpecialtyRepository()
     }
     async execute(insuranceDTO: InsuranceDTO) {
         try {
@@ -37,7 +41,8 @@ export class CreateInsuranceService {
                 if (md.id) { modality.setUuidHash(md.id) }
                 return modality
             })
-
+            
+            if(!modalities?.length) return ResponseHandler.error("The modalities is required !")
             const insuranceDomain = new InsuranceBuilder()
                 .setName(insuranceDTO.name)
                 .setModalities(modalities ?? [])
@@ -47,12 +52,27 @@ export class CreateInsuranceService {
 
             const validatorController = new ValidatorController()
             validatorController.setValidator(`C-${insuranceDomain.constructor.name}`, [
-                new RequiredGeneralData(Object.keys(insuranceDomain)),
+                new RequiredGeneralData(Object.keys(insuranceDomain.props)),
                 new ValidSpecialtyToInsurance(),
                 new InsuranceExists()
             ])
+            validatorController.setValidator('F-Specialties', [
+                new EntityExistsToInserted()
+            ])
 
+            validatorController.setValidator("C-Modality", [
+                new RequiredGeneralData(Object.keys(modalities[0]!.props))
+            ])
+
+            const specialtiesIsValid = await Promise.all(
+                specialties.map(async (sp) => {
+                    return await validatorController.process('F-Specialties', sp, this.specialtyRepository)
+                })
+            )
+            const specialtiesValidated = specialtiesIsValid.filter((spv) => !spv.success)
             const insuranceIsValid = await validatorController.process(`C-${insuranceDomain.constructor.name}`, insuranceDomain, this.repository)
+
+            if (specialtiesValidated.length) return ResponseHandler.error(specialtiesValidated.map((spv) => spv.message[0]))
             if (!insuranceIsValid.success) return insuranceIsValid
 
             const entitiesInserted = await db.transaction(async (tx) => {
@@ -63,7 +83,7 @@ export class CreateInsuranceService {
                     })
                 );
 
-                const insuranceInserted = await this.repository.create(insuranceDomain)
+                const insuranceInserted = await this.repository.create(insuranceDomain, tx)
                 return {
                     insurance: insuranceInserted[0],
                     modalities: modalitiesInserted
@@ -73,6 +93,7 @@ export class CreateInsuranceService {
             if (!entitiesInserted.insurance) return ResponseHandler.error("Insurance and modalities cannot be inserted in database")
             return ResponseHandler.success(entitiesInserted, "Insurance added")
         } catch (e) {
+            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }

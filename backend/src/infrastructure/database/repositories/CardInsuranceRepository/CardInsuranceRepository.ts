@@ -3,52 +3,46 @@ import { CardInsurance } from "../../../../domain/entities/EntityCardInsurance/C
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
-import { cardInsuranceTable, cartToModalityTable } from "../../Schema/CardInsuranceSchema";
+import { cardInsuranceTable } from "../../Schema/CardInsuranceSchema";
 import { IRepository } from "../IRepository";
 
 export class CardInsuranceRepository implements IRepository {
-    async create(cartInsurance: CardInsurance | Array<CardInsurance>, tx?: any): Promise<any> {
+    async create(cardInsurance: CardInsurance | Array<CardInsurance>, tx?: any, patient_id: string = ""): Promise<any> {
         const dbUse = tx ? tx : db
-        const cartInsurancesFiltered = Array.isArray(cartInsurance) ? cartInsurance : [cartInsurance]
-
-        const cartInsuranceInserted = await dbUse.insert(cardInsuranceTable).values(cartInsurancesFiltered.map((ct) => {
+        const cardInsurancesFiltered = Array.isArray(cardInsurance) ? cardInsurance : [cardInsurance]
+        const cardInsuranceInserted = await dbUse.insert(cardInsuranceTable).values(cardInsurancesFiltered.map((ct) => {
             return {
                 id: ct.getUUIDHash() ?? "",
-                cartNumber: ct.cardNumber ?? "",
+                cardNumber: ct.cardNumber ?? "",
                 validate: ct.validate?.toString() ?? "",
-                insurance_id: ct.insurance?.getUUIDHash()
+                insurance_id: ct.insurance?.getUUIDHash(),
+                patient_id: patient_id,
+                modality_id: ct.modality?.getUUIDHash()
             }
         })).returning()
 
-        await dbUse.insert(cartToModalityTable).values(cartInsurancesFiltered.map((ct) => {
-            return {
-                cartInsurance_id: ct.getUUIDHash(),
-                modality_id: ct.modality?.getUUIDHash()
-            }
-        }))
-
-        return cartInsuranceInserted[0]
+        return cardInsuranceInserted[0]
     }
-    async findEntity(cartInsurance: CardInsurance | Array<CardInsurance>): Promise<any> {
+    async findEntity(cardInsurance: CardInsurance | Array<CardInsurance>): Promise<any> {
         try {
             const whereConditions = []
-            if(Array.isArray(cartInsurance)){
+            if(Array.isArray(cardInsurance)){
                 whereConditions.push(
-                    inArray(cardInsuranceTable.id, cartInsurance.map((ins) => ins.getUUIDHash())),
-                    inArray(cardInsuranceTable.cartNumber, cartInsurance.map((ins) => ins.cardNumber ?? ""))
+                    inArray(cardInsuranceTable.id, cardInsurance.map((ins) => ins.getUUIDHash())),
+                    inArray(cardInsuranceTable.cardNumber, cardInsurance.map((ins) => ins.cardNumber ?? ""))
                 )
             } else {
                 whereConditions.push(
-                    eq(cardInsuranceTable.id, cartInsurance.getUUIDHash()),
-                    eq(cardInsuranceTable.cartNumber, cartInsurance.cardNumber ?? "")
+                    eq(cardInsuranceTable.id, cardInsurance.getUUIDHash()),
+                    eq(cardInsuranceTable.cardNumber, cardInsurance.cardNumber ?? "")
                 )
             }
-            const cartInsuranceFounded = await db.select().from(cardInsuranceTable).where(
+            const cardInsuranceFounded = await db.select().from(cardInsuranceTable).where(
                 or( ...whereConditions)
             )
-            return cartInsuranceFounded
+            return cardInsuranceFounded
         } catch (e) {
-            return ResponseHandler.error("Failed to find the cart insurance")
+            return ResponseHandler.error("Failed to find the card insurance")
         }
     }
     updateEntity(entity: EntityDomain): Promise<any> {

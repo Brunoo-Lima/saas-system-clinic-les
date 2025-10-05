@@ -1,7 +1,7 @@
 import { InsuranceBuilder } from "../../../../domain/entities/EntityInsurance/InsuranceBuilder";
 import { SpecialtyBuilder } from "../../../../domain/entities/EntitySpecialty/SpecialtyBuilder";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
-import { InsuranceDTO } from "../../../../infrastructure/DTO/InsuranceDTO";
+import { InsuranceDTO } from "../../../../infrastructure/DTOs/InsuranceDTO";
 import { InsuranceRepository } from "../../../../infrastructure/database/repositories/InsurancesRepository/InsurancesRepository";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 

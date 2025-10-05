@@ -1,9 +1,17 @@
 export interface IAddress {
-  zipCode: string;
+  name: string;
   street: string;
   number: string;
   neighborhood: string;
-  city: string;
-  state: string;
-  country: string;
+  cep: string;
+  city: {
+    name: string;
+  };
+  state: {
+    name: string;
+    uf: string;
+  };
+  country: {
+    name: string;
+  };
 }

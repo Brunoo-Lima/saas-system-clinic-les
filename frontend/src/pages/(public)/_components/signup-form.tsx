@@ -9,16 +9,18 @@ import { FormControl, FormMessage } from '@/components/ui/form';
 import { FormItem, FormLabel } from '@/components/ui/form';
 import { Form, FormField } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useNavigate } from 'react-router-dom';
 import {
   registerFormSchema,
   type RegisterFormSchema,
 } from '@/validations/signup-form-schema';
 import { InputPassword } from '@/components/ui/input-password';
-import { createUserService } from '@/services/create-user-service';
+import { createUserClinicService } from '@/services/user-clinic-service';
 
-const SignUpForm = () => {
-  const navigate = useNavigate();
+interface ISignupFormProps {
+  setTab: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const SignUpForm = ({ setTab }: ISignupFormProps) => {
   const form = useForm<RegisterFormSchema>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -32,7 +34,7 @@ const SignUpForm = () => {
 
   const onSubmit = async (user: RegisterFormSchema) => {
     try {
-      await createUserService({
+      const { status } = await createUserClinicService({
         email: user.email,
         username: user.name,
         password: user.password,
@@ -40,12 +42,17 @@ const SignUpForm = () => {
         role: user.role,
         avatar: '',
         emailVerified: false,
+        profileCompleted: false,
       });
 
-      toast.success('Conta criada com sucesso.');
-      navigate('/');
+      if (status === 201) {
+        toast.success('Conta criada com sucesso.');
+        setTab('login');
+      }
     } catch (error: any) {
       toast.error(error.message);
+    } finally {
+      form.reset();
     }
   };
 

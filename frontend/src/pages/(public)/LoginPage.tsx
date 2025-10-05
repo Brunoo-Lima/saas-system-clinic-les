@@ -1,10 +1,12 @@
 import { LoginForm } from './_components/login-form';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SignUpForm from './_components/signup-form';
 import { Card, CardContent } from '@/components/ui/card';
 
 export const LoginPage = () => {
+  const [tab, setTab] = useState('login');
+
   useEffect(() => {
     document.title = 'Login';
   }, []);
@@ -28,7 +30,7 @@ export const LoginPage = () => {
       >
         <Card className="min-h-max">
           <CardContent>
-            <Tabs defaultValue="login" className="w-[400px]">
+            <Tabs value={tab} onValueChange={setTab} className="w-[400px]">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Login</TabsTrigger>
                 <TabsTrigger value="register">Criar conta</TabsTrigger>
@@ -50,7 +52,7 @@ export const LoginPage = () => {
                   </small>
                 </div>
 
-                <SignUpForm />
+                <SignUpForm setTab={setTab} />
               </TabsContent>
             </Tabs>
           </CardContent>

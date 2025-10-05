@@ -1,13 +1,14 @@
 import { EntityDomain } from "../EntityDomain";
 
 export interface IUser {
-  email?: string;
-  emailVerified?: boolean;
-  username?: string,
-  password?: string;
+  email?: string | undefined;
+  profileCompleted?: boolean | undefined,
+  emailVerified?: boolean | undefined;
+  username?: string | undefined,
+  password?: string | undefined;
   role?: "admin" | "doctor" | "patient";
-  avatar?: string;
-  status?: boolean
+  avatar?: string | undefined;
+  status?: boolean | undefined
 }
 
 export class User extends EntityDomain {
@@ -26,6 +27,9 @@ export class User extends EntityDomain {
     return this.dataUser.password;
   }
 
+  public get profileCompleted() {
+    return this.dataUser.profileCompleted
+  }
   
   public get username() {
     return this.dataUser.username
@@ -41,4 +45,9 @@ export class User extends EntityDomain {
   public get status(){
     return this.dataUser.status;
   }
+  
+  public get props()  {
+    return this.dataUser
+  }
+  
 }

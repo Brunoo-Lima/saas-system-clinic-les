@@ -2,6 +2,7 @@ import {
   pgTable,
   smallint,
   time,
+  timestamp,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -15,7 +16,13 @@ export const periodDoctorTable = pgTable("period", {
   dayWeek: smallint("per_dayWeek").notNull(),
   timeFrom: time("per_timeFrom").notNull(),
   timeTo: time("per_timeTo").notNull(),
-  doctor_id: uuid("fk_per_doc_id").references(() => doctorTable.id)
+  doctor_id: uuid("fk_per_doc_id").references(() => doctorTable.id),
+  createdAt: timestamp("use_createdAt")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("use_updatedAt")
+    .$defaultFn(() => new Date())
+    .notNull(),
 })
 
 // RELACIONAMENTOS

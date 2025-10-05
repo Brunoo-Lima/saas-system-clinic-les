@@ -1,4 +1,4 @@
-import { IModality } from "../../@types/Modality/IModality";
+import { IModality } from "./types/IModality";
 import { EntityDomain } from "../EntityDomain";
 
 export class Modality extends EntityDomain{
@@ -8,7 +8,7 @@ export class Modality extends EntityDomain{
         super()
     }
     
-    public get name() : string {
+    public get name() {
         return this.modalityProps.name
     }
     

@@ -1,14 +1,13 @@
 import { UserBuilder } from "../../../domain/entities/EntityUser/UserBuilder";
+import { RequiredGeneralData } from "../../../domain/validators/General/RequiredGeneralData";
 import { RequiredDataToUserCreate } from "../../../domain/validators/UserValidator/RequiredDataToUserCreate";
 import { ValidatorEmail } from "../../../domain/validators/UserValidator/ValidatorEmail";
 import { ValidatorUserExists } from "../../../domain/validators/UserValidator/ValidatorUserExists";
 import { ValidatorController } from "../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../helpers/ResponseHandler";
 import { IRepository } from "../../../infrastructure/database/repositories/IRepository";
-import { IUserRepository } from "../../../infrastructure/database/repositories/UserRepository/IUserRepository";
 import { UserRepository } from "../../../infrastructure/database/repositories/UserRepository/UserRepository";
-import { userTable } from "../../../infrastructure/database/Schema/UserSchema";
-import { UserDTO } from "../../../infrastructure/dto/UserDTO";
+import { UserDTO } from "../../../infrastructure/DTOs/UserDTO";
 import Queue from "../../../infrastructure/queue/Queue";
 
 export class CreateUserService {
@@ -26,13 +25,16 @@ export class CreateUserService {
                 .setPassword(userData.password)
                 .setRole(userData.role)
                 .setAvatar(userData.avatar || "")
+                .setProfileCompleted(userData.profileCompleted)
                 .setEmailVerified(userData.emailVerified || false)
+                .setStatus(true)
                 .build();
             const validatorController = new ValidatorController();
 
             validatorController.setValidator(`C-${userDomain.constructor.name}`, [
                 new ValidatorEmail(),
                 new RequiredDataToUserCreate(),
+                new RequiredGeneralData(Object.keys(userDomain.props), ["avatar"]),
                 new ValidatorUserExists()
             ]);
 
@@ -40,7 +42,7 @@ export class CreateUserService {
             if (!userDataIsValid.success) return userDataIsValid;
 
             const newUser = await this.userRepository.create(userDomain);
-            const {password, ...userResponse} = newUser.data
+            const { password, ...userResponse } = newUser.data
 
             await Queue.publish(userResponse);
             return ResponseHandler.success(userResponse, "Success ! User was inserted.");

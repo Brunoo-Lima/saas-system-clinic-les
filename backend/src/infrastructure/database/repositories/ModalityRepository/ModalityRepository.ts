@@ -1,4 +1,4 @@
-import { and, eq, inArray, notInArray, or } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, notInArray, or, SQL } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Modality } from "../../../../domain/entities/EntityModality/Modality";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -23,21 +23,22 @@ export class ModalityRepository implements IRepository {
         }).returning()
         return modalitiesInserted
     }
-    async findEntity(modality: Modality | Array<Modality>, limit?: number): Promise<any> {
+    async findEntity(modality: Modality | Array<Modality>, tx?: any): Promise<any> {
         try {
+            const dbUse = tx ? tx : db
             let whereCondition;
             if (Array.isArray(modality)) {
                 whereCondition = or(
-                    inArray(modalityTable.id, modality.map((mod) => mod.getUUIDHash())),
-                    inArray(modalityTable.name, modality.map((mod) => mod.name)),
+                    inArray(modalityTable.id, modality.map((mod) => mod.getUUIDHash() ?? "")),
+                    inArray(modalityTable.name, modality.map((mod) => mod.name ?? "")),
                 );
             } else {
                 whereCondition = or(
-                    eq(modalityTable.name, modality.name),
+                    eq(modalityTable.name, modality.name ?? ""),
                     eq(modalityTable.id, modality.getUUIDHash())
                 );
             }
-            const modalityFounded = await db.select().from(modalityTable).where(whereCondition)
+            const modalityFounded = await dbUse.select().from(modalityTable).where(whereCondition)
             return modalityFounded
         } catch (e) {
             return ResponseHandler.error("Failed to find the modality")
@@ -49,37 +50,42 @@ export class ModalityRepository implements IRepository {
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    async findAllEntity(modality: Array<Modality>) {
+    async findAllEntity(modality: Array<Modality>, limit: number, offset: number) {
         try {
-            const modalityFiltered = modality.filter(
-                (mod) => (mod.name && mod.name !== "") || (mod.getUUIDHash() && mod.getUUIDHash() !== "")
-            );
+            const filters: (SQL<unknown> | undefined)[] = [];
+    
+            if (modality.length) {
+                const modalityFiltered = modality.filter(
+                    (mod) => (mod.name && mod.name !== "") || (mod.getUUIDHash() && mod.getUUIDHash() !== "")
+                );
 
-            // Nenhum filtro -> retorna tudo
-            if (modalityFiltered.length === 0) {
-                return await db.select().from(modalityTable);
-            }
-
-            const conditions = modalityFiltered.map((mod) => {
-                const id = mod.getUUIDHash();
-                const name = mod.name;
-
-                if (id && name) {
-                    // se tiver os dois -> AND
-                    return and(eq(modalityTable.id, id), eq(modalityTable.name, name));
-                } else if (id) {
-                    // só id
-                    return eq(modalityTable.id, id);
-                } else if (name) {
-                    // só name
-                    return eq(modalityTable.name, name);
+                // Nenhum filtro -> retorna tudo
+                if (modalityFiltered.length === 0) {
+                    return await db.select().from(modalityTable);
                 }
-            });
 
+                modalityFiltered.map((mod) => {
+                    const id = mod.getUUIDHash();
+                    const name = mod.name;
+
+                    if (id && name) {
+                        // se tiver os dois -> AND
+                        filters.push(and(eq(modalityTable.id, id), eq(modalityTable.name, name)))
+                    } else if (id) {
+                        // só id
+                        filters.push(eq(modalityTable.id, id))
+                    } else if (name) {
+                        // só name
+                        filters.push(eq(modalityTable.name, name))
+                    }
+                });
+            }
             const modalitiesFounded = await db
                 .select()
                 .from(modalityTable)
-                .where(or(...conditions));
+                .where(or(...filters))
+                .limit(limit)
+                .offset(offset);
 
             return modalitiesFounded;
         } catch (e) {

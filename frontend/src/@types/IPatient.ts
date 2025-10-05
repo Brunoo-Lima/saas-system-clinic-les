@@ -8,11 +8,24 @@ export type IModality =
 
 export interface IPatient extends IPerson {
   id: number;
-  hasInsurance?: boolean;
-  insurance?: {
-    name: string;
-    number: string;
-    modality: IModality;
-    validate: string;
+  user: IUserPerson;
+  cardInsurances: ICardInsurance[];
+}
+
+export interface ICardInsurance {
+  insurance: {
+    id: string;
   };
+  cardInsuranceNumber: string;
+  validate: string;
+  modality: {
+    id: string;
+  };
+}
+
+export interface IUserPerson {
+  email: string;
+  username: string;
+  password: string;
+  confirmPassword: string;
 }

@@ -1,6 +1,7 @@
 import { DefaultLayout } from '@/components/default-layout/default-layout';
 import AppointmentPage from '@/pages/(protected)/agendamentos/AppointmentPage';
 import HistoricAppointmentPage from '@/pages/(protected)/agendamentos/historico-de-agendamentos/HistoricAppointmentPage';
+import { ProfileCompletePage } from '@/pages/(protected)/completar-perfil/ProfileCompletePage';
 import { InsurancePage } from '@/pages/(protected)/convenios/InsurancePage';
 import { DashboardPage } from '@/pages/(protected)/dashboard/DashboardPage';
 import SpecialtiesPage from '@/pages/(protected)/especialidades/SpecialtiesPage';
@@ -8,48 +9,29 @@ import { DoctorsPage } from '@/pages/(protected)/medicos/DoctorsPage';
 import { PatientsPage } from '@/pages/(protected)/pacientes/PatientsPage';
 import ProfilePage from '@/pages/(protected)/perfil/ProfilePage';
 import { LoginPage } from '@/pages/(public)/LoginPage';
-import { createBrowserRouter } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
-export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <LoginPage />,
-  },
-  {
-    element: <DefaultLayout />,
-    children: [
-      {
-        path: '/dashboard',
-        element: <DashboardPage />,
-      },
-      {
-        path: '/agendamentos',
-        element: <AppointmentPage />,
-      },
-      {
-        path: '/medicos',
-        element: <DoctorsPage />,
-      },
-      {
-        path: 'pacientes',
-        element: <PatientsPage />,
-      },
-      {
-        path: '/convenios',
-        element: <InsurancePage />,
-      },
-      {
-        path: '/agendamentos/historico-de-agendamentos',
-        element: <HistoricAppointmentPage />,
-      },
-      {
-        path: '/perfil',
-        element: <ProfilePage />,
-      },
-      {
-        path: '/especialidades',
-        element: <SpecialtiesPage />,
-      },
-    ],
-  },
-]);
+export function AppRouter() {
+  return (
+    <Routes>
+      {/* Rota pública */}
+      <Route path="/" element={<LoginPage />} />
+
+      {/* Rotas protegidas */}
+      <Route element={<DefaultLayout />}>
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/agendamentos" element={<AppointmentPage />} />
+        <Route
+          path="/agendamentos/historico-de-agendamentos"
+          element={<HistoricAppointmentPage />}
+        />
+        <Route path="/medicos" element={<DoctorsPage />} />
+        <Route path="/pacientes" element={<PatientsPage />} />
+        <Route path="/convenios" element={<InsurancePage />} />
+        <Route path="/perfil" element={<ProfilePage />} />
+        <Route path="/completar-perfil" element={<ProfileCompletePage />} />
+        <Route path="/especialidades" element={<SpecialtiesPage />} />
+      </Route>
+    </Routes>
+  );
+}

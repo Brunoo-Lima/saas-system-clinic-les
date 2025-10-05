@@ -29,11 +29,6 @@ export class AllValidatorToCreateDoctor implements IProcessValidator {
                 new EntityExits()
             ])
             
-            this.validator.setValidator(`F-${doctor.clinic?.constructor.name}`, [
-                new UUIDValidator(),
-                new EntityExistsToInserted(),
-                new RequiredGeneralData(Object.keys(doctor.clinic ?? {}), ["phone", "cnpj", "name"]),
-            ])
             this.validator.setValidator(`F-Specialties`, [
                 new UUIDValidator(),
                 new EntityExistsToInserted(),
@@ -46,7 +41,6 @@ export class AllValidatorToCreateDoctor implements IProcessValidator {
             ])
 
             const entitiesValidated = await Promise.all([
-                await this.validator.process(`F-${doctor.clinic?.constructor.name}`, doctor.clinic!, this.clinicRepository),
                 await this.validator.process(`F-Specialties`, doctor.specialties!, this.specialtyRepository),
                 await this.validator.process(`F-User`, doctor.user!, this.userRepository),
                 await this.validator.process(`C-${doctor.address.constructor.name}`, doctor.address!, this.addressRepository),

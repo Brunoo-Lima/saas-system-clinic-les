@@ -3,24 +3,27 @@ import {
   pgTable,
   uuid,
   real,
+  timestamp,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { patientTable } from "./PatientSchema";
-import { doctorTable } from "./DoctorSchema";
-import { clinicTable } from "./ClinicSchema";
+import { schedulingTable } from "./SchedulingSchema";
 
 
 //Movimentacoes 
 export const appointmentsTable = pgTable("appointment", {
   id: uuid("app_id").primaryKey(),
-  total: real("app_total").default(0),
+  total: real("app_total_brute").default(0),
   dateAppointment: date("app_dateAppointment").notNull(),
   totalDistributionDoctor: real("app_total_distribution_doctor").notNull(),
   totalDistributionInsurance: real("app_total_distribution_insurance").notNull(),
   totalDistributionClinic: real("app_total_distribution_clinic").notNull(),
-  patient_id: uuid("patient_id").references(() => patientTable.id),
-  doctor_id: uuid("doctor_id").references(() => doctorTable.id),
-  clinic_id: uuid("clinic_id").references(() => clinicTable.id)
+  scheduling_id: uuid("fk_app_sch_id").references(() => schedulingTable.id),
+  createdAt: timestamp("use_createdAt")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("use_updatedAt")
+    .$defaultFn(() => new Date())
+    .notNull()
 })
 
 
@@ -31,17 +34,9 @@ export const appointmentsTable = pgTable("appointment", {
   Clinica e Pagamentos
 */
 export const appointmentRelation = relations(appointmentsTable, ({ one }) => ({
-  patient: one(patientTable, {
-    fields: [appointmentsTable.patient_id],
-    references: [patientTable.id]
-  }),
-  doctor: one(doctorTable, {
-    fields: [appointmentsTable.doctor_id],
-    references: [doctorTable.id]
-  }),
-  clinic: one(clinicTable, {
-    fields: [appointmentsTable.clinic_id],
-    references: [clinicTable.id]
+  scheduling: one(schedulingTable, {
+    fields: [appointmentsTable.scheduling_id],
+    references: [schedulingTable.id]
   })
 }))
 

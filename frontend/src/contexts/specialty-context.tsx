@@ -1,6 +1,7 @@
 import type { ISpecialty } from '@/@types/ISpecialty';
 import { usePagination } from '@/hooks/use-pagination';
 import { specialtyList } from '@/mocks/specialty-list';
+import { useGetSpecialties } from '@/services/specialty-service';
 import { createContext, useMemo, useState, type ChangeEvent } from 'react';
 
 interface ISpecialtyContextProps {
@@ -30,23 +31,15 @@ export const SpecialtyProvider = ({
   const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(
     null,
   );
-  const [filteredList, setFilteredList] = useState<ISpecialty[]>(specialtyList);
   const itemsPerPage = 10;
 
-  const filtered = useMemo(() => {
-    let data = filteredList;
-
-    if (searchTerm) {
-      data = data.filter((patient) =>
-        patient.name.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-    }
-
-    return data;
-  }, [selectedSpecialty, searchTerm]);
+  const { data: filteredList = [] } = useGetSpecialties({
+    limit: itemsPerPage,
+    offset: 0,
+  });
 
   const { totalPages, page, setPage, paginatedData } = usePagination(
-    filtered,
+    filteredList,
     itemsPerPage,
   );
 
@@ -60,7 +53,7 @@ export const SpecialtyProvider = ({
   };
 
   const handleDelete = (id: number) => {
-    setFilteredList((prev) => prev.filter((p) => p.id !== id));
+    // setFilteredList((prev) => prev.filter((p) => p.id !== id));
   };
 
   const contextValue = {

@@ -1,6 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useState } from 'react';
+import {
+  Controller,
+  useFieldArray,
+  useForm,
+  type Resolver,
+  type SubmitHandler,
+} from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
   DialogContent,
@@ -17,12 +23,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
 import {
   insuranceFormSchema,
   type InsuranceFormSchema,
 } from '@/validations/insurance-form-schema';
-import { medicalSpecialties } from '../../medicos/_constants';
 import {
   Command,
   CommandEmpty,
@@ -32,9 +36,16 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { CheckIcon } from 'lucide-react';
-import { toast } from 'sonner';
 import type { IInsurance } from '@/@types/IInsurance';
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
+import { useCreateInsurance } from '@/services/insurance-service';
+import { useGetSpecialties } from '@/services/specialty-service';
+import { Input } from '@/components/ui/input';
+
+interface ISpecialty {
+  id: string;
+  name: string;
+}
 
 interface IUpsertInsuranceFormProps {
   isOpen: boolean;
@@ -49,13 +60,32 @@ export const UpsertInsuranceForm = ({
 }: IUpsertInsuranceFormProps) => {
   const form = useForm<InsuranceFormSchema>({
     shouldUnregister: true,
-    resolver: zodResolver(insuranceFormSchema),
+    resolver: zodResolver(insuranceFormSchema) as Resolver<InsuranceFormSchema>,
     defaultValues: {
-      name: insurance?.name ?? '',
-      description: insurance?.description ?? '',
-      specialties: insurance?.specialties ?? [],
+      name: '',
+      modalities: [],
+      specialties: [],
     },
   });
+  const { data: specialtiesData = [] } = useGetSpecialties({
+    limit: 10,
+    offset: 0,
+  });
+
+  const [filteredSpecialties, setFilteredSpecialties] = useState<ISpecialty[]>(
+    [],
+  );
+
+  const {
+    fields: modalityFields,
+    append: appendModality,
+    remove: removeModality,
+  } = useFieldArray({
+    control: form.control,
+    name: 'modalities',
+  });
+
+  const { mutate, isPending } = useCreateInsurance();
 
   useEffect(() => {
     if (isOpen) {
@@ -63,24 +93,34 @@ export const UpsertInsuranceForm = ({
     }
   }, [isOpen, form, insurance]);
 
-  // const upsertPatientAction = useAction(upsertPatient, {
-  //   onSuccess: () => {
-  //     toast.success("Paciente salvo com sucesso.");
-  //     onSuccess?.();
-  //   },
-  //   onError: () => {
-  //     toast.error("Erro ao salvar paciente.");
-  //   },
-  // });
+  useEffect(() => {
+    setFilteredSpecialties(specialtiesData);
+  }, [specialtiesData]);
 
-  const onSubmit = (_values: InsuranceFormSchema) => {
-    // upsertPatientAction.execute({
-    //   ...values,
-    //   id: patient?.id,
-    // });
-
-    onSuccess();
-    toast.success('Convênio salvo com sucesso.');
+  const onSubmit: SubmitHandler<InsuranceFormSchema> = (data) => {
+    mutate(
+      {
+        name: data.name,
+        modalities: data.modalities.map((modality) => {
+          return {
+            name: modality.name,
+          };
+        }),
+        specialties: data.specialties.map((specialty) => {
+          return {
+            id: specialty.id,
+            price: specialty.price,
+            amountTransferred: specialty.amountTransferred,
+          };
+        }),
+      },
+      {
+        onSuccess: () => {
+          onSuccess();
+          form.reset();
+        },
+      },
+    );
   };
 
   return (
@@ -104,22 +144,30 @@ export const UpsertInsuranceForm = ({
             control={form.control}
           />
 
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descrição</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Digite a descrição do convênio"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="flex flex-col gap-y-2 items-start">
+            <FormLabel>Modalidades</FormLabel>
+            {modalityFields.map((field, index) => (
+              <div key={field.id} className="flex gap-4 mb-2">
+                <FormInputCustom
+                  name={`modalities.${index}.name`}
+                  label="Nome"
+                  placeholder="Ex: Modalidade"
+                  control={form.control}
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  className="self-end"
+                  onClick={() => removeModality(index)}
+                >
+                  Remover
+                </Button>
+              </div>
+            ))}
+            <Button type="button" onClick={() => appendModality({ name: '' })}>
+              Adicionar modalidade
+            </Button>
+          </div>
 
           <FormField
             control={form.control}
@@ -131,37 +179,48 @@ export const UpsertInsuranceForm = ({
                 <FormControl>
                   <Command>
                     <CommandInput
-                      className="px-2 py-0 border-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
                       placeholder="Buscar especialidade..."
+                      onValueChange={(value) => {
+                        setFilteredSpecialties(
+                          specialtiesData.filter((s: any) =>
+                            s.name.toLowerCase().includes(value.toLowerCase()),
+                          ),
+                        );
+                      }}
                     />
                     <CommandList>
-                      <CommandEmpty>Nenhum resultado.</CommandEmpty>
+                      <CommandEmpty>
+                        Nenhuma especialidade encontrada
+                      </CommandEmpty>
                       <CommandGroup>
-                        {medicalSpecialties.map((spec) => {
+                        {filteredSpecialties.map((spec: any) => {
                           const isSelected = field.value.some(
-                            (s) => s.slug === spec.slug,
+                            (s) => s.id === spec.id,
                           );
 
                           return (
                             <CommandItem
-                              key={spec.slug}
+                              key={spec.id}
                               onSelect={() => {
                                 if (isSelected) {
                                   field.onChange(
-                                    field.value.filter(
-                                      (s) => s.slug !== spec.slug,
-                                    ),
+                                    field.value.filter((s) => s.id !== spec.id),
                                   );
                                 } else {
                                   field.onChange([
                                     ...field.value,
-                                    { slug: spec.slug, name: spec.value },
+                                    {
+                                      id: spec.id,
+                                      name: spec.name,
+                                      price: 0,
+                                      amountTransferred: 0,
+                                    },
                                   ]);
                                 }
                               }}
                               className="flex items-center justify-between"
                             >
-                              {spec.label}
+                              {spec.name}
                               {isSelected && <CheckIcon size={16} />}
                             </CommandItem>
                           );
@@ -172,25 +231,65 @@ export const UpsertInsuranceForm = ({
                 </FormControl>
                 <FormMessage />
 
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {field.value.map((s) => (
-                    <span
-                      key={s.slug}
-                      className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm flex items-center gap-1"
+                <div className="flex flex-col gap-2 mt-2">
+                  {field.value.map((s, index) => (
+                    <div
+                      key={s.id}
+                      className="flex flex-col gap-1 border p-2 rounded"
                     >
-                      {s.name}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          field.onChange(
-                            field.value.filter((item) => item.slug !== s.slug),
-                          )
-                        }
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        ×
-                      </button>
-                    </span>
+                      <div className="flex items-center justify-between">
+                        <span>
+                          {
+                            specialtiesData.find((spec) => spec.id === s.id)
+                              ?.name
+                          }
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            field.onChange(
+                              field.value.filter((item) => item.id !== s.id),
+                            )
+                          }
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          ×
+                        </button>
+                      </div>
+
+                      {/* Inputs de price e amountTransferred */}
+                      <div className="flex gap-2">
+                        <div className="flex flex-col gap-2">
+                          <FormLabel>Preço</FormLabel>
+                          <Controller
+                            control={form.control}
+                            name={`specialties.${index}.price`}
+                            render={({ field: priceField }) => (
+                              <Input
+                                type="number"
+                                placeholder="Preço"
+                                {...priceField}
+                              />
+                            )}
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <FormLabel>Valor Transferido</FormLabel>
+                          <Controller
+                            control={form.control}
+                            name={`specialties.${index}.amountTransferred`}
+                            render={({ field: amountField }) => (
+                              <Input
+                                type="number"
+                                placeholder="Valor Transferido"
+                                {...amountField}
+                              />
+                            )}
+                          />
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </FormItem>
@@ -198,12 +297,8 @@ export const UpsertInsuranceForm = ({
           />
 
           <DialogFooter>
-            <Button
-              type="submit"
-              disabled={form.formState.isSubmitting}
-              className="w-full mt-4"
-            >
-              {form.formState.isSubmitting ? 'Salvando...' : 'Salvar'}
+            <Button type="submit" disabled={isPending} className="w-full mt-4">
+              {isPending ? 'Salvando...' : 'Salvar'}
             </Button>
           </DialogFooter>
         </form>

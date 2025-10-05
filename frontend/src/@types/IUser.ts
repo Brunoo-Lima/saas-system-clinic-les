@@ -1,4 +1,5 @@
 export interface IUser {
+  id?: string;
   email?: string;
   emailVerified?: boolean;
   username?: string;
@@ -6,4 +7,6 @@ export interface IUser {
   passwordConfirmed?: string;
   role?: 'admin' | 'doctor' | 'patient';
   avatar?: string;
+  profileCompleted: boolean;
+  token?: string;
 }

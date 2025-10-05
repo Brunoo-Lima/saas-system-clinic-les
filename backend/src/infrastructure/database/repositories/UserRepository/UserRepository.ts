@@ -11,34 +11,32 @@ import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 export class UserRepository implements IRepository {
 
   async create(user: User, tx?: any) {
-    try {
-      const dbUse = tx ? tx : db
-      const userInserted = await dbUse
-        .insert(userTable)
-        .values({
-          id: user.getUUIDHash().toString() || randomUUID(),
-          email: user.email!,
-          username: user.username,
-          emailVerified: user.emailVerified,
-          password: user.password!,
-          role: user.role!,
-          avatar: user.avatar || "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }).returning({
-          id: userTable.id,
-          email: userTable.email,
-          password: userTable.password,
-          username: userTable.username
-        });
-      return ResponseHandler.success(
-        userInserted[0],
-        "User created successfully."
-      );
-    } catch (error) {
-
-      return ResponseHandler.error(["Failed to create user in repository"]);
-    }
+ 
+    const dbUse = tx ? tx : db
+    const userInserted = await dbUse
+      .insert(userTable)
+      .values({
+        id: user.getUUIDHash().toString() || randomUUID(),
+        email: user.email!,
+        profileCompleted: user.profileCompleted,
+        username: user.username,
+        emailVerified: user.emailVerified,
+        password: user.password!,
+        role: user.role!,
+        avatar: user.avatar || "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }).returning({
+        id: userTable.id,
+        email: userTable.email,
+        password: userTable.password,
+        username: userTable.username
+      });
+    return ResponseHandler.success(
+      userInserted[0],
+      "User created successfully."
+    );
+  
   }
   async getUserByEmail(email: string): Promise<any> {
     try {
@@ -53,24 +51,32 @@ export class UserRepository implements IRepository {
     }
   }
   async findEntity(user: User): Promise<any> {
-    try {
-      const userFounded = await db
-        .select()
-        .from(userTable)
-        .where(
-          or(
-            eq(userTable.id, user.getUUIDHash() ?? ""),
-            eq(userTable.email, user.email!)
-          )
+    
+    const userFounded = await db
+      .select()
+      .from(userTable)
+      .where(
+        or(
+          eq(userTable.id, user.getUUIDHash() ?? ""),
+          eq(userTable.email, user.email!)
         )
-      return userFounded[0] || null;
-
-    } catch (error) {
-      return ResponseHandler.error(["Failed to find user in repository"]);
-    }
+      )
+    return userFounded[0] || null;
   }
-  updateEntity(entity: EntityDomain): Promise<any> {
-    throw new Error("Method not implemented.");
+  async updateEntity(user: User) {
+    const userUpdated = await db.update(userTable)
+    .set({
+      avatar: user.avatar,
+      email: user.email,
+      password: user.password,
+      profileCompleted: user.profileCompleted,
+      status: user.status,
+      emailVerified: user.emailVerified,
+      updatedAt: user.getUpdatedAt()
+    }).where(
+      eq(userTable.id, user.getUUIDHash())
+    ).returning()
+    return userUpdated
   }
   deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
     throw new Error("Method not implemented.");

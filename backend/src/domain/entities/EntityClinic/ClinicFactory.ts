@@ -1,4 +1,4 @@
-import { ClinicDTO } from '../../../infrastructure/dto/ClinicDTO';
+import { ClinicDTO } from '../../../infrastructure/DTOs/ClinicDTO';
 import { AddressBuilder } from '../EntityAddress/Builders/AddressBuilder';
 import { CityBuilder } from '../EntityAddress/Builders/CityBuilder';
 import { StateBuilder } from '../EntityAddress/Builders/StateBuilder';
@@ -76,7 +76,7 @@ export class ClinicFactory {
       .setInsurances(insurances ?? [])
       .setAddress(address)
       .build();
-    
+
     clinic.setUuidHash(clinicDTO.id ?? clinic.getUUIDHash())
     return clinic;
   }
