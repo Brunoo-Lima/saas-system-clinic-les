@@ -42,13 +42,16 @@ import {
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { enUS, ptBR } from 'date-fns/locale';
+import { ptBR } from 'date-fns/locale';
 import { CalendarIcon, RefreshCcwIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { InputPassword } from '@/components/ui/input-password';
 import type { IPatient } from '@/@types/IPatient';
 import { getPatientDefaultValues } from '../_helpers/get-patient-default-values';
-import { useCreatePatient } from '@/services/patient-service';
+import {
+  useCreatePatient,
+  type IPatientPayload,
+} from '@/services/patient-service';
 
 interface IUpsertPatientFormProps {
   isOpen: boolean;
@@ -104,11 +107,7 @@ export const UpsertPatientForm = ({
     return `${year}-${month}-${day}`;
   };
 
-  const onSubmit: SubmitHandler<PatientFormSchema> = async (values) => {
-    console.log('🎯 INICIANDO SUBMISSÃO...');
-
-    console.log('📦 Valores do formulário:', values);
-
+  const onSubmit: SubmitHandler<PatientFormSchema> = (values) => {
     const dateOfBirthString =
       values.dateOfBirth instanceof Date
         ? formatDateToYYYYMMDD(values.dateOfBirth)
@@ -118,52 +117,11 @@ export const UpsertPatientForm = ({
       ? values.cardInsurances
       : [];
 
-    const payload = {
-      user: {
-        email: values.user.email,
-        username: values.user.username,
-        password: values.user.password,
-        confirmPassword: values.user.confirmPassword,
-      },
-      name: values.name,
-      sex: values.sex,
+    const payload: IPatientPayload = {
+      ...values,
       dateOfBirth: dateOfBirthString,
-      cpf: values.cpf,
-      phone: values.phone,
-      cardInsurances:
-        cardInsurances.length > 0
-          ? cardInsurances.map((insurance) => ({
-              insurance: {
-                id: insurance.insurance.id,
-                name: '',
-              },
-              cardInsuranceNumber: insurance.cardInsuranceNumber,
-              validate: insurance.validate,
-              modality: {
-                id: insurance.modality.id,
-              },
-            }))
-          : [],
-      address: {
-        name: values.address.street,
-        street: values.address.street,
-        number: values.address.number,
-        neighborhood: values.address.neighborhood,
-        cep: values.address.cep,
-        city: {
-          name: values.address.city.name,
-        },
-        state: {
-          name: values.address.state.name,
-          uf: values.address.state.uf,
-        },
-        country: {
-          name: values.address.country.name,
-        },
-      },
+      cardInsurances,
     };
-
-    console.log('Payload enviado:', payload);
 
     mutate(payload, {
       onSuccess: () => {
@@ -482,12 +440,21 @@ export const UpsertPatientForm = ({
             control={form.control}
           />
 
-          <FormInputCustom
-            name="address.street"
-            label="Rua"
-            placeholder="Digite o nome da rua"
-            control={form.control}
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <FormInputCustom
+              name="address.street"
+              label="Rua"
+              placeholder="Digite o nome da rua"
+              control={form.control}
+            />
+
+            <FormInputCustom
+              name="address.name"
+              label="Nome identificador do endereço"
+              placeholder="Digite o nome identificador"
+              control={form.control}
+            />
+          </div>
 
           <div className="grid grid-cols-4 gap-4">
             <FormInputCustom
