@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from './api';
 import { toast } from 'sonner';
 
@@ -87,3 +87,30 @@ export function useCreatePatient() {
     },
   });
 }
+
+interface IPatientProps {
+  offset?: number;
+  limit?: number;
+}
+
+export const getPatients = async ({
+  limit = 10,
+  offset = 0,
+}: IPatientProps) => {
+  const { data } = await api.get(
+    `/patient/findall/?limit=${limit}&offset=${offset}`,
+  );
+
+  if (data.success === false) {
+    throw new Error(data.message);
+  }
+
+  return data.data;
+};
+
+export const useGetAllPatients = (params?: IPatientProps) => {
+  return useQuery<IPatientPayload[]>({
+    queryKey: ['patients'],
+    queryFn: () => getPatients(params || {}),
+  });
+};

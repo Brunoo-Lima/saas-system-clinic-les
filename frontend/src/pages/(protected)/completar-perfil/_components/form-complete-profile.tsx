@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -31,9 +31,9 @@ import {
 } from '@/validations/signup-form-clinic-schema';
 import FormInputPhoneCustom from '@/components/ui/form-custom/form-input-phone-custom';
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
-import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import type { IUser } from '@/@types/IUser';
+import { useCreateClinic } from '@/services/clinic-service';
+import type { IClinic } from '@/@types/IClinic';
 
 const brazilianStates = [
   'AC',
@@ -73,12 +73,22 @@ const times = Array.from(
 export const FormCompleteProfile = () => {
   const navigate = useNavigate();
   const form = useForm<RegisterFormClinicSchema>({
-    resolver: zodResolver(registerFormClinicSchema),
+    resolver: zodResolver(
+      registerFormClinicSchema,
+    ) as Resolver<RegisterFormClinicSchema>,
     defaultValues: {
+      name: '',
       cnpj: '',
       phone: '',
+      specialties: [],
+      insurances: [],
+      timeToConfirm: '',
       address: {
+        name: '',
         cep: '',
+        neighborhood: '',
+        street: '',
+        number: '',
         state: {
           name: '',
           uf: '',
@@ -86,27 +96,34 @@ export const FormCompleteProfile = () => {
         city: {
           name: '',
         },
-        neighborhood: '',
-        street: '',
-        number: '',
         country: {
           name: 'Brasil',
         },
-        name: '',
       },
     },
   });
 
-  function onSubmit(data: RegisterFormClinicSchema) {
-    const payload: IUser = {
+  const { mutate } = useCreateClinic();
+
+  async function onSubmit(data: RegisterFormClinicSchema) {
+    const payload: IClinic = {
       ...data,
-      profileCompleted: true,
+      specialties: data.specialties.map((s) => ({
+        id: s.id,
+        name: s.name ?? '', // se name for opcional
+        price: s.price,
+      })),
+      insurances: data.insurances.map((i) => ({
+        id: i.id,
+        name: i.name,
+      })),
     };
 
-    console.log(payload);
-    toast.success('Clinica cadastrada com sucesso!');
-
-    navigate('/dashboard');
+    mutate(payload, {
+      onSuccess: () => {
+        navigate('/dashboard');
+      },
+    });
   }
 
   return (

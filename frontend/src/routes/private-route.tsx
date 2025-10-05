@@ -1,19 +1,14 @@
-import { Navigate } from 'react-router-dom';
-import type { JSX } from 'react';
 import { useAuth } from '@/hooks/use-auth';
+import { Navigate } from 'react-router-dom';
 
-function PrivateRoute({ children }: { children: JSX.Element }) {
-  const { user } = useAuth();
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, loading: isLoading } = useAuth();
 
-  if (!user?.token) {
-    return <Navigate to="/" replace />;
+  if (isLoading) {
+    return <div>Carregando...</div>;
   }
 
-  // if (!user.profileCompleted) {
-  //   return <Navigate to="/completar-perfil" replace />;
-  // }
-
-  return children;
-}
+  return isAuthenticated ? <>{children}</> : <Navigate to="/" replace />;
+};
 
 export default PrivateRoute;

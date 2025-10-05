@@ -7,14 +7,14 @@ export const addressFormSchema = z.object({
   neighborhood: z.string().min(1, 'Bairro é obrigatório'),
   cep: z.string().min(1, 'CEP é obrigatório'),
   city: z.object({
-    name: z.string().optional(),
+    name: z.string().min(1, 'Cidade é obrigatória'),
   }),
   state: z.object({
-    name: z.string().optional(),
-    uf: z.string().optional(),
+    name: z.string().min(1, 'Estado é obrigatório'),
+    uf: z.string(),
   }),
   country: z.object({
-    name: z.string().optional(),
+    name: z.string(),
   }),
 });
 

@@ -31,7 +31,7 @@ import {
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useTheme } from '../ui/theme-provider';
 import { Button } from '../ui/button';
-// import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/hooks/use-auth';
 
 const items = [
   {
@@ -70,17 +70,11 @@ const items = [
 export const AppSidebar = () => {
   const { setTheme, theme } = useTheme();
   const navigate = useNavigate();
-  // const { user } = useAuth();
-
-  const handleSignOut = async () => {
-    navigate('/');
-  };
+  const { logout, user } = useAuth();
 
   const handleChangeTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
-
-  // if (!user) return;
 
   return (
     <Sidebar>
@@ -101,7 +95,7 @@ export const AppSidebar = () => {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    // disabled={user.profileCompleted === false}
+                    disabled={user?.profileCompleted === false}
                   >
                     <NavLink to={item.url}>
                       <item.icon />
@@ -161,7 +155,7 @@ export const AppSidebar = () => {
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="*:cursor-pointer">
-                <DropdownMenuItem onClick={handleSignOut}>
+                <DropdownMenuItem onClick={logout}>
                   <LogOut />
                   Sair
                 </DropdownMenuItem>

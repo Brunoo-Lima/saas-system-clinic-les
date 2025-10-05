@@ -26,7 +26,7 @@ export const loginService = async ({
       throw new Error('Erro ao autenticar usuário');
     }
 
-    return { token };
+    return { token, data: response.data };
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
       const message = Array.isArray(error.response?.data?.message)

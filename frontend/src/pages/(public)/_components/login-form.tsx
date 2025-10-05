@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/form';
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
 import { InputPassword } from '@/components/ui/input-password';
+import { useAuth } from '@/hooks/use-auth';
 import { loginService } from '@/services/login-service';
 import { loginSchema, type LoginSchema } from '@/validations/login-form-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,18 +28,14 @@ export const LoginForm = () => {
       role: 'admin',
     },
   });
+  const { login } = useAuth();
 
   const onSubmit = async (user: LoginSchema) => {
     try {
-      const { token } = await loginService({
+      await login({
         email: user.email,
         password: user.password,
-        role: 'admin',
       });
-
-      localStorage.setItem('@user:token', token);
-
-      navigate('/dashboard');
     } catch (error: any) {
       toast.error(
         error.message === 'User not found'
