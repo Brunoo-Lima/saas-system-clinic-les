@@ -1,4 +1,4 @@
-import { eq, ilike, or, sql } from 'drizzle-orm';
+import { and, eq, ilike, or, sql } from 'drizzle-orm';
 import { Clinic } from '../../../../domain/entities/EntityClinic/Clinic';
 import { ResponseHandler } from '../../../../helpers/ResponseHandler';
 import db from '../../connection';
@@ -7,6 +7,7 @@ import { IRepository } from '../IRepository';
 import { EntityDomain } from '../../../../domain/entities/EntityDomain';
 import { specialtyTable } from '../../Schema/SpecialtySchema';
 import { insuranceTable } from '../../Schema/InsuranceSchema';
+import { userTable } from '../../Schema/UserSchema';
 
 export class ClinicRepository implements IRepository {
   async create(clinic: Clinic, tx?: any): Promise<any> {
@@ -120,8 +121,32 @@ async findEntity(clinic: Clinic, tx?: any): Promise<any> {
   deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
     throw new Error('Method not implemented.');
   }
-  findAllEntity(entity?: EntityDomain | Array<EntityDomain>): Promise<any[]> {
-    throw new Error('Method not implemented.');
+  async findAllEntity(clinic: Clinic, limit: number, offset: number){
+    try {
+      const filters = []
+      const userFilters = []
+      if(clinic.getUUIDHash()) filters.push(eq(clinicTable.id, clinic.getUUIDHash()))
+      if(clinic.cnpj) filters.push(eq(clinicTable.cnpj, clinic.cnpj ?? ""))
+      if(clinic.user?.getUUIDHash()) userFilters.push(eq(userTable.id, clinic.user?.getUUIDHash() ?? ""))
+      return await db
+        .select()
+        .from(clinicTable)
+        .innerJoin(
+          userTable,
+          and(
+            or(
+              ...userFilters,
+              eq(userTable.email, clinic.user?.email ?? "")
+            ),
+            eq(userTable.id, clinicTable.user_id)
+          )
+        )
+        .where(
+          or(...filters)
+        )
+    } catch (e) {
+      return ResponseHandler.error((e as Error).message)
+    }
   }
   
 }

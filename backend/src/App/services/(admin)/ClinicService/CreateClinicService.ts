@@ -21,6 +21,8 @@ import { PropsValidator } from '../../../../domain/validators/AddressValidator/P
 import { EntityExistsToInserted } from '../../../../domain/validators/General/EntityExistsToInserted';
 import { SpecialtyRepository } from '../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository';
 import { UUIDValidator } from '../../../../domain/validators/General/UUIDValidator';
+import { User } from '../../../../domain/entities/EntityUser/User';
+import { UserRepository } from '../../../../infrastructure/database/repositories/UserRepository/UserRepository';
 
 export class CreateClinicService {
   private repository: IRepository;
@@ -29,6 +31,7 @@ export class CreateClinicService {
   private stateRepository: IRepository;
   private cityRepository: IRepository;
   private specialtiesRepository: IRepository;
+  private userRepository: IRepository;
 
   constructor() {
     this.repository = new ClinicRepository();
@@ -37,6 +40,7 @@ export class CreateClinicService {
     this.stateRepository = new StateRepository()
     this.cityRepository = new CityRepository()
     this.specialtiesRepository = new SpecialtyRepository();
+    this.userRepository = new UserRepository()
   }
 
   async execute(clinic: Clinic) {
@@ -58,11 +62,17 @@ export class CreateClinicService {
         new PropsValidator(),
         new EntityExits()
       ])
+      validators.setValidator(`C-${clinic.user?.constructor.name}`,[
+        new EntityExits(),
+      ])
+
       const entitiesValidated = await Promise.all([
         await validators.process(className, clinic, this.repository),
         await validators.process(`C-${clinic.address.constructor.name}`, clinic.address, this.addressRepository),
-        await validators.process("F-Specialties", clinic.specialties ?? [], this.specialtiesRepository)
+        await validators.process("F-Specialties", clinic.specialties ?? [], this.specialtiesRepository),
+        await validators.process(`C-${clinic.user?.constructor.name}`, clinic.user as User, this.userRepository)
       ])
+      
       const errors = entitiesValidated.filter((err) => !err.success)
       if (errors.length) return ResponseHandler.error(errors.map((er) => er.message[0]))
 

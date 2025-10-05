@@ -1,49 +1,45 @@
 import { IInsurance } from '../EntityInsurance/types/IInsurance';
-import { Address } from '../EntityAddress/Address';
-import { Insurance } from '../EntityInsurance/Insurance';
-import { Specialty } from '../EntitySpecialty/Specialty';
-import { User } from '../EntityUser/User';
 import { Clinic } from './Clinic';
 import { IClinic } from './types/IClinic';
 
 export class ClinicBuilder {
   private data: Partial<IClinic> = {};
 
-  setName(name: string = ""): this {
+  setName(name: typeof this.data.name): this {
     this.data.name = name;
     return this;
   }
 
-  setInsurances(insurances: Array<Insurance>): this {
+  setInsurances(insurances: typeof this.data.insurances): this {
     this.data.insurances = insurances;
     return this;
   }
 
-  setTimeToConfirm(timeToConfirm: string): this {
+  setTimeToConfirm(timeToConfirm: typeof this.data.timeToConfirmScheduling): this {
     this.data.timeToConfirmScheduling = timeToConfirm;
     return this;
   }
 
-  setSpecialties(specialties: Array<Specialty>): this {
+  setSpecialties(specialties: typeof this.data.specialties): this {
     this.data.specialties = specialties;
     return this;
   }
-  setPhone(phone: string): this {
+  setPhone(phone: typeof this.data.phone): this {
     this.data.phone = phone;
     return this;
   }
 
-  setCNPJ(cnpj: string): this {
+  setCNPJ(cnpj: typeof this.data.cnpj): this {
     this.data.cnpj = cnpj;
     return this;
   }
 
-  setAddress(address: Address): this {
+  setAddress(address: typeof this.data.address): this {
     this.data.address = address;
     return this;
   }
 
-  setUser(user: User): this {
+  setUser(user:  typeof this.data.user): this {
     this.data.user = user;
     return this;
   }

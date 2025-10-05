@@ -2,7 +2,7 @@ import { randomUUID, UUID } from 'crypto';
 
 export class EntityDomain {
   constructor(
-    private uuidHash: UUID | string = randomUUID(),
+    private uuidHash: UUID | string= randomUUID(),
     private createdAt: Date = new Date(),
     private updatedAt: Date = new Date(),
   ) {}

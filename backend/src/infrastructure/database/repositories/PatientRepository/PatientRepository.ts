@@ -103,6 +103,10 @@ export class PatientRepository implements IRepository {
                     SELECT json_build_object(
                         'id', ${addressTable.id},
                         'name', ${addressTable.name},
+                        'street', ${addressTable.street},
+                        'cep', ${addressTable.cep},
+                        'number', ${addressTable.number},
+                        'neighborhood', ${addressTable.neighborhood},
                         'city', json_build_object(
                             'id', ${cityTable.id},
                             'name', ${cityTable.name}
