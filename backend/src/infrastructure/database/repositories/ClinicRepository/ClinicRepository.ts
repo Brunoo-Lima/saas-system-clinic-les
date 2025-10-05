@@ -1,4 +1,4 @@
-import { and, eq, ilike, or, sql } from 'drizzle-orm';
+import { and, eq, ilike, isNotNull, or, sql } from 'drizzle-orm';
 import { Clinic } from '../../../../domain/entities/EntityClinic/Clinic';
 import { ResponseHandler } from '../../../../helpers/ResponseHandler';
 import db from '../../connection';
@@ -24,10 +24,10 @@ export class ClinicRepository implements IRepository {
       address_id: clinic.address?.getUUIDHash(),
       created_at: clinic.getCreatedAt(),
       updated_at: clinic.getUpdatedAt(),
-      user_id: clinic.user?.getUUIDHash() 
+      user_id: clinic.user?.getUUIDHash()
     }).returning()
-    
-    if(clinic.insurances && clinic.insurances.length !== 0){
+
+    if (clinic.insurances && clinic.insurances.length !== 0) {
       await dbUse.insert(clinicToInsuranceTable).values(clinic.insurances.map((ins) => {
         return {
           clinic_id: clinic.getUUIDHash(),
@@ -35,42 +35,42 @@ export class ClinicRepository implements IRepository {
         }
       }) ?? [])
     }
-    if(clinic.specialties && clinic.specialties.length !== 0){
-        await dbUse.insert(clinicToSpecialtyTable).values(clinic.specialties?.map((spe) => {
-          return {
+    if (clinic.specialties && clinic.specialties.length !== 0) {
+      await dbUse.insert(clinicToSpecialtyTable).values(clinic.specialties?.map((spe) => {
+        return {
           clinic_id: clinic.getUUIDHash(),
           price: spe.price,
           specialty_id: spe.getUUIDHash()
         }
       }) ?? [])
     }
-    
+
     return clinicInserted
 
   }
-async findEntity(clinic: Clinic, tx?: any): Promise<any> {
-  try {
-    const dbUse = tx ? tx : db
-    const filters = [];
+  async findEntity(clinic: Clinic, tx?: any): Promise<any> {
+    try {
+      const dbUse = tx ? tx : db
+      const filters = [];
 
-    if (clinic.getUUIDHash()) {
-      filters.push(eq(clinicTable.id, clinic.getUUIDHash()));
-    }
+      if (clinic.getUUIDHash()) {
+        filters.push(eq(clinicTable.id, clinic.getUUIDHash()));
+      }
 
-    if (clinic.name) {
-      filters.push(ilike(clinicTable.name, clinic.name ?? ""));
-    }
+      if (clinic.name) {
+        filters.push(ilike(clinicTable.name, clinic.name ?? ""));
+      }
 
-    if (clinic.cnpj) {
-      filters.push(eq(clinicTable.cnpj, clinic.cnpj));
-    }
+      if (clinic.cnpj) {
+        filters.push(eq(clinicTable.cnpj, clinic.cnpj));
+      }
 
-    const clinicFounded = await dbUse
-      .select({
-        id: clinicTable.id,
-        name: clinicTable.name,
-        cnpj: clinicTable.cnpj,
-        specialties: sql`
+      const clinicFounded = await dbUse
+        .select({
+          id: clinicTable.id,
+          name: clinicTable.name,
+          cnpj: clinicTable.cnpj,
+          specialties: sql`
             json_agg(
               json_build_object(
                 'id', ${specialtyTable.id},
@@ -78,7 +78,7 @@ async findEntity(clinic: Clinic, tx?: any): Promise<any> {
               )
           )
         `,
-        insurances: sql`
+          insurances: sql`
           json_agg(
             json_build_object(
               'id', ${insuranceTable.id},
@@ -86,36 +86,36 @@ async findEntity(clinic: Clinic, tx?: any): Promise<any> {
             )
           )
         `
-      })
-      .from(clinicTable)
-      .where(or(...filters))
-      .leftJoin(
-        clinicToSpecialtyTable,
-        eq(clinicToSpecialtyTable.clinic_id, clinicTable.id)
-      )
-      .leftJoin(
-        specialtyTable,
-        eq(specialtyTable.id, clinicToSpecialtyTable.specialty_id)
-      )
-      .leftJoin(
-        clinicToInsuranceTable,
-        eq(clinicToInsuranceTable.clinic_id, clinicTable.id)
-      ).leftJoin(
-        insuranceTable,
-        eq(insuranceTable.id, clinicToInsuranceTable.insurance_id)
-      )
-      .groupBy(
-        specialtyTable.id,
-        clinicTable.id,
-        insuranceTable.id
-      );
+        })
+        .from(clinicTable)
+        .where(or(...filters))
+        .leftJoin(
+          clinicToSpecialtyTable,
+          eq(clinicToSpecialtyTable.clinic_id, clinicTable.id)
+        )
+        .leftJoin(
+          specialtyTable,
+          eq(specialtyTable.id, clinicToSpecialtyTable.specialty_id)
+        )
+        .leftJoin(
+          clinicToInsuranceTable,
+          eq(clinicToInsuranceTable.clinic_id, clinicTable.id)
+        ).leftJoin(
+          insuranceTable,
+          eq(insuranceTable.id, clinicToInsuranceTable.insurance_id)
+        )
+        .groupBy(
+          specialtyTable.id,
+          clinicTable.id,
+          insuranceTable.id
+        );
 
-    return clinicFounded;
+      return clinicFounded;
 
-  } catch (e) {
-    return ResponseHandler.error("Failed to find the clinic");
+    } catch (e) {
+      return ResponseHandler.error("Failed to find the clinic");
+    }
   }
-}
 
   updateEntity(entity: EntityDomain): Promise<any> {
     throw new Error('Method not implemented.');
@@ -123,13 +123,13 @@ async findEntity(clinic: Clinic, tx?: any): Promise<any> {
   deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
     throw new Error('Method not implemented.');
   }
-  async findAllEntity(clinic: Clinic, limit: number, offset: number){
+  async findAllEntity(clinic: Clinic, limit: number, offset: number) {
     try {
       const filters = []
       const userFilters = []
-      if(clinic.getUUIDHash()) filters.push(eq(clinicTable.id, clinic.getUUIDHash()))
-      if(clinic.cnpj) filters.push(eq(clinicTable.cnpj, clinic.cnpj ?? ""))
-      if(clinic.user?.getUUIDHash()) userFilters.push(eq(userTable.id, clinic.user?.getUUIDHash() ?? ""))
+      if (clinic?.getUUIDHash()) filters.push(eq(clinicTable.id, clinic.getUUIDHash()))
+      if (clinic?.cnpj) filters.push(eq(clinicTable.cnpj, clinic.cnpj ?? ""))
+      if (clinic?.user?.getUUIDHash()) userFilters.push(eq(userTable.id, clinic.user?.getUUIDHash() ?? ""))
       return await db
         .select({
           id: clinicTable.id,
@@ -207,7 +207,8 @@ async findEntity(clinic: Clinic, tx?: any): Promise<any> {
           and(
             or(
               ...userFilters,
-              eq(userTable.email, clinic.user?.email ?? "")
+              eq(userTable.email, clinic?.user?.email ?? ""), 
+              isNotNull(userTable.id)
             ),
             eq(userTable.id, clinicTable.user_id)
           )
@@ -217,11 +218,11 @@ async findEntity(clinic: Clinic, tx?: any): Promise<any> {
         ).groupBy(
           clinicTable.id,
           userTable.id
-        )
+        ).offset(offset)
+        .limit(limit)
     } catch (e) {
-      console.log(e)
       return ResponseHandler.error((e as Error).message)
     }
   }
-  
+
 }
