@@ -1,4 +1,3 @@
-import { Clinic } from '../../../../domain/entities/EntityClinic/Clinic';
 import { EntityExits } from '../../../../domain/validators/General/EntityExits';
 import { ValidatorController } from '../../../../domain/validators/ValidatorController';
 import { ResponseHandler } from '../../../../helpers/ResponseHandler';
@@ -18,12 +17,7 @@ import { RequiredGeneralData } from '../../../../domain/validators/General/Requi
 import { InsuranceRepository } from '../../../../infrastructure/database/repositories/InsurancesRepository/InsurancesRepository';
 import { ValidInsuranceData } from '../../../../domain/validators/InsuranceValidator/ValidInsuranceData';
 import { PropsValidator } from '../../../../domain/validators/AddressValidator/PropsValidator';
-import { EntityExistsToInserted } from '../../../../domain/validators/General/EntityExistsToInserted';
 import { SpecialtyRepository } from '../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository';
-import { UUIDValidator } from '../../../../domain/validators/General/UUIDValidator';
-import { User } from '../../../../domain/entities/EntityUser/User';
-import { UserRepository } from '../../../../infrastructure/database/repositories/UserRepository/UserRepository';
-import { Specialty } from '../../../../domain/entities/EntitySpecialty/Specialty';
 import { ClinicDTO } from '../../../../infrastructure/DTOs/ClinicDTO';
 import { ClinicFactory } from '../../../../domain/entities/EntityClinic/ClinicFactory';
 
@@ -34,7 +28,6 @@ export class CreateClinicService {
   private stateRepository: IRepository;
   private cityRepository: IRepository;
   private specialtiesRepository: IRepository;
-  private userRepository: IRepository;
 
   constructor() {
     this.repository = new ClinicRepository();
@@ -43,7 +36,6 @@ export class CreateClinicService {
     this.stateRepository = new StateRepository()
     this.cityRepository = new CityRepository()
     this.specialtiesRepository = new SpecialtyRepository();
-    this.userRepository = new UserRepository()
   }
 
   async execute(clinic: ClinicDTO, userId:string) {
@@ -74,7 +66,6 @@ export class CreateClinicService {
       const errors = entitiesValidated.filter((err) => !err.success)
       if (errors.length) return ResponseHandler.error(errors.map((er) => er.message[0]))
 
-      console.log(clinicDomain.specialties)
       if (clinicDomain.insurances && clinicDomain.insurances?.length !== 0) {
         validators.setValidator("insurances", [new ValidInsuranceData()])
         const insurancesIsValid = await validators.process("insurances", clinicDomain.insurances ?? [], new InsuranceRepository())
