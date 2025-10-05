@@ -51,21 +51,17 @@ export class UserRepository implements IRepository {
     }
   }
   async findEntity(user: User): Promise<any> {
-    try {
-      const userFounded = await db
-        .select()
-        .from(userTable)
-        .where(
-          or(
-            eq(userTable.id, user.getUUIDHash() ?? ""),
-            eq(userTable.email, user.email!)
-          )
+    
+    const userFounded = await db
+      .select()
+      .from(userTable)
+      .where(
+        or(
+          eq(userTable.id, user.getUUIDHash() ?? ""),
+          eq(userTable.email, user.email!)
         )
-      return userFounded[0] || null;
-
-    } catch (error) {
-      return ResponseHandler.error(["Failed to find user in repository"]);
-    }
+      )
+    return userFounded[0] || null;
   }
   async updateEntity(user: User) {
     const userUpdated = await db.update(userTable)

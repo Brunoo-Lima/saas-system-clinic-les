@@ -8,31 +8,27 @@ import { IRepository } from "../IRepository";
 
 export class CountryRepository implements IRepository {
     async create(country: Country, tx: any): Promise<any> {
-        try {
-            const dbUse = tx ? tx : db
-            const countryDb = await dbUse.insert(countryTable).values({
-                id: country.getUUIDHash() ?? "",
-                name: country.name ?? ""
-            }).returning()
-            return countryDb
-        } catch (e) {
-            return ResponseHandler.error(["Failed to create country"])
-        }
+    
+        const dbUse = tx ? tx : db
+        const countryDb = await dbUse.insert(countryTable).values({
+            id: country.getUUIDHash() ?? "",
+            name: country.name ?? ""
+        }).returning()
+        return countryDb
+      
     }
     async findEntity(country: Country): Promise<any> {
-        try {
-            const filters = []
-            if (country.getUUIDHash()) filters.push(eq(countryTable.id, country.getUUIDHash()))
-            if (country.name) filters.push(ilike(countryTable.name, country.name ?? ""))
+     
+        const filters = []
+        if (country.getUUIDHash()) filters.push(eq(countryTable.id, country.getUUIDHash()))
+        if (country.name) filters.push(ilike(countryTable.name, country.name ?? ""))
 
-            const countriesFounded = await db.select().from(countryTable)
-                .where(
-                    or(...filters)
-                )
-            return countriesFounded
-        } catch (e) {
-            return ResponseHandler.error("Failed to find a country")
-        }
+        const countriesFounded = await db.select().from(countryTable)
+            .where(
+                or(...filters)
+            )
+        return countriesFounded
+    
     }
     updateEntity(entity: EntityDomain): Promise<any> {
         throw new Error("Method not implemented.");

@@ -124,6 +124,19 @@ export class PatientRepository implements IRepository {
                     WHERE ${addressTable.id} = ${patientTable.address_id}
                 )
                 `.as("address"),
+                user: sql`
+                    (SELECT 
+                        json_build_object(
+                            'id', ${userTable.id},
+                            'email', ${userTable.email},
+                            'status', ${userTable.status},
+                            'profileCompleted', ${userTable.profileCompleted},
+                            'emailVerified', ${userTable.emailVerified},
+                            'username', ${userTable.username}
+                        )
+                    FROM ${userTable}
+                    WHERE ${userTable.id} = ${patientTable.user_id})
+                `,
                 cardInsurances: sql`(
                     SELECT 
                         json_agg(
