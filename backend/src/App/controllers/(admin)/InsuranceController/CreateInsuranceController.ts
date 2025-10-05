@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
-import { InsuranceDTO } from "../../../../infrastructure/DTO/InsuranceDTO";
+import { InsuranceDTO } from "../../../../infrastructure/DTOs/InsuranceDTO";
 import { CreateInsuranceService } from "../../../services/(admin)/InsuranceService/CreateInsuranceService";
 
 export class CreateInsuranceController {

@@ -7,7 +7,7 @@ import { FormatDateValidator } from "../../../../domain/validators/General/Forma
 import { RequiredGeneralData } from "../../../../domain/validators/General/RequiredGeneralData";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
-import { PatientDTO } from "../../../../infrastructure/DTO/PatientDTO";
+import { PatientDTO } from "../../../../infrastructure/DTOs/PatientDTO";
 import { AddressRepository } from "../../../../infrastructure/database/repositories/AddressRepository/AddressRepository";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { PatientRepository } from "../../../../infrastructure/database/repositories/PatientRepository/PatientRepository";
@@ -57,11 +57,11 @@ export class CreatePatientService {
 
             const validatorController = new ValidatorController();
             const patientDomain = PatientFactory.createFromDTO(patientDTO)
-            const cardInsurances = patientDTO.cardInsurances.map((card) => {
+            const cardInsurances = patientDTO.cardInsurances?.map((card) => {
                 const cardInsurance = CardInsuranceFactory.createFromDTO(card)
                 cardInsurance.setUuidHash(card.id ?? cardInsurance.getUUIDHash())
                 return cardInsurance
-            })
+            }) ?? []
 
             validatorController.setValidator(patientDomain.constructor.name, [
                 new RequiredGeneralData(Object.keys(patientDomain.props)),
@@ -83,6 +83,7 @@ export class CreatePatientService {
             ])
 
             if (cardInsurances && cardInsurances.some((cd) => cd.cardNumber !== "")) {
+                console.log(cardInsurances)
                 validatorController.setValidator(`C-CardInsurances`, [
                     new CardInsuranceVinculate(),
                     new RequiredGeneralData(Object.keys(cardInsurances[0]?.props ?? {})),
@@ -91,7 +92,7 @@ export class CreatePatientService {
                     new EntityExistsToInserted()
                 ])
                 const cardInsuranceIsValid = await validatorController.process(`C-CardInsurances`, cardInsurances!, this.cardInsuranceRepository)
-                const modalities = cardInsurances.filter((cd) => cd.modality).map((cd) => cd.modality) as Modality[]
+                const modalities = cardInsurances.filter((cd) => cd.modality)?.map((cd) => cd.modality) as Modality[]
                 const modalitiesIsValid = await validatorController.process('F-Modality', modalities, this.modalityRepository)
 
                 if (!modalitiesIsValid.success) return modalitiesIsValid
@@ -122,7 +123,7 @@ export class CreatePatientService {
                 const { password, ...userOmitted } = userInserted.data
                 const patientInserted = await this.repository.create(patientDomain, tx);
 
-                if(cardInsurances.some((cd) => cd.cardNumber !== "")) cardInsuranceInserted = await this.cardInsuranceRepository.create(cardInsurances!, tx, patientDomain.getUUIDHash() ?? "")
+                if (cardInsurances.some((cd) => cd.cardNumber !== "")) cardInsuranceInserted = await this.cardInsuranceRepository.create(cardInsurances!, tx, patientDomain.getUUIDHash() ?? "")
 
                 // Disparo do email para a fila.
                 await Queue.publish(userInserted.data)

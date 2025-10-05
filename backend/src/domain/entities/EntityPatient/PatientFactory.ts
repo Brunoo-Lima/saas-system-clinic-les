@@ -1,4 +1,4 @@
-import { PatientDTO } from "../../../infrastructure/DTO/PatientDTO";
+import { PatientDTO } from "../../../infrastructure/DTOs/PatientDTO";
 import { AddressBuilder } from "../EntityAddress/Builders/AddressBuilder";
 import { CityBuilder } from "../EntityAddress/Builders/CityBuilder";
 import { StateBuilder } from "../EntityAddress/Builders/StateBuilder";

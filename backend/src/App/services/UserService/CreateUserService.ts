@@ -1,4 +1,5 @@
 import { UserBuilder } from "../../../domain/entities/EntityUser/UserBuilder";
+import { RequiredGeneralData } from "../../../domain/validators/General/RequiredGeneralData";
 import { RequiredDataToUserCreate } from "../../../domain/validators/UserValidator/RequiredDataToUserCreate";
 import { ValidatorEmail } from "../../../domain/validators/UserValidator/ValidatorEmail";
 import { ValidatorUserExists } from "../../../domain/validators/UserValidator/ValidatorUserExists";
@@ -6,7 +7,7 @@ import { ValidatorController } from "../../../domain/validators/ValidatorControl
 import { ResponseHandler } from "../../../helpers/ResponseHandler";
 import { IRepository } from "../../../infrastructure/database/repositories/IRepository";
 import { UserRepository } from "../../../infrastructure/database/repositories/UserRepository/UserRepository";
-import { UserDTO } from "../../../infrastructure/DTO/UserDTO";
+import { UserDTO } from "../../../infrastructure/DTOs/UserDTO";
 import Queue from "../../../infrastructure/queue/Queue";
 
 export class CreateUserService {
@@ -33,6 +34,7 @@ export class CreateUserService {
             validatorController.setValidator(`C-${userDomain.constructor.name}`, [
                 new ValidatorEmail(),
                 new RequiredDataToUserCreate(),
+                new RequiredGeneralData(Object.keys(userDomain.props), ["avatar"]),
                 new ValidatorUserExists()
             ]);
 

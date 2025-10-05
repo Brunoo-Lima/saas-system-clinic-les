@@ -10,46 +10,44 @@ import { insuranceTable } from '../../Schema/InsuranceSchema';
 
 export class ClinicRepository implements IRepository {
   async create(clinic: Clinic, tx?: any): Promise<any> {
-    try {
-      // Se for enviado um tx da transaction usamos ela.
-      const dbUse = tx ? tx : db
-      const clinicInserted = await dbUse.insert(clinicTable).values({
-        id: clinic.getUUIDHash(),
-        cnpj: clinic.cnpj ?? "",
-        name: clinic.name ?? "",
-        phone: clinic.phone ?? "",
-        timeToConfirmScheduling: clinic.timeToConfirmScheduling ?? "",
-        address_id: clinic.address?.getUUIDHash(),
-        created_at: clinic.getCreatedAt(),
-        updated_at: clinic.getUpdatedAt(),
-        user_id: clinic.user?.getUUIDHash() 
-      }).returning()
-      
-      if(clinic.insurances && clinic.insurances.length !== 0){
-        await dbUse.insert(clinicToInsuranceTable).values(clinic.insurances.map((ins) => {
-          return {
-            clinic_id: clinic.getUUIDHash(),
-            insurance_id: ins.getUUIDHash(),
-          }
-        }) ?? [])
-      }
-      if(clinic.specialties && clinic.specialties.length !== 0){
-          await dbUse.insert(clinicToSpecialtyTable).values(clinic.specialties?.map((spe) => {
-            return {
-            clinic_id: clinic.getUUIDHash(),
-            price: spe.price,
-            specialty_id: spe.getUUIDHash()
-          }
-        }) ?? [])
-      }
-      
-      return clinicInserted
-    } catch(e) {
-      return ResponseHandler.error("Failed to create the clinic !")
+    // Se for enviado um tx da transaction usamos ela.
+    const dbUse = tx ? tx : db
+    const clinicInserted = await dbUse.insert(clinicTable).values({
+      id: clinic.getUUIDHash(),
+      cnpj: clinic.cnpj ?? "",
+      name: clinic.name ?? "",
+      phone: clinic.phone ?? "",
+      timeToConfirmScheduling: clinic.timeToConfirmScheduling ?? "",
+      address_id: clinic.address?.getUUIDHash(),
+      created_at: clinic.getCreatedAt(),
+      updated_at: clinic.getUpdatedAt(),
+      user_id: clinic.user?.getUUIDHash() 
+    }).returning()
+    
+    if(clinic.insurances && clinic.insurances.length !== 0){
+      await dbUse.insert(clinicToInsuranceTable).values(clinic.insurances.map((ins) => {
+        return {
+          clinic_id: clinic.getUUIDHash(),
+          insurance_id: ins.getUUIDHash(),
+        }
+      }) ?? [])
     }
+    if(clinic.specialties && clinic.specialties.length !== 0){
+        await dbUse.insert(clinicToSpecialtyTable).values(clinic.specialties?.map((spe) => {
+          return {
+          clinic_id: clinic.getUUIDHash(),
+          price: spe.price,
+          specialty_id: spe.getUUIDHash()
+        }
+      }) ?? [])
+    }
+    
+    return clinicInserted
+
   }
-async findEntity(clinic: Clinic): Promise<any> {
+async findEntity(clinic: Clinic, tx?: any): Promise<any> {
   try {
+    const dbUse = tx ? tx : db
     const filters = [];
 
     if (clinic.getUUIDHash()) {
@@ -64,7 +62,7 @@ async findEntity(clinic: Clinic): Promise<any> {
       filters.push(eq(clinicTable.cnpj, clinic.cnpj));
     }
 
-    const clinicFounded = await db
+    const clinicFounded = await dbUse
       .select({
         id: clinicTable.id,
         name: clinicTable.name,

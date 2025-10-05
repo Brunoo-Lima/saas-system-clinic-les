@@ -13,6 +13,5 @@ export interface IDoctor extends IPerson{
     periodsToWork?: Array<Period>  | undefined
     percentDistribution?: number  | undefined,
     user?: User  | undefined
-    clinic?: Clinic  | undefined
     address?: Address  | undefined
 }

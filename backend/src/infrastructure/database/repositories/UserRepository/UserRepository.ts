@@ -67,8 +67,20 @@ export class UserRepository implements IRepository {
       return ResponseHandler.error(["Failed to find user in repository"]);
     }
   }
-  updateEntity(entity: EntityDomain): Promise<any> {
-    throw new Error("Method not implemented.");
+  async updateEntity(user: User) {
+    const userUpdated = await db.update(userTable)
+    .set({
+      avatar: user.avatar,
+      email: user.email,
+      password: user.password,
+      profileCompleted: user.profileCompleted,
+      status: user.status,
+      emailVerified: user.emailVerified,
+      updatedAt: user.getUpdatedAt()
+    }).where(
+      eq(userTable.id, user.getUUIDHash())
+    ).returning()
+    return userUpdated
   }
   deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
     throw new Error("Method not implemented.");

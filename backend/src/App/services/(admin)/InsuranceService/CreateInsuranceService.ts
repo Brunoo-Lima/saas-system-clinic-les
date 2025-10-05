@@ -11,7 +11,7 @@ import { Modality } from "../../../../domain/entities/EntityModality/Modality";
 import db from "../../../../infrastructure/database/connection";
 import { findOrCreate } from "../../../../infrastructure/database/repositories/findOrCreate";
 import { ModalityRepository } from "../../../../infrastructure/database/repositories/ModalityRepository/ModalityRepository";
-import { InsuranceDTO } from "../../../../infrastructure/DTO/InsuranceDTO";
+import { InsuranceDTO } from "../../../../infrastructure/DTOs/InsuranceDTO";
 import { EntityExistsToInserted } from "../../../../domain/validators/General/EntityExistsToInserted";
 import { SpecialtyRepository } from "../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository";
 
@@ -41,7 +41,8 @@ export class CreateInsuranceService {
                 if (md.id) { modality.setUuidHash(md.id) }
                 return modality
             })
-
+            
+            if(!modalities?.length) return ResponseHandler.error("The modalities is required !")
             const insuranceDomain = new InsuranceBuilder()
                 .setName(insuranceDTO.name)
                 .setModalities(modalities ?? [])
@@ -57,6 +58,10 @@ export class CreateInsuranceService {
             ])
             validatorController.setValidator('F-Specialties', [
                 new EntityExistsToInserted()
+            ])
+
+            validatorController.setValidator("C-Modality", [
+                new RequiredGeneralData(Object.keys(modalities[0]!.props))
             ])
 
             const specialtiesIsValid = await Promise.all(
@@ -77,7 +82,7 @@ export class CreateInsuranceService {
                         return result[0];
                     })
                 );
-                
+
                 const insuranceInserted = await this.repository.create(insuranceDomain, tx)
                 return {
                     insurance: insuranceInserted[0],

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { SpecialtyService } from "../../../services/(admin)/SpecialtyService/SpecialtyService";
-import { SpecialtiesDTO } from "../../../../infrastructure/DTO/SpecialtiesDTO";
+import { SpecialtiesDTO } from "../../../../infrastructure/DTOs/SpecialtiesDTO";
 
 export class CreateSpecialtiesController {
     async handle(req: Request, res: Response) {

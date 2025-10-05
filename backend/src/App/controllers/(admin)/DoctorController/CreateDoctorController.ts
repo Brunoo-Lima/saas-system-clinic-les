@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { CreateDoctorService } from "../../../services/(admin)/DoctorService/CreateDoctorService";
-import { DoctorDTO } from "../../../../infrastructure/dto/DoctorDTO";
+import { DoctorDTO } from "../../../../infrastructure/DTOs/DoctorDTO";
 
 export class CreateDoctorController {
     async handle(req: Request, res: Response, next: NextFunction) {

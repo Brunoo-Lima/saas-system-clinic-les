@@ -2,7 +2,7 @@ import { Modality } from "../../../../domain/entities/EntityModality/Modality";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { ModalityRepository } from "../../../../infrastructure/database/repositories/ModalityRepository/ModalityRepository";
-import { ModalityDTO } from "../../../../infrastructure/DTO/ModalityDTO";
+import { ModalityDTO } from "../../../../infrastructure/DTOs/ModalityDTO";
 
 
 

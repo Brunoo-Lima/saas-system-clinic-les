@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
-import { ClinicDTO } from "../../../../infrastructure/DTO/ClinicDTO";
+import { ClinicDTO } from "../../../../infrastructure/DTOs/ClinicDTO";
 import { FindClinicService } from "../../../services/(admin)/ClinicService/FindClinicService";
 
 export class FindClinicController {

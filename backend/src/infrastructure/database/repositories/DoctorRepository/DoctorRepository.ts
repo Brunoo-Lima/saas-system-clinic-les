@@ -20,7 +20,6 @@ export class DoctorRepository implements IRepository {
             phone: doctor.phone ?? "",
             sex: doctor.sex ?? "",
             address_id: doctor.address?.getUUIDHash(),
-            clinic_id: doctor.clinic?.getUUIDHash(),
             date_of_birth: doctor.dateOfBirth?.toDateString() ?? "",
             user_id: doctor.user?.getUUIDHash()
         }).returning()
@@ -73,7 +72,6 @@ export class DoctorRepository implements IRepository {
                 `
             })
             .from(doctorTable)
-            .innerJoin(clinicTable, eq(clinicTable.id, doctorTable.clinic_id))
             .innerJoin(periodDoctorTable, eq(periodDoctorTable.doctor_id, doctorTable.id))
             .leftJoin(
                 doctorToSpecialtyTable,
@@ -110,7 +108,6 @@ export class DoctorRepository implements IRepository {
         try {
             const filters = []
             if(doctor){
-                console.log(doctor)
                 filters.push(eq(doctorTable.id, doctor.getUUIDHash()))
                 filters.push(eq(doctorTable.crm, doctor.crm ?? "")) 
                 filters.push(eq(doctorTable.cpf, doctor.cpf ?? "")) 

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { FindModalityService } from "../../../services/(admin)/ModalityService/FindModalityService";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
-import { ModalityDTO } from "../../../../infrastructure/DTO/ModalityDTO";
+import { ModalityDTO } from "../../../../infrastructure/DTOs/ModalityDTO";
 
 export class FindModalityController {
     async handle(req: Request, res: Response, next: NextFunction) {

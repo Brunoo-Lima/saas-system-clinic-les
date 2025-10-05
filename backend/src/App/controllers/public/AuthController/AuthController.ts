@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { UserBuilder } from '../../../../domain/entities/EntityUser/UserBuilder';
 import { ResponseHandler } from '../../../../helpers/ResponseHandler';
-import { FindUserService } from '../../../services/(admin)/User/FindUserService';
+import { FindUserService } from '../../../services/(admin)/PrivateUserService/FindUserService';
 
 export class AuthController {
   async handle(req: Request, res: Response) {
@@ -31,7 +31,7 @@ export class AuthController {
       const { password, role, ...userOmitted } = userExists.data
       return res
         .status(200)
-        .json(ResponseHandler.success({ token, user: userOmitted}, 'Authentication successful'));
+        .json(ResponseHandler.success({ token, user: userOmitted }, 'Authentication successful'));
     } catch (error) {
       return res
         .status(500)

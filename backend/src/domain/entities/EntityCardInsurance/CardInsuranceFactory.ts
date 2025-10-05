@@ -1,4 +1,4 @@
-import { CardDTO } from "../../../infrastructure/DTO/CardDTO";
+import { CardDTO } from "../../../infrastructure/DTOs/CardDTO";
 import { InsuranceBuilder } from "../EntityInsurance/InsuranceBuilder";
 import { Modality } from "../EntityModality/Modality";
 import { CartInsuranceBuilder } from "./CardInsuranceBuilder";

@@ -1,5 +1,4 @@
 import { Address } from "../EntityAddress/Address";
-import { Clinic } from "../EntityClinic/Clinic";
 import { Period } from "../EntityPeriod/Period";
 import { Specialty } from "../EntitySpecialty/Specialty";
 import { User } from "../EntityUser/User";
@@ -46,10 +45,6 @@ export class DoctorBuilder {
 
     setSex(sex: string | undefined): this {
         this.data.sex = sex
-        return this
-    }
-    setClinic(clinic: Clinic | undefined) {
-        this.data.clinic = clinic
         return this
     }
 

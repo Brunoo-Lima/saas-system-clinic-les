@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
-import { FindUserService } from "../../../services/(admin)/User/FindUserService";
+import { FindUserService } from "../../../services/(admin)/PrivateUserService/FindUserService";
 import { UserBuilder } from "../../../../domain/entities/EntityUser/UserBuilder";
 
 export class FindUserController {
