@@ -15,11 +15,9 @@ export class CreateClinicController {
       const userId = req.user.id;
 
       if (!clinicDTO) return res.status(400).json(ResponseHandler.error("You should be sent the data of clinic !"))
-      const clinicDomain = ClinicFactory.createFromDTO(clinicDTO)
-      clinicDomain.user?.setUuidHash(userId)
 
       const clinicService = new CreateClinicService()
-      const clinicInserted = await clinicService.execute(clinicDomain)
+      const clinicInserted = await clinicService.execute(clinicDTO, userId)
       return res.status(200).json(clinicInserted);
 
     } catch (e) {
