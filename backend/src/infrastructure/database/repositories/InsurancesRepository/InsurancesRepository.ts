@@ -112,7 +112,8 @@ export class InsuranceRepository implements IRepository {
         try {
             const insurancesFormatted = Array.isArray(insurance) ? insurance : [insurance]
             const filters = []
-            if (insurancesFormatted && insurancesFormatted.length) {
+            if (insurancesFormatted && insurancesFormatted.length && insurancesFormatted[0]) {
+                console.log(insurancesFormatted)
                 filters.push(inArray(insuranceTable.name, insurancesFormatted.map((ins) => ins?.name ?? "")))
                 filters.push(inArray(insuranceTable.id, insurancesFormatted.map((ins) => ins?.getUUIDHash() ?? "")))
             } else {
