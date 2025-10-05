@@ -8,6 +8,8 @@ import { doctorTable, doctorToSpecialtyTable } from "../../Schema/DoctorSchema";
 import { IRepository } from "../IRepository";
 import { periodDoctorTable } from "../../Schema/PeriodSchema";
 import { specialtyTable } from "../../Schema/SpecialtySchema";
+import { addressTable, cityTable, countryTable, stateTable } from "../../Schema/AddressSchema";
+import { userTable } from "../../Schema/UserSchema";
 
 export class DoctorRepository implements IRepository {
     async create(doctor: Doctor, tx?: any): Promise<any> {
@@ -47,56 +49,51 @@ export class DoctorRepository implements IRepository {
         return doctorInserted
     }
 
-    async findEntity(doctor: Doctor, limit?: number): Promise<any> {
-        try {
-            const doctorFounded = await db
-            .select({
-                doctor: doctorTable,
-                clinic: clinicTable,
-                periods: sql`json_agg(
-                json_build_object(
-                    'id', ${periodDoctorTable.id},
-                    'periodType', ${periodDoctorTable.periodType},
-                    'dayWeek', ${periodDoctorTable.dayWeek},
-                    'timeFrom', ${periodDoctorTable.timeFrom},
-                    'timeTo', ${periodDoctorTable.timeTo}
-                )
-                )`.as("periods"),
-                specialties: sql`
-                    json_agg(
-                        json_build_object(
-                            'id', ${specialtyTable.id},
-                            'name', ${specialtyTable.name}
-                        )
+    async findEntity(doctor: Doctor, tx?: any): Promise<any> {
+        const dbUse = tx ? tx : db
+        const doctorFounded = await dbUse
+        .select({
+            doctor: doctorTable,
+            periods: sql`json_agg(
+            json_build_object(
+                'id', ${periodDoctorTable.id},
+                'periodType', ${periodDoctorTable.periodType},
+                'dayWeek', ${periodDoctorTable.dayWeek},
+                'timeFrom', ${periodDoctorTable.timeFrom},
+                'timeTo', ${periodDoctorTable.timeTo}
+            )
+            )`.as("periods"),
+            specialties: sql`
+                json_agg(
+                    json_build_object(
+                        'id', ${specialtyTable.id},
+                        'name', ${specialtyTable.name}
                     )
-                `
-            })
-            .from(doctorTable)
-            .innerJoin(periodDoctorTable, eq(periodDoctorTable.doctor_id, doctorTable.id))
-            .leftJoin(
-                doctorToSpecialtyTable,
-                eq(doctorToSpecialtyTable.doctor_id, doctorTable.id)
-            )
-            .leftJoin(
-                specialtyTable,
-                eq(specialtyTable.id, doctorToSpecialtyTable.specialty_id)
-            )
-            .where(
-                or(
-                    eq(doctorTable.id, doctor.getUUIDHash()),
-                    eq(doctorTable.crm, doctor.crm ?? ""),
-                    eq(doctorTable.cpf, doctor.cpf ?? ""),
-                    eq(doctorTable.name, doctor.name ?? "")
                 )
+            `
+        })
+        .from(doctorTable)
+        .innerJoin(periodDoctorTable, eq(periodDoctorTable.doctor_id, doctorTable.id))
+        .leftJoin(
+            doctorToSpecialtyTable,
+            eq(doctorToSpecialtyTable.doctor_id, doctorTable.id)
+        )
+        .leftJoin(
+            specialtyTable,
+            eq(specialtyTable.id, doctorToSpecialtyTable.specialty_id)
+        )
+        .where(
+            or(
+                eq(doctorTable.id, doctor.getUUIDHash()),
+                eq(doctorTable.crm, doctor.crm ?? ""),
+                eq(doctorTable.cpf, doctor.cpf ?? ""),
+                eq(doctorTable.name, doctor.name ?? "")
             )
-            .groupBy(
-                doctorTable.id, 
-                clinicTable.id
-            );
-            return doctorFounded
-        } catch (e) {
-            return ResponseHandler.error("Failed to find the doctor")
-        }
+        )
+        .groupBy(
+            doctorTable.id, 
+        );
+        return doctorFounded
     }
     updateEntity(entity: EntityDomain): Promise<any> {
         throw new Error("Method not implemented.");
@@ -113,7 +110,68 @@ export class DoctorRepository implements IRepository {
                 filters.push(eq(doctorTable.cpf, doctor.cpf ?? "")) 
             }
 
-            const doctorsFounded = await db.select()
+            const doctorsFounded = await db.select({
+                id: doctorTable.id,
+                crm: doctorTable.crm,
+                name: doctorTable.name,
+                cpf: doctorTable.cpf,
+                sex: doctorTable.sex,
+                date_of_birth: doctorTable.date_of_birth,
+                phone: doctorTable.phone,
+                //NAO ESQUECER DOS () PARA SUBQUERY
+                periods: sql`(
+                    SELECT
+                        json_agg(
+                            json_build_object(
+                                'id', ${periodDoctorTable.id},       
+                                'periodType', ${periodDoctorTable.periodType},       
+                                'dayWeek', ${periodDoctorTable.dayWeek},       
+                                'timeFrom', ${periodDoctorTable.timeFrom},       
+                                'timeTo', ${periodDoctorTable.timeTo}     
+                            )
+                        )
+                    FROM ${periodDoctorTable}
+                    WHERE ${periodDoctorTable.doctor_id} = ${doctorTable.id}
+                )`,
+                user: sql`
+                    (SELECT 
+                        json_build_object(
+                            'id', ${userTable.id},
+                            'email', ${userTable.email},
+                            'status', ${userTable.status},
+                            'profileCompleted', ${userTable.profileCompleted},
+                            'emailVerified', ${userTable.emailVerified},
+                            'username', ${userTable.username}
+                        )
+                    FROM ${userTable}
+                    WHERE ${userTable.id} = ${doctorTable.user_id})
+                `,
+                address: sql`(
+                    SELECT json_build_object(
+                        'id', ${addressTable.id},
+                        'name', ${addressTable.name},
+                        'city', json_build_object(
+                            'id', ${cityTable.id},
+                            'name', ${cityTable.name}
+                        ),
+                        'state', json_build_object(
+                            'id', ${stateTable.id},
+                            'name', ${stateTable.name},
+                            'uf', ${stateTable.uf}
+                        ),
+                        'country', json_build_object(
+                            'id', ${countryTable.id},
+                            'name', ${countryTable.name}
+                        )
+                    )
+                    FROM ${addressTable}
+                    LEFT JOIN ${cityTable} ON ${cityTable.id} = ${addressTable.city_id}
+                    LEFT JOIN ${stateTable} ON ${stateTable.id} = ${cityTable.state_id}
+                    LEFT JOIN ${countryTable} ON ${countryTable.id} = ${stateTable.country_id} 
+                    WHERE ${addressTable.id} = ${doctorTable.address_id}
+                )
+                `,
+            })
             .from(doctorTable)
             .where(
                 or(...filters)
@@ -121,6 +179,7 @@ export class DoctorRepository implements IRepository {
             .offset(offset)
             return doctorsFounded
         } catch(e){
+            console.log(e)
             return ResponseHandler.error('Failed to find all doctors')
         }
     }
