@@ -157,7 +157,6 @@ export class InsuranceRepository implements IRepository {
 
             return insurances
         } catch (e) {
-            console.log(e)
             return ResponseHandler.error("Failed to find the insurances")
         }
     }
