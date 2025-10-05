@@ -7,6 +7,7 @@ import { ClinicRoutes } from './(admin)/clinic.route';
 import { ModalityRoutes } from './(admin)/modality.route';
 import { DoctorRoutes } from './(admin)/doctor.route';
 import { userRoutes } from './user.route';
+import { userPrivateRoutes } from './(admin)/user.private.routes';
 const routes: Router = express.Router();
 
 routes.use(authRoutes);
@@ -17,5 +18,6 @@ routes.use(ClinicRoutes);
 routes.use(ModalityRoutes);
 routes.use(DoctorRoutes);
 routes.use(userRoutes);
+routes.use(userPrivateRoutes);
 
 export { routes };

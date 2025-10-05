@@ -38,10 +38,6 @@ export class Doctor extends Person {
         return this.doctorProps.specialties
     }
     
-    public get clinic() {
-        return this.doctorProps.clinic
-    }
-    
     public get address() {
         return this.doctorProps.address
     }  

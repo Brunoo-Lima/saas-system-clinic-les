@@ -9,7 +9,6 @@ import {
 } from 'drizzle-orm/pg-core';
 import { addressTable } from './AddressSchema';
 import { insuranceTable } from './InsuranceSchema';
-import { doctorTable } from './DoctorSchema';
 import { relations } from 'drizzle-orm/relations';
 import { userTable } from './UserSchema';
 import { specialtyTable } from './SpecialtySchema';
@@ -92,7 +91,6 @@ export const clinicToSpecialtyRelation = relations(clinicToSpecialtyTable, ({ on
 
 // Clinica Relations
 export const clinicRelations = relations(clinicTable, ({ one, many }) => ({
-  doctor: many(doctorTable),
   user: one(userTable, {
     fields: [clinicTable.user_id],
     references: [userTable.id],

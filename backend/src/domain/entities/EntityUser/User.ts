@@ -45,4 +45,9 @@ export class User extends EntityDomain {
   public get status(){
     return this.dataUser.status;
   }
+  
+  public get props()  {
+    return this.dataUser
+  }
+  
 }

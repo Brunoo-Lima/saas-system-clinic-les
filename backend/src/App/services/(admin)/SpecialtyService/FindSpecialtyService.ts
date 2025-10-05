@@ -2,7 +2,7 @@ import { SpecialtyBuilder } from "../../../../domain/entities/EntitySpecialty/Sp
 import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
-import { SpecialtiesDTO } from "../../../../infrastructure/DTO/SpecialtiesDTO";
+import { SpecialtiesDTO } from "../../../../infrastructure/DTOs/SpecialtiesDTO";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { SpecialtyRepository } from "../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository";
 
@@ -25,10 +25,10 @@ export class FindSpecialtyService {
             validator.setValidator("F-Specialty", [
                 new UUIDValidator()
             ])
-            
+
             const entityIsValid = await validator.process('F-Specialty', specialties.filter((sp) => sp.getUUIDHash() !== ""))
-            if(!entityIsValid.success) return ResponseHandler.error(entityIsValid.message)
-            
+            if (!entityIsValid.success) return ResponseHandler.error(entityIsValid.message)
+
             const specialtiesFounded = await this.repository.findEntity(specialties)
             if (!Array.isArray(specialtiesFounded) && !specialtiesFounded.success) return specialtiesFounded
             if (Array.isArray(specialtiesFounded) && !specialtiesFounded.length) return ResponseHandler.success(specialtiesFounded, "Specialties not found")

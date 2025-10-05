@@ -1,4 +1,4 @@
-import { ClinicDTO } from '../../../infrastructure/DTO/ClinicDTO';
+import { ClinicDTO } from '../../../infrastructure/DTOs/ClinicDTO';
 import { AddressBuilder } from '../EntityAddress/Builders/AddressBuilder';
 import { CityBuilder } from '../EntityAddress/Builders/CityBuilder';
 import { StateBuilder } from '../EntityAddress/Builders/StateBuilder';
