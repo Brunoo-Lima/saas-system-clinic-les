@@ -6,8 +6,10 @@ import { clinicTable, clinicToInsuranceTable, clinicToSpecialtyTable } from '../
 import { IRepository } from '../IRepository';
 import { EntityDomain } from '../../../../domain/entities/EntityDomain';
 import { specialtyTable } from '../../Schema/SpecialtySchema';
-import { insuranceTable } from '../../Schema/InsuranceSchema';
+import { insuranceTable, insuranceToModalitiesTable } from '../../Schema/InsuranceSchema';
 import { userTable } from '../../Schema/UserSchema';
+import { addressTable, cityTable, countryTable, stateTable } from '../../Schema/AddressSchema';
+import { modalityTable } from '../../Schema/ModalitiesSchema';
 
 export class ClinicRepository implements IRepository {
   async create(clinic: Clinic, tx?: any): Promise<any> {
@@ -129,7 +131,76 @@ async findEntity(clinic: Clinic, tx?: any): Promise<any> {
       if(clinic.cnpj) filters.push(eq(clinicTable.cnpj, clinic.cnpj ?? ""))
       if(clinic.user?.getUUIDHash()) userFilters.push(eq(userTable.id, clinic.user?.getUUIDHash() ?? ""))
       return await db
-        .select()
+        .select({
+          id: clinicTable.id,
+          name: clinicTable.name,
+          cnpj: clinicTable.cnpj,
+          phone: clinicTable.phone,
+          user: sql`
+            json_build_object(
+              'id', ${userTable.id},
+              'email', ${userTable.email},
+              'status', ${userTable.status},
+              'profileCompleted', ${userTable.profileCompleted},
+              'avatar', ${userTable.avatar},
+              'username', ${userTable.username},
+              'emailVerified', ${userTable.emailVerified}
+            )
+          `,
+          address: sql`
+          (
+            SELECT json_build_object(
+              'id', ${addressTable.id},
+              'name', ${addressTable.name},
+              'street', ${addressTable.street},
+              'cep', ${addressTable.cep},
+              'number', ${addressTable.number},
+              'neighborhood', ${addressTable.neighborhood},
+              'city', json_build_object(
+                'id', ${cityTable.id},
+                'name', ${cityTable.name}
+              ),
+              'state', json_build_object(
+                'id', ${stateTable.id},
+                'name', ${stateTable.name},
+                'uf', ${stateTable.uf}
+              ),
+              'country', json_build_object(
+                'id', ${countryTable.id},
+                'name', ${countryTable.name}
+              )
+            )
+            FROM ${addressTable}
+            LEFT JOIN ${cityTable} ON ${cityTable.id} = ${addressTable.city_id}
+            LEFT JOIN ${stateTable} ON ${stateTable.id} = ${cityTable.state_id}
+            LEFT JOIN ${countryTable} ON ${countryTable.id} = ${stateTable.country_id} 
+            WHERE ${addressTable.id} = ${clinicTable.address_id}
+          )`,
+          specialties: sql`
+          (
+            SELECT json_agg(
+              json_build_object(
+                'id', ${specialtyTable.id},
+                'name', ${specialtyTable.name}
+              )
+            )
+            FROM ${clinicToSpecialtyTable}
+            INNER JOIN ${specialtyTable} ON ${specialtyTable.id} = ${clinicToSpecialtyTable.specialty_id}
+            WHERE ${clinicToSpecialtyTable.clinic_id} = ${clinicTable.id}
+          )`,
+          insurances: sql`
+          (
+            SELECT json_agg(
+              json_build_object(
+                'id', ${insuranceTable.id},
+                'name', ${insuranceTable.name}
+              )
+            )
+            FROM ${clinicToInsuranceTable}
+            INNER JOIN ${insuranceTable} ON ${insuranceTable.id} = ${clinicToInsuranceTable.insurance_id}
+            WHERE ${clinicToInsuranceTable.clinic_id} = ${clinicTable.id}
+          )`
+        })
         .from(clinicTable)
         .innerJoin(
           userTable,
@@ -143,8 +214,12 @@ async findEntity(clinic: Clinic, tx?: any): Promise<any> {
         )
         .where(
           or(...filters)
+        ).groupBy(
+          clinicTable.id,
+          userTable.id
         )
     } catch (e) {
+      console.log(e)
       return ResponseHandler.error((e as Error).message)
     }
   }
