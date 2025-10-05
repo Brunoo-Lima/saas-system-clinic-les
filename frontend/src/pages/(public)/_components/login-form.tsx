@@ -10,16 +10,13 @@ import {
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
 import { InputPassword } from '@/components/ui/input-password';
 import { useAuth } from '@/hooks/use-auth';
-import { loginService } from '@/services/login-service';
 import { loginSchema, type LoginSchema } from '@/validations/login-form-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2Icon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 export const LoginForm = () => {
-  const navigate = useNavigate();
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {

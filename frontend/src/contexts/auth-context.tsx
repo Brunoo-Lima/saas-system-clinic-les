@@ -121,8 +121,8 @@ const AuthProvider = ({ children }: ChildrenProps) => {
   const logout = () => {
     localStorage.removeItem('@user:token');
     sessionStorage.removeItem('@user:token');
-    setUser(null);
-    setAuthToken(null);
+    setUser({} as IUser);
+    setAuthToken({} as AuthToken);
   };
 
   const authValue = useMemo(
