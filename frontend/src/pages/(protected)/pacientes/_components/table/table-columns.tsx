@@ -37,7 +37,7 @@ export const patientsTableColumns: ColumnDef<Patient>[] = [
     header: 'Sexo',
     cell: (params) => {
       const patient = params.row.original;
-      return patient.sex === 'male' ? 'Masculino' : 'Feminino';
+      return patient.sex === 'Male' ? 'Masculino' : 'Feminino';
     },
   },
   {

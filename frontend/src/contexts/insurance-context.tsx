@@ -51,7 +51,7 @@ export const InsuranceProvider = ({
     setPage(1);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (_id: number) => {
     // setFilteredList((prev) => prev.filter((p) => p.id !== id));
   };
 

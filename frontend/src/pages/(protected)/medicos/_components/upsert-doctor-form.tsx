@@ -84,7 +84,7 @@ export const UpsertDoctorForm = ({
       password += chars[randomIndex];
     }
 
-    form.setValue('password', password, { shouldValidate: true });
+    form.setValue('user.password', password, { shouldValidate: true });
   };
 
   const toggleSpecialty = (specialtyValue: string) => {
@@ -102,10 +102,6 @@ export const UpsertDoctorForm = ({
   const onSubmit = (data: DoctorFormSchema) => {
     const payload = {
       ...data,
-      user: {
-        email: data.email,
-        password: data.password,
-      },
     };
 
     console.log(payload);
@@ -205,21 +201,38 @@ export const UpsertDoctorForm = ({
           <strong className="py-2 block text-2xl">Dados pessoais</strong>
 
           <FormInputCustom
-            name="email"
+            name="user.email"
             label="Email"
-            placeholder="Digite o email"
+            placeholder="exemplo@email.com"
             control={form.control}
           />
 
           <div className="flex flex-col gap-2">
             <FormField
               control={form.control}
-              name="password"
+              name="user.password"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Senha</FormLabel>
                   <FormControl>
                     <InputPassword {...field} placeholder="Digite sua senha" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="user.confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirme sua senha</FormLabel>
+                  <FormControl>
+                    <InputPassword
+                      {...field}
+                      placeholder="Digite sua confirmação de senha"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -248,7 +261,7 @@ export const UpsertDoctorForm = ({
             />
 
             <FormInputPhoneCustom
-              name="phoneNumber"
+              name="phone"
               label="Telefone"
               control={form.control}
             />
@@ -265,14 +278,21 @@ export const UpsertDoctorForm = ({
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant={'outline'}
+                          variant="outline"
                           className={cn(
                             'w-full pl-3 text-left font-normal',
                             !field.value && 'text-muted-foreground',
                           )}
                         >
                           {field.value ? (
-                            format(field.value, 'PPP', { locale: ptBR })
+                            // Converter para Date antes de formatar
+                            format(
+                              field.value instanceof Date
+                                ? field.value
+                                : new Date(field.value),
+                              'PPP',
+                              { locale: ptBR },
+                            )
                           ) : (
                             <span>Selecione uma data</span>
                           )}
@@ -283,11 +303,18 @@ export const UpsertDoctorForm = ({
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={field.value}
+                        selected={
+                          field.value instanceof Date
+                            ? field.value
+                            : field.value
+                            ? new Date(field.value)
+                            : undefined
+                        }
                         onSelect={field.onChange}
                         disabled={(date: Date) =>
                           date > new Date() || date < new Date('1900-01-01')
                         }
+                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>
@@ -297,11 +324,11 @@ export const UpsertDoctorForm = ({
             />
 
             <FormSelectCustom
-              name="gender"
+              name="sex"
               label="Sexo"
               options={[
-                { value: 'male', label: 'Masculino' },
-                { value: 'female', label: 'Feminino' },
+                { value: 'Male', label: 'Masculino' },
+                { value: 'Female', label: 'Feminino' },
               ]}
               control={form.control}
             />
@@ -311,7 +338,7 @@ export const UpsertDoctorForm = ({
 
           <div className="grid grid-cols-2 gap-x-6">
             <FormInputCustom
-              name="address.zipCode"
+              name="address.cep"
               label="CEP"
               placeholder="Digite o cep"
               control={form.control}
@@ -334,30 +361,46 @@ export const UpsertDoctorForm = ({
             control={form.control}
           />
 
-          <FormInputCustom
-            name="address.street"
-            label="Rua"
-            placeholder="Digite a rua"
-            control={form.control}
-          />
-
-          <div className="grid grid-cols-3 gap-x-6">
+          <div className="grid grid-cols-2 gap-4">
             <FormInputCustom
-              name="address.city"
+              name="address.street"
+              label="Rua"
+              placeholder="Digite o nome da rua"
+              control={form.control}
+            />
+
+            <FormInputCustom
+              name="address.name"
+              label="Nome identificador do endereço"
+              placeholder="Digite o nome identificador"
+              control={form.control}
+            />
+          </div>
+
+          <div className="grid grid-cols-4 gap-4">
+            <FormInputCustom
+              name="address.city.name"
               label="Cidade"
-              placeholder="Digite a cidade"
+              placeholder="Digite o nome da cidade"
               control={form.control}
             />
 
             <FormInputCustom
-              name="address.state"
+              name="address.state.name"
               label="Estado"
-              placeholder="Digite o estado"
+              placeholder="Digite o nome do estado"
               control={form.control}
             />
 
             <FormInputCustom
-              name="address.country"
+              name="address.state.uf"
+              label="UF"
+              placeholder="Digite o UF"
+              control={form.control}
+            />
+
+            <FormInputCustom
+              name="address.country.name"
               label="País"
               placeholder="Digite o país"
               control={form.control}

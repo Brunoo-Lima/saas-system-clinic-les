@@ -7,6 +7,14 @@ export interface IDoctor extends IPerson {
   specialties: ISpecialtyDoctor[];
   status: boolean;
   justification?: string;
+  user: IUserPerson;
+}
+
+export interface IUserPerson {
+  email: string;
+  username: string;
+  password: string;
+  confirmPassword: string;
 }
 
 export interface ISpecialtyDoctor {

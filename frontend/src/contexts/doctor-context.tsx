@@ -1,6 +1,5 @@
 import type { IDoctor } from '@/@types/IDoctor';
 import { usePagination } from '@/hooks/use-pagination';
-import { doctorsList } from '@/mocks/doctors-list';
 import { createContext, useMemo, useState, type ChangeEvent } from 'react';
 
 interface IDoctorContextProps {
@@ -29,9 +28,7 @@ export const DoctorProvider = ({ children }: { children: React.ReactNode }) => {
   const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(
     null,
   );
-  const [filteredList, setFilteredList] = useState<IDoctor[]>(
-    doctorsList as IDoctor[],
-  );
+  const [filteredList, setFilteredList] = useState<IDoctor[]>([]);
   const itemsPerPage = 6;
 
   const filtered = useMemo(() => {
@@ -44,7 +41,7 @@ export const DoctorProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     if (selectedGender) {
-      data = data.filter((doctor) => doctor.gender === selectedGender);
+      data = data.filter((doctor) => doctor.sex === selectedGender);
     }
 
     if (selectedSpecialty) {
