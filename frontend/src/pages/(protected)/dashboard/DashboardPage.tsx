@@ -6,28 +6,27 @@ import {
   PageHeader,
   PageHeaderContent,
   PageTitle,
-} from "@/components/ui/page-container";
-import { DatePicker } from "./_components/date-picker";
-import { StatsCards } from "./_components/stats-cards";
+} from '@/components/ui/page-container';
+import { DatePicker } from './_components/date-picker';
+import { StatsCards } from './_components/stats-cards';
 
-import { TopDoctors } from "./_components/top-doctors";
-import { AppointmentToday } from "./_components/appointment-today";
-import { TopSpecialties } from "./_components/top-specialties";
-import { topDoctors } from "@/mocks/top-doctors";
-import { doctorsList } from "@/mocks/doctors-list";
-import { patientsList } from "@/mocks/patients-list";
-import { appointmentList } from "@/mocks/appointment-list";
-import { topSpecialties } from "@/mocks/top-specialties";
-import { dailyAppointmentsData } from "@/mocks/daily-appointments-data";
-import React, { useEffect } from "react";
+import { TopDoctors } from './_components/top-doctors';
+import { AppointmentToday } from './_components/appointment-today';
+import { TopSpecialties } from './_components/top-specialties';
+import { topDoctors } from '@/mocks/top-doctors';
+import { doctorsList } from '@/mocks/doctors-list';
+import { appointmentList } from '@/mocks/appointment-list';
+import { topSpecialties } from '@/mocks/top-specialties';
+import { dailyAppointmentsData } from '@/mocks/daily-appointments-data';
+import React, { useEffect } from 'react';
 
 const AppointmentsChart = React.lazy(
-  () => import("./_components/appointments-chart")
+  () => import('./_components/appointments-chart'),
 );
 
 export const DashboardPage = () => {
   useEffect(() => {
-    document.title = "Dashboard";
+    document.title = 'Dashboard';
   }, []);
 
   return (
@@ -49,7 +48,7 @@ export const DashboardPage = () => {
         <StatsCards
           totalRevenue={6000}
           totalAppointments={appointmentList.length}
-          totalPatients={patientsList.length}
+          totalPatients={[1, 2, 3, 4].length}
           totalDoctors={doctorsList.length}
         />
 
