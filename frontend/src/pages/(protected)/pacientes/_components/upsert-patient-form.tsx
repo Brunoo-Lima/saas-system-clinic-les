@@ -23,7 +23,6 @@ import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -31,7 +30,6 @@ import {
   patientFormSchema,
   type PatientFormSchema,
 } from '@/validations/patient-form-schema';
-import { insurancesList } from '@/mocks/insurances-list';
 import { Switch } from '@/components/ui/switch';
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
 import FormSelectCustom from '@/components/ui/form-custom/form-select-custom';
@@ -350,11 +348,11 @@ export const UpsertPatientForm = ({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {insurancesList.map((ins) => (
+                          {/* {insurancesList.map((ins) => (
                             <SelectItem key={ins.id} value={ins.id.toString()}>
                               {ins.name}
                             </SelectItem>
-                          ))}
+                          ))} */}
                         </SelectContent>
                       </Select>
                       <FormMessage />

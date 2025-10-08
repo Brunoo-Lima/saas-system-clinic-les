@@ -29,15 +29,20 @@ export const doctorFormSchema = z.object({
   name: z.string().trim().min(1, { message: 'Nome é obrigatório.' }),
   crm: z.string().trim().min(1, { message: 'CRM é obrigatório.' }),
   cpf: z.string().trim().min(1, { message: 'CPF é obrigatório.' }),
-  password: z
-    .string()
-    .trim()
-    .min(8, { message: 'A senha deve ter pelo menos 8 caracteres' })
-    .optional(),
-  phoneNumber: z.string().trim().min(1, { message: 'Telefone é obrigatório.' }),
-  email: z.string().trim().min(1, { message: 'E-mail é obrigatório.' }),
-  dateOfBirth: z.date({ message: 'Data de nascimento é obrigatória.' }),
-  gender: z.enum(['male', 'female'], { message: 'Gênero é obrigatório.' }),
+  user: z
+    .object({
+      email: z.string().email('Email inválido'),
+      username: z.string().min(1, 'Nome de usuário é obrigatório'),
+      password: z.string().min(8, 'Senha deve ter pelo menos 8 caracteres'),
+      confirmPassword: z.string().min(8, 'Confirmação de senha é obrigatória'),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: 'Senhas não conferem',
+      path: ['confirmPassword'],
+    }),
+  phone: z.string().trim().min(1, { message: 'Telefone é obrigatório.' }),
+  dateOfBirth: z.union([z.date(), z.string()]),
+  sex: z.enum(['Male', 'Female']),
   specialties: z
     .array(specialtyAvailabilitySchema)
     .min(1, { message: 'Selecione pelo menos uma especialidade' }),
