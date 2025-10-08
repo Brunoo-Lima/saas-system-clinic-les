@@ -8,8 +8,8 @@
     "dev": "ts-node-dev src/server.ts",
     "dev:consumer": "ts-node-dev src/consumers.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
-    "start:consumer": "node dist/consumers.js"
+    "start": "node dist/src/server.js",
+    "start:consumer": "node dist/src/consumers.js"
   },
   "keywords": [],
   "author": "",
