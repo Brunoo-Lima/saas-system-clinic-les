@@ -1,8 +1,7 @@
 import type { ISpecialty } from '@/@types/ISpecialty';
 import { usePagination } from '@/hooks/use-pagination';
-import { specialtyList } from '@/mocks/specialty-list';
 import { useGetSpecialties } from '@/services/specialty-service';
-import { createContext, useMemo, useState, type ChangeEvent } from 'react';
+import { createContext, useState, type ChangeEvent } from 'react';
 
 interface ISpecialtyContextProps {
   searchTerm: string;
@@ -52,7 +51,7 @@ export const SpecialtyProvider = ({
     setPage(1);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (_id: number) => {
     // setFilteredList((prev) => prev.filter((p) => p.id !== id));
   };
 
