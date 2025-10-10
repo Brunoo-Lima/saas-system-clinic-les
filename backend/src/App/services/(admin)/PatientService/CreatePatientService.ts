@@ -24,13 +24,13 @@ import { RequiredDataToUserCreate } from "../../../../domain/validators/UserVali
 import { ValidatorUserExists } from "../../../../domain/validators/UserValidator/ValidatorUserExists";
 import { UserRepository } from "../../../../infrastructure/database/repositories/UserRepository/UserRepository";
 import { User } from "../../../../domain/entities/EntityUser/User";
-import Queue from "../../../../infrastructure/queue/Queue";
 import { CardInsuranceRepository } from "../../../../infrastructure/database/repositories/CardInsuranceRepository/CardInsuranceRepository";
 import { CardInsuranceVinculate } from "../../../../domain/validators/CardInsuranceValidator/CardInsuranceVinculate";
 import { CardInsuranceFactory } from "../../../../domain/entities/EntityCardInsurance/CardInsuranceFactory";
 import { EntityExistsToInserted } from "../../../../domain/validators/General/EntityExistsToInserted";
 import { Modality } from "../../../../domain/entities/EntityModality/Modality";
 import { ModalityRepository } from "../../../../infrastructure/database/repositories/ModalityRepository/ModalityRepository";
+import { queueClient } from "../../../../infrastructure/queue/queue_email_client";
 
 export class CreatePatientService {
     private repository: IRepository;
@@ -126,7 +126,7 @@ export class CreatePatientService {
                 if (cardInsurances.some((cd) => cd.cardNumber !== "")) cardInsuranceInserted = await this.cardInsuranceRepository.create(cardInsurances!, tx, patientDomain.getUUIDHash() ?? "")
 
                 // Disparo do email para a fila.
-                await Queue.publish(userInserted.data)
+                await queueClient.add("welcome_email", userInserted.data)
                 return ResponseHandler.success({
                     patient: patientInserted[0],
                     address: addressInserted[0],

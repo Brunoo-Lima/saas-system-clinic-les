@@ -21,7 +21,7 @@ import { IRepository } from "../../../../infrastructure/database/repositories/IR
 import { StateRepository } from "../../../../infrastructure/database/repositories/StateRepository/StateRepository";
 import { UserRepository } from "../../../../infrastructure/database/repositories/UserRepository/UserRepository";
 import { DoctorDTO } from "../../../../infrastructure/DTOs/DoctorDTO";
-import Queue from "../../../../infrastructure/queue/Queue";
+import { queueClient } from "../../../../infrastructure/queue/queue_email_client";
 
 export class CreateDoctorService {
     private repository: IRepository;
@@ -71,7 +71,8 @@ export class CreateDoctorService {
                 const doctorInserted = await this.repository.create(doctorDomain, tx);
 
                 // Disparo do email para a fila.
-                await Queue.publish(userInserted.data)
+                await queueClient.add("welcome_email", userInserted.data)
+
                 return ResponseHandler.success({
                     doctor: doctorInserted[0],
                     address: addressInserted[0],

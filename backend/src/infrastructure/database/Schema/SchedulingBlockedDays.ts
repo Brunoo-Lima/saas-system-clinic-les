@@ -2,6 +2,7 @@ import {
   pgTable,
   uuid,
   date,
+  varchar,
   timestamp,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
@@ -10,7 +11,7 @@ import { doctorSchedulingTable } from "./DoctorScheduling";
 export const schedulingBlockedDays  = pgTable("schedulingBlockedDays",{
     id: uuid("sbl_id").primaryKey(),
     dateBlocked: date("dsh_date_blocked").notNull(),
-    reason: date("dsh_reason").notNull(),
+    reason: varchar("dsh_reason").notNull(),
     doctorScheduling_id: uuid("fk_sbl_dsh_id").references(() => doctorSchedulingTable.id),
     createdAt: timestamp("use_createdAt")
     .$defaultFn(() => new Date())

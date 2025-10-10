@@ -21,6 +21,7 @@ export class EntityExits implements IProcessValidator {
             return ResponseHandler.success(entityExists, `${entityName} not found in database, you can inserted !`)
 
         } catch (e) {
+            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }
