@@ -1,4 +1,4 @@
-import { eq, or, and } from "drizzle-orm";
+import { eq, or, and, sql } from "drizzle-orm";
 import { DoctorScheduling } from "../../../../domain/entities/EntityDoctorScheduling/DoctorScheduling";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import db from "../../connection";
@@ -6,6 +6,7 @@ import { doctorSchedulingTable } from "../../Schema/DoctorScheduling";
 import { IRepository } from "../IRepository";
 import { doctorTable } from "../../Schema/DoctorSchema";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
+import { schedulingBlockedDays } from "../../Schema/SchedulingBlockedDays";
 
 export class SchedulingDoctorRepository implements IRepository {
     async create(schedulingDoctor: DoctorScheduling, tx?: any): Promise<any> {
@@ -57,7 +58,26 @@ export class SchedulingDoctorRepository implements IRepository {
             const filters = []
             if(schedulingDoctor?.getUUIDHash()) filters.push(eq(doctorSchedulingTable.id, schedulingDoctor.getUUIDHash()))
             if(schedulingDoctor?.doctor?.getUUIDHash()) filters.push(eq(doctorSchedulingTable.doctor_id, schedulingDoctor.doctor.getUUIDHash()))
-            const schedulingDoctorFounded = await db.select()
+            const schedulingDoctorFounded = await db
+            .select({
+                id: doctorSchedulingTable.id,
+                dateFrom: doctorSchedulingTable.dateFrom,
+                dateTo: doctorSchedulingTable.dateTo,
+                isActivate: doctorSchedulingTable.isActivate,
+                datesBlocked: sql`
+                    (SELECT 
+                        json_agg(
+                            json_build_object(
+                                'id', ${schedulingBlockedDays.id},
+                                'dateBlocked', ${schedulingBlockedDays.dateBlocked},
+                                'reason', ${schedulingBlockedDays.reason}
+                            )
+                        )
+                    FROM ${schedulingBlockedDays}
+                    WHERE ${schedulingBlockedDays.doctorScheduling_id} = ${doctorSchedulingTable.id}
+                    )
+                `.as('datesBlocked')
+            })
             .from(doctorSchedulingTable)
             .where(
                 or(...filters)
