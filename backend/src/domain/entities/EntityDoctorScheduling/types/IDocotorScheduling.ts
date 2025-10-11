@@ -6,6 +6,6 @@ export interface IDoctorScheduling {
     dayFrom?: Date | undefined,
     dayTo?: Date | undefined
     is_activate?: boolean | undefined
-    doctor: Doctor
-    datesBlocked: SchedulingBlockedDays[]
+    doctor?: Doctor | undefined
+    datesBlocked?: SchedulingBlockedDays[] | undefined
 }
