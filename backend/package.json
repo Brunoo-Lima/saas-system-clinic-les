@@ -6,10 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev src/server.ts",
-    "dev:consumer": "ts-node-dev src/consumers.ts",
+    "dev:consumer": "ts-node-dev src/worker.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
-    "start:consumer": "node dist/consumers.js"
+    "start": "node dist/src/server.js",
+    "start:consumer": "node dist/src/worker.js"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +18,7 @@
   "dependencies": {
     "amqplib": "^0.10.9",
     "bcrypt": "^6.0.0",
+    "bullmq": "^5.61.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "drizzle-orm": "^0.44.4",
@@ -25,6 +26,7 @@
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^7.0.6",
     "pg": "^8.16.3",
+    "redis": "^5.8.3",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },
