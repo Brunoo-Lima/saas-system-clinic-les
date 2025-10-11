@@ -77,6 +77,7 @@ export default function ProfilePage() {
                 <Input
                   placeholder="clinica@example.com"
                   disabled={!isEditingData}
+                  type="email"
                 />
               </Row>
 

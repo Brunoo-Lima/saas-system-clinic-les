@@ -1,4 +1,5 @@
 import { DefaultLayout } from '@/components/default-layout/default-layout';
+import AgendaPage from '@/pages/(protected)/agenda/AgendaPage';
 import AppointmentPage from '@/pages/(protected)/agendamentos/AppointmentPage';
 import HistoricAppointmentPage from '@/pages/(protected)/agendamentos/historico-de-agendamentos/HistoricAppointmentPage';
 import { ProfileCompletePage } from '@/pages/(protected)/completar-perfil/ProfileCompletePage';
@@ -26,6 +27,8 @@ export function AppRouter() {
           element={<HistoricAppointmentPage />}
         />
         <Route path="/medicos" element={<DoctorsPage />} />
+        <Route path="/agenda/medico" element={<AgendaPage />} />
+
         <Route path="/pacientes" element={<PatientsPage />} />
         <Route path="/convenios" element={<InsurancePage />} />
         <Route path="/perfil" element={<ProfilePage />} />

@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useEffect, type ChangeEvent } from 'react';
 import { useFieldArray, useForm, type SubmitHandler } from 'react-hook-form';
 import { PatternFormat } from 'react-number-format';
 
@@ -50,6 +50,7 @@ import {
   useCreatePatient,
   type IPatientPayload,
 } from '@/services/patient-service';
+import { formatCPF } from '@/utils/format-cpf';
 
 interface IUpsertPatientFormProps {
   isOpen: boolean;
@@ -105,6 +106,11 @@ export const UpsertPatientForm = ({
     return `${year}-${month}-${day}`;
   };
 
+  const handleCPFformat = (e: ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCPF(e.target.value);
+    form.setValue('cpf', formatted);
+  };
+
   const onSubmit: SubmitHandler<PatientFormSchema> = (values) => {
     const dateOfBirthString =
       values.dateOfBirth instanceof Date
@@ -151,11 +157,22 @@ export const UpsertPatientForm = ({
           />
 
           <div className="grid grid-cols-2 gap-4">
-            <FormInputCustom
-              name="cpf"
-              label="CPF"
-              placeholder="Digite o CPF"
+            <FormField
               control={form.control}
+              name="cpf"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>CPF</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Digite o CPF"
+                      {...field}
+                      onChange={handleCPFformat}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             <FormField

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import {
@@ -91,7 +92,7 @@ export const UpsertInsuranceForm = ({
     if (isOpen) {
       form.reset(insurance ?? {});
     }
-  }, [isOpen, form, insurance]);
+  }, [isOpen, insurance?.id]);
 
   useEffect(() => {
     setFilteredSpecialties(specialtiesData);
