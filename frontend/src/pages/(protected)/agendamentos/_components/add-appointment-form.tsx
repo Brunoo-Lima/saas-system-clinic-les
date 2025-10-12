@@ -97,10 +97,10 @@ export const AddAppointmentForm = ({
         (doctor) => doctor.id.toString() === selectedDoctorId,
       );
       if (selectedDoctor) {
-        form.setValue(
-          'appointmentPrice',
-          selectedDoctor.servicePriceInCents / 100,
-        );
+        // form.setValue(
+        //   'appointmentPrice',
+        //   selectedDoctor.servicePriceInCents / 100,
+        // );
       }
     }
   }, [selectedDoctorId, doctors, form]);
@@ -252,7 +252,7 @@ export const AddAppointmentForm = ({
                     {doctors.map((doctor) => (
                       <SelectItem key={doctor.id} value={doctor.id.toString()}>
                         {doctor.name} -{' '}
-                        {doctor.specialties.map((s) => s.specialty).join(', ')}
+                        {/* {doctor.specialties.map((s) => s.specialty).join(', ')} */}
                       </SelectItem>
                     ))}
                   </SelectContent>

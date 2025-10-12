@@ -3,11 +3,17 @@ import type { IPerson } from './IPerson';
 export interface IDoctor extends IPerson {
   id: number;
   crm: string;
-  servicePriceInCents: number;
-  specialties: ISpecialtyDoctor[];
-  status: boolean;
-  justification?: string;
+  percentDistribution: number;
+  specialties: {
+    id: string;
+  }[];
   user: IUserPerson;
+  periodToWork: {
+    periodType: string;
+    dayWeek: number;
+    timeFrom: string;
+    timeTo: string;
+  }[];
 }
 
 export interface IUserPerson {
@@ -17,19 +23,19 @@ export interface IUserPerson {
   confirmPassword: string;
 }
 
-export interface ISpecialtyDoctor {
-  specialty: string;
-  availableWeekDay: DayAvailability[];
-}
+// export interface ISpecialtyDoctor {
+//   specialty: string;
+//   availableWeekDay: DayAvailability[];
+// }
 
-export interface DayAvailability {
-  day: string; // ex: "1" para segunda, "2" para terça etc
-  intervals: TimeInterval[];
-}
+// export interface DayAvailability {
+//   day: string; // ex: "1" para segunda, "2" para terça etc
+//   intervals: TimeInterval[];
+// }
 
-export interface TimeInterval {
-  from: string;
-  to: string;
-}
+// export interface TimeInterval {
+//   from: string;
+//   to: string;
+// }
 
-export type Availability = DayAvailability[];
+// export type Availability = DayAvailability[];

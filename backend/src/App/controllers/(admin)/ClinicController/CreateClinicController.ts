@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ResponseHandler } from '../../../../helpers/ResponseHandler';
 import { CreateClinicService } from '../../../services/(admin)/ClinicService/CreateClinicService';
-import { ClinicFactory } from '../../../../domain/entities/EntityClinic/ClinicFactory';
 import { ClinicDTO } from '../../../../infrastructure/DTOs/ClinicDTO';
 
 interface AuthRequest extends Request {

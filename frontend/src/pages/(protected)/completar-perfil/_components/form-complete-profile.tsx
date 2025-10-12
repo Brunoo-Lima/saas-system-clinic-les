@@ -37,6 +37,9 @@ import type { IClinic } from '@/@types/IClinic';
 import { useUpdateStatusProfileCompleted } from '@/services/user-clinic-service';
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
+import { formatCNPJ } from '@/utils/format-cnpj';
+import type { ChangeEvent } from 'react';
+import { formatCEP } from '@/utils/format-cep';
 
 const brazilianStates = [
   'AC',
@@ -109,6 +112,16 @@ export const FormCompleteProfile = () => {
   const { mutate } = useCreateClinic();
   const { mutate: updateStatusProfileCompleted } =
     useUpdateStatusProfileCompleted();
+
+  const handleCNPJChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCNPJ(e.target.value);
+    form.setValue('cnpj', formatted);
+  };
+
+  const handleCEPChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCEP(e.target.value);
+    form.setValue('address.cep', formatted);
+  };
 
   async function onSubmit(data: RegisterFormClinicSchema) {
     if (!user?.id) {
@@ -184,7 +197,12 @@ export const FormCompleteProfile = () => {
                     <FormItem>
                       <FormLabel>CNPJ</FormLabel>
                       <FormControl>
-                        <Input placeholder="00.000.000/0000-00" {...field} />
+                        <Input
+                          placeholder="00.000.000/0000-00"
+                          {...field}
+                          onChange={handleCNPJChange}
+                          value={field.value}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -240,11 +258,24 @@ export const FormCompleteProfile = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
-                <FormInputCustom
+                <FormField
                   control={form.control}
                   name="address.cep"
-                  label="CEP"
-                  placeholder="00000-000"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>CEP</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="00000-000"
+                          {...field}
+                          onChange={handleCEPChange}
+                          value={field.value}
+                          maxLength={9}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
 
                 <FormInputCustom

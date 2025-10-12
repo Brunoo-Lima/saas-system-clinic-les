@@ -13,10 +13,10 @@ export const getDoctorDefaultValues = (doctor?: IDoctor): DoctorFormSchema => ({
   },
   phone: doctor?.phone ?? '',
   dateOfBirth: doctor?.dateOfBirth ?? '',
+  percentDistribution: doctor?.percentDistribution ?? 0,
   specialties: doctor?.specialties ?? [],
   sex: doctor?.sex ?? 'Male',
-  status: doctor?.status ?? true,
-  justification: doctor?.justification ?? '',
+  periodToWork: doctor?.periodToWork ?? [],
   address: {
     name: doctor?.address?.name ?? '',
     cep: doctor?.address?.cep ?? '',

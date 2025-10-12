@@ -1,6 +1,7 @@
 import type { IDoctor } from '@/@types/IDoctor';
 import { usePagination } from '@/hooks/use-pagination';
-import { createContext, useMemo, useState, type ChangeEvent } from 'react';
+import { useGetDoctors } from '@/services/doctor-service';
+import { createContext, useState, type ChangeEvent } from 'react';
 
 interface IDoctorContextProps {
   searchTerm: string;
@@ -28,32 +29,33 @@ export const DoctorProvider = ({ children }: { children: React.ReactNode }) => {
   const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(
     null,
   );
-  const [filteredList, setFilteredList] = useState<IDoctor[]>([]);
   const itemsPerPage = 6;
 
-  const filtered = useMemo(() => {
-    let data = filteredList;
+  const { data: filtered = [] } = useGetDoctors();
 
-    if (searchTerm) {
-      data = data.filter((doctor) =>
-        doctor.name.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-    }
+  // const filtered = useMemo(() => {
+  //   let data = filteredList;
 
-    if (selectedGender) {
-      data = data.filter((doctor) => doctor.sex === selectedGender);
-    }
+  //   if (searchTerm) {
+  //     data = data.filter((doctor) =>
+  //       doctor.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  //     );
+  //   }
 
-    if (selectedSpecialty) {
-      data = data.filter((doctor) =>
-        doctor.specialties.some(
-          (s) => s.specialty.toLowerCase() === selectedSpecialty.toLowerCase(),
-        ),
-      );
-    }
+  //   if (selectedGender) {
+  //     data = data.filter((doctor) => doctor.sex === selectedGender);
+  //   }
 
-    return data;
-  }, [selectedGender, selectedSpecialty, searchTerm, filteredList]);
+  //   if (selectedSpecialty) {
+  //     data = data.filter((doctor) =>
+  //       doctor.specialties.some(
+  //         (s) => s.specialty.toLowerCase() === selectedSpecialty.toLowerCase(),
+  //       ),
+  //     );
+  //   }
+
+  //   return data;
+  // }, [selectedGender, selectedSpecialty, searchTerm, filteredList]);
 
   const { totalPages, page, setPage, paginatedData } = usePagination(
     filtered,
@@ -69,8 +71,8 @@ export const DoctorProvider = ({ children }: { children: React.ReactNode }) => {
     setPage(1);
   };
 
-  const handleDelete = (id: number) => {
-    setFilteredList((prev) => prev.filter((p) => p.id !== id));
+  const handleDelete = (_id: number) => {
+    // setFilteredList((prev) => prev.filter((p) => p.id !== id));
   };
 
   const contextValue = {

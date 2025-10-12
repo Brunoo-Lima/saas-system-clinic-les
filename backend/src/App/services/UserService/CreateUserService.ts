@@ -8,7 +8,7 @@ import { ResponseHandler } from "../../../helpers/ResponseHandler";
 import { IRepository } from "../../../infrastructure/database/repositories/IRepository";
 import { UserRepository } from "../../../infrastructure/database/repositories/UserRepository/UserRepository";
 import { UserDTO } from "../../../infrastructure/DTOs/UserDTO";
-import Queue from "../../../infrastructure/queue/Queue";
+import { queueClient } from "../../../infrastructure/queue/queue_email_client";
 
 export class CreateUserService {
     private userRepository: IRepository;
@@ -44,7 +44,7 @@ export class CreateUserService {
             const newUser = await this.userRepository.create(userDomain);
             const { password, ...userResponse } = newUser.data
 
-            await Queue.publish(userResponse);
+            await queueClient.add("welcome_email", newUser.data)
             return ResponseHandler.success(userResponse, "Success ! User was inserted.");
 
         } catch (error) {
