@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import type { IUser } from '@/@types/IUser';
 import { loginService } from '@/services/login-service';
 import {
@@ -86,35 +87,44 @@ const AuthProvider = ({ children }: ChildrenProps) => {
   useEffect(() => {
     if (loading) return;
 
-    // Evita loops durante logout
-    if (!user && !isAuthenticated) return;
+    const currentPath = location.pathname;
+    const isPublicRoute = currentPath === '/';
+    const isProfilePage = currentPath === '/completar-perfil';
 
-    const isPublicRoute = location.pathname === '/';
-    const isProfilePage = location.pathname === '/completar-perfil';
-    const isDashboard = location.pathname === '/dashboard';
-
-    // Não autenticado
+    // Se não está autenticado
     if (!isAuthenticated) {
-      if (!isPublicRoute) navigate('/', { replace: true });
+      // Se não está em uma rota pública, redireciona para login
+      if (!isPublicRoute) {
+        navigate('/', { replace: true });
+      }
       return;
     }
 
-    // Autenticado, perfil incompleto
-    if (isAuthenticated && !user?.profileCompleted) {
-      if (!isProfilePage) navigate('/completar-perfil', { replace: true });
+    // Se está autenticado mas não tem dados do usuário ainda, aguarda
+    if (!user) return;
+
+    // Usuário autenticado com perfil incompleto
+    if (!user.profileCompleted) {
+      // Se não está na página de completar perfil, redireciona
+      if (!isProfilePage) {
+        navigate('/completar-perfil', { replace: true });
+      }
       return;
     }
 
-    // Autenticado, perfil completo e está na tela de completar perfil
-    if (isAuthenticated && user?.profileCompleted && isProfilePage) {
-      if (!isDashboard) navigate('/dashboard', { replace: true });
-      return;
-    }
+    // Usuário autenticado com perfil completo
+    if (user.profileCompleted) {
+      // Se está na página de completar perfil, redireciona para dashboard
+      if (isProfilePage) {
+        navigate('/dashboard', { replace: true });
+        return;
+      }
 
-    // Autenticado e acessando login
-    if (isAuthenticated && isPublicRoute) {
-      if (!isDashboard) navigate('/dashboard', { replace: true });
-      return;
+      // Se está na página de login, redireciona para dashboard
+      if (isPublicRoute) {
+        navigate('/dashboard', { replace: true });
+        return;
+      }
     }
   }, [loading, isAuthenticated, location.pathname, navigate, user]);
 
@@ -177,8 +187,6 @@ const AuthProvider = ({ children }: ChildrenProps) => {
     localStorage.removeItem('@user:data');
     setUser(null);
     setAuthToken(null);
-
-    navigate('/', { replace: true });
   };
 
   const authValue = useMemo(
