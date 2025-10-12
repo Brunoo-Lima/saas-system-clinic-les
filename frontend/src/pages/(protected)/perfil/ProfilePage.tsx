@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   PageContainer,
   PageContent,
@@ -8,11 +8,12 @@ import {
   PageHeader,
   PageHeaderContent,
   PageTitle,
-} from "@/components/ui/page-container";
-import { Row } from "@/components/ui/row";
-import { SaveIcon, SquarePenIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { ButtonChangePassword } from "./_components/button-change-password";
+} from '@/components/ui/page-container';
+import { Row } from '@/components/ui/row';
+import { SaveIcon, SquarePenIcon } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ButtonChangePassword } from './_components/button-change-password';
+import { useGetClinic } from '@/services/clinic-service';
 
 export default function ProfilePage() {
   const [isEditingAddress, setIsEditingAddress] = useState<boolean>(false);
@@ -20,9 +21,13 @@ export default function ProfilePage() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const { data } = useGetClinic();
+
   useEffect(() => {
-    document.title = "Perfil";
+    document.title = 'Perfil';
   }, []);
+
+  console.log('data', data);
 
   return (
     <PageContainer>
@@ -37,7 +42,7 @@ export default function ProfilePage() {
         <div className="mx-auto">
           <div className="w-32 h-32 rounded-full border-2 border-border overflow-hidden">
             <img
-              src={previewImage ? previewImage : "/logo.webp"}
+              src={previewImage ? previewImage : '/logo.webp'}
               className="w-full h-full object-contain"
             />
           </div>
@@ -64,7 +69,7 @@ export default function ProfilePage() {
             <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
               <Row>
                 <Label>Nome</Label>
-                <Input placeholder="Clinica" disabled={!isEditingData} />
+                <Input placeholder={data?.name} disabled={!isEditingData} />
               </Row>
 
               <Row>
@@ -72,6 +77,7 @@ export default function ProfilePage() {
                 <Input
                   placeholder="clinica@example.com"
                   disabled={!isEditingData}
+                  type="email"
                 />
               </Row>
 

@@ -60,7 +60,6 @@ export const useUpdateStatusProfileCompleted = () => {
   return useMutation({
     mutationFn: updateStatusProfileCompleted,
     onSuccess: () => {
-      toast.success('Perfil atualizado com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
     onError: (error: any) => {

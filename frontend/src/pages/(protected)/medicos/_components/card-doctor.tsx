@@ -12,23 +12,11 @@ import { Separator } from '@/components/ui/separator';
 import { CalendarIcon, ClockIcon, DollarSignIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { TrashIcon } from 'lucide-react';
-import { formatCurrencyInCents } from '@/utils/format-currency-in-cents';
 import type { IDoctor } from '@/@types/IDoctor';
 import { UpsertDoctorForm } from './upsert-doctor-form';
 import { toast } from 'sonner';
-// import { getAvailability } from "../_helpers/availability";
+import { DropdownCard } from './actions/dropdown-card';
+
 interface ICardDoctorProps {
   doctor: IDoctor;
 }
@@ -41,10 +29,6 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
     .map((name) => name[0])
     .slice(1, 3)
     .join('');
-
-  // const availability = getAvailability(doctor);
-
-  // console.log(availability);
 
   const handleDeleteDoctorClick = () => {
     if (!doctor) return;
@@ -66,7 +50,7 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
           <div>
             <h3 className="text-sm font-medium">{doctor.name}</h3>
             <p className="text-muted-foreground text-sm">
-              {doctor.specialties.map((s) => s.specialty).join(', ')}
+              {/* {doctor.specialties.map((s) => s.specialty).join(', ')} */}
             </p>
           </div>
         </div>
@@ -88,17 +72,17 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
 
         <Badge variant="outline">
           <DollarSignIcon className="mr-1" />
-          {formatCurrencyInCents(doctor.servicePriceInCents)}
+          {/* {formatCurrencyInCents(doctor.servicePriceInCents)} */}
         </Badge>
       </CardContent>
       <Separator />
-      <CardFooter className="flex flex-col gap-2">
+      <CardFooter className="flex items-center gap-2">
         <Dialog
           open={isUpsertDoctorDialogOpen}
           onOpenChange={setIsUpsertDoctorDialogOpen}
         >
           <DialogTrigger asChild>
-            <Button className="w-full">Ver detalhes</Button>
+            <Button className="w-11/12">Ver detalhes</Button>
           </DialogTrigger>
           <UpsertDoctorForm
             doctor={{
@@ -110,7 +94,12 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
             isOpen={isUpsertDoctorDialogOpen}
           />
         </Dialog>
-        <div className="grid grid-cols-2 gap-2 w-full">
+
+        <DropdownCard
+          onDeleteDoctor={handleDeleteDoctorClick}
+          onSendNewPassword={handleSendNewPassword}
+        />
+        {/* <div className="grid grid-cols-2 gap-2 w-full">
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive" className="w-full">
@@ -144,7 +133,8 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
           >
             Enviar nova senha
           </Button>
-        </div>
+
+        </div> */}
       </CardFooter>
     </Card>
   );

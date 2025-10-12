@@ -1,6 +1,6 @@
 import type { IClinic } from '@/@types/IClinic';
 import api from './api';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import axios from 'axios';
 
@@ -54,6 +54,8 @@ export const getClinic = async ({
       throw new Error(data.message);
     }
 
+    console.log(data);
+
     return data.data;
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
@@ -64,4 +66,11 @@ export const getClinic = async ({
     }
     throw new Error(error.message || 'Erro desconhecido');
   }
+};
+
+export const useGetClinic = () => {
+  return useQuery({
+    queryKey: ['clinics'],
+    queryFn: () => getClinic({}),
+  });
 };

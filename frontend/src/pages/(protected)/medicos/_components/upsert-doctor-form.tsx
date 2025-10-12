@@ -19,18 +19,15 @@ import {
   type DoctorFormSchema,
 } from '@/validations/doctor-form-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useFieldArray, useForm, type Resolver } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
 import { medicalSpecialties } from '../_constants';
 import { Button } from '@/components/ui/button';
-import { useEffect } from 'react';
+import { useEffect, type ChangeEvent } from 'react';
 import type { IDoctor } from '@/@types/IDoctor';
 import { toast } from 'sonner';
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
 
-import { timeOptions } from '@/utils/generate-time';
 import { getDoctorDefaultValues } from '../_helpers/get-doctor-default-values';
-import { WEEK_DAYS } from '../_constants/WEEK-DAYS';
-import { WeekDayAvailabilityField } from './fields/WeekDayAvailabilityField';
 import FormSelectCustom from '@/components/ui/form-custom/form-select-custom';
 import FormInputPhoneCustom from '@/components/ui/form-custom/form-input-phone-custom';
 import {
@@ -45,6 +42,9 @@ import { CalendarIcon, RefreshCcwIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { InputPassword } from '@/components/ui/input-password';
 import { Checkbox } from '@/components/ui/checkbox';
+import { formatCPF } from '@/utils/format-cpf';
+import { Input } from '@/components/ui/input';
+import { formatCRM } from '@/utils/format-crm';
 
 interface IUpsertDoctorFormProps {
   doctor?: IDoctor;
@@ -63,14 +63,14 @@ export const UpsertDoctorForm = ({
     defaultValues: getDoctorDefaultValues(doctor),
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: 'specialties', // precisa bater com o schema
-  });
+  // const { fields, append, remove } = useFieldArray({
+  //   control: form.control,
+  //   name: 'specialties', // precisa bater com o schema
+  // });
 
   useEffect(() => {
     if (isOpen) {
-      form.reset(getDoctorDefaultValues(doctor));
+      form.reset(getDoctorDefaultValues(doctor) ?? {});
     }
   }, [isOpen, form, doctor]);
 
@@ -87,16 +87,26 @@ export const UpsertDoctorForm = ({
     form.setValue('user.password', password, { shouldValidate: true });
   };
 
-  const toggleSpecialty = (specialtyValue: string) => {
-    const index = fields.findIndex((f) => f.specialty === specialtyValue);
-    if (index >= 0) {
-      remove(index);
-    } else {
-      append({
-        specialty: specialtyValue,
-        availableWeekDay: [], // começa vazio
-      });
-    }
+  const handleCPFformat = (e: ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCPF(e.target.value);
+    form.setValue('cpf', formatted);
+  };
+
+  const handleCRMformat = (e: ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCRM(e.target.value);
+    form.setValue('crm', formatted);
+  };
+
+  const toggleSpecialty = (_specialtyValue: string) => {
+    // const index = fields.findIndex((f) => f.specialty === specialtyValue);
+    // if (index >= 0) {
+    //   remove(index);
+    // } else {
+    //   append({
+    //     specialty: specialtyValue,
+    //     availableWeekDay: [], // começa vazio
+    //   });
+    // }
   };
 
   const onSubmit = (data: DoctorFormSchema) => {
@@ -133,11 +143,22 @@ export const UpsertDoctorForm = ({
           />
 
           <div className="grid grid-cols-2 gap-x-6">
-            <FormInputCustom
-              name="crm"
-              label="CRM"
-              placeholder="Digite o CRM"
+            <FormField
               control={form.control}
+              name="crm"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>CRM</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Ex: SP-123456"
+                      {...field}
+                      onChange={handleCRMformat}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
 
@@ -149,9 +170,9 @@ export const UpsertDoctorForm = ({
                 <FormLabel>Especialidades</FormLabel>
                 <div className="space-y-2 grid grid-cols-2">
                   {medicalSpecialties.map((specialty) => {
-                    const isChecked = fields.some(
-                      (f) => f.specialty === specialty.value,
-                    );
+                    // const isChecked = fields.some(
+                    //   (f) => f.specialty === specialty.value,
+                    // );
 
                     return (
                       <FormItem
@@ -160,7 +181,7 @@ export const UpsertDoctorForm = ({
                       >
                         <FormControl>
                           <Checkbox
-                            checked={isChecked}
+                            // checked={isChecked}
                             onCheckedChange={() =>
                               toggleSpecialty(specialty.value)
                             }
@@ -178,7 +199,7 @@ export const UpsertDoctorForm = ({
             )}
           />
 
-          {fields.map((field, index) => (
+          {/* {fields.map((field, index) => (
             <>
               <strong key={field.id} className="py-2 block text-2xl">
                 {field.specialty}
@@ -196,7 +217,7 @@ export const UpsertDoctorForm = ({
                 )}
               />
             </>
-          ))}
+          ))} */}
 
           <strong className="py-2 block text-2xl">Dados pessoais</strong>
 
@@ -253,11 +274,22 @@ export const UpsertDoctorForm = ({
           </div>
 
           <div className="grid grid-cols-2 gap-x-6">
-            <FormInputCustom
-              name="cpf"
-              label="CPF"
-              placeholder="Digite o CPF"
+            <FormField
               control={form.control}
+              name="cpf"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>CPF</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Digite o CPF"
+                      {...field}
+                      onChange={handleCPFformat}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             <FormInputPhoneCustom
