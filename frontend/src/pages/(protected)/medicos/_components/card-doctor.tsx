@@ -12,18 +12,6 @@ import { Separator } from '@/components/ui/separator';
 import { CalendarIcon, ClockIcon, DollarSignIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { TrashIcon } from 'lucide-react';
 import type { IDoctor } from '@/@types/IDoctor';
 import { UpsertDoctorForm } from './upsert-doctor-form';
 import { toast } from 'sonner';
@@ -41,10 +29,6 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
     .map((name) => name[0])
     .slice(1, 3)
     .join('');
-
-  // const availability = getAvailability(doctor);
-
-  // console.log(availability);
 
   const handleDeleteDoctorClick = () => {
     if (!doctor) return;

@@ -5,6 +5,7 @@ import {
   PageHeaderContent,
   PageTitle,
 } from '@/components/ui/page-container';
+import { Agenda } from './_components/agenda';
 
 export default function AgendaPage() {
   return (
@@ -15,6 +16,8 @@ export default function AgendaPage() {
           <PageDescription>Gerencie a agenda do médico tal</PageDescription>
         </PageHeaderContent>
       </PageHeader>
+
+      <Agenda />
     </PageContainer>
   );
 }
