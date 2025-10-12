@@ -31,7 +31,7 @@ interface IAuthProvider {
     password: string;
   }) => Promise<void>;
   loading: boolean;
-  updateUser: (userData: Partial<IUser>) => void; // Adicione esta função
+  updateUser: (userData: Partial<IUser>) => void;
 }
 interface ChildrenProps {
   children: ReactNode;
@@ -71,7 +71,6 @@ const AuthProvider = ({ children }: ChildrenProps) => {
         try {
           setAuthToken({ token: storedToken });
         } catch {
-          // Só limpa o token em caso de erro
           localStorage.removeItem('@user:token');
           sessionStorage.removeItem('@user:token');
           setAuthToken({} as AuthToken);
@@ -87,37 +86,35 @@ const AuthProvider = ({ children }: ChildrenProps) => {
   useEffect(() => {
     if (loading) return;
 
+    // Evita loops durante logout
+    if (!user && !isAuthenticated) return;
+
     const isPublicRoute = location.pathname === '/';
     const isProfilePage = location.pathname === '/completar-perfil';
+    const isDashboard = location.pathname === '/dashboard';
 
-    // Se não está autenticado, mas está em rota protegida
+    // Não autenticado
     if (!isAuthenticated) {
-      // Permite ficar no login
-      if (isPublicRoute) return;
-
-      // Permite que o logout funcione na página de completar perfil
-      if (isProfilePage) {
-        navigate('/', { replace: true });
-        return;
-      }
-
-      // Qualquer outra rota protegida leva pro login
-      navigate('/', { replace: true });
+      if (!isPublicRoute) navigate('/', { replace: true });
       return;
     }
 
-    // Se está autenticado mas o perfil não está completo
+    // Autenticado, perfil incompleto
     if (isAuthenticated && !user?.profileCompleted) {
-      // Permite ficar na página de completar perfil
-      if (!isProfilePage) {
-        navigate('/completar-perfil', { replace: true });
-      }
+      if (!isProfilePage) navigate('/completar-perfil', { replace: true });
       return;
     }
 
-    // Se está autenticado e acessa o login
+    // Autenticado, perfil completo e está na tela de completar perfil
+    if (isAuthenticated && user?.profileCompleted && isProfilePage) {
+      if (!isDashboard) navigate('/dashboard', { replace: true });
+      return;
+    }
+
+    // Autenticado e acessando login
     if (isAuthenticated && isPublicRoute) {
-      navigate('/dashboard', { replace: true });
+      if (!isDashboard) navigate('/dashboard', { replace: true });
+      return;
     }
   }, [loading, isAuthenticated, location.pathname, navigate, user]);
 
@@ -177,8 +174,11 @@ const AuthProvider = ({ children }: ChildrenProps) => {
   const logout = () => {
     localStorage.removeItem('@user:token');
     sessionStorage.removeItem('@user:token');
+    localStorage.removeItem('@user:data');
     setUser(null);
-    setAuthToken({} as AuthToken);
+    setAuthToken(null);
+
+    navigate('/', { replace: true });
   };
 
   const authValue = useMemo(
