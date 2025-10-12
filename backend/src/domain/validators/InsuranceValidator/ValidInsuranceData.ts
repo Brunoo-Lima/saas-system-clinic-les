@@ -15,7 +15,6 @@ export class ValidInsuranceData implements IProcessValidator {
             if (insurancesFiltered.length) {
                 for (const insurance of insurancesFiltered) {
                     const insuranceExists = await repository.findEntity(insurance)
-                    console.log(insuranceExists)
                     if (!insuranceExists.length) return ResponseHandler.error(`An insurance not exists with id: ${insurance?.getUUIDHash()} or name: ${insurance.name}`)
                 }
                 return ResponseHandler.success(`The insurances exists in database !`)
