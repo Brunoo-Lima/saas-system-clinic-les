@@ -24,6 +24,7 @@ export class ValidInsuranceData implements IProcessValidator {
             return ResponseHandler.success("Insurance don't exists")
 
         } catch (e) {
+            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }
