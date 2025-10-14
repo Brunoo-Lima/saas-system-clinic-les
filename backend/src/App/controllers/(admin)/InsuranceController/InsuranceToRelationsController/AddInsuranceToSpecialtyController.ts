@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { ResponseHandler } from "../../../../../helpers/ResponseHandler";
-import { PatchInsuranceToSpecialtyService } from "../../../../services/(admin)/InsuranceService/InsuranceToSpecialty/PatchInsuranceToSpecialtyService";
+import { AddInsuranceToSpecialtyService } from "../../../../services/(admin)/InsuranceService/InsuranceToRelations/AddInsuranceToSpecialtyService";
 
-export class PatchInsuranceToSpecialty{
+export class AddInsuranceToSpecialtyController{
     async handle(req: Request, res: Response, next: NextFunction){
         try {
             const insuranceDTO = req.body
-            const service = new PatchInsuranceToSpecialtyService()
+            const service = new AddInsuranceToSpecialtyService()
             const specialtiesUpdated = await service.execute(insuranceDTO)
 
             return res.status(200).json(specialtiesUpdated)

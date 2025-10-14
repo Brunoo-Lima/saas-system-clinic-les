@@ -1,13 +1,14 @@
 import { InsuranceFactory } from "../../../../../domain/entities/EntityInsurance/InsuranceFactory";
 import { EntityExistsToInserted } from "../../../../../domain/validators/General/EntityExistsToInserted";
 import { UUIDValidator } from "../../../../../domain/validators/General/UUIDValidator";
+import { ValidSpecialtyToInsurance } from "../../../../../domain/validators/InsuranceValidator/ValidSpecialtyToInsurance";
 import { ValidatorController } from "../../../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../../../helpers/ResponseHandler";
 import { InsuranceRepository } from "../../../../../infrastructure/database/repositories/InsurancesRepository/InsurancesRepository";
 import { IRepository } from "../../../../../infrastructure/database/repositories/IRepository";
 import { InsuranceDTO } from "../../../../../infrastructure/DTOs/InsuranceDTO";
 
-export class PatchInsuranceToSpecialtyService {
+export class AddInsuranceToSpecialtyService {
     private repository: (IRepository & InsuranceRepository);
     constructor(){
         this.repository = new InsuranceRepository()
@@ -17,7 +18,11 @@ export class PatchInsuranceToSpecialtyService {
             const insuranceDomain = InsuranceFactory.createFromDTO(insuranceDTO)
             const validator = new ValidatorController()
 
-            validator.setValidator(`F-${insuranceDomain.constructor.name}`, [ new UUIDValidator(), new EntityExistsToInserted()])
+            validator.setValidator(`F-${insuranceDomain.constructor.name}`, [ 
+                new UUIDValidator(), 
+                new EntityExistsToInserted(),
+                new ValidSpecialtyToInsurance()
+            ])
             validator.setValidator(`U-${insuranceDomain.specialties?.[0]?.constructor.name}`, [ new UUIDValidator() ])
 
             const entitiesIsValid = await validator.process(`F-${insuranceDomain.constructor.name}`, insuranceDomain, this.repository)
@@ -29,7 +34,7 @@ export class PatchInsuranceToSpecialtyService {
             const specialtyVinculated = await this.repository.addSpecialty(insuranceDomain)
             if(!Array.isArray(specialtyVinculated)) return specialtyVinculated
 
-            return ResponseHandler.success(...specialtyVinculated, 'Success ! Data updated')
+            return ResponseHandler.success(...specialtyVinculated, 'Success ! Specialty inserted.')
         } catch(e) {
             return ResponseHandler.error((e as Error).message)
         }
