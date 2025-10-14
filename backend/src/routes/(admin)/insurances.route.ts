@@ -5,6 +5,7 @@ import { CreateInsuranceController } from '../../App/controllers/(admin)/Insuran
 import { FindInsuranceController } from '../../App/controllers/(admin)/InsuranceController/FindInsuranceController';
 import { FindAllInsuranceController } from '../../App/controllers/(admin)/InsuranceController/FindAllInsurancesController';
 import { PatchInsuranceController } from '../../App/controllers/(admin)/InsuranceController/PatchInsuranceController';
+import { PatchInsuranceToSpecialty } from '../../App/controllers/(admin)/InsuranceController/InsuranceToSpecialtiesController/PatchInsuranceToSpecialty';
 
 const insuranceRoutes: Router = Router();
 
@@ -33,6 +34,13 @@ insuranceRoutes.patch(
   authMiddleware,
   privateRoute,
   new PatchInsuranceController().handle
+)
+
+insuranceRoutes.patch(
+  '/insurance/specialties',
+  authMiddleware,
+  privateRoute,
+  new PatchInsuranceToSpecialty().handle
 )
 
 export { insuranceRoutes };
