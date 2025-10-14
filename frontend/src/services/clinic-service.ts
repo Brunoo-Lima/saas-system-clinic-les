@@ -3,6 +3,7 @@ import api from './api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import axios from 'axios';
+import type { IAddress } from '@/@types/IAddress';
 
 export const createClinic = async (clinic: IClinic) => {
   const { data } = await api.post('/clinic', clinic);
@@ -29,34 +30,47 @@ export const useCreateClinic = () => {
   });
 };
 
-interface IClinicProps {
-  limit?: number;
-  offset?: number;
-  id?: string;
-  user_id?: string;
-  user_email?: string;
-  cnpj?: string;
+interface IClinicData {
+  name: string;
+  phone: string;
+  cnpj: string;
+  specialties: {
+    id: string;
+    name?: string;
+    price: number;
+  }[];
+  insurances: {
+    id: string;
+    name?: string;
+  }[];
+  user: {
+    id?: string;
+    email?: string;
+    emailVerified?: boolean;
+    username?: string;
+    password?: string;
+    passwordConfirmed?: string;
+    avatar?: string;
+    profileCompleted: boolean;
+  };
+  timeToConfirm: string;
+  address: IAddress;
 }
-export const getClinic = async ({
-  limit = 1,
-  offset,
-  id,
-  user_id,
-  user_email,
-  cnpj,
-}: IClinicProps) => {
+
+interface IClinicResponse {
+  data: IClinicData[];
+  message: string;
+  success: boolean;
+}
+
+export const getClinic = async () => {
   try {
-    const { data } = await api.get(
-      `/clinic/findall/?limit=${limit}&offset=${offset}&id=${id}&user_id=${user_id}&user_email=${user_email}&cnpj=${cnpj}`,
-    );
+    const { data } = await api.get<IClinicResponse>(`/clinic/findall/`);
 
-    if (data.success === false) {
-      throw new Error(data.message);
+    if (!data.data.length) {
+      throw new Error('Nenhuma clínica encontrada.');
     }
-
-    console.log(data);
-
-    return data.data;
+    return data.data[0];
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
       const message = Array.isArray(error.response?.data?.message)
@@ -71,6 +85,6 @@ export const getClinic = async ({
 export const useGetClinic = () => {
   return useQuery({
     queryKey: ['clinics'],
-    queryFn: () => getClinic({}),
+    queryFn: () => getClinic(),
   });
 };
