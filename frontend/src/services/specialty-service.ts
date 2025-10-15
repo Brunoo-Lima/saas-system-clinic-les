@@ -63,3 +63,23 @@ export function useGetSpecialties(params?: ISpecialtyProps) {
     queryFn: () => getSpecialties(params || {}),
   });
 }
+
+export const updateSpecialty = async ({ name, id }: ISpecialty) => {
+  const { data } = await api.put(`/specialty`, [{ name, id }]);
+  return data;
+};
+
+export function useUpdateSpecialty() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateSpecialty,
+    onSuccess: () => {
+      toast.success('Especialidade atualizada com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['specialties'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Erro ao atualizar especialidade.');
+    },
+  });
+}

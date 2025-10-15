@@ -16,7 +16,10 @@ import {
 } from '@/validations/specialty-form-schema';
 import type { ISpecialty } from '@/@types/ISpecialty';
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
-import { useCreateSpecialty } from '@/services/specialty-service';
+import {
+  useCreateSpecialty,
+  useUpdateSpecialty,
+} from '@/services/specialty-service';
 
 interface IUpsertSpecialtyFormProps {
   isOpen: boolean;
@@ -36,7 +39,8 @@ export const UpsertSpecialtyForm = ({
       name: specialty?.name ?? '',
     },
   });
-  const { mutate, isPending } = useCreateSpecialty();
+  const createMutation = useCreateSpecialty();
+  const updateMutation = useUpdateSpecialty();
 
   useEffect(() => {
     if (isOpen) {
@@ -45,15 +49,27 @@ export const UpsertSpecialtyForm = ({
   }, [isOpen, form, specialty]);
 
   const onSubmit = (data: SpecialtyFormSchema) => {
-    mutate(
-      { name: data.name },
-      {
-        onSuccess: () => {
-          onSuccess();
-          form.reset();
+    if (specialty?.id) {
+      updateMutation.mutate(
+        { name: data.name, id: specialty.id },
+        {
+          onSuccess: () => {
+            onSuccess();
+            form.reset();
+          },
         },
-      },
-    );
+      );
+    } else {
+      createMutation.mutate(
+        { name: data.name },
+        {
+          onSuccess: () => {
+            onSuccess();
+            form.reset();
+          },
+        },
+      );
+    }
   };
 
   return (
@@ -74,8 +90,14 @@ export const UpsertSpecialtyForm = ({
           <FormInputCustom name="name" label="Nome" control={form.control} />
 
           <DialogFooter>
-            <Button type="submit" disabled={isPending} className="w-full mt-4">
-              {isPending ? 'Salvando...' : 'Salvar'}
+            <Button
+              type="submit"
+              disabled={createMutation.isPending || updateMutation.isPending}
+              className="w-full mt-4"
+            >
+              {createMutation.isPending || updateMutation.isPending
+                ? 'Salvando...'
+                : 'Salvar'}
             </Button>
           </DialogFooter>
         </form>
