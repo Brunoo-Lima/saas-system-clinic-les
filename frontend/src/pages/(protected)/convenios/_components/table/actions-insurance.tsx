@@ -21,9 +21,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { EditIcon, MoreVerticalIcon, TrashIcon } from 'lucide-react';
 import { useState } from 'react';
-import { UpsertInsuranceForm } from '../upsert-insurance-form';
 import type { IInsurance } from '@/@types/IInsurance';
 import { toast } from 'sonner';
+import { UpdateInsuranceForm } from '../forms/update-insurance-form';
 
 interface IActionsInsuranceProps {
   insurance: IInsurance;
@@ -47,7 +47,7 @@ export const ActionsInsurance = ({ insurance }: IActionsInsuranceProps) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuLabel>{insurance.name}</DropdownMenuLabel>
+            <DropdownMenuLabel>{insurance.type}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setUpsertDialogIsOpen(true)}>
               <EditIcon />
@@ -81,7 +81,7 @@ export const ActionsInsurance = ({ insurance }: IActionsInsuranceProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <UpsertInsuranceForm
+        <UpdateInsuranceForm
           isOpen={upsertDialogIsOpen}
           insurance={insurance}
           onSuccess={() => setUpsertDialogIsOpen(false)}

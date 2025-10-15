@@ -16,6 +16,7 @@ interface IFormInputProps<T extends FieldValues>
   placeholder?: string;
   type?: string;
   control: Control<T>;
+  disabled?: boolean;
 }
 
 const FormInputCustom = <T extends FieldValues>({
@@ -24,6 +25,7 @@ const FormInputCustom = <T extends FieldValues>({
   placeholder,
   type = 'text',
   control,
+  disabled,
 }: IFormInputProps<T>) => (
   <FormField
     control={control}
@@ -32,7 +34,12 @@ const FormInputCustom = <T extends FieldValues>({
       <FormItem>
         <FormLabel>{label}</FormLabel>
         <FormControl>
-          <Input placeholder={placeholder} type={type} {...field} />
+          <Input
+            placeholder={placeholder}
+            type={type}
+            {...field}
+            disabled={disabled}
+          />
         </FormControl>
         <FormMessage />
       </FormItem>

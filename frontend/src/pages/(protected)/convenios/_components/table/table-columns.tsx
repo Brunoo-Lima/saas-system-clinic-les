@@ -23,8 +23,8 @@ export const insurancesTableColumns: ColumnDef<Insurance>[] = [
     cell: (params) => {
       const modalities = params.row.original.modalities;
 
-      return modalities.length > 1
-        ? modalities.map((modality) => modality.name).join(' - ')
+      return modalities?.length > 1
+        ? modalities?.map((modality) => modality.name).join(' - ')
         : ' - ';
     },
   },

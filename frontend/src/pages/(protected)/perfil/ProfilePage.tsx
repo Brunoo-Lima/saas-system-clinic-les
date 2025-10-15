@@ -27,7 +27,6 @@ export default function ProfilePage() {
     name: data?.name,
     phone: data?.phone,
     email: data?.user.email,
-    password: data?.user.password,
     cnpj: data?.cnpj,
     address: {
       cep: data?.address?.cep,
@@ -42,7 +41,9 @@ export default function ProfilePage() {
         name: data?.address?.state.name,
         uf: data?.address?.state.uf,
       },
-      country: data?.address?.country,
+      country: {
+        name: data?.address?.country.name || '',
+      },
     },
   });
 
@@ -52,7 +53,6 @@ export default function ProfilePage() {
         name: data.name || '',
         phone: data.phone || '',
         email: data.user?.email || '',
-        password: data.user?.password || '',
         cnpj: data.cnpj || '',
         address: {
           cep: data.address?.cep || '',
@@ -67,7 +67,9 @@ export default function ProfilePage() {
             name: data.address?.state.name || '',
             uf: data.address?.state.uf || '',
           },
-          country: data.address?.country || '',
+          country: {
+            name: data?.address?.country.name || '',
+          },
         },
       });
     }
@@ -271,6 +273,23 @@ export default function ProfilePage() {
                   }
                 />
               </Row>
+              <Row>
+                <Label>Nome/identificação do endereço</Label>
+                <Input
+                  placeholder="Casa"
+                  disabled={!isEditingAddress}
+                  value={formData.address?.name}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      address: {
+                        ...formData.address,
+                        name: e.target.value,
+                      },
+                    })
+                  }
+                />
+              </Row>
 
               <Row variant="row">
                 <Row>
@@ -322,7 +341,7 @@ export default function ProfilePage() {
                   <Input
                     placeholder="Brasil"
                     disabled={!isEditingAddress}
-                    value={formData.address?.country?.name}
+                    value={formData.address?.country.name}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
@@ -332,24 +351,6 @@ export default function ProfilePage() {
                             ...formData.address?.country,
                             name: e.target.value,
                           },
-                        },
-                      })
-                    }
-                  />
-                </Row>
-
-                <Row>
-                  <Label>Nome/identificação do endereço</Label>
-                  <Input
-                    placeholder="Casa"
-                    disabled={!isEditingAddress}
-                    value={formData.address?.name}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        address: {
-                          ...formData.address,
-                          name: e.target.value,
                         },
                       })
                     }

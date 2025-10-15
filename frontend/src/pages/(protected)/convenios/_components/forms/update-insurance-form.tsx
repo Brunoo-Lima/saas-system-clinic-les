@@ -6,13 +6,11 @@ import {
   useFieldArray,
   useForm,
   type Resolver,
-  type SubmitHandler,
 } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -36,10 +34,10 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import { CheckIcon } from 'lucide-react';
+import { CheckIcon, XIcon } from 'lucide-react';
 import type { IInsurance } from '@/@types/IInsurance';
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
-import { useCreateInsurance } from '@/services/insurance-service';
+import { useUpdateInsurance } from '@/services/insurance-service';
 import { useGetSpecialties } from '@/services/specialty-service';
 import { Input } from '@/components/ui/input';
 
@@ -48,34 +46,44 @@ interface ISpecialty {
   name: string;
 }
 
-interface IUpsertInsuranceFormProps {
+interface IUpdateInsuranceFormProps {
   isOpen: boolean;
   insurance?: IInsurance;
   onSuccess: () => void;
 }
 
-export const UpsertInsuranceForm = ({
+export const UpdateInsuranceForm = ({
   insurance,
   isOpen,
   onSuccess,
-}: IUpsertInsuranceFormProps) => {
+}: IUpdateInsuranceFormProps) => {
   const form = useForm<InsuranceFormSchema>({
     shouldUnregister: true,
     resolver: zodResolver(insuranceFormSchema) as Resolver<InsuranceFormSchema>,
     defaultValues: {
-      name: '',
-      modalities: [],
-      specialties: [],
+      type: insurance?.type ?? '',
+      modalities: [
+        ...(insurance?.modalities?.map((m) => ({ name: m.name })) ?? []),
+      ],
+      specialties: [
+        ...(insurance?.specialties?.map((s) => ({
+          id: s.id,
+          price: s.price,
+          amountTransferred: s.amountTransferred,
+        })) ?? []),
+      ],
     },
   });
   const { data: specialtiesData = [] } = useGetSpecialties({
     limit: 10,
     offset: 0,
   });
-
   const [filteredSpecialties, setFilteredSpecialties] = useState<ISpecialty[]>(
     [],
   );
+  const [editingName, setEditingName] = useState(false);
+  const [editingModalities, setEditingModalities] = useState(false);
+  const [editingSpecialties, setEditingSpecialties] = useState(false);
 
   const {
     fields: modalityFields,
@@ -86,11 +94,14 @@ export const UpsertInsuranceForm = ({
     name: 'modalities',
   });
 
-  const { mutate, isPending } = useCreateInsurance();
+  const { mutate, isPending } = useUpdateInsurance();
 
   useEffect(() => {
     if (isOpen) {
       form.reset(insurance ?? {});
+      setEditingName(false);
+      setEditingModalities(false);
+      setEditingSpecialties(false);
     }
   }, [isOpen, insurance?.id]);
 
@@ -98,54 +109,79 @@ export const UpsertInsuranceForm = ({
     setFilteredSpecialties(specialtiesData);
   }, [specialtiesData]);
 
-  const onSubmit: SubmitHandler<InsuranceFormSchema> = (data) => {
+  const saveName = () => {
+    if (!insurance?.id) return;
+    mutate(
+      { id: insurance.id, insurance: { name: form.getValues().type } },
+      {
+        onSuccess: () => setEditingName(false),
+      },
+    );
+  };
+  const saveModalities = () => {
+    if (!insurance?.id) return;
     mutate(
       {
-        name: data.name,
-        modalities: data.modalities.map((modality) => {
-          return {
-            name: modality.name,
-          };
-        }),
-        specialties: data.specialties.map((specialty) => {
-          return {
-            id: specialty.id,
-            price: specialty.price,
-            amountTransferred: specialty.amountTransferred,
-          };
-        }),
+        id: insurance.id,
+        insurance: { modalities: form.getValues().modalities } as any,
       },
       {
         onSuccess: () => {
+          setEditingModalities(false);
           onSuccess();
-          form.reset();
         },
       },
     );
+
+    console.log(insurance);
+  };
+
+  const saveSpecialties = (specialties: any) => {
+    if (!insurance?.id) return;
+
+    mutate(
+      { id: insurance.id, insurance: { specialties } },
+      {
+        onSuccess: () => setEditingSpecialties(false),
+      },
+    );
+
+    console.log(mutate);
   };
 
   return (
     <DialogContent className="w-full sm:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-y-auto">
       <DialogHeader>
-        <DialogTitle>
-          {insurance ? insurance.name : 'Adicionar Convênio'}
-        </DialogTitle>
+        <DialogTitle>{insurance && insurance.type}</DialogTitle>
         <DialogDescription>
-          {insurance
-            ? 'Edite as informações desse convênio.'
-            : 'Adicione um novo convênio.'}
+          Edite as informações desse convênio
         </DialogDescription>
       </DialogHeader>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form className="space-y-4">
           <FormInputCustom
-            name="name"
+            name="type"
             label="Convênio"
             control={form.control}
+            disabled={!editingName}
           />
 
-          <div className="flex flex-col gap-y-2 items-start">
+          <Button
+            type="button"
+            onClick={editingName ? saveName : () => setEditingName(true)}
+            disabled={isPending}
+            className="w-max self-end"
+          >
+            {editingName
+              ? isPending
+                ? 'Salvando...'
+                : 'Salvar nome'
+              : 'Editar nome'}
+          </Button>
+
+          {/* ---------- Modalidades ---------- */}
+          <div className="flex flex-col gap-y-2">
             <FormLabel>Modalidades</FormLabel>
             {modalityFields.map((field, index) => (
               <div key={field.id} className="flex gap-4 mb-2">
@@ -154,26 +190,55 @@ export const UpsertInsuranceForm = ({
                   label="Nome"
                   placeholder="Ex: Modalidade"
                   control={form.control}
+                  disabled={!editingModalities}
                 />
                 <Button
                   type="button"
                   variant="destructive"
                   className="self-end"
+                  disabled={!editingModalities}
                   onClick={() => removeModality(index)}
                 >
                   Remover
                 </Button>
               </div>
             ))}
-            <Button type="button" onClick={() => appendModality({ name: '' })}>
+            <Button
+              type="button"
+              onClick={() => appendModality({ name: '' })}
+              disabled={!editingModalities}
+              className="w-max"
+            >
               Adicionar modalidade
             </Button>
+
+            <div className="grid grid-cols-2 gap-2 items-center">
+              <Button
+                type="button"
+                onClick={saveModalities}
+                disabled={!editingModalities || isPending}
+                className="w-full mt-2 bg-green-700 hover:bg-green-900"
+              >
+                {isPending ? 'Salvando...' : 'Salvar Modalidades'}
+              </Button>
+
+              {!editingModalities && (
+                <Button
+                  type="button"
+                  onClick={() => setEditingModalities(true)}
+                  className="w-full mt-1"
+                >
+                  Editar Modalidades
+                </Button>
+              )}
+            </div>
           </div>
 
+          {/* ---------- Especialidades ---------- */}
           <FormField
             control={form.control}
             name="specialties"
-            defaultValue={[]}
+            defaultValue={insurance?.specialties ?? []}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Especialidades</FormLabel>
@@ -188,44 +253,46 @@ export const UpsertInsuranceForm = ({
                           ),
                         );
                       }}
+                      disabled={!editingSpecialties}
                     />
                     <CommandList>
                       <CommandEmpty>
                         Nenhuma especialidade encontrada
                       </CommandEmpty>
                       <CommandGroup>
-                        {filteredSpecialties.map((spec: any) => {
-                          const isSelected = field.value.some(
-                            (s) => s.id === spec.id,
-                          );
+                        {filteredSpecialties.length > 0 &&
+                          filteredSpecialties.map((spec: any) => {
+                            const isSelected = (field.value ?? []).some(
+                              (s) => s.id === spec.id,
+                            );
 
-                          return (
-                            <CommandItem
-                              key={spec.id}
-                              onSelect={() => {
-                                if (isSelected) {
-                                  field.onChange(
-                                    field.value.filter((s) => s.id !== spec.id),
-                                  );
-                                } else {
-                                  field.onChange([
-                                    ...field.value,
-                                    {
-                                      id: spec.id,
-                                      name: spec.name,
-                                      price: 0,
-                                      amountTransferred: 0,
-                                    },
-                                  ]);
-                                }
-                              }}
-                              className="flex items-center justify-between"
-                            >
-                              {spec.name}
-                              {isSelected && <CheckIcon size={16} />}
-                            </CommandItem>
-                          );
-                        })}
+                            return (
+                              <CommandItem
+                                key={spec.id}
+                                onSelect={() => {
+                                  if (!editingSpecialties) return;
+                                  const newValue = isSelected
+                                    ? (field.value ?? []).filter(
+                                        (s) => s.id !== spec.id,
+                                      )
+                                    : [
+                                        ...(field.value ?? []),
+                                        {
+                                          id: spec.id,
+                                          name: spec.name,
+                                          price: 0,
+                                          amountTransferred: 0,
+                                        },
+                                      ];
+                                  field.onChange(newValue);
+                                }}
+                                className="flex items-center justify-between"
+                              >
+                                {spec.name}
+                                {isSelected && <CheckIcon size={16} />}
+                              </CommandItem>
+                            );
+                          })}
                       </CommandGroup>
                     </CommandList>
                   </Command>
@@ -233,7 +300,7 @@ export const UpsertInsuranceForm = ({
                 <FormMessage />
 
                 <div className="flex flex-col gap-2 mt-2">
-                  {field.value.map((s, index) => (
+                  {(field.value ?? []).map((s, index) => (
                     <div
                       key={s.id}
                       className="flex flex-col gap-1 border p-2 rounded"
@@ -248,13 +315,17 @@ export const UpsertInsuranceForm = ({
                         <button
                           type="button"
                           onClick={() =>
+                            editingSpecialties &&
                             field.onChange(
-                              field.value.filter((item) => item.id !== s.id),
+                              (field.value ?? []).filter(
+                                (item) => item.id !== s.id,
+                              ),
                             )
                           }
+                          disabled={!editingSpecialties}
                           className="text-red-500 hover:text-red-700"
                         >
-                          ×
+                          <XIcon />
                         </button>
                       </div>
 
@@ -270,6 +341,7 @@ export const UpsertInsuranceForm = ({
                                 type="number"
                                 placeholder="Preço"
                                 {...priceField}
+                                disabled={!editingSpecialties}
                               />
                             )}
                           />
@@ -285,6 +357,7 @@ export const UpsertInsuranceForm = ({
                                 type="number"
                                 placeholder="Valor Transferido"
                                 {...amountField}
+                                disabled={!editingSpecialties}
                               />
                             )}
                           />
@@ -293,15 +366,29 @@ export const UpsertInsuranceForm = ({
                     </div>
                   ))}
                 </div>
+
+                <div className="grid grid-cols-2 gap-2 items-center">
+                  <Button
+                    type="button"
+                    onClick={() => saveSpecialties(field.value)}
+                    disabled={!editingSpecialties || isPending}
+                    className="w-full mt-2 bg-green-700 hover:bg-green-900"
+                  >
+                    {isPending ? 'Salvando...' : 'Salvar Especialidades'}
+                  </Button>
+                  {!editingSpecialties && (
+                    <Button
+                      type="button"
+                      onClick={() => setEditingSpecialties(true)}
+                      className="w-full mt-1"
+                    >
+                      Editar Especialidades
+                    </Button>
+                  )}
+                </div>
               </FormItem>
             )}
           />
-
-          <DialogFooter>
-            <Button type="submit" disabled={isPending} className="w-full mt-4">
-              {isPending ? 'Salvando...' : 'Salvar'}
-            </Button>
-          </DialogFooter>
         </form>
       </Form>
     </DialogContent>
