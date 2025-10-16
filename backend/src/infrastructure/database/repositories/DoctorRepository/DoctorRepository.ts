@@ -84,7 +84,7 @@ export class DoctorRepository implements IRepository {
         )
         .where(
             or(
-                eq(doctorTable.id, doctor.getUUIDHash()),
+                eq(doctorTable.id, doctor.getUUIDHash() ?? undefined),
                 eq(doctorTable.crm, doctor.crm ?? ""),
                 eq(doctorTable.cpf, doctor.cpf ?? ""),
                 eq(doctorTable.name, doctor.name ?? "")

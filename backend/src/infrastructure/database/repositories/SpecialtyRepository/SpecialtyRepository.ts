@@ -44,11 +44,11 @@ export class SpecialtyRepository implements IRepository {
             return await db.select().from(specialtyTable)
                 .where(
                     or(
-                        eq(specialtyTable.id, specialties.getUUIDHash()),
+                        eq(specialtyTable.id, specialties.getUUIDHash() ?? undefined),
                         ilike(specialtyTable.name, specialties.name ?? ""),
                         or(
                             and(
-                                eq(specialtyTable.id, specialties.getUUIDHash()),
+                                eq(specialtyTable.id, specialties.getUUIDHash() ?? undefined),
                                 ilike(specialtyTable.name, specialties.name ?? ""),
                             )
                         )
