@@ -15,7 +15,11 @@ export class Scheduling extends EntityDomain {
     public get dateOfConfirmation() {
         return this.schedulingProps.dateOfConfirmation
     }
-
+    
+    public get timeOfConsultation() {
+        return this.schedulingProps.timeOfConsultation
+    }
+    
     public get doctor() {
         return this.schedulingProps.doctor
     }

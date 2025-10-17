@@ -1,5 +1,5 @@
 import { SpecialtyBuilder } from "../../../../domain/entities/EntitySpecialty/SpecialtyBuilder";
-import { EntityExits } from "../../../../domain/validators/General/EntityExits";
+import { EntityExistsToUpdated } from "../../../../domain/validators/General/EntityExistsToUpdated";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
@@ -16,6 +16,13 @@ export class UpdateSpecialtiesService {
                 specialty.setUuidHash(sp.id ?? specialty.getUUIDHash())
                 return specialty
             })
+
+            if (!specialtiesDomain || !specialtiesDomain.length) return ResponseHandler.error("You should be only the specialty to updated !")
+            const validators = new ValidatorController()
+            
+            validators.setValidator(`U-${specialtiesDomain?.[0]?.constructor.name}`, [ new EntityExistsToUpdated() ])
+            const entityIsValid = await validators.process(`U-${specialtiesDomain?.[0]?.constructor.name}`, specialtiesDomain, this.repository)
+            if(!entityIsValid.success) return entityIsValid;
             const specialtyUpdated = await this.repository.updateEntity(specialtiesDomain)
             return ResponseHandler.success(...specialtyUpdated, "Success ! Data updated.")
         } catch (e) {

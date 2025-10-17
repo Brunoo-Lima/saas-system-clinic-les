@@ -1,6 +1,5 @@
 import { InsuranceFactory } from "../../../../../domain/entities/EntityInsurance/InsuranceFactory";
 import { EntityExistsToInserted } from "../../../../../domain/validators/General/EntityExistsToInserted";
-import { EntityExistsToUpdated } from "../../../../../domain/validators/General/EntityExistsToUpdated";
 import { UUIDValidator } from "../../../../../domain/validators/General/UUIDValidator";
 import { ValidatorController } from "../../../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../../../helpers/ResponseHandler";
@@ -27,7 +26,7 @@ export class AddInsuranceToModalityService {
             const validator = new ValidatorController();
             validator.setValidator(`F-${insuranceDomain.constructor.name}`, [
                 new UUIDValidator(),
-                new EntityExistsToUpdated(),
+                new EntityExistsToInserted(),
             ]);
             validator.setValidator(`A-${insuranceDomain.modalities?.[0]?.constructor.name}`, [
                 new UUIDValidator(true),
@@ -49,19 +48,15 @@ export class AddInsuranceToModalityService {
             }
 
             const entitiesInserted = await db.transaction(async (tx) => {
-                const modalitiesCreatedOrFound = await Promise.all(
+                await Promise.all(
                     insuranceDomain.modalities?.map(async (mod) => await findOrCreate(this.modalityRepository, mod, tx)) ?? []
                 );
 
                 const insuranceToModalityAdded = await this.repository.addModality(insuranceDomain, tx);
-
-                return {
-                    linked: insuranceToModalityAdded.flat(),
-                    createdAndLinked: modalitiesCreatedOrFound.flat(), // <- remove nested arrays
-                };
+                return {linked: insuranceToModalityAdded.flat() };
             });
 
-            if (!entitiesInserted.linked.length && !entitiesInserted.createdAndLinked.length) {
+            if (!entitiesInserted.linked.length) {
                 return ResponseHandler.error("Failed to create and link modality to insurance");
             }
 

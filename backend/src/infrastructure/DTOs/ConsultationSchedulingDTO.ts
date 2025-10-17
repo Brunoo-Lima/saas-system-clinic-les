@@ -3,7 +3,9 @@ import { InsuranceDTO } from "./InsuranceDTO"
 import { PatientDTO } from "./PatientDTO"
 
 export interface ConsultationSchedulingDTO {
+    timezone?: number 
     date?: string
+    hour: string
     priceOfConsultation: number
     isReturn: boolean
     status: "CONFIRMED" | "PENDING" | "CONCLUDE" | "CANCELED",

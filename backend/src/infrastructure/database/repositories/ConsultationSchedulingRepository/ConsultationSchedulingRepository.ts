@@ -4,17 +4,13 @@ import { Scheduling } from "../../../../domain/entities/EntityScheduling/Schedul
 import db from "../../connection";
 import { schedulingTable } from "../../Schema/SchedulingSchema";
 import { IRepository } from "../IRepository";
-import { doctorTable } from "../../Schema/DoctorSchema";
-import { insuranceTable } from "../../Schema/InsuranceSchema";
-import { patientTable } from "../../Schema/PatientSchema";
-import { specialtyTable } from "../../Schema/SpecialtySchema";
 
 export class ConsultationSchedulingRepository implements IRepository {
     async create(scheduling: Scheduling, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
         const schedulingInserted = await db.insert(schedulingTable).values({
             id: scheduling.getUUIDHash(),
-            date: scheduling.date?.toDateString() ?? "",
+            date: scheduling.date as Date,
             dateOfConfirmation: scheduling.dateOfConfirmation?.toDateString() ?? "",
             isReturn: scheduling.isReturn ?? false,
             status: scheduling.status ?? "",

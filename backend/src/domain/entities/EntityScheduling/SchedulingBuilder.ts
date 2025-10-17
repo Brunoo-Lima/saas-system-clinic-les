@@ -18,6 +18,11 @@ export class SchedulingBuilder {
     return this;
   }
 
+  setTimeOfConsultation(time?: number | undefined): this {
+    this.data.timeOfConsultation = time
+    return this
+  }
+
   setDoctor(doctor?: Doctor | undefined): this {
     this.data.doctor = doctor
     return this

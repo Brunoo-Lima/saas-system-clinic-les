@@ -8,6 +8,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { doctorTable } from "./DoctorSchema";
 import { relations } from "drizzle-orm";
+import { specialtyTable } from "./SpecialtySchema";
 
 // Period
 export const periodDoctorTable = pgTable("period", {
@@ -17,6 +18,7 @@ export const periodDoctorTable = pgTable("period", {
   timeFrom: time("per_timeFrom").notNull(),
   timeTo: time("per_timeTo").notNull(),
   doctor_id: uuid("fk_per_doc_id").references(() => doctorTable.id),
+  specialty_id: uuid("fk_per_spe_id").references(() => specialtyTable.id),
   createdAt: timestamp("use_createdAt")
     .$defaultFn(() => new Date())
     .notNull(),
@@ -34,6 +36,10 @@ export const periodRelation = relations(periodDoctorTable, ({ one }) => (
     doctor: one(doctorTable, {
       fields: [periodDoctorTable.doctor_id],
       references: [doctorTable.id]
+    }),
+    specialty: one(specialtyTable, {
+      fields: [periodDoctorTable.specialty_id],
+      references: [specialtyTable.id]
     })
   })
 )

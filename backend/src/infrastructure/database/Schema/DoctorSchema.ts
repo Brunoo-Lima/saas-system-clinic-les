@@ -8,7 +8,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { addressTable } from "./AddressSchema";
 import { userTable } from "./UserSchema";
-import { clinicTable } from "./ClinicSchema";
 import { specialtyTable } from "./SpecialtySchema";
 import { periodDoctorTable } from "./PeriodSchema";
 import { relations } from "drizzle-orm";

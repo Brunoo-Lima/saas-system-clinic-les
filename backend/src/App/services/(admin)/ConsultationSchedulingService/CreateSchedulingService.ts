@@ -1,6 +1,7 @@
 import { SchedulingFactory } from "../../../../domain/entities/EntityScheduling/SchedulingFactory";
+import { DateSchedulingValidator } from "../../../../domain/validators/ConsultationScheduling/DatesSchedulingValidator";
+import { ExistsScheduling } from "../../../../domain/validators/ConsultationScheduling/ExistsScheduling";
 import { EntityExistsToInserted } from "../../../../domain/validators/General/EntityExistsToInserted";
-import { EntityExits } from "../../../../domain/validators/General/EntityExits";
 import { RequiredGeneralData } from "../../../../domain/validators/General/RequiredGeneralData";
 import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
@@ -31,12 +32,13 @@ export class CreateSchedulingService {
         try {   
             const consultationSchedulingDomain = SchedulingFactory.createFromDTO(schedulingDTO)
             const { doctor, specialty, insurance, patient } = consultationSchedulingDomain
-            
             if(!doctor || !specialty || !insurance || !patient) return ResponseHandler.error("You can all required data of the: Doctor, Patient, Insurance and Specialty")
 
             const validator = new ValidatorController()
             validator.setValidator(`C-${consultationSchedulingDomain.constructor.name}`, [
                 new UUIDValidator(),
+                new DateSchedulingValidator(),
+                new ExistsScheduling(),
                 new RequiredGeneralData(Object.keys(consultationSchedulingDomain.props), ["dateOfConfirmation"])
             ])
             
@@ -73,7 +75,6 @@ export class CreateSchedulingService {
             const schedulingInserted = await this.repository.create(consultationSchedulingDomain);
             return ResponseHandler.success(schedulingInserted, "Success ! Scheduling confirmed.")
         } catch (e) {
-            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }

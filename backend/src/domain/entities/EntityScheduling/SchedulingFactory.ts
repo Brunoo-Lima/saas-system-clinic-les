@@ -32,9 +32,11 @@ export class SchedulingFactory {
             .build();
         specialty.setUuidHash(schedulingDTO.specialty.id ??"");
 
-        // Address
+        const combinedString = `${schedulingDTO.date}T${schedulingDTO.hour}`; 
+        const combinedDate = new Date(combinedString);
+        
         const scheduling = new SchedulingBuilder()
-        .setDate(schedulingDTO.date ? new Date(schedulingDTO.date) : undefined)
+        .setDate(combinedDate ?? undefined)
         .setDateOfConfirmation(schedulingDTO.dateOfConfirmation ? new Date(schedulingDTO.dateOfConfirmation) : undefined)
         .setDoctor(doctor)
         .setInsurance(insurance)

@@ -161,7 +161,7 @@ export class InsuranceRepository implements IRepository {
         }) ?? [])
 
         return {
-            updated: specialtiesUpdated,
+            updated: specialtiesUpdated.flat(),
             deleted: specialtiesRemoved
         }
     }
@@ -179,7 +179,7 @@ export class InsuranceRepository implements IRepository {
 
         }) ?? [])
 
-        return specialtiesAdded
+        return [...specialtiesAdded]
     }
 
     async addModality(insurance: Insurance, tx?: any) {
@@ -248,7 +248,6 @@ export class InsuranceRepository implements IRepository {
 
             return insurances
         } catch (e) {
-            console.log(e)
             return ResponseHandler.error("Failed to find the insurances")
         }
     }

@@ -26,4 +26,9 @@ export class Period extends EntityDomain {
     public get props(){
         return this.periodProps
     }
+    
+    public get specialty() {
+        return this.periodProps.specialty
+    }
+    
 }

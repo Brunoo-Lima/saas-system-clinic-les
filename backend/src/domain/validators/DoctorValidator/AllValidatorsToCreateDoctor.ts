@@ -1,6 +1,5 @@
 import { ResponseHandler } from "../../../helpers/ResponseHandler";
 import { AddressRepository } from "../../../infrastructure/database/repositories/AddressRepository/AddressRepository";
-import { ClinicRepository } from "../../../infrastructure/database/repositories/ClinicRepository/ClinicRepository";
 import { IRepository } from "../../../infrastructure/database/repositories/IRepository";
 import { SpecialtyRepository } from "../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository";
 import { UserRepository } from "../../../infrastructure/database/repositories/UserRepository/UserRepository";
@@ -14,7 +13,6 @@ import { IProcessValidator } from "../IProcessValidator";
 import { ValidatorController } from "../ValidatorController";
 
 export class AllValidatorToCreateDoctor implements IProcessValidator {
-    private clinicRepository: IRepository = new ClinicRepository()
     private specialtyRepository: IRepository = new SpecialtyRepository()
     private userRepository: IRepository = new UserRepository()
     private addressRepository: IRepository = new AddressRepository()

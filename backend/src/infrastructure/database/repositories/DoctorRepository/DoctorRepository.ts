@@ -42,7 +42,8 @@ export class DoctorRepository implements IRepository {
                     periodType: per?.periodType ?? "",
                     timeFrom: per?.timeFrom?.toString() ?? "",
                     timeTo: per?.timeTo?.toString() ?? "",
-                    doctor_id: doctor.getUUIDHash() ?? ""
+                    doctor_id: doctor.getUUIDHash() ?? "",
+                    specialty_id: per.specialty.getUUIDHash() ?? ""
                 }))
             );
         }
@@ -60,7 +61,8 @@ export class DoctorRepository implements IRepository {
                 'periodType', ${periodDoctorTable.periodType},
                 'dayWeek', ${periodDoctorTable.dayWeek},
                 'timeFrom', ${periodDoctorTable.timeFrom},
-                'timeTo', ${periodDoctorTable.timeTo}
+                'timeTo', ${periodDoctorTable.timeTo},
+                'specialty_id', ${periodDoctorTable.specialty_id}
             )
             )`.as("periods"),
             specialties: sql`
@@ -127,7 +129,8 @@ export class DoctorRepository implements IRepository {
                                 'periodType', ${periodDoctorTable.periodType},       
                                 'dayWeek', ${periodDoctorTable.dayWeek},       
                                 'timeFrom', ${periodDoctorTable.timeFrom},       
-                                'timeTo', ${periodDoctorTable.timeTo}     
+                                'timeTo', ${periodDoctorTable.timeTo},
+                                'specialty_id', ${periodDoctorTable.specialty_id}
                             )
                         )
                     FROM ${periodDoctorTable}
