@@ -39,7 +39,7 @@ export class CreateSchedulingService {
                 new UUIDValidator(),
                 new DateSchedulingValidator(),
                 new ExistsScheduling(),
-                new RequiredGeneralData(Object.keys(consultationSchedulingDomain.props), ["dateOfConfirmation"])
+                new RequiredGeneralData(Object.keys(consultationSchedulingDomain.props), ["dateOfConfirmation", "dateOfRealizable"])
             ])
             
             validator.setValidator(`F-${doctor.constructor.name}`, [
@@ -61,7 +61,6 @@ export class CreateSchedulingService {
                 new UUIDValidator(),
                 new EntityExistsToInserted(),
             ])
-
             const entitiesIsValid = await Promise.all([
                 await validator.process(`C-${consultationSchedulingDomain.constructor.name}`, consultationSchedulingDomain, this.repository),   
                 await validator.process(`F-${doctor.constructor.name}`, doctor, this.doctorRepository),   
@@ -75,6 +74,7 @@ export class CreateSchedulingService {
             const schedulingInserted = await this.repository.create(consultationSchedulingDomain);
             return ResponseHandler.success(schedulingInserted, "Success ! Scheduling confirmed.")
         } catch (e) {
+            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }

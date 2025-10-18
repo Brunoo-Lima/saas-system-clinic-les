@@ -3,8 +3,7 @@ import {
   smallint,
   time,
   timestamp,
-  uuid,
-  varchar,
+  uuid
 } from "drizzle-orm/pg-core";
 import { doctorTable } from "./DoctorSchema";
 import { relations } from "drizzle-orm";
@@ -13,7 +12,6 @@ import { specialtyTable } from "./SpecialtySchema";
 // Period
 export const periodDoctorTable = pgTable("period", {
   id: uuid("per_id").primaryKey(),
-  periodType: varchar("per_periodType", { length: 20 }).notNull(),
   dayWeek: smallint("per_dayWeek").notNull(),
   timeFrom: time("per_timeFrom").notNull(),
   timeTo: time("per_timeTo").notNull(),

@@ -38,6 +38,8 @@ export class SchedulingFactory {
         const scheduling = new SchedulingBuilder()
         .setDate(combinedDate ?? undefined)
         .setDateOfConfirmation(schedulingDTO.dateOfConfirmation ? new Date(schedulingDTO.dateOfConfirmation) : undefined)
+        .setDateOfRealizable(schedulingDTO.dateOfRealizable ? new Date(schedulingDTO.dateOfRealizable) : undefined)
+        .setTimeOfConsultation("01:00:00") // Por padrao setamos 1 hora para a consulta
         .setDoctor(doctor)
         .setInsurance(insurance)
         .setIsReturn(schedulingDTO.isReturn)

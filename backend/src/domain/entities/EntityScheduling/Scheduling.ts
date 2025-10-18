@@ -12,6 +12,10 @@ export class Scheduling extends EntityDomain {
         return this.schedulingProps.date
     }
     
+    public get dateOfRealizable() {
+        return this.schedulingProps.dateOfRealizable
+    }
+    
     public get dateOfConfirmation() {
         return this.schedulingProps.dateOfConfirmation
     }
@@ -45,6 +49,10 @@ export class Scheduling extends EntityDomain {
     
     public get props() {
         return this.schedulingProps
+    }
+    
+    public set timeOfConsultation(time : string | undefined) {
+        this.schedulingProps.timeOfConsultation = time
     }
     
 }

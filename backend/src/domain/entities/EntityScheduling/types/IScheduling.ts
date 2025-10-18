@@ -5,7 +5,8 @@ import { Specialty } from "../../EntitySpecialty/Specialty"
 
 export interface IScheduling {
     date?: Date | undefined
-    timeOfConsultation?: number | undefined
+    timeOfConsultation?: string | undefined
+    dateOfRealizable?: Date | undefined
     doctor?: Doctor | undefined
     patient?: Patient | undefined
     priceOfConsultation?: number | undefined;

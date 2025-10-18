@@ -1,4 +1,3 @@
-import { sql } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Scheduling } from "../../../../domain/entities/EntityScheduling/Scheduling";
 import db from "../../connection";
@@ -8,12 +7,14 @@ import { IRepository } from "../IRepository";
 export class ConsultationSchedulingRepository implements IRepository {
     async create(scheduling: Scheduling, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
-        const schedulingInserted = await db.insert(schedulingTable).values({
+        const schedulingInserted = await dbUse.insert(schedulingTable).values({
             id: scheduling.getUUIDHash(),
-            date: scheduling.date as Date,
-            dateOfConfirmation: scheduling.dateOfConfirmation?.toDateString() ?? "",
+            date: (scheduling.date as Date),
+            dateOfConfirmation: scheduling.dateOfConfirmation?.toISOString() ?? new Date().toISOString() , // Alterar o schema para poder adicionar null
             isReturn: scheduling.isReturn ?? false,
+            dateOfRealizable: scheduling.dateOfRealizable ?? null,
             status: scheduling.status ?? "",
+            timeOfConsultation: scheduling.timeOfConsultation ?? "00:00:00",
             doctor_id: scheduling.doctor?.getUUIDHash(),
             insurance_id:  scheduling.insurance?.getUUIDHash(),
             patient_id: scheduling.patient?.getUUIDHash(),
