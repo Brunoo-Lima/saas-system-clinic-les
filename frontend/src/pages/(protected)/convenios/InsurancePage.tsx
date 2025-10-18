@@ -37,6 +37,8 @@ export const InsurancePage = () => {
     handlePage(1);
   };
 
+  console.log(paginatedData);
+
   return (
     <PageContainer>
       <PageHeader>

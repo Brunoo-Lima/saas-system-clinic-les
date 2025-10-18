@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { addressFormSchema } from './address-form-schema';
 
 const periodToWorkSchema = z.object({
-  periodType: z.string().min(1, 'Tipo de período é obrigatório'),
   dayWeek: z.number().min(1, 'Dia da semana é obrigatório'),
   timeFrom: z.string().min(1, 'Horário inicial obrigatório'),
   timeTo: z.string().min(1, 'Horário final obrigatório'),
@@ -16,7 +15,7 @@ export const doctorFormSchema = z.object({
   sex: z.enum(['Male', 'Female']),
   phone: z.string().trim().min(1, { message: 'Telefone é obrigatório.' }),
   dateOfBirth: z.union([z.date(), z.string()]),
-  percentDistribution: z.number().min(0).max(100),
+  percentDistribution: z.coerce.number().min(0, 'Repasse é obrigatório'),
   user: z.object({
     email: z.string().email('Email inválido'),
     username: z.string().min(1, 'Nome de usuário é obrigatório'),

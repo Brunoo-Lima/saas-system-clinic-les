@@ -9,7 +9,6 @@ export interface IDoctor extends IPerson {
   }[];
   user: IUserPerson;
   periodToWork: {
-    periodType: string;
     dayWeek: number;
     timeFrom: string;
     timeTo: string;

@@ -54,6 +54,7 @@ import {
 } from '@/components/ui/select';
 import { formatCEP } from '@/utils/format-cep';
 import { brazilianStates } from '@/utils/brazilian-states';
+import { useCreateDoctor } from '@/services/doctor-service';
 
 interface IUpsertDoctorFormProps {
   doctor?: IDoctor;
@@ -82,7 +83,7 @@ export const UpsertDoctorForm = ({
     name: 'periodToWork',
   });
 
-  // const { mutate, isPending } = useCreateDoctor();
+  const { mutate, isPending } = useCreateDoctor();
   const { data: specialtiesBackend } = useGetSpecialties();
 
   const specialties =
@@ -92,10 +93,34 @@ export const UpsertDoctorForm = ({
     })) || [];
 
   useEffect(() => {
+    console.log(form.formState.errors);
+  }, [form.formState.errors]);
+
+  useEffect(() => {
     if (isOpen) {
       form.reset(getDoctorDefaultValues(doctor) ?? {});
     }
   }, [isOpen, form, doctor]);
+
+  // Adicione este useEffect para sincronizar as especialidades
+  useEffect(() => {
+    form.setValue(
+      'specialties',
+      selectedSpecialties.map((id) => ({ id })),
+    );
+  }, [selectedSpecialties, form]);
+
+  // E este para sincronizar os períodos quando especialidades são removidas
+  useEffect(() => {
+    const currentPeriods = form.getValues('periodToWork') || [];
+    const filteredPeriods = currentPeriods.filter((period) =>
+      selectedSpecialties.includes(period.specialty_id),
+    );
+
+    if (filteredPeriods.length !== currentPeriods.length) {
+      form.setValue('periodToWork', filteredPeriods);
+    }
+  }, [selectedSpecialties, form]);
 
   const handleNewPasswordRandom = (length: number = 8) => {
     const chars =
@@ -128,101 +153,69 @@ export const UpsertDoctorForm = ({
   const toggleSpecialty = (specialtyId: string) => {
     setSelectedSpecialties((prev) => {
       const isSelected = prev.includes(specialtyId);
-
-      if (isSelected) {
-        // Remove a especialidade e seus períodos
-        const updatedSpecialties = prev.filter((id) => id !== specialtyId);
-
-        // Remove os períodos associados a esta especialidade
-        const updatedPeriods = periodFields.filter(
-          (period) => period.specialty_id !== specialtyId,
-        );
-        form.setValue('periodToWork', updatedPeriods);
-
-        // Atualiza o array de especialidades no form
-        form.setValue(
-          'specialties',
-          updatedSpecialties.map((id) => ({ id })),
-        );
-
-        return updatedSpecialties;
-      } else {
-        // Adiciona a especialidade
-        const updatedSpecialties = [...prev, specialtyId];
-
-        // Atualiza o array de especialidades no form
-        form.setValue(
-          'specialties',
-          updatedSpecialties.map((id) => ({ id })),
-        );
-
-        return updatedSpecialties;
-      }
+      return isSelected
+        ? prev.filter((id) => id !== specialtyId)
+        : [...prev, specialtyId];
     });
   };
 
   const onSubmit = async (data: DoctorFormSchema) => {
     try {
-      // Monta as especialidades no formato [{ id }]
-      // const specialtiesFormatted = data.specialties.map((item) => ({
-      //   id: item.specialty, // o campo que você usa no front
-      // }));
+      const payload = {
+        name: data.name,
+        cpf: data.cpf.replace(/\D/g, ''), // Remove formatação do CPF
+        crm: data.crm,
+        sex: data.sex,
+        phone: data.phone.replace(/\D/g, ''), // Remove formatação do telefone
+        dateOfBirth:
+          data.dateOfBirth instanceof Date
+            ? data.dateOfBirth.toISOString().split('T')[0]
+            : data.dateOfBirth,
+        percentDistribution: data.percentDistribution || 0.2,
+        user: {
+          username: data.user.username || data.name, // Fallback para name se username não existir
+          email: data.user.email,
+          password: data.user.password,
+          avatar: data.user.avatar || '',
+        },
+        specialties: data.specialties, // Já está no formato [{ id }]
+        periodToWork: data.periodToWork.map((period) => ({
+          ...period,
+          dayWeek: +period.dayWeek,
+          timeFrom: period.timeFrom.includes(':')
+            ? period.timeFrom
+            : period.timeFrom + ':00',
+          timeTo: period.timeTo.includes(':')
+            ? period.timeTo
+            : period.timeTo + ':00',
+        })),
+        address: {
+          name: data.address.name,
+          street: data.address.street,
+          number: data.address.number,
+          neighborhood: data.address.neighborhood,
+          cep: data.address.cep.replace(/\D/g, ''), // Remove formatação do CEP
+          city: {
+            name: data.address.city.name,
+          },
+          state: {
+            name: data.address.state.name,
+            uf: data.address.state.uf,
+          },
+          country: {
+            name: data.address.country.name,
+          },
+        },
+      };
 
-      // Monta o payload esperado pela API
-      // const payload = {
-      //   name: data.name,
-      //   cpf: data.cpf,
-      //   crm: data.crm,
-      //   sex: data.sex,
-      //   phone: data.phone,
-      //   dateOfBirth:
-      //     data.dateOfBirth instanceof Date
-      //       ? data.dateOfBirth.toISOString().split('T')[0] // 'YYYY-MM-DD'
-      //       : data.dateOfBirth,
-      //   percentDistribution: 0.2, // se for fixo, mantenha aqui
-      //   user: {
-      //     username: data.name, // se não tiver campo específico
-      //     email: data.user.email,
-      //     password: data.user.password,
-      //     avatar: data.user.avatar ?? '',
-      //   },
-      //   specialties: specialtiesFormatted,
-      //   periodToWork:
-      //     data.specialties
-      //       ?.flatMap((spec) =>
-      //         spec.availableWeekDay?.map((period) => ({
-      //           periodType: period.periodType,
-      //           dayWeek: period.dayWeek,
-      //           timeFrom: period.timeFrom,
-      //           timeTo: period.timeTo,
-      //         })),
-      //       )
-      //       .filter(Boolean) ?? [],
-      //   address: {
-      //     name: data.address.name,
-      //     street: data.address.street,
-      //     number: data.address.number,
-      //     neighborhood: data.address.neighborhood,
-      //     cep: data.address.cep,
-      //     city: { name: data.address.city.name },
-      //     state: {
-      //       name: data.address.state.name,
-      //       uf: data.address.state.uf,
-      //     },
-      //     country: { name: data.address.country.name },
-      //   },
-      // };
+      console.log('payload', payload);
 
-      // console.log('payload enviado:', payload);
-
-      // mutate(payload, {
-      //   onSuccess: () => {
-      //     onSuccess();
-      //   },
-      // });
-      console.log(data);
-
-      onSuccess();
+      mutate(payload as any, {
+        onSuccess: () => {
+          toast.success('Médico salvo com sucesso.');
+          onSuccess();
+        },
+      });
     } catch (error: any) {
       console.error(error);
       toast.error('Erro ao salvar médico.');
@@ -231,7 +224,6 @@ export const UpsertDoctorForm = ({
 
   const addPeriodToSpecialty = (specialtyId: string) => {
     appendPeriod({
-      periodType: 'morning',
       dayWeek: 1,
       timeFrom: '08:00:00',
       timeTo: '12:00:00',
@@ -285,6 +277,20 @@ export const UpsertDoctorForm = ({
             <strong className="pb-2 block text-2xl">
               Especialidades e Horários
             </strong>
+
+            <FormField
+              control={form.control}
+              name="percentDistribution"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Valor de repasse</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="120" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -364,33 +370,6 @@ export const UpsertDoctorForm = ({
                         key={period.id}
                         className="grid grid-cols-5 gap-2 items-end border p-3 rounded"
                       >
-                        <FormField
-                          control={form.control}
-                          name={`periodToWork.${globalIndex}.periodType`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Período</FormLabel>
-                              <Select
-                                value={field.value}
-                                onValueChange={field.onChange}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="morning">Manhã</SelectItem>
-                                  <SelectItem value="afternoon">
-                                    Tarde
-                                  </SelectItem>
-                                  <SelectItem value="night">Noite</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormItem>
-                          )}
-                        />
-
                         <FormField
                           control={form.control}
                           name={`periodToWork.${globalIndex}.dayWeek`}
@@ -483,6 +462,13 @@ export const UpsertDoctorForm = ({
           </div>
 
           <strong className="py-2 block text-2xl">Dados pessoais</strong>
+
+          <FormInputCustom
+            name="user.username"
+            label="Nome do usuário"
+            placeholder="Digite o nome do usuário"
+            control={form.control}
+          />
 
           <FormInputCustom
             name="user.email"
@@ -717,12 +703,8 @@ export const UpsertDoctorForm = ({
           </div>
 
           <DialogFooter>
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting
-                ? 'Salvando...'
-                : doctor
-                ? 'Salvar'
-                : 'Adicionar'}
+            <Button type="submit" disabled={isPending}>
+              {isPending ? 'Salvando...' : doctor ? 'Salvar' : 'Adicionar'}
             </Button>
           </DialogFooter>
         </form>
