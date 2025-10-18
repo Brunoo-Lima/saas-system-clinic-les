@@ -1,11 +1,11 @@
 import { cn } from '@/lib/utils';
-import type { AppointmentAgenda, AppointmentStatus } from './agenda';
+import type {
+  AppointmentAgenda,
+  AppointmentStatus,
+  StatusConfigProps,
+} from './agenda';
 import { Badge } from '@/components/ui/badge';
-import { ClockIcon, UserIcon } from 'lucide-react';
-import { ModalDetails, type StatusConfigProps } from './modal-details';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { ClockIcon, MailIcon, PhoneIcon } from 'lucide-react';
 
 interface ICardAppointmentProps {
   appointment: AppointmentAgenda;
@@ -18,7 +18,6 @@ export const CardAppointment = ({
   isSelected,
   statusConfig,
 }: ICardAppointmentProps) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
   const [hour, minute] = appointment.time.split(':');
 
   return (
@@ -47,34 +46,31 @@ export const CardAppointment = ({
                 {statusConfig[appointment.status].label}
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground mb-1">
-              {appointment.type}
-            </p>
+
+            <div className="flex items-center gap-x-2">
+              <div className="flex items-center gap-2 text-sm">
+                <PhoneIcon className="h-3 w-3 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  {appointment.patient.phone}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 text-sm">
+                <MailIcon className="h-3 w-3 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  {appointment.patient.email}
+                </span>
+              </div>
+            </div>
+
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <ClockIcon className="h-3 w-3" />
-                {appointment.duration} min
-              </span>
-              <span className="flex items-center gap-1">
-                <UserIcon className="h-3 w-3" />
-                Paciente
+                {appointment.time}
               </span>
             </div>
           </div>
         </div>
-
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <Button variant="secondary" onClick={(e) => e.stopPropagation()}>
-              Ver detalhes
-            </Button>
-          </DialogTrigger>
-
-          <ModalDetails
-            selectedAppointment={appointment}
-            statusConfig={statusConfig}
-          />
-        </Dialog>
       </div>
     </div>
   );
