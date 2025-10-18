@@ -22,7 +22,7 @@ export class DoctorRepository implements IRepository {
             phone: doctor.phone ?? "",
             sex: doctor.sex ?? "",
             address_id: doctor.address?.getUUIDHash(),
-            date_of_birth: doctor.dateOfBirth?.toDateString() ?? "",
+            date_of_birth: doctor.dateOfBirth?.toISOString() ?? "",
             user_id: doctor.user?.getUUIDHash()
         }).returning()
 
