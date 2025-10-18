@@ -13,6 +13,7 @@ export interface IDoctor extends IPerson {
     dayWeek: number;
     timeFrom: string;
     timeTo: string;
+    specialty_id: string;
   }[];
 }
 
@@ -20,7 +21,6 @@ export interface IUserPerson {
   email: string;
   username: string;
   password: string;
-  confirmPassword: string;
 }
 
 // export interface ISpecialtyDoctor {

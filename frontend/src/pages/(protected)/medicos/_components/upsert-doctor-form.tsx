@@ -19,10 +19,9 @@ import {
   type DoctorFormSchema,
 } from '@/validations/doctor-form-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, type Resolver } from 'react-hook-form';
-import { medicalSpecialties } from '../_constants';
+import { useFieldArray, useForm, type Resolver } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
-import { useEffect, type ChangeEvent } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import type { IDoctor } from '@/@types/IDoctor';
 import { toast } from 'sonner';
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
@@ -41,10 +40,20 @@ import { ptBR } from 'date-fns/locale';
 import { CalendarIcon, RefreshCcwIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { InputPassword } from '@/components/ui/input-password';
-import { Checkbox } from '@/components/ui/checkbox';
 import { formatCPF } from '@/utils/format-cpf';
 import { Input } from '@/components/ui/input';
 import { formatCRM } from '@/utils/format-crm';
+import { useGetSpecialties } from '@/services/specialty-service';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { formatCEP } from '@/utils/format-cep';
+import { brazilianStates } from '@/utils/brazilian-states';
 
 interface IUpsertDoctorFormProps {
   doctor?: IDoctor;
@@ -62,11 +71,25 @@ export const UpsertDoctorForm = ({
     resolver: zodResolver(doctorFormSchema) as Resolver<DoctorFormSchema>,
     defaultValues: getDoctorDefaultValues(doctor),
   });
+  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
 
-  // const { fields, append, remove } = useFieldArray({
-  //   control: form.control,
-  //   name: 'specialties', // precisa bater com o schema
-  // });
+  const {
+    fields: periodFields,
+    append: appendPeriod,
+    remove: removePeriod,
+  } = useFieldArray({
+    control: form.control,
+    name: 'periodToWork',
+  });
+
+  // const { mutate, isPending } = useCreateDoctor();
+  const { data: specialtiesBackend } = useGetSpecialties();
+
+  const specialties =
+    specialtiesBackend?.map((specialty) => ({
+      value: specialty.id,
+      label: specialty.name,
+    })) || [];
 
   useEffect(() => {
     if (isOpen) {
@@ -97,27 +120,123 @@ export const UpsertDoctorForm = ({
     form.setValue('crm', formatted);
   };
 
-  const toggleSpecialty = (_specialtyValue: string) => {
-    // const index = fields.findIndex((f) => f.specialty === specialtyValue);
-    // if (index >= 0) {
-    //   remove(index);
-    // } else {
-    //   append({
-    //     specialty: specialtyValue,
-    //     availableWeekDay: [], // começa vazio
-    //   });
-    // }
+  const handleCEPformat = (e: ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCEP(e.target.value);
+    form.setValue('address.cep', formatted);
   };
 
-  const onSubmit = (data: DoctorFormSchema) => {
-    const payload = {
-      ...data,
-    };
+  const toggleSpecialty = (specialtyId: string) => {
+    setSelectedSpecialties((prev) => {
+      const isSelected = prev.includes(specialtyId);
 
-    console.log(payload);
+      if (isSelected) {
+        // Remove a especialidade e seus períodos
+        const updatedSpecialties = prev.filter((id) => id !== specialtyId);
 
-    onSuccess();
-    toast.success('Médico salvo com sucesso.');
+        // Remove os períodos associados a esta especialidade
+        const updatedPeriods = periodFields.filter(
+          (period) => period.specialty_id !== specialtyId,
+        );
+        form.setValue('periodToWork', updatedPeriods);
+
+        // Atualiza o array de especialidades no form
+        form.setValue(
+          'specialties',
+          updatedSpecialties.map((id) => ({ id })),
+        );
+
+        return updatedSpecialties;
+      } else {
+        // Adiciona a especialidade
+        const updatedSpecialties = [...prev, specialtyId];
+
+        // Atualiza o array de especialidades no form
+        form.setValue(
+          'specialties',
+          updatedSpecialties.map((id) => ({ id })),
+        );
+
+        return updatedSpecialties;
+      }
+    });
+  };
+
+  const onSubmit = async (data: DoctorFormSchema) => {
+    try {
+      // Monta as especialidades no formato [{ id }]
+      // const specialtiesFormatted = data.specialties.map((item) => ({
+      //   id: item.specialty, // o campo que você usa no front
+      // }));
+
+      // Monta o payload esperado pela API
+      // const payload = {
+      //   name: data.name,
+      //   cpf: data.cpf,
+      //   crm: data.crm,
+      //   sex: data.sex,
+      //   phone: data.phone,
+      //   dateOfBirth:
+      //     data.dateOfBirth instanceof Date
+      //       ? data.dateOfBirth.toISOString().split('T')[0] // 'YYYY-MM-DD'
+      //       : data.dateOfBirth,
+      //   percentDistribution: 0.2, // se for fixo, mantenha aqui
+      //   user: {
+      //     username: data.name, // se não tiver campo específico
+      //     email: data.user.email,
+      //     password: data.user.password,
+      //     avatar: data.user.avatar ?? '',
+      //   },
+      //   specialties: specialtiesFormatted,
+      //   periodToWork:
+      //     data.specialties
+      //       ?.flatMap((spec) =>
+      //         spec.availableWeekDay?.map((period) => ({
+      //           periodType: period.periodType,
+      //           dayWeek: period.dayWeek,
+      //           timeFrom: period.timeFrom,
+      //           timeTo: period.timeTo,
+      //         })),
+      //       )
+      //       .filter(Boolean) ?? [],
+      //   address: {
+      //     name: data.address.name,
+      //     street: data.address.street,
+      //     number: data.address.number,
+      //     neighborhood: data.address.neighborhood,
+      //     cep: data.address.cep,
+      //     city: { name: data.address.city.name },
+      //     state: {
+      //       name: data.address.state.name,
+      //       uf: data.address.state.uf,
+      //     },
+      //     country: { name: data.address.country.name },
+      //   },
+      // };
+
+      // console.log('payload enviado:', payload);
+
+      // mutate(payload, {
+      //   onSuccess: () => {
+      //     onSuccess();
+      //   },
+      // });
+      console.log(data);
+
+      onSuccess();
+    } catch (error: any) {
+      console.error(error);
+      toast.error('Erro ao salvar médico.');
+    }
+  };
+
+  const addPeriodToSpecialty = (specialtyId: string) => {
+    appendPeriod({
+      periodType: 'morning',
+      dayWeek: 1,
+      timeFrom: '08:00:00',
+      timeTo: '12:00:00',
+      specialty_id: specialtyId,
+    });
   };
 
   return (
@@ -162,62 +281,206 @@ export const UpsertDoctorForm = ({
             />
           </div>
 
-          <FormField
-            control={form.control}
-            name="specialties"
-            render={() => (
-              <FormItem>
-                <FormLabel>Especialidades</FormLabel>
-                <div className="space-y-2 grid grid-cols-2">
-                  {medicalSpecialties.map((specialty) => {
-                    // const isChecked = fields.some(
-                    //   (f) => f.specialty === specialty.value,
-                    // );
+          <div className="space-y-4">
+            <strong className="pb-2 block text-2xl">
+              Especialidades e Horários
+            </strong>
+
+            <FormField
+              control={form.control}
+              name="specialties"
+              render={() => (
+                <FormItem>
+                  <FormLabel className="text-xl">
+                    Selecionar Especialidades
+                  </FormLabel>
+                  <div className="space-y-2 grid grid-cols-2">
+                    {specialties.map((specialty) => {
+                      const isChecked = selectedSpecialties.includes(
+                        specialty.value,
+                      );
+
+                      return (
+                        <FormItem
+                          key={specialty.value}
+                          className="flex items-center space-x-2"
+                        >
+                          <FormControl>
+                            <Checkbox
+                              checked={isChecked}
+                              onCheckedChange={() =>
+                                toggleSpecialty(specialty.value)
+                              }
+                            />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            {specialty.label}
+                          </FormLabel>
+                        </FormItem>
+                      );
+                    })}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Campos de Período para cada especialidade selecionada */}
+            {selectedSpecialties.map((specialtyId) => {
+              const specialty = specialties.find(
+                (s) => s.value === specialtyId,
+              );
+              const specialtyPeriods = periodFields.filter(
+                (period) => period.specialty_id === specialtyId,
+              );
+
+              return (
+                <div
+                  key={specialtyId}
+                  className="border rounded-lg p-4 space-y-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="text-lg font-semibold">
+                      {specialty?.label} - Horários de Trabalho
+                    </FormLabel>
+                    <Button
+                      type="button"
+                      onClick={() => addPeriodToSpecialty(specialtyId)}
+                      variant="outline"
+                      size="sm"
+                    >
+                      + Adicionar Período
+                    </Button>
+                  </div>
+
+                  {specialtyPeriods.map((period) => {
+                    // Encontra o índice global do período
+                    const globalIndex = periodFields.findIndex(
+                      (p) => p.id === period.id,
+                    );
 
                     return (
-                      <FormItem
-                        key={specialty.value}
-                        className="flex items-center space-x-2"
+                      <div
+                        key={period.id}
+                        className="grid grid-cols-5 gap-2 items-end border p-3 rounded"
                       >
-                        <FormControl>
-                          <Checkbox
-                            // checked={isChecked}
-                            onCheckedChange={() =>
-                              toggleSpecialty(specialty.value)
-                            }
-                          />
-                        </FormControl>
-                        <FormLabel className="font-normal">
-                          {specialty.label}
-                        </FormLabel>
-                      </FormItem>
+                        <FormField
+                          control={form.control}
+                          name={`periodToWork.${globalIndex}.periodType`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Período</FormLabel>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="morning">Manhã</SelectItem>
+                                  <SelectItem value="afternoon">
+                                    Tarde
+                                  </SelectItem>
+                                  <SelectItem value="night">Noite</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name={`periodToWork.${globalIndex}.dayWeek`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Dia</FormLabel>
+                              <Select
+                                value={field.value.toString()}
+                                onValueChange={(value) =>
+                                  field.onChange(parseInt(value))
+                                }
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="1">Segunda</SelectItem>
+                                  <SelectItem value="2">Terça</SelectItem>
+                                  <SelectItem value="3">Quarta</SelectItem>
+                                  <SelectItem value="4">Quinta</SelectItem>
+                                  <SelectItem value="5">Sexta</SelectItem>
+                                  <SelectItem value="6">Sábado</SelectItem>
+                                  <SelectItem value="7">Domingo</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name={`periodToWork.${globalIndex}.timeFrom`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Das</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="time"
+                                  value={field.value?.substring(0, 5)}
+                                  onChange={(e) =>
+                                    field.onChange(e.target.value + ':00')
+                                  }
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name={`periodToWork.${globalIndex}.timeTo`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Até</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="time"
+                                  value={field.value?.substring(0, 5)}
+                                  onChange={(e) =>
+                                    field.onChange(e.target.value + ':00')
+                                  }
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removePeriod(globalIndex)}
+                        >
+                          Remover
+                        </Button>
+                      </div>
                     );
                   })}
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
-          {/* {fields.map((field, index) => (
-            <>
-              <strong key={field.id} className="py-2 block text-2xl">
-                {field.specialty}
-              </strong>
-              <FormField
-                key={field.id}
-                control={form.control}
-                name={`specialties.${index}.availableWeekDay`}
-                render={({ field }) => (
-                  <WeekDayAvailabilityField
-                    field={field}
-                    weekDays={WEEK_DAYS}
-                    timeOptions={timeOptions}
-                  />
-                )}
-              />
-            </>
-          ))} */}
+                  {specialtyPeriods.length === 0 && (
+                    <div className="text-center text-muted-foreground py-4">
+                      Nenhum período cadastrado para esta especialidade
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
 
           <strong className="py-2 block text-2xl">Dados pessoais</strong>
 
@@ -237,23 +500,6 @@ export const UpsertDoctorForm = ({
                   <FormLabel>Senha</FormLabel>
                   <FormControl>
                     <InputPassword {...field} placeholder="Digite sua senha" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="user.confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirme sua senha</FormLabel>
-                  <FormControl>
-                    <InputPassword
-                      {...field}
-                      placeholder="Digite sua confirmação de senha"
-                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -369,11 +615,22 @@ export const UpsertDoctorForm = ({
           <strong className="py-2 block text-2xl">Endereço</strong>
 
           <div className="grid grid-cols-2 gap-x-6">
-            <FormInputCustom
-              name="address.cep"
-              label="CEP"
-              placeholder="Digite o cep"
+            <FormField
               control={form.control}
+              name="address.cep"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>CEP</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="00000-000"
+                      {...field}
+                      onChange={handleCEPformat}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             <FormInputCustom
@@ -409,34 +666,54 @@ export const UpsertDoctorForm = ({
             />
           </div>
 
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <FormInputCustom
               name="address.city.name"
               label="Cidade"
-              placeholder="Digite o nome da cidade"
+              placeholder="Digite a cidade"
               control={form.control}
             />
 
             <FormInputCustom
               name="address.state.name"
               label="Estado"
-              placeholder="Digite o nome do estado"
+              placeholder="Digite o estado"
               control={form.control}
             />
 
-            <FormInputCustom
-              name="address.state.uf"
-              label="UF"
-              placeholder="Digite o UF"
-              control={form.control}
-            />
+            <div className="grid grid-cols-2 gap-2">
+              <FormField
+                control={form.control}
+                name="address.state.uf"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>UF</FormLabel>
+                    <Select onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="UF" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {brazilianStates.map((state) => (
+                          <SelectItem key={state} value={state}>
+                            {state}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormInputCustom
-              name="address.country.name"
-              label="País"
-              placeholder="Digite o país"
-              control={form.control}
-            />
+              <FormInputCustom
+                name="address.country.name"
+                label="País"
+                placeholder="Digite o país"
+                control={form.control}
+              />
+            </div>
           </div>
 
           <DialogFooter>

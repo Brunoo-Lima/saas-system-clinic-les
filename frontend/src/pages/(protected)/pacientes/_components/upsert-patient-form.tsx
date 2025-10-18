@@ -23,6 +23,7 @@ import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
+  SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -51,6 +52,7 @@ import {
   type IPatientPayload,
 } from '@/services/patient-service';
 import { formatCPF } from '@/utils/format-cpf';
+import { brazilianStates } from '@/utils/brazilian-states';
 
 interface IUpsertPatientFormProps {
   isOpen: boolean;
@@ -486,11 +488,29 @@ export const UpsertPatientForm = ({
               control={form.control}
             />
 
-            <FormInputCustom
-              name="address.state.uf"
-              label="UF"
-              placeholder="Digite o UF"
+            <FormField
               control={form.control}
+              name="address.state.uf"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>UF</FormLabel>
+                  <Select onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="UF" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {brazilianStates.map((state) => (
+                        <SelectItem key={state} value={state}>
+                          {state}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             <FormInputCustom
