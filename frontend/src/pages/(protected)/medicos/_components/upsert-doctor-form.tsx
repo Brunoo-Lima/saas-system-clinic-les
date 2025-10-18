@@ -208,8 +208,6 @@ export const UpsertDoctorForm = ({
         },
       };
 
-      console.log('payload', payload);
-
       mutate(payload as any, {
         onSuccess: () => {
           toast.success('Médico salvo com sucesso.');

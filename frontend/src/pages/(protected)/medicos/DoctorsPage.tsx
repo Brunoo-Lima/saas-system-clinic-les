@@ -81,7 +81,7 @@ export const DoctorsPage = () => {
           <div className="flex flex-wrap gap-6 flex-1">
             <Suspense fallback={<p>Carregando...</p>}>
               {paginatedData.map((doctor) => (
-                <CardDoctor key={doctor.id} doctor={doctor} />
+                <CardDoctor key={doctor.id} doctor={doctor as any} />
               ))}
             </Suspense>
 

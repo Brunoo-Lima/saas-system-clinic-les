@@ -12,13 +12,36 @@ import { Separator } from '@/components/ui/separator';
 import { CalendarIcon, ClockIcon, DollarSignIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import type { IDoctor } from '@/@types/IDoctor';
 import { UpsertDoctorForm } from './upsert-doctor-form';
 import { toast } from 'sonner';
 import { DropdownCard } from './actions/dropdown-card';
+import type { IPerson } from '@/@types/IPerson';
+import { formattedDayWeek } from '@/utils/format-day-week';
+
+export interface IUserPerson {
+  email: string;
+  username: string;
+  password: string;
+}
+
+export interface IDoctorReturnBack extends IPerson {
+  id: number;
+  crm: string;
+  percentDistribution: number;
+  specialties: {
+    id: string;
+  }[];
+  user: IUserPerson;
+  periods: {
+    dayWeek: number;
+    timeFrom: string;
+    timeTo: string;
+    specialty_id: string;
+  }[];
+}
 
 interface ICardDoctorProps {
-  doctor: IDoctor;
+  doctor: IDoctorReturnBack;
 }
 export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
   const [isUpsertDoctorDialogOpen, setIsUpsertDoctorDialogOpen] =
@@ -27,12 +50,13 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
   const doctorInitials = doctor.name
     .split(' ')
     .map((name) => name[0])
-    .slice(1, 3)
+    .slice(0, 2)
     .join('');
+
+  console.log('doctor', doctor);
 
   const handleDeleteDoctorClick = () => {
     if (!doctor) return;
-
     toast.success('Médico deletado com sucesso.');
   };
 
@@ -50,7 +74,7 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
           <div>
             <h3 className="text-sm font-medium">{doctor.name}</h3>
             <p className="text-muted-foreground text-sm">
-              {/* {doctor.specialties.map((s) => s.specialty).join(', ')} */}
+              {/* {doctor.specialties.map((s) => s.id)} */}
             </p>
           </div>
         </div>
@@ -59,20 +83,23 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
       <CardContent className="flex flex-col gap-2">
         <Badge variant="outline">
           <CalendarIcon className="mr-1" />
-          Segunda a Sexta
-          {/* {availability.map((a) => a.to.format("dddd")).join(", ")} */}
+          {doctor.periods.map((p) => formattedDayWeek(p.dayWeek)).join(', ')}
         </Badge>
-        <Badge variant="outline">
-          <ClockIcon className="mr-1" />
-          09:00 as 18:00
-          {/* {availability.map(
-            (a) => `${a.to.format("HH:mm")} as ${a.from.format("HH:mm")}`
-          )} */}
+        <Badge variant="outline" className="flex flex-col items-start gap-1">
+          {doctor.periods.map((a) => (
+            <span key={a.dayWeek} className="flex items-center gap-x-2">
+              <ClockIcon size={16} className="mr-1" />
+              {`${a.timeFrom.slice(0, 5)} - ${a.timeTo.slice(
+                0,
+                5,
+              )} (${formattedDayWeek(a.dayWeek)})`}
+            </span>
+          ))}
         </Badge>
 
         <Badge variant="outline">
           <DollarSignIcon className="mr-1" />
-          {/* {formatCurrencyInCents(doctor.servicePriceInCents)} */}
+          {doctor.percentDistribution}
         </Badge>
       </CardContent>
       <Separator />
@@ -86,9 +113,7 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
           </DialogTrigger>
           <UpsertDoctorForm
             doctor={{
-              ...doctor,
-              // availableToTime: availability.to.format("HH:mm:ss"), //14:00:00
-              // availableFromTime: availability.from.format("HH:mm:ss"),
+              ...(doctor as any),
             }}
             onSuccess={() => setIsUpsertDoctorDialogOpen(false)}
             isOpen={isUpsertDoctorDialogOpen}
@@ -99,42 +124,6 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
           onDeleteDoctor={handleDeleteDoctorClick}
           onSendNewPassword={handleSendNewPassword}
         />
-        {/* <div className="grid grid-cols-2 gap-2 w-full">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" className="w-full">
-                <TrashIcon />
-                Deletar médico
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  Tem certeza que deseja deletar esse médico?
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  Essa ação não pode ser revertida. Isso irá deletar o médico e
-                  todas as consultas agendadas.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDeleteDoctorClick}>
-                  Deletar
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={handleSendNewPassword}
-          >
-            Enviar nova senha
-          </Button>
-
-        </div> */}
       </CardFooter>
     </Card>
   );
