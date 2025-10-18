@@ -22,7 +22,7 @@ export class PatientRepository implements IRepository {
                 sex: patient.sex ?? "",
                 name: patient.name ?? "",
                 phone: patient.phone ?? "",
-                dateOfBirth: patient.dateOfBirth?.toDateString() ?? "",
+                dateOfBirth: patient.dateOfBirth?.toISOString() ?? "",
                 user_id: userID && userID !== "" ? userID : null, // UUID ou nulo, essa é a tipagem default do drizzle
                 address_id: patient.address?.getUUIDHash() ?? null
             }

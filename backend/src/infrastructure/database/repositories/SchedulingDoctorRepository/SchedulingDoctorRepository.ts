@@ -13,8 +13,8 @@ export class SchedulingDoctorRepository implements IRepository {
         const dbUse = tx ? tx : db
         const schedulingActivate = await dbUse.insert(doctorSchedulingTable).values({
             id: schedulingDoctor.getUUIDHash(),
-            dateFrom: schedulingDoctor.dayFrom?.toDateString() ?? "",
-            dateTo: schedulingDoctor.dayTo?.toDateString() ?? "",
+            dateFrom: schedulingDoctor.dayFrom?.toISOString() ?? "",
+            dateTo: schedulingDoctor.dayTo?.toISOString() ?? "",
             isActivate: schedulingDoctor.is_activate,
             doctor_id: schedulingDoctor.doctor?.getUUIDHash() ?? ""
         }).returning()

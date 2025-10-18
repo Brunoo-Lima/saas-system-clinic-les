@@ -5,12 +5,16 @@ export class EntityDomain {
     private uuidHash: UUID | string= randomUUID(),
     private createdAt: Date = new Date(),
     private updatedAt: Date = new Date(),
+    private timezone: number = -3
   ) {}
 
   public getUUIDHash(): UUID | string {
     return this.uuidHash;
   }
-
+  public getTimezone(): number {
+    return this.timezone;
+  }
+  
   public getCreatedAt(): Date {
     return this.createdAt;
   }

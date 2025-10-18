@@ -14,7 +14,7 @@ export class CardInsuranceRepository implements IRepository {
             return {
                 id: ct.getUUIDHash() ?? "",
                 cardNumber: ct.cardNumber ?? "",
-                validate: ct.validate?.toString() ?? "",
+                validate: ct.validate?.toISOString() ?? "",
                 insurance_id: ct.insurance?.getUUIDHash(),
                 patient_id: patient_id,
                 modality_id: ct.modality?.getUUIDHash()

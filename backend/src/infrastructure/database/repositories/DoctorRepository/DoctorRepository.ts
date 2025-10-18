@@ -22,7 +22,7 @@ export class DoctorRepository implements IRepository {
             phone: doctor.phone ?? "",
             sex: doctor.sex ?? "",
             address_id: doctor.address?.getUUIDHash(),
-            date_of_birth: doctor.dateOfBirth?.toDateString() ?? "",
+            date_of_birth: doctor.dateOfBirth?.toISOString() ?? "",
             user_id: doctor.user?.getUUIDHash()
         }).returning()
 
@@ -39,7 +39,6 @@ export class DoctorRepository implements IRepository {
                 doctor.periodToWork.map((per) => ({
                     id: per?.getUUIDHash() ?? "",
                     dayWeek: per?.dayWeek ?? 0,
-                    periodType: per?.periodType ?? "",
                     timeFrom: per?.timeFrom?.toString() ?? "",
                     timeTo: per?.timeTo?.toString() ?? "",
                     doctor_id: doctor.getUUIDHash() ?? "",
@@ -58,7 +57,6 @@ export class DoctorRepository implements IRepository {
             periods: sql`json_agg(
             json_build_object(
                 'id', ${periodDoctorTable.id},
-                'periodType', ${periodDoctorTable.periodType},
                 'dayWeek', ${periodDoctorTable.dayWeek},
                 'timeFrom', ${periodDoctorTable.timeFrom},
                 'timeTo', ${periodDoctorTable.timeTo},
@@ -125,8 +123,7 @@ export class DoctorRepository implements IRepository {
                     SELECT
                         json_agg(
                             json_build_object(
-                                'id', ${periodDoctorTable.id},       
-                                'periodType', ${periodDoctorTable.periodType},       
+                                'id', ${periodDoctorTable.id},             
                                 'dayWeek', ${periodDoctorTable.dayWeek},       
                                 'timeFrom', ${periodDoctorTable.timeFrom},       
                                 'timeTo', ${periodDoctorTable.timeTo},

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authMiddleware } from '../../App/middlewares/authMiddleware';
 import { privateRoute } from '../../App/middlewares/privateRoute';
 import { CreateSchedulingController } from '../../App/controllers/(admin)/ConsultationSchedulingController/CreateSchedulingController';
+import { FindAllSchedulingController } from '../../App/controllers/(admin)/ConsultationSchedulingController/FindAllSchedulingController';
 
 const schedulingRoutes: Router = Router();
 
@@ -10,5 +11,5 @@ schedulingRoutes.post('/scheduling', authMiddleware, privateRoute, (req, res, ne
   return createClinicController.handle(req, res, next);
 });
 
-
+schedulingRoutes.get("/scheduling/findall", authMiddleware, privateRoute, new FindAllSchedulingController().handle)
 export { schedulingRoutes };

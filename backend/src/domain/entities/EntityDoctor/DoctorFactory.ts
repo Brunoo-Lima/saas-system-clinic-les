@@ -60,7 +60,6 @@ export class DoctorFactory {
 
             const period = new Period({
                 dayWeek: per.dayWeek ?? 0,
-                periodType: per.periodType ?? "default",
                 timeFrom: per.timeFrom ?? "",
                 timeTo: per.timeTo ?? "",
                 specialty: specialty

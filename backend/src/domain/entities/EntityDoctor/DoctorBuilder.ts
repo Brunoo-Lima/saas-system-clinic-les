@@ -60,7 +60,6 @@ export class DoctorBuilder {
         this.data.periodsToWork = periodsToWork
         return this
     }
-
     build(): Doctor {
         return new Doctor(
             this.data, // garante que todas as propriedades obrigatórias estão presentes

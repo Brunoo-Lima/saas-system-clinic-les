@@ -17,8 +17,12 @@ export class SchedulingBuilder {
     this.data.dateOfConfirmation = dateOfConfirmation;
     return this;
   }
+  setDateOfRealizable(dateOfRealizable?: Date | undefined): this {
+    this.data.dateOfRealizable = dateOfRealizable;
+    return this;
+  }
 
-  setTimeOfConsultation(time?: number | undefined): this {
+  setTimeOfConsultation(time?: string | undefined): this {
     this.data.timeOfConsultation = time
     return this
   }
