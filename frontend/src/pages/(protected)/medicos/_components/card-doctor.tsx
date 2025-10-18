@@ -80,7 +80,7 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
         </div>
       </CardHeader>
       <Separator />
-      <CardContent className="flex flex-col gap-2">
+      <CardContent className="flex flex-col gap-2 flex-1">
         <Badge variant="outline">
           <CalendarIcon className="mr-1" />
           {doctor.periods.map((p) => formattedDayWeek(p.dayWeek)).join(', ')}

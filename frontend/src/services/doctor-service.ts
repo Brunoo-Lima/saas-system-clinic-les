@@ -32,7 +32,7 @@ export const useCreateDoctor = () => {
   return useMutation({
     mutationFn: createDoctor,
     onSuccess: () => {
-      toast.success('Médico criada com sucesso!');
+      toast.success('Médico criado com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['doctors'] });
     },
     onError: (error: any) => {

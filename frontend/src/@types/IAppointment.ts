@@ -1,28 +1,20 @@
 export interface IAppointment {
-  id: number;
-  date: Date;
-  specialty: {
-    id: string;
-    name: string;
-    price: number;
-  };
-  appointmentPriceInCents: number;
-  patient: {
-    id: string;
-    name: string;
-    email: string;
-    phoneNumber: string;
-    sex: string;
-  };
+  id: string;
+  date: string;
+  hour: string;
+  priceOfConsultation: number;
+  isReturn?: boolean;
+  status: 'CONFIRMED' | 'PENDING' | 'CONCLUDE' | 'CANCELED' | string;
   doctor: {
     id: string;
-    name: string;
-    specialty: string;
   };
-  clinic: {
+  patient: {
     id: string;
-    name: string;
   };
-  createdAt: string;
-  updatedAt: string;
+  insurance: {
+    id: string;
+  };
+  specialty: {
+    id: string;
+  };
 }
