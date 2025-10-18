@@ -1,5 +1,5 @@
 import { InsuranceFactory } from "../../../../../domain/entities/EntityInsurance/InsuranceFactory";
-import { EntityExistsToInserted } from "../../../../../domain/validators/General/EntityExistsToInserted";
+import { EntityExistsToUpdated } from "../../../../../domain/validators/General/EntityExistsToUpdated";
 import { UUIDValidator } from "../../../../../domain/validators/General/UUIDValidator";
 import { ValidSpecialtyToInsurance } from "../../../../../domain/validators/InsuranceValidator/ValidSpecialtyToInsurance";
 import { ValidatorController } from "../../../../../domain/validators/ValidatorController";
@@ -20,7 +20,7 @@ export class AddInsuranceToSpecialtyService {
 
             validator.setValidator(`F-${insuranceDomain.constructor.name}`, [ 
                 new UUIDValidator(), 
-                new EntityExistsToInserted(),
+                new EntityExistsToUpdated(),
                 new ValidSpecialtyToInsurance()
             ])
             validator.setValidator(`U-${insuranceDomain.specialties?.[0]?.constructor.name}`, [ new UUIDValidator() ])

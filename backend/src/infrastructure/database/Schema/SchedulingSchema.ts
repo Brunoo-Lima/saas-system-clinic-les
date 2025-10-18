@@ -5,7 +5,8 @@ import {
   varchar,
   boolean,
   real,
-  timestamp
+  timestamp,
+  time
 } from "drizzle-orm/pg-core";
 import { doctorTable } from "./DoctorSchema";
 import { patientTable } from "./PatientSchema";
@@ -16,11 +17,12 @@ import { specialtyTable } from "./SpecialtySchema";
 //Agendamentos
 export const schedulingTable = pgTable("scheduling", {
   id: uuid("sch_id").primaryKey(),
-  date: date("sch_date").notNull(),
+  date: timestamp("sch_date").notNull(),
   status: varchar("sch_status").notNull(),
   isReturn: boolean("sch_is_return").notNull(),
   priceOfConsultation: real("sch_price_of_consultation").default(0),
-  dateOfConfirmation: varchar("sch_date_of_confirmation").notNull(),
+  dateOfConfirmation: date("sch_date_of_confirmation").notNull(),
+  timeOfConsultation: time('sch_time_consultation'),
   doctor_id: uuid("fk_sch_doc_id").references(() => doctorTable.id),
   patient_id: uuid("fk_sch_pat_id").references(() => patientTable.id),
   insurance_id: uuid("fk_sch_ins_id").references(() => insuranceTable.id),

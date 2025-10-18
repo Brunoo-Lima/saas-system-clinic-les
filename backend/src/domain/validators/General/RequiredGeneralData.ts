@@ -4,7 +4,11 @@ import { EntityDomain } from "../../entities/EntityDomain";
 import { IProcessValidator } from "../IProcessValidator";
 
 export class RequiredGeneralData implements IProcessValidator {
-    constructor(private keys?: string[], private ignoreKeysIfnotExists?: string[]) { }
+    constructor(
+        private keys?: string[], 
+        private ignoreKeysIfnotExists?: string[], 
+        private includeKeys?: string[]
+    ) { }
     valid(entity: EntityDomain | Array<EntityDomain>, _: IRepository,  objectKeys?: string[]): IResponseHandler | Promise<IResponseHandler> {
         const entityValidate = !Array.isArray(entity) ? [entity] : entity
         try {
@@ -14,6 +18,7 @@ export class RequiredGeneralData implements IProcessValidator {
             
             for (const ent of entityValidate) {
                 for (const k of keys) {
+                    if (this.includeKeys?.length && !this.includeKeys.includes(k)) continue
                     if (this.ignoreKeysIfnotExists?.length && this.ignoreKeysIfnotExists.includes(k)) { continue }
                     if (!(typeof k as keyof EntityDomain)) return ResponseHandler.error(`This key: ${k} not exists in object ${ent.constructor.name}`)
                     if (!(ent as any)[k] && (typeof (ent as any)[k] !== "boolean")) return ResponseHandler.error(`This key: ${k} is required in ${ent.constructor.name}.`)

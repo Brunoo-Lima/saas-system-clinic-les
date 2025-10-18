@@ -23,6 +23,12 @@ export class SchedulingDoctorRepository implements IRepository {
     }
     async findEntity(schedulingDoctor: DoctorScheduling, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db;
+        const filters = []
+
+        if (schedulingDoctor.getUUIDHash()) filters.push(eq(doctorSchedulingTable.id, schedulingDoctor.getUUIDHash() ?? ""),)
+        if (schedulingDoctor.doctor?.getUUIDHash()) filters.push(eq(doctorTable.id, schedulingDoctor.doctor?.getUUIDHash() ?? ""),)
+        if (schedulingDoctor.doctor?.crm) filters.push(eq(doctorTable.crm, schedulingDoctor.doctor?.crm ?? ""),)
+        if (schedulingDoctor.doctor?.cpf) filters.push(eq(doctorTable.cpf, schedulingDoctor.doctor?.cpf ?? ""))
 
         const schedulingDoctorFounded = await dbUse
             .select()
@@ -34,12 +40,7 @@ export class SchedulingDoctorRepository implements IRepository {
             .where(
                 and(
                     eq(doctorSchedulingTable.isActivate, schedulingDoctor.is_activate ?? true),
-                    or(
-                        eq(doctorSchedulingTable.id, schedulingDoctor.getUUIDHash() ?? ""),
-                        eq(doctorTable.id, schedulingDoctor.doctor?.getUUIDHash() ?? ""),
-                        eq(doctorTable.crm, schedulingDoctor.doctor?.crm ?? ""),
-                        eq(doctorTable.cpf, schedulingDoctor.doctor?.cpf ?? "")
-                    )
+                    or(...filters)
                 )
             )
             .limit(1); // garante apenas um resultado
@@ -56,15 +57,15 @@ export class SchedulingDoctorRepository implements IRepository {
     async findAllEntity(schedulingDoctor: DoctorScheduling, limit: number, offset: number): Promise<any> {
         try {
             const filters = []
-            if(schedulingDoctor?.getUUIDHash()) filters.push(eq(doctorSchedulingTable.id, schedulingDoctor.getUUIDHash()))
-            if(schedulingDoctor?.doctor?.getUUIDHash()) filters.push(eq(doctorSchedulingTable.doctor_id, schedulingDoctor.doctor.getUUIDHash()))
+            if (schedulingDoctor?.getUUIDHash()) filters.push(eq(doctorSchedulingTable.id, schedulingDoctor.getUUIDHash()))
+            if (schedulingDoctor?.doctor?.getUUIDHash()) filters.push(eq(doctorSchedulingTable.doctor_id, schedulingDoctor.doctor.getUUIDHash()))
             const schedulingDoctorFounded = await db
-            .select({
-                id: doctorSchedulingTable.id,
-                dateFrom: doctorSchedulingTable.dateFrom,
-                dateTo: doctorSchedulingTable.dateTo,
-                isActivate: doctorSchedulingTable.isActivate,
-                datesBlocked: sql`
+                .select({
+                    id: doctorSchedulingTable.id,
+                    dateFrom: doctorSchedulingTable.dateFrom,
+                    dateTo: doctorSchedulingTable.dateTo,
+                    isActivate: doctorSchedulingTable.isActivate,
+                    datesBlocked: sql`
                     (SELECT 
                         json_agg(
                             json_build_object(
@@ -77,14 +78,14 @@ export class SchedulingDoctorRepository implements IRepository {
                     WHERE ${schedulingBlockedDays.doctorScheduling_id} = ${doctorSchedulingTable.id}
                     )
                 `.as('datesBlocked')
-            })
-            .from(doctorSchedulingTable)
-            .where(
-                or(...filters)
-            ).limit(limit).offset(offset)
+                })
+                .from(doctorSchedulingTable)
+                .where(
+                    or(...filters)
+                ).limit(limit).offset(offset)
 
             return schedulingDoctorFounded
-        } catch(e) {
+        } catch (e) {
             return ResponseHandler.error((e as Error).message)
         }
     }

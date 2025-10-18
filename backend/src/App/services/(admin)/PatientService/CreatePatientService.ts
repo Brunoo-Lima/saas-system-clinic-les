@@ -83,7 +83,6 @@ export class CreatePatientService {
             ])
 
             if (cardInsurances && cardInsurances.some((cd) => cd.cardNumber !== "")) {
-                console.log(cardInsurances)
                 validatorController.setValidator(`C-CardInsurances`, [
                     new CardInsuranceVinculate(),
                     new RequiredGeneralData(Object.keys(cardInsurances[0]?.props ?? {})),
