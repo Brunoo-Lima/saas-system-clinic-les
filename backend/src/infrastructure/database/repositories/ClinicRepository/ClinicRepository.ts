@@ -181,7 +181,8 @@ export class ClinicRepository implements IRepository {
             SELECT json_agg(
               json_build_object(
                 'id', ${specialtyTable.id},
-                'name', ${specialtyTable.name}
+                'name', ${specialtyTable.name},
+                'price', ${clinicToSpecialtyTable.price}
               )
             )
             FROM ${clinicToSpecialtyTable}

@@ -70,7 +70,7 @@ export class InsuranceRepository implements IRepository {
                     json_build_object(
                         'id', ${specialtyTable.id},
                         'name', ${specialtyTable.name}
-                        )
+                    )
                 )`,
                 modalities: sql`
                     (
@@ -219,7 +219,9 @@ export class InsuranceRepository implements IRepository {
                         SELECT json_agg(
                         json_build_object(
                             'id', s.spe_id,
-                            'name', s.spe_name
+                            'name', s.spe_name,
+                            'amountTransferred', ${insuranceToSpecialtyTable.amountTransferred},
+                            'price', ${insuranceToSpecialtyTable.price}
                         )
                         )
                         FROM ${insuranceToSpecialtyTable} its
@@ -233,7 +235,7 @@ export class InsuranceRepository implements IRepository {
                         json_build_object(
                             'id', m.mod_id,
                             'name', m.mod_name
-                        )
+                            )
                         )
                         FROM ${insuranceToModalitiesTable} itm
                         INNER JOIN modality m ON m.mod_id = itm.fk_inm_mod_id
