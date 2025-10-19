@@ -12,17 +12,18 @@ export class SchedulingQueriesDAO {
             const dbUse = tx ? tx : db
             const timeOfConsultation = `${scheduling.timeOfConsultation ?? 0} hour`
             const sqlCreated = sql`
-                ${schedulingTable.doctor_id} = ${scheduling.doctor?.getUUIDHash()} AND
                 ${schedulingTable.status} = ('PENDING') AND
-                (${schedulingTable.id} = ${scheduling.getUUIDHash()} OR ${schedulingTable.id} IS NOT NULL) AND
+                (${schedulingTable.id} = ${scheduling.getUUIDHash()} OR ${schedulingTable.id} IS NOT NULL)
             `
             
-            if(scheduling.date) sqlCreated.append(sql`((${schedulingTable.date}) + ${timeOfConsultation}::interval) >= ${scheduling.date!.toISOString()}::timestamp`)
+            if(scheduling.doctor?.getUUIDHash()) sqlCreated.append(sql` AND ${schedulingTable.doctor_id} = ${scheduling.doctor?.getUUIDHash()}`)
+            if(!Number.isNaN(scheduling.date?.valueOf())) sqlCreated.append(sql` AND ((${schedulingTable.date}) + ${timeOfConsultation}::interval) >= ${scheduling.date!.toISOString()}::timestamp`)
             
             const schedulingPerDoctor = await dbUse
             .select({
                 id: schedulingTable.id,
-                date: schedulingTable.date
+                date: schedulingTable.date,
+                status: schedulingTable.status
             })
             .from(schedulingTable)
             .where(
@@ -31,6 +32,7 @@ export class SchedulingQueriesDAO {
 
             return ResponseHandler.success(schedulingPerDoctor, "Scheduling can be inserted")
         } catch(e) {
+            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }
