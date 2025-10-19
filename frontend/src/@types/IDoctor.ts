@@ -6,6 +6,8 @@ export interface IDoctor extends IPerson {
   percentDistribution: number;
   specialties: {
     id: string;
+    name: string;
+    percentDistribution: number;
   }[];
   user: IUserPerson;
   periodToWork: {

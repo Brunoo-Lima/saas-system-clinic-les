@@ -6,7 +6,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { formatCurrencyInCents } from '@/utils/format-currency-in-cents';
 
 interface ISpecialtyProps {
   id: string;
@@ -39,9 +38,19 @@ export const DialogSpecialties = ({ specialties }: IDialogSpecialtiesProps) => {
             >
               <p>{specialty.name}</p>
               <div className="flex items-center gap-2">
-                <p>Preço: {formatCurrencyInCents(specialty.price)}</p>
                 <p>
-                  Repasse: {formatCurrencyInCents(specialty.amountTransferred)}
+                  Preço:{' '}
+                  {Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                  }).format(specialty.price)}
+                </p>
+                <p>
+                  Repasse:{' '}
+                  {Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                  }).format(specialty.amountTransferred)}
                 </p>
               </div>
             </div>

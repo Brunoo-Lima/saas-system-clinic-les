@@ -53,6 +53,7 @@ import {
 } from '@/services/patient-service';
 import { formatCPF } from '@/utils/format-cpf';
 import { brazilianStates } from '@/utils/brazilian-states';
+import { formatCEP } from '@/utils/format-cep';
 
 interface IUpsertPatientFormProps {
   isOpen: boolean;
@@ -111,6 +112,11 @@ export const UpsertPatientForm = ({
   const handleCPFformat = (e: ChangeEvent<HTMLInputElement>) => {
     const formatted = formatCPF(e.target.value);
     form.setValue('cpf', formatted);
+  };
+
+  const handleCEPformat = (e: ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCEP(e.target.value);
+    form.setValue('address.cep', formatted);
   };
 
   const onSubmit: SubmitHandler<PatientFormSchema> = (values) => {
@@ -435,11 +441,22 @@ export const UpsertPatientForm = ({
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <FormInputCustom
-              name="address.cep"
-              label="CEP"
-              placeholder="Digite o cep"
+            <FormField
               control={form.control}
+              name="address.cep"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>CEP</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="00000-000"
+                      {...field}
+                      onChange={handleCEPformat}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             <FormInputCustom

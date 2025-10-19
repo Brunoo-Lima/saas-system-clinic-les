@@ -50,8 +50,11 @@ export default function AppointmentPage() {
         <div className="flex flex-col gap-y-4">
           <div className="flex flex-wrap gap-6 flex-1">
             <Suspense fallback={<p>Carregando...</p>}>
-              {paginatedData?.map((doctor) => (
-                <CardAppointment key={doctor.id} appointment={doctor} />
+              {paginatedData?.map((appointment) => (
+                <CardAppointment
+                  key={appointment.id}
+                  appointment={appointment}
+                />
               ))}
             </Suspense>
 

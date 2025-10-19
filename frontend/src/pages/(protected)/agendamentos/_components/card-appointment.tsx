@@ -11,17 +11,46 @@ import { Separator } from '@/components/ui/separator';
 import { CalendarIcon, DollarSignIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import type { IAppointment } from '@/@types/IAppointment';
 import { AddAppointmentForm } from './add-appointment-form';
+import type { IAppointmentReturn } from '@/services/appointment-service';
+import { format } from 'date-fns';
 
 interface ICardAppointmentProps {
-  appointment: IAppointment;
+  appointment: IAppointmentReturn;
 }
 export const CardAppointment = ({ appointment }: ICardAppointmentProps) => {
   const [isUpsertAppointmentDialogOpen, setIsUpsertAppointmentDialogOpen] =
     useState(false);
 
-  console.log('appointment', appointment);
+  const getDayOfWeekFromDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const dayOfWeek = date.getDay();
+
+    const daysMap = {
+      0: 'domingo',
+      1: 'segunda-feira',
+      2: 'terça-feira',
+      3: 'quarta-feira',
+      4: 'quinta-feira',
+      5: 'sexta-feira',
+      6: 'sábado',
+    };
+
+    return daysMap[dayOfWeek as keyof typeof daysMap] || '';
+  };
+
+  const formatStatus = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return 'Pendente';
+      case 'CONFIRMED':
+        return 'Confirmado';
+      case 'CANCELED':
+        return 'Cancelado';
+      default:
+        return 'N/A';
+    }
+  };
 
   // const handleDeleteAppointmentClick = () => {
   //   if (!appointment) return;
@@ -31,40 +60,44 @@ export const CardAppointment = ({ appointment }: ICardAppointmentProps) => {
   return (
     <Card className="sm:min-w-[350px] w-[450px]">
       <CardHeader>
-        <div className="flex items-center gap-2">
-          {/* <Avatar className="h-10 w-10">
-            <AvatarFallback>{appointment.name}</AvatarFallback>
-          </Avatar> */}
-          <div>
-            <h3 className="text-sm font-medium">{appointment.doctor.id}</h3>
-            <p className="text-muted-foreground text-sm">
-              {/* {appointment.specialties.map((s) => s.id)} */}
-            </p>
-          </div>
+        <div className="flex flex-col gap-2">
+          <h2 className="text-lg font-semibold">
+            Agendamento:
+            {/* {appointment.specialty} */}
+          </h2>
+          <p className="text-sm font-medium">
+            Médico: {appointment.doctor.name}
+          </p>
+          <p className="text-sm font-medium">
+            Paciente: {appointment.patient.name}
+          </p>
         </div>
       </CardHeader>
       <Separator />
       <CardContent className="flex flex-col gap-2">
         <Badge variant="outline">
           <CalendarIcon className="mr-1" />
-          {/* {appointment.periods.map((p) => formattedDayWeek(p.dayWeek)).join(', ')} */}
+          {getDayOfWeekFromDate(appointment.date)}
         </Badge>
         <Badge variant="outline" className="flex flex-col items-start gap-1">
-          {/* {appointment.periods.map((a) => (
-            <span key={a.dayWeek} className="flex items-center gap-x-2">
-              <ClockIcon size={16} className="mr-1" />
-              {`${a.timeFrom.slice(0, 5)} - ${a.timeTo.slice(
-                0,
-                5,
-              )} (${formattedDayWeek(a.dayWeek)})`}
-            </span>
-          ))} */}
+          Data: {format(new Date(appointment.date), 'dd/MM/yyyy HH:mm')}
+        </Badge>
+        <Badge variant="outline">
+          <DollarSignIcon className="mr-1" />
+          {Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+          }).format(appointment.priceOfConsultation)}
         </Badge>
 
         <Badge variant="outline">
-          <DollarSignIcon className="mr-1" />
-          {appointment.priceOfConsultation}
+          Status: {formatStatus(appointment.status)}
         </Badge>
+        {appointment.isReturn && (
+          <Badge variant="outline">
+            Retorno: {appointment.isReturn ? 'Sim' : 'Não'}
+          </Badge>
+        )}
       </CardContent>
       <Separator />
       <CardFooter className="flex items-center gap-2">

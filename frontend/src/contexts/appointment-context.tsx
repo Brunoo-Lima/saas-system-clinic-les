@@ -1,6 +1,8 @@
-import type { IAppointment } from '@/@types/IAppointment';
 import { usePagination } from '@/hooks/use-pagination';
-import { useGetAppointments } from '@/services/appointment-service';
+import {
+  useGetAppointments,
+  type IAppointmentReturn,
+} from '@/services/appointment-service';
 import { createContext, useState, type ChangeEvent } from 'react';
 
 interface IAppointmentContextProps {
@@ -13,7 +15,7 @@ interface IAppointmentContextProps {
   page: number;
   setPage: React.Dispatch<React.SetStateAction<number>>;
   totalPages: number;
-  paginatedData: IAppointment[];
+  paginatedData: IAppointmentReturn[];
   handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
   handlePage: (page: number) => void;
   handleDelete: (id: number) => void;

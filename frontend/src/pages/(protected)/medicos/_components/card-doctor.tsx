@@ -50,7 +50,7 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
           <div>
             <h3 className="text-sm font-medium">{doctor.name}</h3>
             <p className="text-muted-foreground text-sm">
-              {/* {doctor.specialties.map((s) => s.id)} */}
+              {doctor.specialties.map((s) => s.name).join(', ')}
             </p>
           </div>
         </div>
@@ -77,7 +77,9 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
 
         <Badge variant="outline">
           <DollarSignIcon className="mr-1" />
-          {doctor.percentDistribution}
+          {doctor.specialties
+            .map((s) => `${(s.percentDistribution * 100).toFixed(0)}%`)
+            .join(', ')}
         </Badge>
       </CardContent>
       <Separator />
