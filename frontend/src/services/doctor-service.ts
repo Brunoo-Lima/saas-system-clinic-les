@@ -3,8 +3,10 @@ import api from './api';
 import type { IDoctor } from '@/@types/IDoctor';
 import { toast } from 'sonner';
 
-export const getDoctors = async () => {
-  const { data } = await api.get('/doctor/findall');
+export const getDoctors = async ({ id }: { id?: string }) => {
+  const { data } = await api.get('/doctor/findall', {
+    params: { id },
+  });
 
   if (data.success === false) {
     throw new Error(data.message);
@@ -13,10 +15,10 @@ export const getDoctors = async () => {
   return data.data;
 };
 
-export const useGetDoctors = () => {
+export const useGetDoctors = (params?: { id?: string }) => {
   return useQuery({
-    queryKey: ['doctors'],
-    queryFn: () => getDoctors(),
+    queryKey: ['doctors', params],
+    queryFn: () => getDoctors(params || {}),
   });
 };
 

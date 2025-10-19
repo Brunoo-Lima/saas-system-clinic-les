@@ -20,12 +20,13 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { DialogBlockDate } from './dialogs/dialog-block-date';
 import { useState } from 'react';
-import type { AvailabilitySettings } from './agenda';
+import type { IAvailabilitySettings, IBlockedDate } from '@/@types/IAgenda';
+import { formatDateToBackend, parseBackendDate } from '../utilities/utilities';
 
 interface ICardAgendaProps {
-  availabilitySettings: AvailabilitySettings;
+  availabilitySettings: IAvailabilitySettings;
   setAvailabilitySettings: React.Dispatch<
-    React.SetStateAction<AvailabilitySettings>
+    React.SetStateAction<IAvailabilitySettings>
   >;
   isDayAvailable: (checkDate: Date) => boolean;
   date: Date | undefined;
@@ -43,8 +44,11 @@ export const CardAgenda = ({
     useState(false);
   const [isBlockDateDialogOpen, setIsBlockDateDialogOpen] = useState(false);
   const [dateToBlock, setDateToBlock] = useState<Date | undefined>(new Date());
+  const [blockReason, setBlockReason] = useState<string>('Data bloqueada');
 
-  const toggleWorkingDay = (day: keyof AvailabilitySettings['workingDays']) => {
+  const toggleWorkingDay = (
+    day: keyof IAvailabilitySettings['workingDays'],
+  ) => {
     setAvailabilitySettings((prev) => ({
       ...prev,
       workingDays: {
@@ -56,21 +60,44 @@ export const CardAgenda = ({
 
   const blockDate = () => {
     if (dateToBlock) {
+      const newBlockedDate: IBlockedDate = {
+        date: formatDateToBackend(dateToBlock),
+        reason: blockReason || 'Data bloqueada',
+      };
+
       setAvailabilitySettings((prev) => ({
         ...prev,
-        blockedDates: [...prev.blockedDates, dateToBlock],
+        blockedDates: [...prev.blockedDates, newBlockedDate],
       }));
-      setIsBlockDateDialogOpen(false);
+
+      setBlockReason('Data bloqueada');
     }
   };
 
   const unBlockDate = (dateToUnblock: Date) => {
+    const dateString = formatDateToBackend(dateToUnblock);
+
     setAvailabilitySettings((prev) => ({
       ...prev,
       blockedDates: prev.blockedDates.filter(
-        (d) => d.toDateString() !== dateToUnblock.toDateString(),
+        (blocked) => blocked.date !== dateString,
       ),
     }));
+  };
+
+  // Converter blockedDates para Date[] para o Calendar
+  const getBlockedDatesAsDateArray = (): Date[] => {
+    return availabilitySettings.blockedDates.map((blocked) =>
+      parseBackendDate(blocked.date),
+    );
+  };
+
+  // Verificar se uma data específica está bloqueada
+  const isDateBlocked = (checkDate: Date): boolean => {
+    const dateString = formatDateToBackend(checkDate);
+    return availabilitySettings.blockedDates.some(
+      (blocked) => blocked.date === dateString,
+    );
   };
 
   return (
@@ -91,7 +118,7 @@ export const CardAgenda = ({
           onSelect={setDate}
           className="rounded-md border"
           modifiers={{
-            blocked: availabilitySettings.blockedDates,
+            blocked: getBlockedDatesAsDateArray(),
             unavailable: (date) => !isDayAvailable(date),
           }}
           modifiersStyles={{
@@ -167,7 +194,7 @@ export const CardAgenda = ({
                         checked={isEnabled}
                         onCheckedChange={() =>
                           toggleWorkingDay(
-                            day as keyof AvailabilitySettings['workingDays'],
+                            day as keyof IAvailabilitySettings['workingDays'],
                           )
                         }
                       />
@@ -198,13 +225,11 @@ export const CardAgenda = ({
               setDateToBlock={setDateToBlock}
               blockDate={blockDate}
               unBlockDate={unBlockDate}
-              setIsBlockDateDialogOpen={setIsBlockDateDialogOpen}
+              blockReason={blockReason}
+              setBlockReason={setBlockReason}
+              isDateBlocked={isDateBlocked}
             />
           </Dialog>
-
-          <Button className="w-full" size="lg">
-            Salvar
-          </Button>
         </div>
       </CardContent>
     </Card>

@@ -1,7 +1,7 @@
 import type { IPerson } from './IPerson';
 
 export interface IDoctor extends IPerson {
-  id: number;
+  id: string;
   crm: string;
   percentDistribution: number;
   specialties: {

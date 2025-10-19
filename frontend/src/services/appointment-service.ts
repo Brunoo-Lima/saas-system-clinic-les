@@ -25,15 +25,49 @@ export const useCreateAppointment = () => {
 interface IAppointmentGet {
   scheduling_id?: string;
   scheduling_date?: string;
+  doctor_id?: string;
+}
+
+export interface IAppointmentReturn {
+  id: string;
+  date: string;
+  dateOfRealizable: string | null;
+  dateOfConfirmation: string;
+  status: string;
+  isReturn: boolean;
+  priceOfConsultation: number;
+  timeOfConsultation: string;
+  patient: {
+    id: string;
+    name: string;
+    cpf: string;
+    sex: 'Male' | 'Female';
+    dateOfBirth: string;
+    phone: string;
+    email: string;
+  };
+  doctor: {
+    id: string;
+    name: string;
+    crm: string;
+    cpf: string;
+    sex: 'Male' | 'Female';
+    dateOfBirth: string;
+  };
 }
 
 export const getAppointmentService = async ({
   scheduling_id,
   scheduling_date,
+  doctor_id,
 }: IAppointmentGet) => {
-  const { data } = await api.get(
-    `/scheduling/findall/?scheduling_id=${scheduling_id}&scheduling_date=${scheduling_date}`,
-  );
+  const { data } = await api.get('/scheduling/findall', {
+    params: {
+      scheduling_id,
+      scheduling_date,
+      doctor_id,
+    },
+  });
 
   if (data.success === false) {
     throw new Error(data.message);
@@ -43,8 +77,8 @@ export const getAppointmentService = async ({
 };
 
 export const useGetAppointments = (params?: IAppointmentGet) => {
-  return useQuery({
-    queryKey: ['appointments'],
+  return useQuery<IAppointmentReturn[]>({
+    queryKey: ['appointments', params],
     queryFn: () => getAppointmentService(params || {}),
   });
 };

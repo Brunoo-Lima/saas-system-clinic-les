@@ -15,33 +15,11 @@ import { useState } from 'react';
 import { UpsertDoctorForm } from './upsert-doctor-form';
 import { toast } from 'sonner';
 import { DropdownCard } from './actions/dropdown-card';
-import type { IPerson } from '@/@types/IPerson';
 import { formattedDayWeek } from '@/utils/format-day-week';
-
-export interface IUserPerson {
-  email: string;
-  username: string;
-  password: string;
-}
-
-export interface IDoctorReturnBack extends IPerson {
-  id: number;
-  crm: string;
-  percentDistribution: number;
-  specialties: {
-    id: string;
-  }[];
-  user: IUserPerson;
-  periods: {
-    dayWeek: number;
-    timeFrom: string;
-    timeTo: string;
-    specialty_id: string;
-  }[];
-}
+import type { IDoctor } from '@/@types/IDoctor';
 
 interface ICardDoctorProps {
-  doctor: IDoctorReturnBack;
+  doctor: IDoctor;
 }
 export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
   const [isUpsertDoctorDialogOpen, setIsUpsertDoctorDialogOpen] =
@@ -52,8 +30,6 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
     .map((name) => name[0])
     .slice(0, 2)
     .join('');
-
-  console.log('doctor', doctor);
 
   const handleDeleteDoctorClick = () => {
     if (!doctor) return;
@@ -83,10 +59,12 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
       <CardContent className="flex flex-col gap-2 flex-1">
         <Badge variant="outline">
           <CalendarIcon className="mr-1" />
-          {doctor.periods.map((p) => formattedDayWeek(p.dayWeek)).join(', ')}
+          {doctor.periodToWork
+            .map((p) => formattedDayWeek(p.dayWeek))
+            .join(', ')}
         </Badge>
         <Badge variant="outline" className="flex flex-col items-start gap-1">
-          {doctor.periods.map((a) => (
+          {doctor.periodToWork.map((a) => (
             <span key={a.dayWeek} className="flex items-center gap-x-2">
               <ClockIcon size={16} className="mr-1" />
               {`${a.timeFrom.slice(0, 5)} - ${a.timeTo.slice(
@@ -123,6 +101,7 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
         <DropdownCard
           onDeleteDoctor={handleDeleteDoctorClick}
           onSendNewPassword={handleSendNewPassword}
+          doctorId={doctor.id}
         />
       </CardFooter>
     </Card>

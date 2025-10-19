@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -9,65 +9,37 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CardAppointment } from './card-appointment';
 import { CardAgenda } from './card-agenda';
-import { agendaList } from '@/mocks/agenda-list';
-
-export type AppointmentStatus =
-  | 'scheduled'
-  | 'confirmed'
-  | 'completed'
-  | 'cancelled';
-
-export interface AppointmentAgenda {
-  id: string;
-  time: string;
-  patient: {
-    name: string;
-    avatar?: string;
-    phone: string;
-    email: string;
-  };
-  duration: number;
-  status: AppointmentStatus;
-  notes?: string;
-}
-
-export interface AvailabilitySettings {
-  workingDays: {
-    monday: boolean;
-    tuesday: boolean;
-    wednesday: boolean;
-    thursday: boolean;
-    friday: boolean;
-    saturday: boolean;
-    sunday: boolean;
-  };
-  blockedDates: Date[];
-}
+import type { IAgendaRequest, IAvailabilitySettings } from '@/@types/IAgenda';
+import { formatDateToBackend } from '../utilities/utilities';
+import { useCreateAgenda, useGetAgenda } from '@/services/agenda-service';
+import { toast } from 'sonner';
+import { useParams } from 'react-router-dom';
+import { useGetAppointments } from '@/services/appointment-service';
+import { format } from 'date-fns';
 
 export type StatusConfigProps = {
   label: string;
   variant: 'default' | 'secondary' | 'outline' | 'destructive';
 };
 
-const statusConfig: Record<
-  AppointmentStatus,
-  {
-    label: string;
-    variant: 'default' | 'secondary' | 'outline' | 'destructive';
-  }
-> = {
-  scheduled: { label: 'Agendado', variant: 'secondary' },
-  confirmed: { label: 'Confirmado', variant: 'default' },
-  completed: { label: 'Concluído', variant: 'outline' },
-  cancelled: { label: 'Cancelado', variant: 'destructive' },
-};
+export type AppointmentStatus =
+  | 'PENDING'
+  | 'CONFIRMED'
+  | 'CONCLUDE'
+  | 'CANCELED';
+
+const statusConfig = {
+  PENDING: { label: 'Agendado', variant: 'secondary' },
+  CONFIRMED: { label: 'Confirmado', variant: 'default' },
+  CONCLUDE: { label: 'Concluído', variant: 'outline' },
+  CANCELED: { label: 'Cancelado', variant: 'destructive' },
+} satisfies Record<AppointmentStatus, StatusConfigProps>;
 
 export function Agenda() {
+  const { doctorId } = useParams<{ doctorId: string }>();
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [selectedAppointment, _setSelectedAppointment] =
-    useState<AppointmentAgenda | null>(null);
   const [availabilitySettings, setAvailabilitySettings] =
-    useState<AvailabilitySettings>({
+    useState<IAvailabilitySettings>({
       workingDays: {
         monday: true,
         tuesday: true,
@@ -80,9 +52,68 @@ export function Agenda() {
       blockedDates: [],
     });
 
+  const formattedDate = date ? format(date, 'yyyy-MM-dd') : '';
+
+  const { mutate: createAgenda, isPending: isCreatingAgenda } =
+    useCreateAgenda();
+
+  const currentDoctorId = doctorId || '';
+
+  const { data: existingAgenda } = useGetAgenda(currentDoctorId);
+  const { data: appointments } = useGetAppointments({
+    doctor_id: currentDoctorId,
+    scheduling_date: formattedDate,
+  });
+
+  console.log('agenda', existingAgenda);
+  console.log('agendamentos', appointments);
+
+  useEffect(() => {
+    if (existingAgenda) {
+      // Atualiza o availabilitySettings com os dados do backend
+      setAvailabilitySettings((prev) => ({
+        ...prev,
+        blockedDates: existingAgenda.datesBlocked || [],
+      }));
+    }
+  }, [existingAgenda]);
+
+  const handleSaveAgenda = (dateFrom: Date, dateTo: Date) => {
+    const agendaData: IAgendaRequest = {
+      dateFrom: formatDateToBackend(dateFrom),
+      dateTo: formatDateToBackend(dateTo),
+      doctor: {
+        id: doctorId || '',
+      },
+    };
+
+    // Adiciona datesBlocked apenas se houver datas bloqueadas
+    if (availabilitySettings.blockedDates.length > 0) {
+      agendaData.datesBlocked = availabilitySettings.blockedDates;
+    }
+
+    createAgenda(agendaData, {
+      onSuccess: () => {
+        toast.success('Agenda salva com sucesso!');
+      },
+      onError: (error: any) => {
+        toast.error(error.message || 'Erro ao salvar agenda');
+      },
+    });
+  };
+
+  const saveCurrentMonthAgenda = () => {
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+    handleSaveAgenda(firstDay, lastDay);
+  };
+
   const isDateBlocked = (checkDate: Date) => {
+    const dateString = formatDateToBackend(checkDate);
     return availabilitySettings.blockedDates.some(
-      (d) => d.toDateString() === checkDate.toDateString(),
+      (blocked) => blocked.date === dateString,
     );
   };
 
@@ -98,12 +129,22 @@ export function Agenda() {
     ];
     const dayName = dayNames[
       checkDate.getDay()
-    ] as keyof AvailabilitySettings['workingDays'];
+    ] as keyof IAvailabilitySettings['workingDays'];
     return availabilitySettings.workingDays[dayName];
   };
 
   return (
     <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={saveCurrentMonthAgenda}
+          disabled={isCreatingAgenda}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+        >
+          {isCreatingAgenda ? 'Salvando...' : 'Salvar Agenda'}
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <CardAgenda
           date={date}
@@ -143,59 +184,58 @@ export function Agenda() {
             <Tabs defaultValue="all" className="w-full">
               <TabsList className="grid w-full grid-cols-4 mb-6">
                 <TabsTrigger value="all">Todos</TabsTrigger>
-                <TabsTrigger value="scheduled">Agendados</TabsTrigger>
-                <TabsTrigger value="confirmed">Confirmados</TabsTrigger>
-                <TabsTrigger value="completed">Concluídos</TabsTrigger>
+                <TabsTrigger value="PENDING">Agendados</TabsTrigger>
+                <TabsTrigger value="CONFIRMED">Confirmados</TabsTrigger>
+                <TabsTrigger value="CONCLUDE">Concluídos</TabsTrigger>
               </TabsList>
 
               <TabsContent value="all" className="space-y-3">
-                {agendaList.map((appointment) => (
+                {appointments?.map((appointment) => (
                   <CardAppointment
                     key={appointment.id}
                     appointment={appointment}
-                    isSelected={selectedAppointment?.id === appointment.id}
                     statusConfig={statusConfig}
                   />
                 ))}
               </TabsContent>
 
-              <TabsContent value="scheduled" className="space-y-3">
-                {agendaList
-                  .filter((a) => a.status === 'scheduled')
-                  .map((appointment) => (
-                    <CardAppointment
-                      key={appointment.id}
-                      appointment={appointment}
-                      isSelected={selectedAppointment?.id === appointment.id}
-                      statusConfig={statusConfig}
-                    />
-                  ))}
+              <TabsContent value="PENDING" className="space-y-3">
+                {appointments &&
+                  appointments
+                    .filter((a) => a.status === 'PENDING')
+                    .map((appointment) => (
+                      <CardAppointment
+                        key={appointment.id}
+                        appointment={appointment}
+                        statusConfig={statusConfig}
+                      />
+                    ))}
               </TabsContent>
 
-              <TabsContent value="confirmed" className="space-y-3">
-                {agendaList
-                  .filter((a) => a.status === 'confirmed')
-                  .map((appointment) => (
-                    <CardAppointment
-                      key={appointment.id}
-                      appointment={appointment}
-                      isSelected={selectedAppointment?.id === appointment.id}
-                      statusConfig={statusConfig}
-                    />
-                  ))}
+              <TabsContent value="CONFIRMED" className="space-y-3">
+                {appointments &&
+                  appointments
+                    .filter((a) => a.status === 'CONFIRMED')
+                    .map((appointment) => (
+                      <CardAppointment
+                        key={appointment.id}
+                        appointment={appointment}
+                        statusConfig={statusConfig}
+                      />
+                    ))}
               </TabsContent>
 
-              <TabsContent value="completed" className="space-y-3">
-                {agendaList
-                  .filter((a) => a.status === 'completed')
-                  .map((appointment) => (
-                    <CardAppointment
-                      key={appointment.id}
-                      appointment={appointment}
-                      isSelected={selectedAppointment?.id === appointment.id}
-                      statusConfig={statusConfig}
-                    />
-                  ))}
+              <TabsContent value="CONCLUDE" className="space-y-3">
+                {appointments &&
+                  appointments
+                    .filter((a) => a.status === 'CONCLUDE')
+                    .map((appointment) => (
+                      <CardAppointment
+                        key={appointment.id}
+                        appointment={appointment}
+                        statusConfig={statusConfig}
+                      />
+                    ))}
               </TabsContent>
             </Tabs>
           </CardContent>
