@@ -22,7 +22,7 @@ export class DoctorRepository implements IRepository {
             phone: doctor.phone ?? "",
             sex: doctor.sex ?? "",
             address_id: doctor.address?.getUUIDHash(),
-            date_of_birth: doctor.dateOfBirth?.toDateString() ?? "",
+            date_of_birth: doctor.dateOfBirth?.toISOString() ?? "",
             user_id: doctor.user?.getUUIDHash()
         }).returning()
 
@@ -39,10 +39,10 @@ export class DoctorRepository implements IRepository {
                 doctor.periodToWork.map((per) => ({
                     id: per?.getUUIDHash() ?? "",
                     dayWeek: per?.dayWeek ?? 0,
-                    periodType: per?.periodType ?? "",
                     timeFrom: per?.timeFrom?.toString() ?? "",
                     timeTo: per?.timeTo?.toString() ?? "",
-                    doctor_id: doctor.getUUIDHash() ?? ""
+                    doctor_id: doctor.getUUIDHash() ?? "",
+                    specialty_id: per.specialty.getUUIDHash() ?? ""
                 }))
             );
         }
@@ -57,10 +57,10 @@ export class DoctorRepository implements IRepository {
             periods: sql`json_agg(
             json_build_object(
                 'id', ${periodDoctorTable.id},
-                'periodType', ${periodDoctorTable.periodType},
                 'dayWeek', ${periodDoctorTable.dayWeek},
                 'timeFrom', ${periodDoctorTable.timeFrom},
-                'timeTo', ${periodDoctorTable.timeTo}
+                'timeTo', ${periodDoctorTable.timeTo},
+                'specialty_id', ${periodDoctorTable.specialty_id}
             )
             )`.as("periods"),
             specialties: sql`
@@ -84,7 +84,7 @@ export class DoctorRepository implements IRepository {
         )
         .where(
             or(
-                eq(doctorTable.id, doctor.getUUIDHash()),
+                eq(doctorTable.id, doctor.getUUIDHash() ?? undefined),
                 eq(doctorTable.crm, doctor.crm ?? ""),
                 eq(doctorTable.cpf, doctor.cpf ?? ""),
                 eq(doctorTable.name, doctor.name ?? "")
@@ -116,18 +116,30 @@ export class DoctorRepository implements IRepository {
                 name: doctorTable.name,
                 cpf: doctorTable.cpf,
                 sex: doctorTable.sex,
-                date_of_birth: doctorTable.date_of_birth,
+                date_of_birth: sql`CAST(${doctorTable.date_of_birth} AS DATE)`,
                 phone: doctorTable.phone,
-                //NAO ESQUECER DOS () PARA SUBQUERY
-                periods: sql`(
+                specialties: sql`(
+                    SELECT 
+                        json_agg(
+                            json_build_object(
+                                'id', ${doctorToSpecialtyTable.specialty_id},
+                                'name', ${specialtyTable.name},
+                                'percentDistribution', ${doctorToSpecialtyTable.percent_distribution}
+                            )
+                        )
+                    FROM ${doctorToSpecialtyTable}
+                    INNER JOIN ${specialtyTable} ON ${specialtyTable.id} = ${doctorToSpecialtyTable.specialty_id}
+                    WHERE ${doctorToSpecialtyTable.doctor_id} = ${doctorTable.id}
+                )`,
+                periodToWork: sql`(
                     SELECT
                         json_agg(
                             json_build_object(
-                                'id', ${periodDoctorTable.id},       
-                                'periodType', ${periodDoctorTable.periodType},       
+                                'id', ${periodDoctorTable.id},             
                                 'dayWeek', ${periodDoctorTable.dayWeek},       
                                 'timeFrom', ${periodDoctorTable.timeFrom},       
-                                'timeTo', ${periodDoctorTable.timeTo}     
+                                'timeTo', ${periodDoctorTable.timeTo},
+                                'specialty_id', ${periodDoctorTable.specialty_id}
                             )
                         )
                     FROM ${periodDoctorTable}
@@ -179,7 +191,6 @@ export class DoctorRepository implements IRepository {
             .offset(offset)
             return doctorsFounded
         } catch(e){
-            console.log(e)
             return ResponseHandler.error('Failed to find all doctors')
         }
     }

@@ -70,25 +70,15 @@ export const AddAppointmentForm = ({
       patientId: appointment?.patient.id ?? '',
       doctorId: appointment?.doctor.id ?? '',
       specialtyId: appointment?.specialty.id ?? '',
-      appointmentPrice: 0,
+      insuranceId: appointment?.insurance.id ?? '',
+      priceOfConsultation: appointment?.priceOfConsultation ?? 0,
       date: appointment?.date ?? undefined,
-      time: '',
+      hour: appointment?.hour ?? '',
+      isReturn: appointment?.isReturn ?? false,
     },
   });
 
   const selectedDoctorId = form.watch('doctorId');
-  // const selectedPatientId = form.watch("patientId");
-  // const selectedDate = form.watch("date");
-
-  // const { data: availableTimes } = useQuery({
-  //   queryKey: ["available-times", selectedDate, selectedDoctorId],
-  //   queryFn: () =>
-  //     getAvailableTimes({
-  //       date: dayjs(selectedDate).format("YYYY-MM-DD"),
-  //       doctorId: selectedDoctorId,
-  //     }),
-  //   enabled: !!selectedDate && !!selectedDoctorId, // garante que so chama essa rota quando tiver data e doutor selecionado
-  // });
 
   // Atualizar o preço quando o médico for selecionado
   useEffect(() => {
@@ -111,29 +101,16 @@ export const AddAppointmentForm = ({
         patientId: appointment?.patient.id ?? '',
         doctorId: appointment?.doctor.id ?? '',
         specialtyId: appointment?.specialty.id ?? '',
-        appointmentPrice: 0,
+        insuranceId: appointment?.insurance.id ?? '',
+        priceOfConsultation: appointment?.priceOfConsultation ?? 0,
         date: appointment?.date ?? undefined,
-        time: '',
+        hour: appointment?.hour ?? '',
+        isReturn: appointment?.isReturn ?? false,
       });
     }
   }, [isOpen, form, appointment]);
 
-  // const addAppointmentAction = useAction(addAppointment, {
-  //   onSuccess: () => {
-  //     toast.success("Agendamento criado com sucesso.");
-  //     onSuccess?.();
-  //   },
-  //   onError: () => {
-  //     toast.error("Erro ao criar agendamento.");
-  //   },
-  // });
-
   const onSubmit = (_values: AppointmentFormSchema) => {
-    // addAppointmentAction.execute({
-    //   ...values,
-    //   id: appointment?.id,
-    //   appointmentPriceInCents: values.appointmentPrice * 100,
-    // });
     onSuccess();
     toast.success('Agendamento salvo com sucesso.');
   };
@@ -264,7 +241,7 @@ export const AddAppointmentForm = ({
 
           <FormField
             control={form.control}
-            name="appointmentPrice"
+            name="priceOfConsultation"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Valor da consulta</FormLabel>
@@ -297,32 +274,43 @@ export const AddAppointmentForm = ({
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
-                        variant={'outline'}
-                        // disabled={!isDateTimeEnabled}
+                        variant="outline"
                         className={cn(
-                          'w-full justify-start text-left font-normal',
+                          'w-full pl-3 text-left font-normal',
                           !field.value && 'text-muted-foreground',
                         )}
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
                         {field.value ? (
-                          format(field.value, 'PPP', { locale: ptBR })
+                          // Converter para Date antes de formatar
+                          format(
+                            field.value instanceof Date
+                              ? field.value
+                              : new Date(field.value),
+                            'PPP',
+                            { locale: ptBR },
+                          )
                         ) : (
                           <span>Selecione uma data</span>
                         )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
-                      selected={field.value}
+                      selected={
+                        field.value instanceof Date
+                          ? field.value
+                          : field.value
+                          ? new Date(field.value)
+                          : undefined
+                      }
                       onSelect={field.onChange}
-                      // disabled={(date) =>
-                      //   date < new Date() || !isDateAvailable(date)
-                      // }
+                      disabled={(date: Date) =>
+                        date > new Date() || date < new Date('1900-01-01')
+                      }
                       initialFocus
-                      locale={ptBR}
                     />
                   </PopoverContent>
                 </Popover>
@@ -333,7 +321,7 @@ export const AddAppointmentForm = ({
 
           <FormField
             control={form.control}
-            name="time"
+            name="hour"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Horário</FormLabel>

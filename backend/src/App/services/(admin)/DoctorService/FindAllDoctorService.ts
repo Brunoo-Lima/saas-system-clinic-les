@@ -2,6 +2,7 @@ import { DoctorBuilder } from "../../../../domain/entities/EntityDoctor/DoctorBu
 import { DoctorFactory } from "../../../../domain/entities/EntityDoctor/DoctorFactory";
 import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
+import { pagination } from "../../../../helpers/pagination";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { DoctorRepository } from "../../../../infrastructure/database/repositories/DoctorRepository/DoctorRepository";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
@@ -22,13 +23,8 @@ export class FindAllDoctorService {
     async execute(params: FindDoctorParams) {
         try {
             let doctorDomain;
-            const regex = /\d+/
-            let offsetClean;
-            let limitClean;
-            if (params.offset && params.limit && regex.test(params.offset) && regex.test(params.limit)) {
-                offsetClean = Number(params.offset)
-                limitClean = Number(params.limit)
-            }
+            const {limitClean, offsetClean } = pagination(params.limit, params.offset)
+
             if (params.id || params.cpf || params.crm) {
                 doctorDomain = new DoctorBuilder()
                     .setCpf(params.cpf)

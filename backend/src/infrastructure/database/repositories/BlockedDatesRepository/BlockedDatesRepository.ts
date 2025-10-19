@@ -12,7 +12,7 @@ export class BlockedDatesRepository implements IRepository {
             datesToBlockFormatted.map((date) => {
                 return {
                     id: date?.getUUIDHash() ?? "",
-                    dateBlocked: date?.dateBlocked?.toDateString() ?? "",
+                    dateBlocked: date?.dateBlocked?.toISOString() ?? "",
                     reason: date?.reason ?? "",
                     doctorScheduling_id: scheduling_id
                 }

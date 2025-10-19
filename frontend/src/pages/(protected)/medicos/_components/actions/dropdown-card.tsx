@@ -27,17 +27,19 @@ import { useNavigate } from 'react-router-dom';
 interface IDropdownCardProps {
   onDeleteDoctor: () => void;
   onSendNewPassword: () => void;
+  doctorId: string;
 }
 
 export const DropdownCard = ({
   onDeleteDoctor,
   onSendNewPassword,
+  doctorId,
 }: IDropdownCardProps) => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const handleOpenCalendar = () => {
-    navigate('/agenda/medico');
+    navigate(`/agenda/medico/${doctorId}`);
   };
 
   return (

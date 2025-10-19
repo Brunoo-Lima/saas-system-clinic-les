@@ -22,8 +22,8 @@ export class ClinicRepository implements IRepository {
       phone: clinic.phone ?? "",
       timeToConfirmScheduling: clinic.timeToConfirmScheduling ?? "",
       address_id: clinic.address?.getUUIDHash(),
-      created_at: clinic.getCreatedAt(),
-      updated_at: clinic.getUpdatedAt(),
+      created_at: clinic.getCreatedAt().toISOString(),
+      updated_at: clinic.getUpdatedAt().toISOString(),
       user_id: clinic.user?.getUUIDHash()
     }).returning()
 
@@ -181,7 +181,8 @@ export class ClinicRepository implements IRepository {
             SELECT json_agg(
               json_build_object(
                 'id', ${specialtyTable.id},
-                'name', ${specialtyTable.name}
+                'name', ${specialtyTable.name},
+                'price', ${clinicToSpecialtyTable.price}
               )
             )
             FROM ${clinicToSpecialtyTable}

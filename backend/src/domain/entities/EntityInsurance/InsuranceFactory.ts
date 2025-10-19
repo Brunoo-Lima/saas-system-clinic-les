@@ -8,7 +8,7 @@ export class InsuranceFactory {
     static createFromDTO(insuranceDTO: InsuranceDTO) {
         const modalities = insuranceDTO.modalities?.map((md) => {
             const modality = new Modality({ name: md.name })
-            modality.setUuidHash(md.id ?? "")
+            modality.setUuidHash(md.id ?? modality.getUUIDHash())
             return modality
         })
         const specialties = insuranceDTO.specialties?.map((sp) => {
@@ -17,7 +17,7 @@ export class InsuranceFactory {
                 .setPrice(sp.price)
                 .setAmountTransferred(sp.amountTransferred)
                 .build()
-            specialty.setUuidHash(sp.id ?? "")
+            specialty.setUuidHash(sp.id ?? specialty.getUUIDHash())
             return specialty
         })
 

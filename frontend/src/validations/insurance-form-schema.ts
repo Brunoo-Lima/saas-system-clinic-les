@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const insuranceFormSchema = z.object({
-  name: z.string().trim().min(1, {
+  type: z.string().trim().min(1, {
     message: 'Nome do convênio é obrigatório.',
   }),
   modalities: z.array(

@@ -33,6 +33,8 @@ export const DoctorProvider = ({ children }: { children: React.ReactNode }) => {
 
   const { data: filtered = [] } = useGetDoctors();
 
+  console.log(filtered);
+
   // const filtered = useMemo(() => {
   //   let data = filteredList;
 

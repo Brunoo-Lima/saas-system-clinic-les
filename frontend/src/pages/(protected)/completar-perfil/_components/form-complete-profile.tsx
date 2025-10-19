@@ -40,36 +40,7 @@ import { toast } from 'sonner';
 import { formatCNPJ } from '@/utils/format-cnpj';
 import type { ChangeEvent } from 'react';
 import { formatCEP } from '@/utils/format-cep';
-
-const brazilianStates = [
-  'AC',
-  'AL',
-  'AP',
-  'AM',
-  'BA',
-  'CE',
-  'DF',
-  'ES',
-  'GO',
-  'MA',
-  'MT',
-  'MS',
-  'MG',
-  'PA',
-  'PB',
-  'PR',
-  'PE',
-  'PI',
-  'RJ',
-  'RN',
-  'RS',
-  'RO',
-  'RR',
-  'SC',
-  'SP',
-  'SE',
-  'TO',
-];
+import { brazilianStates } from '@/utils/brazilian-states';
 
 const times = Array.from(
   { length: 24 },

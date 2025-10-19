@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
-import { UpsertInsuranceForm } from '../upsert-insurance-form';
+import { CreateInsuranceForm } from '../forms/create-insurance-form';
 
 export const AddInsuranceButton = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,7 +16,8 @@ export const AddInsuranceButton = () => {
           Adicionar convênio
         </Button>
       </DialogTrigger>
-      <UpsertInsuranceForm onSuccess={() => setIsOpen(false)} isOpen={isOpen} />
+
+      <CreateInsuranceForm onSuccess={() => setIsOpen(false)} isOpen={isOpen} />
     </Dialog>
   );
 };

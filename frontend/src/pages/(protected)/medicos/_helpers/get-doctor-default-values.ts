@@ -8,7 +8,6 @@ export const getDoctorDefaultValues = (doctor?: IDoctor): DoctorFormSchema => ({
   user: {
     email: doctor?.user.email ?? '',
     password: doctor?.user.password ?? '',
-    confirmPassword: doctor?.user.confirmPassword ?? '',
     username: doctor?.user.username ?? '',
   },
   phone: doctor?.phone ?? '',

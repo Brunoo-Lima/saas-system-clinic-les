@@ -1,18 +1,20 @@
 import type { IPerson } from './IPerson';
 
 export interface IDoctor extends IPerson {
-  id: number;
+  id: string;
   crm: string;
   percentDistribution: number;
   specialties: {
     id: string;
+    name: string;
+    percentDistribution: number;
   }[];
   user: IUserPerson;
   periodToWork: {
-    periodType: string;
     dayWeek: number;
     timeFrom: string;
     timeTo: string;
+    specialty_id: string;
   }[];
 }
 
@@ -20,7 +22,6 @@ export interface IUserPerson {
   email: string;
   username: string;
   password: string;
-  confirmPassword: string;
 }
 
 // export interface ISpecialtyDoctor {

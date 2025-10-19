@@ -3,5 +3,6 @@ export interface PeriodDTO {
     periodType?:  "morning" | "afternoon" | "night" | undefined
     dayWeek?: number
     timeFrom?: string
-    timeTo?: string
+    timeTo?: string,
+    specialty_id?: string
 }

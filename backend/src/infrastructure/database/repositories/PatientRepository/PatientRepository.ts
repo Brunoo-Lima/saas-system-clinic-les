@@ -1,4 +1,4 @@
-import { and, eq, or, sql } from "drizzle-orm";
+import { and, eq, or, SQL, sql } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Patient } from "../../../../domain/entities/EntityPatient/Patient";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -22,7 +22,7 @@ export class PatientRepository implements IRepository {
                 sex: patient.sex ?? "",
                 name: patient.name ?? "",
                 phone: patient.phone ?? "",
-                dateOfBirth: patient.dateOfBirth?.toDateString() ?? "",
+                dateOfBirth: patient.dateOfBirth?.toISOString() ?? "",
                 user_id: userID && userID !== "" ? userID : null, // UUID ou nulo, essa é a tipagem default do drizzle
                 address_id: patient.address?.getUUIDHash() ?? null
             }
@@ -33,17 +33,18 @@ export class PatientRepository implements IRepository {
     }
     async findEntity(patient: Patient): Promise<any> {
         try {
+            const filters: (SQL<unknown> | undefined)[] = []
+            if(patient.getUUIDHash()) filters.push(eq(patientTable.id, patient.getUUIDHash()))
+            if(patient.name && patient.cpf) filters.push(and(
+                eq(patientTable.name, patient.name ?? ""),
+                eq(patientTable.cpf, patient.cpf ?? ""),
+            ),)
+            if(patient.user?.getUUIDHash()) filters.push(eq(userTable.id, patient.user?.getUUIDHash()))
+
             const result = await db.transaction(async (tx) => {
                 const patientFounded = await tx.select().from(patientTable)
                     .where(
-                        or(
-                            eq(patientTable.id, patient.getUUIDHash()),
-                            and(
-                                eq(patientTable.name, patient.name ?? ""),
-                                eq(patientTable.cpf, patient.cpf ?? ""),
-                            ),
-                            eq(userTable.id, patient.user?.getUUIDHash() ?? "")
-                        )
+                        or(...filters)
                     )
                     .leftJoin(addressTable,
                         eq(addressTable.id, patientTable.address_id)

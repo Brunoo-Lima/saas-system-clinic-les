@@ -15,7 +15,7 @@ patientRoutes.post(
   new CreatePatientController().handle,
 );
 
-patientRoutes.post('/patient/card_insurance/vinculate', authMiddleware, privateRoute, new VinculateCardInsuranceController().handle)
+patientRoutes.post('/patient/card_insurance/add', authMiddleware, privateRoute, new VinculateCardInsuranceController().handle)
 patientRoutes.get('/patient/findall', authMiddleware, privateRoute, new FindAllPatientController().handle)
 
 export { patientRoutes };

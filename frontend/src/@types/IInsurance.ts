@@ -1,6 +1,6 @@
 export interface IInsurance {
-  id: number;
-  name: string;
+  id: string;
+  type: string;
   modalities: {
     id: string;
     name: string;

@@ -1,4 +1,4 @@
-import { and, eq, ilike, inArray, or } from "drizzle-orm";
+import { and, eq, ilike, inArray, isNotNull, or } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Specialty } from "../../../../domain/entities/EntitySpecialty/Specialty";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -44,11 +44,11 @@ export class SpecialtyRepository implements IRepository {
             return await db.select().from(specialtyTable)
                 .where(
                     or(
-                        eq(specialtyTable.id, specialties.getUUIDHash()),
+                        eq(specialtyTable.id, specialties.getUUIDHash() ?? undefined),
                         ilike(specialtyTable.name, specialties.name ?? ""),
                         or(
                             and(
-                                eq(specialtyTable.id, specialties.getUUIDHash()),
+                                eq(specialtyTable.id, specialties.getUUIDHash() ?? undefined),
                                 ilike(specialtyTable.name, specialties.name ?? ""),
                             )
                         )
@@ -78,13 +78,24 @@ export class SpecialtyRepository implements IRepository {
     }
     async findAllEntity(specialties: Array<Specialty>, limit: number, offset: number) {
         try {
+            const filters:any = []
+            if(Array.isArray(specialties) && specialties.length){
+                filters.push(inArray(specialtyTable.id, specialties.map((sp) => sp.getUUIDHash())))
+                filters.push(inArray(specialtyTable.name, specialties.map((sp) => sp.name ?? "")))
+            }else{
+                filters.push(isNotNull(specialtyTable.id))
+            }
             return await db
                 .select()
                 .from(specialtyTable)
+                .where(
+                    or(...filters)
+                )
                 .limit(limit)
                 .offset(offset)
 
         } catch (e) {
+            console.log(e)
             return ResponseHandler.error("Failed to find the specialties")
         }
     }

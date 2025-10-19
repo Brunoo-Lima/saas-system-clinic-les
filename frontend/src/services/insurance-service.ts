@@ -83,3 +83,38 @@ export function useGetAllInsurances(params?: IInsuranceProps) {
     queryFn: () => getAllInsurances(params || {}),
   });
 }
+
+interface IUpdateInsurance {
+  id: string;
+  insurance: Omit<Partial<Insurance>, 'id'> & {
+    modalities?: { id?: string; name: string }[];
+  };
+}
+
+export const updateInsurance = async ({ id, insurance }: IUpdateInsurance) => {
+  const { data: response, status } = await api.patch(
+    `/insurance/?id=${id}`,
+    insurance,
+  );
+
+  if (status !== 200 || response.success === false) {
+    throw new Error(response.message);
+  }
+
+  return { data: response.data, status };
+};
+
+export function useUpdateInsurance() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateInsurance,
+    onSuccess: () => {
+      toast.success('Convênio atualizado com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['insurances'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Erro ao atualizar convênio.');
+    },
+  });
+}

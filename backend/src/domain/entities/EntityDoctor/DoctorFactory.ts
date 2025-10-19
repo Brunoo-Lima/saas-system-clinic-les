@@ -11,7 +11,6 @@ import { DoctorBuilder } from "./DoctorBuilder";
 export class DoctorFactory {
     static createFromDTO(doctorDTO: DoctorDTO) {
 
-
         // User
         const user = new UserBuilder()
             .setAvatar(doctorDTO.user?.avatar)
@@ -56,11 +55,14 @@ export class DoctorFactory {
             .build();
 
         const periods = doctorDTO.periodToWork?.map((per) => {
+            const specialty = new SpecialtyBuilder().build()
+            specialty.setUuidHash(per.specialty_id ?? specialty.getUUIDHash())
+
             const period = new Period({
                 dayWeek: per.dayWeek ?? 0,
-                periodType: per.periodType ?? "default",
                 timeFrom: per.timeFrom ?? "",
-                timeTo: per.timeTo ?? ""
+                timeTo: per.timeTo ?? "",
+                specialty: specialty
             })
             period.setUuidHash(per.id ?? period.getUUIDHash())
             return period

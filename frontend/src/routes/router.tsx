@@ -27,7 +27,7 @@ export function AppRouter() {
           element={<HistoricAppointmentPage />}
         />
         <Route path="/medicos" element={<DoctorsPage />} />
-        <Route path="/agenda/medico" element={<AgendaPage />} />
+        <Route path="/agenda/medico/:doctorId" element={<AgendaPage />} />
 
         <Route path="/pacientes" element={<PatientsPage />} />
         <Route path="/convenios" element={<InsurancePage />} />

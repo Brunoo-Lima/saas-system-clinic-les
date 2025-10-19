@@ -6,6 +6,7 @@ import { PatientProvider } from '@/contexts/patient-context';
 import { SpecialtyProvider } from '@/contexts/specialty-context';
 import { NuqsAdapter } from 'nuqs/adapters/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AppointmentProvider } from '@/contexts/appointment-context';
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   const queryClient = new QueryClient();
@@ -17,7 +18,9 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           <InsuranceProvider>
             <SpecialtyProvider>
               <PatientProvider>
-                <DoctorProvider>{children}</DoctorProvider>
+                <DoctorProvider>
+                  <AppointmentProvider>{children}</AppointmentProvider>
+                </DoctorProvider>
               </PatientProvider>
             </SpecialtyProvider>
           </InsuranceProvider>

@@ -21,13 +21,76 @@ export default function ProfilePage() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data } = useGetClinic();
+  const { data, isLoading } = useGetClinic();
+
+  const [formData, setFormData] = useState({
+    name: data?.name,
+    phone: data?.phone,
+    email: data?.user.email,
+    cnpj: data?.cnpj,
+    address: {
+      cep: data?.address?.cep,
+      name: data?.address?.name,
+      street: data?.address?.street,
+      number: data?.address?.number,
+      neighborhood: data?.address?.neighborhood,
+      city: {
+        name: data?.address?.city.name,
+      },
+      state: {
+        name: data?.address?.state.name,
+        uf: data?.address?.state.uf,
+      },
+      country: {
+        name: data?.address?.country.name || '',
+      },
+    },
+  });
+
+  useEffect(() => {
+    if (data) {
+      setFormData({
+        name: data.name || '',
+        phone: data.phone || '',
+        email: data.user?.email || '',
+        cnpj: data.cnpj || '',
+        address: {
+          cep: data.address?.cep || '',
+          name: data?.address?.name,
+          street: data.address?.street || '',
+          number: data.address?.number || '',
+          neighborhood: data.address?.neighborhood || '',
+          city: {
+            name: data?.address?.city.name,
+          },
+          state: {
+            name: data.address?.state.name || '',
+            uf: data.address?.state.uf || '',
+          },
+          country: {
+            name: data?.address?.country.name || '',
+          },
+        },
+      });
+    }
+  }, [data]);
 
   useEffect(() => {
     document.title = 'Perfil';
   }, []);
 
-  console.log('data', data);
+  if (isLoading) {
+    return (
+      <PageContainer>
+        <PageHeader>
+          <PageHeaderContent>
+            <PageTitle>Meu perfil</PageTitle>
+            <PageDescription>Carregando...</PageDescription>
+          </PageHeaderContent>
+        </PageHeader>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
@@ -69,7 +132,14 @@ export default function ProfilePage() {
             <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
               <Row>
                 <Label>Nome</Label>
-                <Input placeholder={data?.name} disabled={!isEditingData} />
+                <Input
+                  placeholder="Nome da clinica"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  disabled={!isEditingData}
+                />
               </Row>
 
               <Row>
@@ -78,6 +148,10 @@ export default function ProfilePage() {
                   placeholder="clinica@example.com"
                   disabled={!isEditingData}
                   type="email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                 />
               </Row>
 
@@ -86,6 +160,7 @@ export default function ProfilePage() {
                 <Input
                   placeholder="(11) 99999-9999"
                   disabled={!isEditingData}
+                  value={data?.phone}
                 />
               </Row>
 
@@ -128,12 +203,38 @@ export default function ProfilePage() {
               <Row variant="row" className="grid-cols-1">
                 <Row>
                   <Label>CEP</Label>
-                  <Input placeholder="00000-000" disabled={!isEditingAddress} />
+                  <Input
+                    placeholder="00000-000"
+                    disabled={!isEditingAddress}
+                    value={formData.address?.cep}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        address: {
+                          ...formData.address,
+                          cep: e.target.value,
+                        },
+                      })
+                    }
+                  />
                 </Row>
 
                 <Row>
                   <Label>Número</Label>
-                  <Input placeholder="120" disabled={!isEditingAddress} />
+                  <Input
+                    placeholder="120"
+                    disabled={!isEditingAddress}
+                    value={formData.address?.number}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        address: {
+                          ...formData.address,
+                          number: e.target.value,
+                        },
+                      })
+                    }
+                  />
                 </Row>
               </Row>
 
@@ -142,37 +243,117 @@ export default function ProfilePage() {
                 <Input
                   placeholder="Rua dos Bobos"
                   disabled={!isEditingAddress}
+                  value={formData.address?.street}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      address: {
+                        ...formData.address,
+                        street: e.target.value,
+                      },
+                    })
+                  }
                 />
               </Row>
 
               <Row>
                 <Label>Bairro</Label>
-                <Input placeholder="Bairro" disabled={!isEditingAddress} />
+                <Input
+                  placeholder="Bairro"
+                  disabled={!isEditingAddress}
+                  value={formData.address?.neighborhood}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      address: {
+                        ...formData.address,
+                        neighborhood: e.target.value,
+                      },
+                    })
+                  }
+                />
+              </Row>
+              <Row>
+                <Label>Nome/identificação do endereço</Label>
+                <Input
+                  placeholder="Casa"
+                  disabled={!isEditingAddress}
+                  value={formData.address?.name}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      address: {
+                        ...formData.address,
+                        name: e.target.value,
+                      },
+                    })
+                  }
+                />
               </Row>
 
               <Row variant="row">
                 <Row>
                   <Label>Cidade</Label>
-                  <Input placeholder="São Paulo" disabled={!isEditingAddress} />
+                  <Input
+                    placeholder="São Paulo"
+                    disabled={!isEditingAddress}
+                    value={formData.address?.city.name}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        address: {
+                          ...formData.address,
+                          city: {
+                            ...formData.address?.city,
+                            name: e.target.value,
+                          },
+                        },
+                      })
+                    }
+                  />
                 </Row>
 
                 <Row>
                   <Label>Estado/UF</Label>
-                  <Input placeholder="SP" disabled={!isEditingAddress} />
+                  <Input
+                    placeholder="SP"
+                    disabled={!isEditingAddress}
+                    value={formData.address?.state?.name}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        address: {
+                          ...formData.address,
+                          state: {
+                            ...formData.address?.state,
+                            name: e.target.value,
+                          },
+                        },
+                      })
+                    }
+                  />
                 </Row>
               </Row>
 
               <Row variant="row">
                 <Row>
                   <Label>País</Label>
-                  <Input placeholder="Brasil" disabled={!isEditingAddress} />
-                </Row>
-
-                <Row>
-                  <Label>Complemento</Label>
                   <Input
-                    placeholder="Complemento"
+                    placeholder="Brasil"
                     disabled={!isEditingAddress}
+                    value={formData.address?.country.name}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        address: {
+                          ...formData.address,
+                          country: {
+                            ...formData.address?.country,
+                            name: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                 </Row>
               </Row>

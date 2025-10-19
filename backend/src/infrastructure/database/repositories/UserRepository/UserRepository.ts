@@ -23,9 +23,7 @@ export class UserRepository implements IRepository {
         emailVerified: user.emailVerified,
         password: user.password!,
         role: user.role!,
-        avatar: user.avatar || "",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        avatar: user.avatar || ""
       }).returning({
         id: userTable.id,
         email: userTable.email,
