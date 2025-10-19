@@ -11,6 +11,14 @@ export class SchedulingQueriesDAO {
         try {
             const dbUse = tx ? tx : db
             const timeOfConsultation = `${scheduling.timeOfConsultation ?? 0} hour`
+            const sqlCreated = sql`
+                ${schedulingTable.doctor_id} = ${scheduling.doctor?.getUUIDHash()} AND
+                ${schedulingTable.status} = ('PENDING') AND
+                (${schedulingTable.id} = ${scheduling.getUUIDHash()} OR ${schedulingTable.id} IS NOT NULL) AND
+            `
+            
+            if(scheduling.date) sqlCreated.append(sql`((${schedulingTable.date}) + ${timeOfConsultation}::interval) >= ${scheduling.date!.toISOString()}::timestamp`)
+            
             const schedulingPerDoctor = await dbUse
             .select({
                 id: schedulingTable.id,
@@ -18,12 +26,7 @@ export class SchedulingQueriesDAO {
             })
             .from(schedulingTable)
             .where(
-               sql`
-                    ${schedulingTable.doctor_id} = ${scheduling.doctor?.getUUIDHash()} AND
-                    ${schedulingTable.status} = ('PENDING') AND
-                    (${schedulingTable.id} = ${scheduling.getUUIDHash()} OR ${schedulingTable.id} IS NOT NULL) AND
-                    (${schedulingTable.date} + ${timeOfConsultation}::interval) >= ${scheduling.date!.toISOString()}::timestamp
-               `
+              sqlCreated
             )
 
             return ResponseHandler.success(schedulingPerDoctor, "Scheduling can be inserted")

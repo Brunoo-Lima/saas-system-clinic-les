@@ -7,6 +7,7 @@ import { schedulingTable } from "../../Schema/SchedulingSchema";
 import { IRepository } from "../IRepository";
 import { patientTable } from "../../Schema/PatientSchema";
 import { doctorTable } from "../../Schema/DoctorSchema";
+import { userTable } from "../../Schema/UserSchema";
 
 export class ConsultationSchedulingRepository implements IRepository {
     async create(scheduling: Scheduling, tx?: any): Promise<any> {
@@ -69,11 +70,14 @@ export class ConsultationSchedulingRepository implements IRepository {
                         json_build_object(
                             'id', ${patientTable.id},
                             'name', ${patientTable.name},
+                            'phone', ${patientTable.phone},
                             'cpf', ${patientTable.cpf},
                             'sex', ${patientTable.sex},
-                            'dateOfBirth', ${patientTable.dateOfBirth}
+                            'dateOfBirth', ${patientTable.dateOfBirth},
+                            'email', ${userTable.email}
                         )
                     FROM ${patientTable}
+                    INNER JOIN ${userTable} ON ${userTable.id} = ${patientTable.user_id}
                     WHERE
                         ${patientTable.id} = ${schedulingTable.patient_id}
                     )
@@ -86,7 +90,7 @@ export class ConsultationSchedulingRepository implements IRepository {
                             'cpf', ${doctorTable.cpf},
                             'crm', ${doctorTable.crm},
                             'sex', ${doctorTable.sex},
-                            'dateOfBirth', ${doctorTable.date_of_birth}
+                            'dateOfBirth', CAST(${doctorTable.date_of_birth} AS DATE)
                         )
                     FROM ${doctorTable}
                     WHERE
@@ -102,6 +106,7 @@ export class ConsultationSchedulingRepository implements IRepository {
             .offset(offset)
 
         } catch(e){
+            console.log(e)
             return ResponseHandler.error("Failed to find all scheduling")
         }
     }

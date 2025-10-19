@@ -74,7 +74,6 @@ export class CreateSchedulingService {
             const schedulingInserted = await this.repository.create(consultationSchedulingDomain);
             return ResponseHandler.success(schedulingInserted, "Success ! Scheduling confirmed.")
         } catch (e) {
-            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }
