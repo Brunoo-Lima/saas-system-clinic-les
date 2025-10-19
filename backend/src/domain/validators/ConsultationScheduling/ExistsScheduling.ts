@@ -31,7 +31,7 @@ export class ExistsScheduling implements IProcessValidator {
             }
             const schedulingDao = new SchedulingQueriesDAO()
             const schedulingToDoctorExists = await schedulingDao.schedulingPerDoctor(scheduling)
-            console.log(schedulingToDoctorExists)
+
             if (Array.isArray(schedulingToDoctorExists.data) && schedulingToDoctorExists.data.length) return ResponseHandler.error("The scheduling cannot be confirmed because already exists the scheduling in this date")
             
             return ResponseHandler.success(scheduling, "Success ! The scheduling can be inserted")

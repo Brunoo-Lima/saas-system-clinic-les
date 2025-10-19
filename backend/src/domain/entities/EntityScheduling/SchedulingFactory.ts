@@ -34,7 +34,8 @@ export class SchedulingFactory {
 
         const combinedString = `${schedulingDTO.date}T${schedulingDTO.hour}`; 
         const combinedDate = new Date(combinedString);
-        
+        combinedDate.setHours(combinedDate.getHours() - 3) // Padrao PT-BR
+
         const scheduling = new SchedulingBuilder()
         .setDate(combinedDate ?? undefined)
         .setDateOfConfirmation(schedulingDTO.dateOfConfirmation ? new Date(schedulingDTO.dateOfConfirmation) : undefined)
