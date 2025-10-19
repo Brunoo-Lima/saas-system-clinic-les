@@ -31,7 +31,27 @@ export class SchedulingDoctorRepository implements IRepository {
         if (schedulingDoctor.doctor?.cpf) filters.push(eq(doctorTable.cpf, schedulingDoctor.doctor?.cpf ?? ""))
 
         const schedulingDoctorFounded = await dbUse
-            .select()
+            .select(
+                {
+                    id: doctorSchedulingTable.id,
+                    dateFrom: doctorSchedulingTable.dateFrom,
+                    dateTo: doctorSchedulingTable.dateTo,
+                    isActivate: doctorSchedulingTable.isActivate,
+                    datesBlocked: sql`
+                    (SELECT 
+                        json_agg(
+                            json_build_object(
+                                'id', ${schedulingBlockedDays.id},
+                                'dateBlocked', ${schedulingBlockedDays.dateBlocked},
+                                'reason', ${schedulingBlockedDays.reason}
+                            )
+                        )
+                    FROM ${schedulingBlockedDays}
+                    WHERE ${schedulingBlockedDays.doctorScheduling_id} = ${doctorSchedulingTable.id}
+                    )
+                `.as('datesBlocked')
+                }
+            )
             .from(doctorSchedulingTable)
             .leftJoin(
                 doctorTable,

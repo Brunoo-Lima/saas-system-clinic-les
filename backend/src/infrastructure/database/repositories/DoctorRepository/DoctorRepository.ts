@@ -116,10 +116,22 @@ export class DoctorRepository implements IRepository {
                 name: doctorTable.name,
                 cpf: doctorTable.cpf,
                 sex: doctorTable.sex,
-                date_of_birth: doctorTable.date_of_birth,
+                date_of_birth: sql`CAST(${doctorTable.date_of_birth} AS DATE)`,
                 phone: doctorTable.phone,
-                //NAO ESQUECER DOS () PARA SUBQUERY
-                periods: sql`(
+                specialties: sql`(
+                    SELECT 
+                        json_agg(
+                            json_build_object(
+                                'id', ${doctorToSpecialtyTable.specialty_id},
+                                'name', ${specialtyTable.name},
+                                'percentDistribution', ${doctorToSpecialtyTable.percent_distribution}
+                            )
+                        )
+                    FROM ${doctorToSpecialtyTable}
+                    INNER JOIN ${specialtyTable} ON ${specialtyTable.id} = ${doctorToSpecialtyTable.specialty_id}
+                    WHERE ${doctorToSpecialtyTable.doctor_id} = ${doctorTable.id}
+                )`,
+                periodToWork: sql`(
                     SELECT
                         json_agg(
                             json_build_object(
@@ -179,7 +191,6 @@ export class DoctorRepository implements IRepository {
             .offset(offset)
             return doctorsFounded
         } catch(e){
-            console.log(e)
             return ResponseHandler.error('Failed to find all doctors')
         }
     }
