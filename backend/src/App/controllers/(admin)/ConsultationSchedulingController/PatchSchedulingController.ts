@@ -10,6 +10,7 @@ export class PatchSchedulingController {
             const schedulingDTO = req.body as ConsultationSchedulingDTO
             const service = new PatchSchedulingService()
             const schedulingUpdated = await service.execute(schedulingDTO, id?.toString())
+            return res.status(200).json(schedulingUpdated)
         } catch(e) {
             return res.status(500).json(ResponseHandler.error((e as Error).message))
         }        
