@@ -70,8 +70,16 @@ export class SchedulingDoctorRepository implements IRepository {
         return schedulingDoctorFounded[0] ?? null;
     }
 
-    updateEntity(entity: EntityDomain | Array<EntityDomain>, tx?: any): Promise<any> {
-        throw new Error("Method not implemented.");
+    async updateEntity(schedulingDoctor: DoctorScheduling,  tx?: any): Promise<any> {
+        const dbUse = tx ? tx : db
+        return await dbUse.update(doctorSchedulingTable).set({
+            dateFrom: schedulingDoctor.dayFrom?.toISOString(),
+            dateTo: schedulingDoctor.dayTo?.toISOString(),
+            isActivate: schedulingDoctor.is_activate,
+            updatedAt: schedulingDoctor.getUpdatedAt()
+        }).where(
+            eq(doctorSchedulingTable.id, schedulingDoctor.getUUIDHash())
+        ).returning()
     }
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
         throw new Error("Method not implemented.");

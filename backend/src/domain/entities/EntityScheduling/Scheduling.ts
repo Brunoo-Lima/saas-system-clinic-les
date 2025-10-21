@@ -54,5 +54,7 @@ export class Scheduling extends EntityDomain {
     public set timeOfConsultation(time : string | undefined) {
         this.schedulingProps.timeOfConsultation = time
     }
-    
+    public set date(date: Date | undefined){
+        this.schedulingProps.date = date
+    }
 }

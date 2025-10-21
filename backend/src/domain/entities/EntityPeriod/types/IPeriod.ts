@@ -1,8 +1,8 @@
 import { Specialty } from "../../EntitySpecialty/Specialty"
 
 export interface IPeriod {
-    dayWeek: number
-    timeFrom: string
-    timeTo: string,
+    dayWeek: number | undefined
+    timeFrom: string | undefined
+    timeTo: string | undefined
     specialty: Specialty
 }

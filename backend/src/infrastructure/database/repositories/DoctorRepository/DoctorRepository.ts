@@ -1,9 +1,8 @@
-import { and, eq, or, sql } from "drizzle-orm";
+import { and, eq, notInArray, or, sql } from "drizzle-orm";
 import { Doctor } from "../../../../domain/entities/EntityDoctor/Doctor";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
-import { clinicTable } from "../../Schema/ClinicSchema";
 import { doctorTable, doctorToSpecialtyTable } from "../../Schema/DoctorSchema";
 import { IRepository } from "../IRepository";
 import { periodDoctorTable } from "../../Schema/PeriodSchema";
@@ -34,27 +33,15 @@ export class DoctorRepository implements IRepository {
             }
         }) ?? [])
 
-        if (doctor.periodToWork && doctor.periodToWork.length > 0) {
-            await dbUse.insert(periodDoctorTable).values(
-                doctor.periodToWork.map((per) => ({
-                    id: per?.getUUIDHash() ?? "",
-                    dayWeek: per?.dayWeek ?? 0,
-                    timeFrom: per?.timeFrom?.toString() ?? "",
-                    timeTo: per?.timeTo?.toString() ?? "",
-                    doctor_id: doctor.getUUIDHash() ?? "",
-                    specialty_id: per.specialty.getUUIDHash() ?? ""
-                }))
-            );
-        }
         return doctorInserted
     }
 
     async findEntity(doctor: Doctor, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
         const doctorFounded = await dbUse
-        .select({
-            doctor: doctorTable,
-            periods: sql`json_agg(
+            .select({
+                doctor: doctorTable,
+                periods: sql`json_agg(
             json_build_object(
                 'id', ${periodDoctorTable.id},
                 'dayWeek', ${periodDoctorTable.dayWeek},
@@ -63,7 +50,7 @@ export class DoctorRepository implements IRepository {
                 'specialty_id', ${periodDoctorTable.specialty_id}
             )
             )`.as("periods"),
-            specialties: sql`
+                specialties: sql`
                 json_agg(
                     json_build_object(
                         'id', ${specialtyTable.id},
@@ -71,32 +58,71 @@ export class DoctorRepository implements IRepository {
                     )
                 )
             `
-        })
-        .from(doctorTable)
-        .innerJoin(periodDoctorTable, eq(periodDoctorTable.doctor_id, doctorTable.id))
-        .leftJoin(
-            doctorToSpecialtyTable,
-            eq(doctorToSpecialtyTable.doctor_id, doctorTable.id)
-        )
-        .leftJoin(
-            specialtyTable,
-            eq(specialtyTable.id, doctorToSpecialtyTable.specialty_id)
-        )
-        .where(
-            or(
-                eq(doctorTable.id, doctor.getUUIDHash() ?? undefined),
-                eq(doctorTable.crm, doctor.crm ?? ""),
-                eq(doctorTable.cpf, doctor.cpf ?? ""),
-                eq(doctorTable.name, doctor.name ?? "")
+            })
+            .from(doctorTable)
+            .innerJoin(periodDoctorTable, eq(periodDoctorTable.doctor_id, doctorTable.id))
+            .leftJoin(
+                doctorToSpecialtyTable,
+                eq(doctorToSpecialtyTable.doctor_id, doctorTable.id)
             )
-        )
-        .groupBy(
-            doctorTable.id, 
-        );
+            .leftJoin(
+                specialtyTable,
+                eq(specialtyTable.id, doctorToSpecialtyTable.specialty_id)
+            )
+            .where(
+                or(
+                    eq(doctorTable.id, doctor.getUUIDHash() ?? undefined),
+                    eq(doctorTable.crm, doctor.crm ?? ""),
+                    eq(doctorTable.cpf, doctor.cpf ?? ""),
+                    eq(doctorTable.name, doctor.name ?? "")
+                )
+            )
+            .groupBy(
+                doctorTable.id,
+            );
         return doctorFounded
     }
-    updateEntity(entity: EntityDomain): Promise<any> {
-        throw new Error("Method not implemented.");
+    async updateEntity(doctor: Doctor, tx?: any): Promise<any> {
+
+        const dbUse = tx ? tx : db
+        let specialtiesToDoctorUpdated;
+
+        const doctorUpdated = await dbUse.update(doctorTable).set({
+            cpf: doctor.cpf,
+            crm: doctor.crm,
+            date_of_birth: doctor.dateOfBirth?.toISOString(),
+            name: doctor.name,
+            phone: doctor.phone,
+            sex: doctor.sex,
+            updatedAt: doctor.getUpdatedAt()
+
+        }).where(
+            eq(doctorTable.id, doctor.getUUIDHash())
+        ).returning()
+        
+        if(doctor.percentDistribution){
+            specialtiesToDoctorUpdated = await dbUse.update(doctorToSpecialtyTable).set({
+                percent_distribution: doctor.percentDistribution
+            }).where(eq(doctorToSpecialtyTable.doctor_id, doctor.getUUIDHash())).returning()
+        }
+            
+
+        const specialtiesRemoved = await dbUse.delete(doctorToSpecialtyTable).where(
+            and(
+                eq(doctorToSpecialtyTable.doctor_id, doctor.getUUIDHash()),
+                notInArray(doctorToSpecialtyTable.specialty_id, doctor.specialties?.map((sp) => sp.getUUIDHash()) ?? [])
+            )
+        )
+
+        return {
+            updated: {
+                doctor: doctorUpdated,
+                specialties: specialtiesToDoctorUpdated,
+            },
+            deleted: {
+                specialties: specialtiesRemoved
+            }
+        }
     }
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
@@ -104,10 +130,10 @@ export class DoctorRepository implements IRepository {
     async findAllEntity(doctor: Doctor, limit: number, offset: number): Promise<any> {
         try {
             const filters = []
-            if(doctor){
+            if (doctor) {
                 filters.push(eq(doctorTable.id, doctor.getUUIDHash()))
-                filters.push(eq(doctorTable.crm, doctor.crm ?? "")) 
-                filters.push(eq(doctorTable.cpf, doctor.cpf ?? "")) 
+                filters.push(eq(doctorTable.crm, doctor.crm ?? ""))
+                filters.push(eq(doctorTable.cpf, doctor.cpf ?? ""))
             }
 
             const doctorsFounded = await db.select({
@@ -184,13 +210,13 @@ export class DoctorRepository implements IRepository {
                 )
                 `,
             })
-            .from(doctorTable)
-            .where(
-                or(...filters)
-            ).limit(limit)
-            .offset(offset)
+                .from(doctorTable)
+                .where(
+                    or(...filters)
+                ).limit(limit)
+                .offset(offset)
             return doctorsFounded
-        } catch(e){
+        } catch (e) {
             return ResponseHandler.error('Failed to find all doctors')
         }
     }

@@ -39,8 +39,19 @@ export class AddressRepository implements IRepository {
         return addressesFounded
         
     }
-    updateEntity(entity: EntityDomain): Promise<any> {
-        throw new Error("Method not implemented.");
+    async updateEntity(address: Address, tx?: any): Promise<any> {
+        const dbUse = tx ? tx : db
+        return await dbUse.update(addressTable).set({
+            cep: address.cep,
+            name: address.nameAddress,
+            neighborhood: address.neighborhood,
+            number: address.number,
+            street: address.street,
+            updatedAt: address.getUpdatedAt()
+
+        }).where(
+            eq(addressTable.id, address.getUUIDHash())
+        ).returning()
     }
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
