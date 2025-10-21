@@ -1,9 +1,8 @@
-import { and, eq, or, sql } from "drizzle-orm";
+import { eq, or, sql } from "drizzle-orm";
 import { Doctor } from "../../../../domain/entities/EntityDoctor/Doctor";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
-import { clinicTable } from "../../Schema/ClinicSchema";
 import { doctorTable, doctorToSpecialtyTable } from "../../Schema/DoctorSchema";
 import { IRepository } from "../IRepository";
 import { periodDoctorTable } from "../../Schema/PeriodSchema";
@@ -34,18 +33,6 @@ export class DoctorRepository implements IRepository {
             }
         }) ?? [])
 
-        if (doctor.periodToWork && doctor.periodToWork.length > 0) {
-            await dbUse.insert(periodDoctorTable).values(
-                doctor.periodToWork.map((per) => ({
-                    id: per?.getUUIDHash() ?? "",
-                    dayWeek: per?.dayWeek ?? 0,
-                    timeFrom: per?.timeFrom?.toString() ?? "",
-                    timeTo: per?.timeTo?.toString() ?? "",
-                    doctor_id: doctor.getUUIDHash() ?? "",
-                    specialty_id: per.specialty.getUUIDHash() ?? ""
-                }))
-            );
-        }
         return doctorInserted
     }
 
