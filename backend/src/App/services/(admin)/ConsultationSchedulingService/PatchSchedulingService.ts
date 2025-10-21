@@ -7,17 +7,14 @@ import { IProcessValidator } from "../../../../domain/validators/IProcessValidat
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { ConsultationSchedulingRepository } from "../../../../infrastructure/database/repositories/ConsultationSchedulingRepository/ConsultationSchedulingRepository";
-import { InsuranceRepository } from "../../../../infrastructure/database/repositories/InsurancesRepository/InsurancesRepository";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { ConsultationSchedulingDTO } from "../../../../infrastructure/DTOs/ConsultationSchedulingDTO";
 
 export class PatchSchedulingService {
     private repository: IRepository;
-    private insuranceRepository: IRepository;
 
     constructor(){
         this.repository = new ConsultationSchedulingRepository();
-        this.insuranceRepository = new InsuranceRepository()
     }
     async execute(schedulingDTO: ConsultationSchedulingDTO, id: string | undefined){
         try {
@@ -32,8 +29,7 @@ export class PatchSchedulingService {
                     new ExistsScheduling()
                 )                    
             }
-            
-
+        
             const schedulingIsValid = await validator.process(`U-${schedulingDomain.constructor.name}`, schedulingDomain)
             if(!schedulingIsValid.success) return schedulingIsValid
             
