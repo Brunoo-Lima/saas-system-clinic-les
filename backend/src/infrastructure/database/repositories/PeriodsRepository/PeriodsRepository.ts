@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray, notInArray } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Period } from "../../../../domain/entities/EntityPeriod/Period";
 import db from "../../connection";
@@ -34,8 +34,14 @@ export class PeriodsRepository implements IRepository {
             eq(periodDoctorTable.id, period.getUUIDHash())
         ).returning()
     }
-    deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
-        throw new Error("Method not implemented.");
+    async deleteEntity(periods: Array<Period> | Period, tx?: any) {
+        const dbUse = tx ? tx : db
+        const periodsFiltered = Array.isArray(periods) ? periods : [periods]
+        
+        return await dbUse.delete(periodDoctorTable).where(
+            notInArray(periodDoctorTable.id, periodsFiltered.map((per) => per.getUUIDHash()))
+        ).returning()
+
     }
     findAllEntity(entity?: EntityDomain | Array<EntityDomain>, limit?: number, offset?: number): Promise<any> {
         throw new Error("Method not implemented.");

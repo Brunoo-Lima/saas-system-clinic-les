@@ -3,6 +3,7 @@ import { DoctorSchedulingBuilder } from "../../../../domain/entities/EntityDocto
 import { Period } from "../../../../domain/entities/EntityPeriod/Period";
 import { SchedulingBlockedDays } from "../../../../domain/entities/EntitySchedulingBlockedDays/SchedulingBlockedDays";
 import { SpecialtyBuilder } from "../../../../domain/entities/EntitySpecialty/SpecialtyBuilder";
+import { EntityExistsToUpdated } from "../../../../domain/validators/General/EntityExistsToUpdated";
 import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -55,7 +56,7 @@ export class PatchSchedulingDoctorService {
 
 
             const validator = new ValidatorController()
-            validator.setValidator(`U-${schedulingDoctorDomain.constructor.name}`, [ new UUIDValidator() ])
+            validator.setValidator(`U-${schedulingDoctorDomain.constructor.name}`, [ new UUIDValidator(), new EntityExistsToUpdated()])
 
             if(periods.length) {
                 validator.setValidator(`U-${periods[0]?.constructor.name}`, [new UUIDValidator() ])
@@ -80,7 +81,6 @@ export class PatchSchedulingDoctorService {
 
             return ResponseHandler.success(entitiesUpdated, "Success ! ")
         } catch(e){
-            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }

@@ -4,6 +4,6 @@ export interface IRepository {
   create(entity: EntityDomain | Array<EntityDomain>, tx?: any, id?: any): Promise<any>;
   findEntity(entity: EntityDomain | Array<EntityDomain>, tx?: any): Promise<any>;
   updateEntity(entity: EntityDomain | Array<EntityDomain>, tx?: any): Promise<any>;
-  deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void>;
+  deleteEntity(entity: EntityDomain | Array<EntityDomain>, tx?: any): Promise<void>;
   findAllEntity(entity?: EntityDomain | Array<EntityDomain>, limit?: number, offset?: number): Promise<any>;
 }
