@@ -93,8 +93,8 @@ export class SchedulingDoctorRepository implements IRepository {
                                 json_build_object(
                                     'id', ${periodDoctorTable.id},
                                     'dayWeek', ${periodDoctorTable.dayWeek},
-                                    'dayWeek', ${periodDoctorTable.timeFrom},
-                                    'dayWeek', ${periodDoctorTable.timeTo},
+                                    'timeFrom', ${periodDoctorTable.timeFrom},
+                                    'timeTo', ${periodDoctorTable.timeTo},
                                     'specialty', (
                                         SELECT
                                             json_build_object(
