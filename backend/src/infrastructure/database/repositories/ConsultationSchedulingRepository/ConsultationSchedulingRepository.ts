@@ -34,10 +34,32 @@ export class ConsultationSchedulingRepository implements IRepository {
     findEntity(entity: EntityDomain | Array<EntityDomain>, tx?: any): Promise<any> {
         throw new Error("Method not implemented.");
     }
-    updateEntity(entity: EntityDomain | Array<EntityDomain>, tx?: any): Promise<any> {
-        throw new Error("Method not implemented.");
+    async updateEntity(scheduling: Scheduling, tx?: any): Promise<any> {
+        try {
+            const dbUse = tx ? tx : db
+            const schedulingUpdated = await dbUse.update(schedulingTable).set({
+                date: scheduling.date,
+                dateOfConfirmation: scheduling.dateOfConfirmation?.toISOString() ?? undefined,
+                dateOfRealizable: scheduling.dateOfRealizable ?? undefined,
+                isReturn: scheduling.isReturn,
+                insurance_id: scheduling.insurance?.getUUIDHash() || undefined,
+                patient_id: scheduling.patient?.getUUIDHash() || undefined,
+                doctor_id: scheduling.doctor?.getUUIDHash() || undefined,
+                specialty_id: scheduling.specialty?.getUUIDHash() || undefined,
+                priceOfConsultation: scheduling.priceOfConsultation,
+                status: scheduling.status,
+                timeOfConsultation: scheduling.timeOfConsultation === "01:00:00" ? undefined : scheduling.timeOfConsultation,
+                updatedAt: scheduling.getUpdatedAt() ?? new Date().toISOString()
+            }).where(
+                eq(schedulingTable.id, scheduling.getUUIDHash())
+            ).returning()
+
+            return schedulingUpdated
+        } catch(e) {
+            return ResponseHandler.error("Failed to update the scheduling.")
+        }
     }
-    deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
+    deleteEntity(scheduling: Scheduling, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
     async findAllEntity(scheduling: Scheduling, limit: number, offset: number){
@@ -117,7 +139,6 @@ export class ConsultationSchedulingRepository implements IRepository {
             .offset(offset)
 
         } catch(e){
-            console.log(e)
             return ResponseHandler.error("Failed to find all scheduling")
         }
     }

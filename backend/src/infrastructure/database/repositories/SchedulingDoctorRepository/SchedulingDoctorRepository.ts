@@ -7,6 +7,8 @@ import { IRepository } from "../IRepository";
 import { doctorTable } from "../../Schema/DoctorSchema";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { schedulingBlockedDays } from "../../Schema/SchedulingBlockedDays";
+import { periodDoctorTable } from "../../Schema/PeriodSchema";
+import { specialtyTable } from "../../Schema/SpecialtySchema";
 
 export class SchedulingDoctorRepository implements IRepository {
     async create(schedulingDoctor: DoctorScheduling, tx?: any): Promise<any> {
@@ -85,6 +87,29 @@ export class SchedulingDoctorRepository implements IRepository {
                     dateFrom: doctorSchedulingTable.dateFrom,
                     dateTo: doctorSchedulingTable.dateTo,
                     isActivate: doctorSchedulingTable.isActivate,
+                    periodToWork: sql`
+                        (SELECT 
+                            json_agg(
+                                json_build_object(
+                                    'id', ${periodDoctorTable.id},
+                                    'dayWeek', ${periodDoctorTable.dayWeek},
+                                    'dayWeek', ${periodDoctorTable.timeFrom},
+                                    'dayWeek', ${periodDoctorTable.timeTo},
+                                    'specialty', (
+                                        SELECT
+                                            json_build_object(
+                                                'id', ${specialtyTable.id},
+                                                'name', ${specialtyTable.name}
+                                            )
+                                        FROM ${specialtyTable}
+                                        WHERE ${specialtyTable.id} = ${periodDoctorTable.specialty_id}
+                                    )
+                                )
+                            )
+                            FROM ${periodDoctorTable}
+                            WHERE ${periodDoctorTable.doctor_id} = ${doctorSchedulingTable.doctor_id}
+                        )
+                    `,
                     datesBlocked: sql`
                     (SELECT 
                         json_agg(
@@ -106,6 +131,7 @@ export class SchedulingDoctorRepository implements IRepository {
 
             return schedulingDoctorFounded
         } catch (e) {
+            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }

@@ -37,7 +37,7 @@ export class SchedulingFactory {
         combinedDate.setHours(combinedDate.getHours() - 3) // Padrao PT-BR
 
         const scheduling = new SchedulingBuilder()
-        .setDate(combinedDate ?? undefined)
+        .setDate(!isNaN(combinedDate.valueOf()) ? combinedDate: undefined)
         .setDateOfConfirmation(schedulingDTO.dateOfConfirmation ? new Date(schedulingDTO.dateOfConfirmation) : undefined)
         .setDateOfRealizable(schedulingDTO.dateOfRealizable ? new Date(schedulingDTO.dateOfRealizable) : undefined)
         .setTimeOfConsultation("01:00:00") // Por padrao setamos 1 hora para a consulta
