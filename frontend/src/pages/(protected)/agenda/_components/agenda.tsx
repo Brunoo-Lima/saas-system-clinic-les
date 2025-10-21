@@ -34,6 +34,35 @@ const statusConfig = {
   CANCELED: { label: 'Cancelado', variant: 'destructive' },
 } satisfies Record<AppointmentStatus, StatusConfigProps>;
 
+const extractWorkingDaysFromPeriods = (periodToWork: any[]) => {
+  const workingDays = {
+    monday: false,
+    tuesday: false,
+    wednesday: false,
+    thursday: false,
+    friday: false,
+    saturday: false,
+    sunday: false,
+  };
+
+  periodToWork?.forEach((period) => {
+    const dayNames = [
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+    ];
+    if (period.dayWeek >= 0 && period.dayWeek <= 6) {
+      workingDays[dayNames[period.dayWeek] as keyof typeof workingDays] = true;
+    }
+  });
+
+  return workingDays;
+};
+
 interface IAgendaProps {
   doctorId: string;
 }
@@ -61,24 +90,35 @@ export function Agenda({ doctorId }: IAgendaProps) {
 
   const currentDoctorId = doctorId || '';
 
-  const { data: existingAgenda } = useGetAgenda(currentDoctorId);
+  const { data: existingAgendas } = useGetAgenda(currentDoctorId);
   const { data: appointments } = useGetAppointments({
     doctor_id: currentDoctorId,
     scheduling_date: formattedDate,
   });
 
-  console.log('agenda', existingAgenda);
-  console.log('agendamentos', appointments);
+  const hasNoAgendaData = !existingAgendas || existingAgendas.length === 0;
 
   useEffect(() => {
-    if (existingAgenda) {
-      // Atualiza o availabilitySettings com os dados do backend
-      setAvailabilitySettings((prev) => ({
-        ...prev,
-        blockedDates: existingAgenda.datesBlocked || [],
+    if (existingAgendas && existingAgendas.length > 0) {
+      const latestAgenda = existingAgendas[0];
+
+      const blockedDates =
+        latestAgenda.datesBlocked?.map((blocked: any) => ({
+          id: blocked.id,
+          date: blocked.dateBlocked,
+          reason: blocked.reason,
+        })) || [];
+
+      const workingDays = extractWorkingDaysFromPeriods(
+        latestAgenda.periodToWork,
+      );
+
+      setAvailabilitySettings(() => ({
+        workingDays: workingDays,
+        blockedDates: blockedDates,
       }));
     }
-  }, [existingAgenda]);
+  }, [existingAgendas]);
 
   const handleSaveAgenda = (dateFrom: Date, dateTo: Date) => {
     const agendaData: IAgendaRequest = {
@@ -93,7 +133,13 @@ export function Agenda({ doctorId }: IAgendaProps) {
 
     // Adiciona datesBlocked apenas se houver datas bloqueadas
     if (availabilitySettings.blockedDates.length > 0) {
-      agendaData.datesBlocked = availabilitySettings.blockedDates;
+      // CORREÇÃO: mapeie para o formato do backend
+      agendaData.datesBlocked = availabilitySettings.blockedDates.map(
+        (blocked) => ({
+          date: blocked.date,
+          reason: blocked.reason,
+        }),
+      );
     }
 
     createAgenda(agendaData, {
@@ -140,13 +186,17 @@ export function Agenda({ doctorId }: IAgendaProps) {
   return (
     <div className="container mx-auto max-w-7xl">
       <div className="flex justify-end mb-4">
-        <button
-          onClick={saveCurrentMonthAgenda}
-          disabled={isCreatingAgenda}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-        >
-          {isCreatingAgenda ? 'Salvando...' : 'Salvar Agenda'}
-        </button>
+        {hasNoAgendaData && (
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={saveCurrentMonthAgenda}
+              disabled={isCreatingAgenda}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+            >
+              {isCreatingAgenda ? 'Salvando...' : 'Salvar Agenda'}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
