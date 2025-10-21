@@ -6,6 +6,10 @@ import { toast } from 'sonner';
 export const createAgendaService = async (agenda: IAgendaRequest) => {
   const { data } = await api.post('/doctor/scheduling', agenda);
 
+  if (data.success === false) {
+    throw new Error(data.message);
+  }
+
   return data;
 };
 

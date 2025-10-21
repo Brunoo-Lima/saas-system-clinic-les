@@ -11,7 +11,7 @@ export const parseBackendDate = (dateString: string): Date => {
 export const convertToBackendBlockedDates = (dates: Date[]): IBlockedDate[] => {
   return dates.map((date) => ({
     date: formatDateToBackend(date),
-    reason: 'Data bloqueada pelo médico',
+    reason: 'Data bloqueada',
   }));
 };
 

@@ -14,6 +14,8 @@ import { useState } from 'react';
 import { AddAppointmentForm } from './add-appointment-form';
 import type { IAppointmentReturn } from '@/services/appointment-service';
 import { format } from 'date-fns';
+import { DropdownCard } from './actions/dropdown-card';
+import { toast } from 'sonner';
 
 interface ICardAppointmentProps {
   appointment: IAppointmentReturn;
@@ -27,13 +29,13 @@ export const CardAppointment = ({ appointment }: ICardAppointmentProps) => {
     const dayOfWeek = date.getDay();
 
     const daysMap = {
-      0: 'domingo',
-      1: 'segunda-feira',
-      2: 'terça-feira',
-      3: 'quarta-feira',
-      4: 'quinta-feira',
-      5: 'sexta-feira',
-      6: 'sábado',
+      0: 'Domingo',
+      1: 'Segunda-feira',
+      2: 'Terça-feira',
+      3: 'Quarta-feira',
+      4: 'Quinta-feira',
+      5: 'Sexta-feira',
+      6: 'Sábado',
     };
 
     return daysMap[dayOfWeek as keyof typeof daysMap] || '';
@@ -52,18 +54,17 @@ export const CardAppointment = ({ appointment }: ICardAppointmentProps) => {
     }
   };
 
-  // const handleDeleteAppointmentClick = () => {
-  //   if (!appointment) return;
-  //   toast.success('Agendamento deletado com sucesso.');
-  // };
+  const handleDeleteAppointmentClick = () => {
+    if (!appointment) return;
+    toast.success('Agendamento deletado com sucesso.');
+  };
 
   return (
     <Card className="sm:min-w-[350px] w-[450px]">
       <CardHeader>
         <div className="flex flex-col gap-2">
           <h2 className="text-lg font-semibold">
-            Agendamento:
-            {/* {appointment.specialty} */}
+            Agendamento: {appointment.specialties.name}
           </h2>
           <p className="text-sm font-medium">
             Médico: {appointment.doctor.name}
@@ -77,11 +78,10 @@ export const CardAppointment = ({ appointment }: ICardAppointmentProps) => {
       <CardContent className="flex flex-col gap-2">
         <Badge variant="outline">
           <CalendarIcon className="mr-1" />
-          {getDayOfWeekFromDate(appointment.date)}
+          {getDayOfWeekFromDate(appointment.date)} - Data:{' '}
+          {format(new Date(appointment.date), 'dd/MM/yyyy - HH:mm')}
         </Badge>
-        <Badge variant="outline" className="flex flex-col items-start gap-1">
-          Data: {format(new Date(appointment.date), 'dd/MM/yyyy HH:mm')}
-        </Badge>
+
         <Badge variant="outline">
           <DollarSignIcon className="mr-1" />
           {Intl.NumberFormat('pt-BR', {
@@ -115,11 +115,10 @@ export const CardAppointment = ({ appointment }: ICardAppointmentProps) => {
             onSuccess={() => {}}
           />
         </Dialog>
-        {/* 
         <DropdownCard
-          onDeleteappointment={handleDeleteappointmentClick}
-          onSendNewPassword={handleSendNewPassword}
-        /> */}
+          appointmentId={appointment.id}
+          onDelete={handleDeleteAppointmentClick}
+        />
       </CardFooter>
     </Card>
   );

@@ -23,10 +23,10 @@ export const CardAppointment = ({
         <div className="flex items-start gap-3 flex-1">
           <div className="flex flex-col items-center justify-center bg-primary/10 rounded-lg px-3 py-2 min-w-[60px]">
             <span className="text-xs font-medium text-primary">
-              {appointment.timeOfConsultation.split(':')[0]}
+              {appointment.date.split('-')[2].split('T')[0]}
             </span>
             <span className="text-lg font-bold text-primary">
-              {appointment.timeOfConsultation.split(':')[1]}
+              {appointment.date.split('-')[1]}
             </span>
           </div>
 

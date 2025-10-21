@@ -22,6 +22,7 @@ import { DialogBlockDate } from './dialogs/dialog-block-date';
 import { useState } from 'react';
 import type { IAvailabilitySettings, IBlockedDate } from '@/@types/IAgenda';
 import { formatDateToBackend, parseBackendDate } from '../utilities/utilities';
+import type { IAppointmentReturn } from '@/services/appointment-service';
 
 interface ICardAgendaProps {
   availabilitySettings: IAvailabilitySettings;
@@ -31,6 +32,8 @@ interface ICardAgendaProps {
   isDayAvailable: (checkDate: Date) => boolean;
   date: Date | undefined;
   setDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
+  appointments: IAppointmentReturn[] | undefined;
+  currentDoctorId: string;
 }
 
 export const CardAgenda = ({
@@ -39,6 +42,8 @@ export const CardAgenda = ({
   isDayAvailable,
   date,
   setDate,
+  appointments,
+  currentDoctorId,
 }: ICardAgendaProps) => {
   const [isAvailabilityDialogOpen, setIsAvailabilityDialogOpen] =
     useState(false);
@@ -100,6 +105,16 @@ export const CardAgenda = ({
     );
   };
 
+  const totalAppointments =
+    appointments?.filter((a) => a.doctor.id === currentDoctorId) ?? [];
+
+  const confirmedCount = totalAppointments.filter(
+    (a) => a.status === 'CONFIRMED',
+  ).length;
+
+  const pendingCount = totalAppointments.filter(
+    (a) => a.status === 'PENDING',
+  ).length;
   return (
     <Card className="lg:col-span-1">
       <CardHeader>
@@ -136,15 +151,15 @@ export const CardAgenda = ({
         <div className="mt-6 space-y-3">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Total de consultas</span>
-            <span className="font-semibold">5</span>
+            <span className="font-semibold">{totalAppointments.length}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Confirmadas</span>
-            <span className="font-semibold text-primary">2</span>
+            <span className="font-semibold text-primary">{confirmedCount}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Pendentes</span>
-            <span className="font-semibold text-warning">2</span>
+            <span className="font-semibold text-warning">{pendingCount}</span>
           </div>
         </div>
 

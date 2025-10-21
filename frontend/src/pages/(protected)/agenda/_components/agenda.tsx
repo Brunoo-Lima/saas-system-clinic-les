@@ -13,7 +13,6 @@ import type { IAgendaRequest, IAvailabilitySettings } from '@/@types/IAgenda';
 import { formatDateToBackend } from '../utilities/utilities';
 import { useCreateAgenda, useGetAgenda } from '@/services/agenda-service';
 import { toast } from 'sonner';
-import { useParams } from 'react-router-dom';
 import { useGetAppointments } from '@/services/appointment-service';
 import { format } from 'date-fns';
 
@@ -35,8 +34,11 @@ const statusConfig = {
   CANCELED: { label: 'Cancelado', variant: 'destructive' },
 } satisfies Record<AppointmentStatus, StatusConfigProps>;
 
-export function Agenda() {
-  const { doctorId } = useParams<{ doctorId: string }>();
+interface IAgendaProps {
+  doctorId: string;
+}
+
+export function Agenda({ doctorId }: IAgendaProps) {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [availabilitySettings, setAvailabilitySettings] =
     useState<IAvailabilitySettings>({
@@ -87,6 +89,8 @@ export function Agenda() {
       },
     };
 
+    console.log('save', agendaData);
+
     // Adiciona datesBlocked apenas se houver datas bloqueadas
     if (availabilitySettings.blockedDates.length > 0) {
       agendaData.datesBlocked = availabilitySettings.blockedDates;
@@ -134,7 +138,7 @@ export function Agenda() {
   };
 
   return (
-    <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
+    <div className="container mx-auto max-w-7xl">
       <div className="flex justify-end mb-4">
         <button
           onClick={saveCurrentMonthAgenda}
@@ -152,6 +156,8 @@ export function Agenda() {
           availabilitySettings={availabilitySettings}
           setAvailabilitySettings={setAvailabilitySettings}
           isDayAvailable={isDayAvailable}
+          appointments={appointments}
+          currentDoctorId={currentDoctorId}
         />
 
         <Card className="lg:col-span-2">

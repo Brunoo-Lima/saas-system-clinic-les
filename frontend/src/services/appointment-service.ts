@@ -37,6 +37,10 @@ export interface IAppointmentReturn {
   isReturn: boolean;
   priceOfConsultation: number;
   timeOfConsultation: string;
+  specialties: {
+    id: string;
+    name: string;
+  };
   patient: {
     id: string;
     name: string;
