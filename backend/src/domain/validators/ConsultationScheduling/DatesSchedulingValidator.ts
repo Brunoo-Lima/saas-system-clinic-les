@@ -4,7 +4,7 @@ import { IProcessValidator } from "../IProcessValidator";
 
 export class DateSchedulingValidator implements IProcessValidator {
     async valid(scheduling: Scheduling) {
-        try {  
+        try { 
             const dateNow = new Date()
             const dateScheduling = scheduling.date
 

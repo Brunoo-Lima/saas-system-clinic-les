@@ -31,8 +31,11 @@ export class ConsultationSchedulingRepository implements IRepository {
         }).returning()
         return schedulingInserted;
     }
-    findEntity(entity: EntityDomain | Array<EntityDomain>, tx?: any): Promise<any> {
-        throw new Error("Method not implemented.");
+    async findEntity(scheduling: Scheduling, tx?: any): Promise<any> {
+        const dbUse = tx ? tx : db
+        return await dbUse.select().from(schedulingTable).where(
+            eq(schedulingTable.id, scheduling.getUUIDHash())
+        )
     }
     async updateEntity(scheduling: Scheduling, tx?: any): Promise<any> {
         try {
