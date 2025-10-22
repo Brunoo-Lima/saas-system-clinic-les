@@ -16,11 +16,16 @@ import type { IAppointmentReturn } from '@/services/appointment-service';
 import { format } from 'date-fns';
 import { DropdownCard } from './actions/dropdown-card';
 import { toast } from 'sonner';
+import type { IDoctor } from '@/@types/IDoctor';
 
 interface ICardAppointmentProps {
   appointment: IAppointmentReturn;
+  doctors: IDoctor[];
 }
-export const CardAppointment = ({ appointment }: ICardAppointmentProps) => {
+export const CardAppointment = ({
+  appointment,
+  doctors,
+}: ICardAppointmentProps) => {
   const [isUpsertAppointmentDialogOpen, setIsUpsertAppointmentDialogOpen] =
     useState(false);
 
@@ -109,8 +114,7 @@ export const CardAppointment = ({ appointment }: ICardAppointmentProps) => {
             <Button className="w-11/12">Ver detalhes</Button>
           </DialogTrigger>
           <AddAppointmentForm
-            doctors={[]}
-            patients={[]}
+            doctors={doctors}
             isOpen={isUpsertAppointmentDialogOpen}
             onSuccess={() => {}}
           />
@@ -118,6 +122,7 @@ export const CardAppointment = ({ appointment }: ICardAppointmentProps) => {
         <DropdownCard
           appointmentId={appointment.id}
           onDelete={handleDeleteAppointmentClick}
+          doctorId={appointment.doctor.id}
         />
       </CardFooter>
     </Card>

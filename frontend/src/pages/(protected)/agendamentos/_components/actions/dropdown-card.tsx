@@ -22,27 +22,40 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { EllipsisIcon, SquarePenIcon, Trash2Icon } from 'lucide-react';
+import {
+  CalendarDaysIcon,
+  EllipsisIcon,
+  SquarePenIcon,
+  Trash2Icon,
+} from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 interface IDropdownCardProps {
   onDelete: () => void;
   appointmentId: string;
+  doctorId: string;
 }
 
 export const DropdownCard = ({
   onDelete,
   appointmentId,
+  doctorId,
 }: IDropdownCardProps) => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const [openDialogEditStatus, setOpenDialogEditStatus] =
     useState<boolean>(false);
   const [status, setStatus] = useState<string | undefined>(undefined);
+  const navigate = useNavigate();
 
   const handleUpdateStatusAppointment = (id: string) => {
     console.log(id);
     toast.success('Status atualizado com sucesso.');
+  };
+
+  const handleOpenCalendar = () => {
+    navigate(`/agenda/medico/${doctorId}`);
   };
 
   return (
@@ -62,6 +75,10 @@ export const DropdownCard = ({
           >
             <SquarePenIcon size={20} />
             Atualizar status
+          </DropdownMenuItem>
+
+          <DropdownMenuItem onClick={handleOpenCalendar}>
+            <CalendarDaysIcon size={20} /> Abrir agenda do médico
           </DropdownMenuItem>
 
           <DropdownMenuItem

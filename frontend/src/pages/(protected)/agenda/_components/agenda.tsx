@@ -14,7 +14,7 @@ import { formatDateToBackend } from '../utilities/utilities';
 import { useCreateAgenda, useGetAgenda } from '@/services/agenda-service';
 import { toast } from 'sonner';
 import { useGetAppointments } from '@/services/appointment-service';
-import { format } from 'date-fns';
+import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { useGetDoctors } from '@/services/doctor-service';
 
 export type StatusConfigProps = {
@@ -70,8 +70,12 @@ interface IAgendaProps {
 
 export function Agenda({ doctorId }: IAgendaProps) {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(new Date());
-  const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    startOfMonth(new Date()),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    endOfMonth(new Date()),
+  );
   const [availabilitySettings, setAvailabilitySettings] =
     useState<IAvailabilitySettings>({
       workingDays: {
@@ -122,6 +126,12 @@ export function Agenda({ doctorId }: IAgendaProps) {
         workingDays: workingDays,
         blockedDates: blockedDates,
       }));
+
+      // CORREÇÃO: Se já existe agenda, usar as datas da agenda
+      if (latestAgenda.dateFrom && latestAgenda.dateTo) {
+        setDateFrom(new Date(latestAgenda.dateFrom));
+        setDateTo(new Date(latestAgenda.dateTo));
+      }
     } else if (doctors && doctors.length > 0) {
       // Se não existe agenda mas existe médico, usa os dados do médico
       const doctor = doctors[0];
@@ -213,6 +223,15 @@ export function Agenda({ doctorId }: IAgendaProps) {
           </div>
         )}
       </div>
+
+      {dateFrom && dateTo && (
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+          <p className="text-sm text-blue-800 font-medium">
+            Período selecionado: {format(dateFrom, 'dd/MM/yyyy')} até{' '}
+            {format(dateTo, 'dd/MM/yyyy')}
+          </p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <CardAgenda

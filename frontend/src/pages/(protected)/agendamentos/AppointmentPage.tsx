@@ -57,6 +57,7 @@ export default function AppointmentPage() {
                 <CardAppointment
                   key={appointment.id}
                   appointment={appointment}
+                  doctors={doctors}
                 />
               ))}
             </Suspense>
