@@ -93,21 +93,41 @@ export const AddAppointmentForm = ({
     );
   }, [selectedSpecialtyId, doctors]);
 
-  // Busca o médico selecionado
-  const selectedDoctor = useMemo(() => {
-    if (!selectedDoctorId) return undefined;
-    return doctors.find((d) => d.id.toString() === selectedDoctorId);
-  }, [selectedDoctorId, doctors]);
+  //A agenda é um array, então pegamos a primeira agenda ativa
+  const activeAgenda = useMemo(() => {
+    if (!agenda || agenda.length === 0) return null;
+    // Pega a primeira agenda ativa ou a primeira disponível
+    return agenda.find((agendaItem) => agendaItem.isActivate) || agenda[0];
+  }, [agenda]);
 
-  // Determina dias e horários disponíveis conforme o médico e especialidade
-  const doctorPeriods = useMemo(() => {
-    if (!selectedDoctor || !selectedSpecialtyId) return [];
+  // Os períodos vêm de periodToWork dentro da agenda
+  const agendaPeriods = useMemo(() => {
+    if (!activeAgenda || !selectedSpecialtyId) return [];
+
     return (
-      selectedDoctor.periodToWork?.filter(
-        (p) => p.specialty_id === selectedSpecialtyId,
+      activeAgenda.periodToWork?.filter(
+        (period) => period.specialty.id === selectedSpecialtyId,
       ) || []
     );
-  }, [selectedDoctor, selectedSpecialtyId]);
+  }, [activeAgenda, selectedSpecialtyId]);
+
+  //  As datas bloqueadas vêm de datesBlocked dentro da agenda
+  const blockedDates = useMemo(() => {
+    if (!activeAgenda) return [];
+
+    return (
+      activeAgenda.datesBlocked?.map((blocked) => ({
+        date: blocked.dateBlocked,
+        reason: blocked.reason,
+      })) || []
+    );
+  }, [activeAgenda]);
+
+  // DEBUG: Verificar os dados processados
+  console.log('activeAgenda', activeAgenda);
+  console.log('agendaPeriods', agendaPeriods);
+  console.log('blockedDates', blockedDates);
+  console.log('selectedSpecialtyId', selectedSpecialtyId);
 
   useEffect(() => {
     if (isOpen) {
@@ -132,7 +152,7 @@ export const AddAppointmentForm = ({
 
   // Atualiza horários disponíveis quando a data mudar
   useEffect(() => {
-    if (!selectedDate || doctorPeriods.length === 0) {
+    if (!selectedDate || agendaPeriods.length === 0) {
       setAvailableHours([]);
       form.setValue('hour', '');
       return;
@@ -142,21 +162,51 @@ export const AddAppointmentForm = ({
       typeof selectedDate === 'string' ? new Date(selectedDate) : selectedDate;
 
     const dayOfWeek = dateObj.getDay(); // 0 (domingo) → 6 (sábado)
+    const dateString = format(dateObj, 'yyyy-MM-dd');
+
+    console.log('Checking date:', dateString, 'Day of week:', dayOfWeek);
+
+    // Verifica se a data está bloqueada
+    const isDateBlocked = blockedDates.some(
+      (blocked) => blocked.date === dateString,
+    );
+    if (isDateBlocked) {
+      console.log('Date is blocked');
+      setAvailableHours([]);
+      form.setValue('hour', '');
+
+      // Mostra toast de aviso
+      const blockedInfo = blockedDates.find(
+        (blocked) => blocked.date === dateString,
+      );
+      toast.warning('Data indisponível', {
+        description: `Esta data está bloqueada: ${
+          blockedInfo?.reason || 'Sem motivo especificado'
+        }`,
+      });
+      return;
+    }
 
     // Encontra o período do dia específico
-    const period = doctorPeriods.find((p) => p.dayWeek === dayOfWeek);
+    const period = agendaPeriods.find((p) => p.dayWeek === dayOfWeek);
+
+    console.log('Found period for day:', period);
 
     if (period) {
-      const startHour = parseInt(period.timeFrom.split(':')[0], 10);
-      const startMinute = parseInt(period.timeFrom.split(':')[1], 10);
-      const endHour = parseInt(period.timeTo.split(':')[0], 10);
-      const endMinute = parseInt(period.timeTo.split(':')[1], 10);
+      // Remove os segundos do timeFrom e timeTo se existirem
+      const startTime = period.timeFrom.split(':').slice(0, 2).join(':');
+      const endTime = period.timeTo.split(':').slice(0, 2).join(':');
+
+      const startHour = parseInt(startTime.split(':')[0], 10);
+      const startMinute = parseInt(startTime.split(':')[1], 10);
+      const endHour = parseInt(endTime.split(':')[0], 10);
+      const endMinute = parseInt(endTime.split(':')[1], 10);
 
       // Convertendo para minutos totais para facilitar os cálculos
       const startTotalMinutes = startHour * 60 + startMinute;
       const endTotalMinutes = endHour * 60 + endMinute;
 
-      // Gera horários disponíveis de hora em hora
+      // Gera horários disponíveis de 30 em 30 minutos
       const hours: string[] = [];
       for (
         let minutes = startTotalMinutes;
@@ -170,6 +220,7 @@ export const AddAppointmentForm = ({
         );
       }
 
+      console.log('Available hours:', hours);
       setAvailableHours(hours);
 
       // Se o horário atual não estiver mais disponível, limpa o campo
@@ -178,24 +229,37 @@ export const AddAppointmentForm = ({
         form.setValue('hour', '');
       }
     } else {
+      console.log('No period found for this day');
       setAvailableHours([]);
       form.setValue('hour', '');
     }
-  }, [selectedDate, doctorPeriods, form]);
+  }, [selectedDate, agendaPeriods, blockedDates, form]);
 
-  //  Bloqueia datas que não fazem parte do período de trabalho do médico
+  // Função para verificar se uma data está bloqueada
+  const isDateBlocked = (date: Date) => {
+    const dateString = format(date, 'yyyy-MM-dd');
+    return blockedDates.some((blocked) => blocked.date === dateString);
+  };
+
+  // Bloqueia datas que não fazem parte do período de trabalho do médico
   const isDateDisabled = (date: Date) => {
-    if (!doctorPeriods.length) return true; // Se não há períodos, desabilita todas as datas
-
-    const dayOfWeek = date.getDay();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     // Desabilita datas passadas
     if (date < today) return true;
 
+    // Se não há períodos, desabilita todas as datas futuras
+    if (!agendaPeriods.length) return true;
+
+    const dayOfWeek = date.getDay();
+    // const dateString = format(date, 'yyyy-MM-dd');
+
+    // Verifica se a data está bloqueada
+    if (isDateBlocked(date)) return true;
+
     // Verifica se há algum período para este dia da semana
-    return !doctorPeriods.some((p) => p.dayWeek === dayOfWeek);
+    return !agendaPeriods.some((p) => p.dayWeek === dayOfWeek);
   };
 
   const onSubmit = (values: AppointmentFormSchema) => {
@@ -219,6 +283,8 @@ export const AddAppointmentForm = ({
           id: values.insuranceId,
         },
       };
+
+      console.log('payload', payload);
 
       mutate(payload, {
         onSuccess: () => {
@@ -438,9 +504,12 @@ export const AddAppointmentForm = ({
                       selected={field.value as Date}
                       onSelect={field.onChange}
                       disabled={isDateDisabled}
+                      initialFocus
+                      className="p-3"
                     />
                   </PopoverContent>
                 </Popover>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -471,11 +540,16 @@ export const AddAppointmentForm = ({
                       ))
                     ) : (
                       <p className="p-2 text-sm text-muted-foreground">
-                        Nenhum horário disponível
+                        {selectedDate && isDateBlocked(selectedDate as Date)
+                          ? 'Data bloqueada - escolha outra data'
+                          : selectedDate
+                          ? 'Nenhum horário disponível para esta data'
+                          : 'Selecione uma data primeiro'}
                       </p>
                     )}
                   </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />

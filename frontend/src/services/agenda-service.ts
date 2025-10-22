@@ -27,6 +27,28 @@ export const useCreateAgenda = () => {
   });
 };
 
+interface IAgendaDoctor {
+  id: string;
+  dateFrom: string; // Formato "YYYY-MM-DD"
+  dateTo: string; // Formato "YYYY-MM-DD"
+  isActivate: boolean;
+  periodToWork: {
+    id: string;
+    dayWeek: number;
+    timeFrom: string;
+    timeTo: string;
+    specialty: {
+      id: string;
+      name: string;
+    };
+  }[];
+  datesBlocked?: {
+    id?: string;
+    dateBlocked: string;
+    reason: string;
+  }[];
+}
+
 export const getAgendaService = async (doctorId: string) => {
   const { data } = await api.get(
     `/doctor/scheduling/findall/?doctor_id=${doctorId}`,
@@ -36,7 +58,7 @@ export const getAgendaService = async (doctorId: string) => {
 };
 
 export const useGetAgenda = (doctorId: string) => {
-  return useQuery({
+  return useQuery<IAgendaDoctor[]>({
     queryKey: ['agenda', doctorId],
     queryFn: () => getAgendaService(doctorId),
     enabled: !!doctorId,
