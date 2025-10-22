@@ -15,6 +15,7 @@ import { useCreateAgenda, useGetAgenda } from '@/services/agenda-service';
 import { toast } from 'sonner';
 import { useGetAppointments } from '@/services/appointment-service';
 import { format } from 'date-fns';
+import { useGetDoctors } from '@/services/doctor-service';
 
 export type StatusConfigProps = {
   label: string;
@@ -69,6 +70,8 @@ interface IAgendaProps {
 
 export function Agenda({ doctorId }: IAgendaProps) {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(new Date());
+  const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
   const [availabilitySettings, setAvailabilitySettings] =
     useState<IAvailabilitySettings>({
       workingDays: {
@@ -87,6 +90,7 @@ export function Agenda({ doctorId }: IAgendaProps) {
 
   const { mutate: createAgenda, isPending: isCreatingAgenda } =
     useCreateAgenda();
+  const { data: doctors } = useGetDoctors({ id: doctorId });
 
   const currentDoctorId = doctorId || '';
 
@@ -100,6 +104,7 @@ export function Agenda({ doctorId }: IAgendaProps) {
 
   useEffect(() => {
     if (existingAgendas && existingAgendas.length > 0) {
+      // Se existe agenda, usa os dados da agenda
       const latestAgenda = existingAgendas[0];
 
       const blockedDates =
@@ -117,8 +122,19 @@ export function Agenda({ doctorId }: IAgendaProps) {
         workingDays: workingDays,
         blockedDates: blockedDates,
       }));
+    } else if (doctors && doctors.length > 0) {
+      // Se não existe agenda mas existe médico, usa os dados do médico
+      const doctor = doctors[0];
+      if (doctor.periodToWork) {
+        const workingDays = extractWorkingDaysFromPeriods(doctor.periodToWork);
+
+        setAvailabilitySettings((prev) => ({
+          ...prev,
+          workingDays: workingDays,
+        }));
+      }
     }
-  }, [existingAgendas]);
+  }, [existingAgendas, doctors]);
 
   const handleSaveAgenda = (dateFrom: Date, dateTo: Date) => {
     const agendaData: IAgendaRequest = {
@@ -129,11 +145,9 @@ export function Agenda({ doctorId }: IAgendaProps) {
       },
     };
 
-    console.log('save', agendaData);
-
     // Adiciona datesBlocked apenas se houver datas bloqueadas
     if (availabilitySettings.blockedDates.length > 0) {
-      // CORREÇÃO: mapeie para o formato do backend
+      // mapeia para o formato do backend
       agendaData.datesBlocked = availabilitySettings.blockedDates.map(
         (blocked) => ({
           date: blocked.date,
@@ -152,12 +166,13 @@ export function Agenda({ doctorId }: IAgendaProps) {
     });
   };
 
-  const saveCurrentMonthAgenda = () => {
-    const today = new Date();
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const saveAgenda = () => {
+    if (!dateFrom || !dateTo) {
+      toast.error('Selecione as datas de início e fim');
+      return;
+    }
 
-    handleSaveAgenda(firstDay, lastDay);
+    handleSaveAgenda(dateFrom, dateTo);
   };
 
   const isDateBlocked = (checkDate: Date) => {
@@ -189,7 +204,7 @@ export function Agenda({ doctorId }: IAgendaProps) {
         {hasNoAgendaData && (
           <div className="flex justify-end mb-4">
             <button
-              onClick={saveCurrentMonthAgenda}
+              onClick={saveAgenda}
               disabled={isCreatingAgenda}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
@@ -203,6 +218,10 @@ export function Agenda({ doctorId }: IAgendaProps) {
         <CardAgenda
           date={date}
           setDate={setDate}
+          dateFrom={dateFrom}
+          setDateFrom={setDateFrom}
+          dateTo={dateTo}
+          setDateTo={setDateTo}
           availabilitySettings={availabilitySettings}
           setAvailabilitySettings={setAvailabilitySettings}
           isDayAvailable={isDayAvailable}

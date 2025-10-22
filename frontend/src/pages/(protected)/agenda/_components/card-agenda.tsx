@@ -23,6 +23,7 @@ import { useState } from 'react';
 import type { IAvailabilitySettings, IBlockedDate } from '@/@types/IAgenda';
 import { formatDateToBackend, parseBackendDate } from '../utilities/utilities';
 import type { IAppointmentReturn } from '@/services/appointment-service';
+import InputDate from '@/components/ui/input-date';
 
 interface ICardAgendaProps {
   availabilitySettings: IAvailabilitySettings;
@@ -32,6 +33,10 @@ interface ICardAgendaProps {
   isDayAvailable: (checkDate: Date) => boolean;
   date: Date | undefined;
   setDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
+  dateFrom: Date | undefined;
+  setDateFrom: (date: Date | undefined) => void;
+  dateTo: Date | undefined;
+  setDateTo: (date: Date | undefined) => void;
   appointments: IAppointmentReturn[] | undefined;
   currentDoctorId: string;
 }
@@ -44,6 +49,10 @@ export const CardAgenda = ({
   setDate,
   appointments,
   currentDoctorId,
+  dateFrom,
+  setDateFrom,
+  dateTo,
+  setDateTo,
 }: ICardAgendaProps) => {
   const [isAvailabilityDialogOpen, setIsAvailabilityDialogOpen] =
     useState(false);
@@ -115,6 +124,7 @@ export const CardAgenda = ({
   const pendingCount = totalAppointments.filter(
     (a) => a.status === 'PENDING',
   ).length;
+
   return (
     <Card className="lg:col-span-1">
       <CardHeader>
@@ -147,6 +157,27 @@ export const CardAgenda = ({
             },
           }}
         />
+
+        <div className="flex items-center gap-4">
+          {/* Inputs para datas manuais */}
+          <div className="flex items-center gap-2">
+            <div>
+              <Label htmlFor="dateFrom" className="text-sm font-medium">
+                Data Inicial
+              </Label>
+              <InputDate
+                value={dateFrom}
+                onChange={(date) => setDateFrom(date)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="dateTo" className="text-sm font-medium">
+                Data Final
+              </Label>
+              <InputDate value={dateTo} onChange={(date) => setDateTo(date)} />
+            </div>
+          </div>
+        </div>
 
         <div className="mt-6 space-y-3">
           <div className="flex items-center justify-between text-sm">
