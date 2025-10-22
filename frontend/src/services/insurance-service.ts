@@ -65,7 +65,7 @@ export const getAllInsurances = async ({
 
 interface Insurance {
   id: string;
-  name: string;
+  type: string;
   modalities: {
     id: string;
     name: string;

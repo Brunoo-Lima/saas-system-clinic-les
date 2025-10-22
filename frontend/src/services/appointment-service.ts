@@ -1,10 +1,36 @@
-import type { IAppointment } from '@/@types/IAppointment';
 import api from './api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-export const createAppointmentService = async (appointment: IAppointment) => {
+export interface IAppointmentPayload {
+  date: string;
+  hour: string;
+  priceOfConsultation: number;
+  isReturn?: boolean;
+  status: 'CONFIRMED' | 'PENDING' | 'CONCLUDE' | 'CANCELED' | string;
+  doctor: {
+    id: string;
+  };
+  patient: {
+    id: string;
+  };
+  insurance: {
+    id: string;
+  };
+  specialty: {
+    id: string;
+  };
+}
+
+export const createAppointmentService = async (
+  appointment: IAppointmentPayload,
+) => {
   const { data } = await api.post('/scheduling', appointment);
+
+  if (data.success === false) {
+    throw new Error(data.message);
+  }
+
   return data;
 };
 
