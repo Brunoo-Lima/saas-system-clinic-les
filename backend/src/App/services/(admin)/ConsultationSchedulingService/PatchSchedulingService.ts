@@ -64,7 +64,7 @@ export class PatchSchedulingService {
             
             const schedulingUpdated = await this.repository.updateEntity(schedulingDomain,)
             if(!Array.isArray(schedulingUpdated)) return schedulingUpdated
-
+            
             return ResponseHandler.success(schedulingUpdated, "Success ! Scheduling updated.")
         } catch(e) {
             console.log(e)

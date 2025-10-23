@@ -59,7 +59,6 @@ export class ConsultationSchedulingRepository implements IRepository {
 
             return schedulingUpdated
         } catch(e) {
-            console.log(e)
             return ResponseHandler.error("Failed to update the scheduling.")
         }
     }
