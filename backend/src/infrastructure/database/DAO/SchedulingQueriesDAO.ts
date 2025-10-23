@@ -36,7 +36,6 @@ export class SchedulingQueriesDAO {
 
             return ResponseHandler.success(schedulingPerDoctor, "Scheduling can be inserted")
         } catch(e) {
-            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }
@@ -85,7 +84,11 @@ export class SchedulingQueriesDAO {
                 INNER JOIN ${userTable} ON ${userTable.id} = ${patientTable.user_id}
                 INNER JOIN ${doctorTable} ON ${doctorTable.id} = ${schedulingTable.doctor_id}
                 INNER JOIN ${specialtyTable} ON ${specialtyTable.id} = ${schedulingTable.specialty_id}
-                WHERE ${schedulingTable.status} = 'PENDING' AND ${schedulingTable.dateOfConfirmation} IS NULL
+                WHERE 
+                    ${schedulingTable.status} = 'PENDING' 
+                    AND ${schedulingTable.dateOfConfirmation} IS NULL 
+                    AND EXTRACT(day FROM (${schedulingTable.date} - current_date)) <= 1;
+
             `)
             return schedulingToConfirm.rows
         } catch(e) {
