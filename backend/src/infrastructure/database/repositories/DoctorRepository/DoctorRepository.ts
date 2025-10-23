@@ -60,7 +60,7 @@ export class DoctorRepository implements IRepository {
             `
             })
             .from(doctorTable)
-            .innerJoin(periodDoctorTable, eq(periodDoctorTable.doctor_id, doctorTable.id))
+            .leftJoin(periodDoctorTable, eq(periodDoctorTable.doctor_id, doctorTable.id))
             .leftJoin(
                 doctorToSpecialtyTable,
                 eq(doctorToSpecialtyTable.doctor_id, doctorTable.id)
@@ -99,31 +99,56 @@ export class DoctorRepository implements IRepository {
         }).where(
             eq(doctorTable.id, doctor.getUUIDHash())
         ).returning()
-        
-        if(doctor.percentDistribution){
-            specialtiesToDoctorUpdated = await dbUse.update(doctorToSpecialtyTable).set({
-                percent_distribution: doctor.percentDistribution
-            }).where(eq(doctorToSpecialtyTable.doctor_id, doctor.getUUIDHash())).returning()
-        }
-            
 
-        const specialtiesRemoved = await dbUse.delete(doctorToSpecialtyTable).where(
-            and(
-                eq(doctorToSpecialtyTable.doctor_id, doctor.getUUIDHash()),
-                notInArray(doctorToSpecialtyTable.specialty_id, doctor.specialties?.map((sp) => sp.getUUIDHash()) ?? [])
-            )
-        )
+        if (doctor.specialties) specialtiesToDoctorUpdated = await this.specialtiesToDoctorSync(doctor, dbUse)
 
         return {
             updated: {
                 doctor: doctorUpdated,
-                specialties: specialtiesToDoctorUpdated,
+                specialties: specialtiesToDoctorUpdated?.updated,
             },
             deleted: {
-                specialties: specialtiesRemoved
+                specialties: specialtiesToDoctorUpdated?.deleted
             }
         }
     }
+
+    async specialtiesToDoctorSync(doctor: Doctor, tx?: any) {
+        const dbUse = tx ? tx : db
+        const specialtiesRemoved = await dbUse.delete(doctorToSpecialtyTable).where(
+            and(
+                notInArray(doctorToSpecialtyTable.specialty_id, doctor.specialties?.map((spe) => spe.getUUIDHash()) ?? []),
+                eq(doctorToSpecialtyTable.doctor_id, doctor.getUUIDHash())
+            )
+
+        ).returning()
+
+        const specialtiesUpdated = await Promise.all(doctor.specialties?.map(async (sp) => {
+            return await dbUse.update(doctorToSpecialtyTable)
+                .set({
+                    percent_distribution: doctor.percentDistribution
+                })
+                .where( // Se a modality nao existir, nao será atualziada de todo modo, ou seja, será ignorada.
+                    eq(doctorToSpecialtyTable.specialty_id, sp.getUUIDHash())).returning();
+        }) ?? [])
+
+        return {
+            updated: specialtiesUpdated.flat(),
+            deleted: specialtiesRemoved
+        }
+    }
+
+    async addSpecialty(doctor: Doctor, tx?: any) {
+        const dbUse = tx ? tx : db
+        return await dbUse.insert(doctorToSpecialtyTable).values(doctor.specialties?.map((sp) => {
+            return {
+                percent_distribution: doctor.percentDistribution,
+                specialty_id: sp.getUUIDHash(),
+                doctor_id: doctor.getUUIDHash()
+            }
+        }) ?? []).returning()
+    }
+
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
     }

@@ -26,6 +26,7 @@ export class EntityExistsToUpdated implements IProcessValidator {
             if ("success" in entityExists && !entityExists.success) return entityExists
             if (Array.isArray(entityExists) && entityExists.length) return ResponseHandler.error(`The ${entityName} cannot be updated because already exists outer entity !`)
             return ResponseHandler.success(entityExists, `${entityCopy.constructor.name} exists, you can updated !`)
+        
         } catch (e) {
             return ResponseHandler.error((e as Error).message)
         }
