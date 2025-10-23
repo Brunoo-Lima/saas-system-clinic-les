@@ -1,5 +1,6 @@
 import { Doctor } from "../../../../domain/entities/EntityDoctor/Doctor";
 import { SchedulingFactory } from "../../../../domain/entities/EntityScheduling/SchedulingFactory";
+import { Specialty } from "../../../../domain/entities/EntitySpecialty/Specialty";
 import { DateSchedulingValidator } from "../../../../domain/validators/ConsultationScheduling/DatesSchedulingValidator";
 import { ExistsScheduling } from "../../../../domain/validators/ConsultationScheduling/ExistsScheduling";
 import { InsertTimeOfConsultation } from "../../../../domain/validators/ConsultationScheduling/InsertTimeOfConsultation";
@@ -34,12 +35,27 @@ export class PatchSchedulingService {
                 )                    
             }
             if(schedulingDomain.status === "CONCLUDE"){
-                allValidators.push( new RequiredGeneralData(Object.keys(schedulingDomain.props), [], ["dateOfRealizable"]), new InsertTimeOfConsultation())
+                const specialty = schedulingDomain.specialty
+                if(!specialty) return ResponseHandler.error("You should be the specialty to conclude this scheduling")
+
+                allValidators.push(
+                    new RequiredGeneralData(Object.keys(schedulingDomain.props), [], ["dateOfRealizable", "specialty"]),
+                    new InsertTimeOfConsultation()
+                )
                 validator.setValidator(`F-doctor`, [
-                    new UUIDValidator()
+                    new UUIDValidator(),
+                    new RequiredGeneralData(Object.keys(schedulingDomain.doctor?.props ?? ""), [], ["specialties"])
                 ])
+                
+                validator.setValidator(`F-specialties`, [
+                    new UUIDValidator(),
+                ])
+
                 const doctorIsValid = await validator.process(`F-doctor`, schedulingDomain.doctor as Doctor)
                 if(!doctorIsValid.success) return doctorIsValid
+
+                const specialtiesIsValid = await validator.process(`F-specialties`, specialty as Specialty)
+                if(!specialtiesIsValid.success) return specialtiesIsValid
             }
 
             validator.setValidator(`U-${schedulingDomain.constructor.name}`, allValidators)
@@ -51,6 +67,7 @@ export class PatchSchedulingService {
 
             return ResponseHandler.success(schedulingUpdated, "Success ! Scheduling updated.")
         } catch(e) {
+            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }

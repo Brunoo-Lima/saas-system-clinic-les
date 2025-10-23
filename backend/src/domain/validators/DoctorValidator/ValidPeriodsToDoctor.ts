@@ -13,6 +13,8 @@ export class ValidPeriodsToDoctor implements IProcessValidator {
         try {
 
             const periods = doctor.periodToWork
+            if(!periods) return ResponseHandler.error("You should be only an period")
+            
             this.validator.setValidator(`F-${doctor.periodToWork?.constructor.name}`, [
                 new RequiredGeneralData(Object.keys(doctor.periodToWork?.[0]?.props ?? {})),
                 new EntityExits()

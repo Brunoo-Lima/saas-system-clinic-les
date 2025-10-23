@@ -15,7 +15,6 @@ export class SchedulingQueriesDAO {
                 ${schedulingTable.status} = ('PENDING') AND
                 (${schedulingTable.id} = ${scheduling.getUUIDHash()} OR ${schedulingTable.id} IS NOT NULL)
             `
-            
             if(scheduling.doctor?.getUUIDHash()) sqlCreated.append(sql` AND ${schedulingTable.doctor_id} = ${scheduling.doctor?.getUUIDHash()}`)
             if(!Number.isNaN(scheduling.date?.valueOf())) sqlCreated.append(sql` AND ((${schedulingTable.date}) + ${timeOfConsultation}::interval) >= ${scheduling.date!.toISOString()}::timestamp`)
             
@@ -54,7 +53,6 @@ export class SchedulingQueriesDAO {
             )
             return ResponseHandler.success(...timePerConsultation.rows, "Success ! Time per consultation returned")
         } catch(e){
-            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }

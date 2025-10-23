@@ -1,4 +1,4 @@
-import { eq, inArray, notInArray } from "drizzle-orm";
+import { and, eq, inArray, notInArray, or } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Period } from "../../../../domain/entities/EntityPeriod/Period";
 import db from "../../connection";
@@ -20,8 +20,23 @@ export class PeriodsRepository implements IRepository {
             }))
         ).returning();
     }
-    async findEntity(period: Period, tx?: any): Promise<any> {
-        
+    async findEntity(period: Array<Period> | Period, tx?: any): Promise<any> {
+        const dbUse = tx ? tx : db
+        const periods = Array.isArray(period) ? period : [period]
+
+        return await dbUse.select().from(periodDoctorTable)
+        .where(
+            or(
+                inArray(periodDoctorTable.id, periods.map((per) => per.getUUIDHash())),
+                and(
+                    inArray(periodDoctorTable.dayWeek, periods.map((per) => per.dayWeek ?? 0)),
+                    or(
+                        inArray(periodDoctorTable.timeTo, periods.map((per) => per.timeTo ?? "")),
+                        inArray(periodDoctorTable.timeFrom, periods.map((per) => per.timeFrom ?? "")),
+                    )
+                )
+            )
+        )
     }
     async updateEntity(period: Period, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
