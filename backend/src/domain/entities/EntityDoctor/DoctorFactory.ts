@@ -66,7 +66,7 @@ export class DoctorFactory {
             })
             period.setUuidHash(per.id ?? period.getUUIDHash())
             return period
-        }) ?? []
+        }) ?? undefined
 
 
         const specialties = doctorDTO?.specialties?.map((spe) => {
@@ -74,22 +74,22 @@ export class DoctorFactory {
                 .setName(spe.name).build()
             specialty.setUuidHash(spe.id ?? specialty.getUUIDHash())
             return specialty
-        }) ?? []
+        }) ?? undefined
 
         // Doctor
         const doctor = new DoctorBuilder()
-            .setPhone(doctorDTO?.phone)
-            .setCpf(doctorDTO?.cpf)
+            .setPhone(doctorDTO?.phone ?? undefined)
+            .setCpf(doctorDTO?.cpf ?? undefined)
             .setDateOfBirth(
                 doctorDTO?.dateOfBirth ? new Date(doctorDTO?.dateOfBirth) : undefined
             )
             .setPeriod(periods)
-            .setName(doctorDTO?.name)
+            .setName(doctorDTO?.name  ?? undefined)
             .setUser(user)
-            .setSex(doctorDTO?.sex)
-            .setCrm(doctorDTO?.crm ?? "")
-            .setSpecialties(specialties)
-            .setPercentDistribution(doctorDTO?.percentDistribution)
+            .setSex(doctorDTO?.sex  ?? undefined)
+            .setCrm(doctorDTO?.crm  ?? undefined)
+            .setSpecialties(specialties ?? undefined)
+            .setPercentDistribution(doctorDTO?.percentDistribution ?? undefined)
             .setAddress(address)
             .build();
 

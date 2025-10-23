@@ -1,6 +1,6 @@
 import { DoctorBuilder } from "../../../../../domain/entities/EntityDoctor/DoctorBuilder";
 import { SpecialtyBuilder } from "../../../../../domain/entities/EntitySpecialty/SpecialtyBuilder";
-import { EntityExistsToUpdated } from "../../../../../domain/validators/General/EntityExistsToUpdated";
+import { EntityExistsToInserted } from "../../../../../domain/validators/General/EntityExistsToInserted";
 import { RequiredGeneralData } from "../../../../../domain/validators/General/RequiredGeneralData";
 import { UUIDValidator } from "../../../../../domain/validators/General/UUIDValidator";
 import { ValidatorController } from "../../../../../domain/validators/ValidatorController";
@@ -10,8 +10,8 @@ import { IRepository } from "../../../../../infrastructure/database/repositories
 import { SpecialtyRepository } from "../../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository";
 import { DoctorDTO } from "../../../../../infrastructure/DTOs/DoctorDTO";
 
-export class AddSpecialtiesService {
-    private repository: IRepository;
+export class AddSpecialtiesToDoctorService {
+    private repository: IRepository & DoctorRepository;
     private specialtyRepository: IRepository;
 
     constructor(){
@@ -21,10 +21,9 @@ export class AddSpecialtiesService {
     async execute(doctor: DoctorDTO){
         try {
             const specialtiesDomain = doctor.specialties?.map((sp) => {
-                const specialty = new SpecialtyBuilder()
-                .setName(sp.name)
-                .setPrice(sp.price)
-                .build()
+                const specialty = new SpecialtyBuilder().setName(sp.name).build()
+                specialty.setUuidHash(sp.id ?? "")
+
                 return specialty
             }) ?? []
 
@@ -33,17 +32,18 @@ export class AddSpecialtiesService {
             .setPercentDistribution(doctor.percentDistribution)
             .setSpecialties(specialtiesDomain)
             .build()
-            
+            doctorDomain.setUuidHash(doctor.id ?? "")
+
             if(!doctorDomain?.specialties?.[0]) return ResponseHandler.error("The specialties is required !")
             validator.setValidator(`U-${doctorDomain.constructor.name}`, [
                 new UUIDValidator(),
                 new RequiredGeneralData(Object.keys(doctorDomain.props), [], ["percentDistribution"]),
-                new EntityExistsToUpdated()
+                new EntityExistsToInserted()
             ])
+            
             validator.setValidator(`F-${doctorDomain.specialties?.[0]?.constructor.name}`, [
                 new UUIDValidator(),
-                new RequiredGeneralData(Object.keys(doctorDomain.specialties?.[0]?.props ?? ''), [], ["name", "price"]),
-                new EntityExistsToUpdated()
+                new EntityExistsToInserted()
             ])
             
             const entitiesIsValid = await Promise.all([
@@ -51,8 +51,11 @@ export class AddSpecialtiesService {
                 await validator.process(`F-${doctorDomain.specialties?.[0]?.constructor.name}`, doctorDomain.specialties[0], this.specialtyRepository)
             ])
             const hasErrors = entitiesIsValid.filter((v) => !v.success)
-            if(hasErrors.length) return ResponseHandler.error(hasErrors.map(e => e.message))
-            //CRIAR OS METODOS ADD NO DOCTOR REPOSITORY
+            if(hasErrors.length) return ResponseHandler.error(hasErrors.map(e => e.message).flat())
+            const specialtyAdded = await this.repository.addSpecialty(doctorDomain)
+            if(!Array.isArray(specialtyAdded)) return specialtyAdded
+
+            return ResponseHandler.success(specialtyAdded, "Specialties linked to doctor")
         } catch(e) {
             return ResponseHandler.error((e as Error).message)
         }

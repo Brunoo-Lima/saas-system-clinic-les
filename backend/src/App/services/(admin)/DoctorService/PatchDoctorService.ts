@@ -3,6 +3,7 @@ import { City } from "../../../../domain/entities/EntityAddress/City";
 import { Country } from "../../../../domain/entities/EntityAddress/Country";
 import { State } from "../../../../domain/entities/EntityAddress/State";
 import { DoctorFactory } from "../../../../domain/entities/EntityDoctor/DoctorFactory";
+import { EntityExistsToInserted } from "../../../../domain/validators/General/EntityExistsToInserted";
 import { EntityExistsToUpdated } from "../../../../domain/validators/General/EntityExistsToUpdated";
 import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
@@ -39,10 +40,8 @@ export class PatchDoctorService {
             doctorDomain.setUuidHash(id ?? "")
 
             const validator = new ValidatorController()
-            validator.setValidator(`U-${doctorDomain.constructor.name}`, [
-                new UUIDValidator(), 
-                new EntityExistsToUpdated()
-            ])
+            validator.setValidator(`U-${doctorDomain.constructor.name}`, [ new UUIDValidator(), new EntityExistsToInserted() ])
+            
             const doctorIsValid = await validator.process(`U-${doctorDomain.constructor.name}`, doctorDomain, this.repository)
             if (!doctorIsValid.success) return doctorIsValid
 
@@ -75,7 +74,6 @@ export class PatchDoctorService {
 
             return ResponseHandler.success(entitiesUpdated, "Success ! Doctor was updated.")
         } catch (e) {
-            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }
