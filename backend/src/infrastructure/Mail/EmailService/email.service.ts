@@ -23,20 +23,19 @@ class EmailService {
     try {
       const { template } = dataEMail
       let htmlTemplate;
-      let emails;
       let subject;
+      let emails
 
       switch(template){
         case "welcome": 
           htmlTemplate = generateEmail(dataEMail)
-          emails = dataEMail.email;
           subject = "Boas vindas"
-
+          emails = dataEMail.email;
           break
         case "scheduling": 
           htmlTemplate = generateSchedulingEmail(dataEMail)
-          emails = dataEMail.patient.email
           subject = "Confirmação de agendamento"
+          emails = dataEMail.patient.email
       }
       await this.transporter.sendMail({
         from: `"LifeCare" <${process.env.EMAIL_USER}>`,

@@ -5,6 +5,11 @@ import { Pool } from "pg";
 import { schedulingTable } from "../Schema/SchedulingSchema";
 import { sql } from "drizzle-orm";
 import { Scheduling } from "../../../domain/entities/EntityScheduling/Scheduling";
+import { patientTable } from "../Schema/PatientSchema";
+import { userTable } from "../Schema/UserSchema";
+import { doctorTable } from "../Schema/DoctorSchema";
+import { specialtyTable } from "../Schema/SpecialtySchema";
+import { addressTable } from "../Schema/AddressSchema";
 
 export class SchedulingQueriesDAO {
     async schedulingPerDoctor(scheduling: Scheduling, tx?: NodePgDatabase<Record<string, never>> & {$client: Pool}){
@@ -53,6 +58,37 @@ export class SchedulingQueriesDAO {
             )
             return ResponseHandler.success(...timePerConsultation.rows, "Success ! Time per consultation returned")
         } catch(e){
+            return ResponseHandler.error((e as Error).message)
+        }
+    }
+    async getNextScheduling(tx?: NodePgDatabase<Record<string, never>> & {$client: Pool}){
+        try {
+            const dbUse = tx ? tx : db
+            const schedulingToConfirm = await dbUse.execute(sql`
+                SELECT 
+                    json_build_object(
+                        'id', ${schedulingTable.id},
+                        'date', ${schedulingTable.date},
+                        'doctor', json_build_object(
+                            'name', ${doctorTable.name}
+                        ),
+                        'patient', json_build_object(
+                            'email', ${userTable.email},
+                            'name', ${patientTable.name}
+                        ),
+                        'specialty', json_build_object(
+                            'name', ${specialtyTable.name}
+                        )
+                   ) as scheduling
+                FROM ${schedulingTable}
+                INNER JOIN ${patientTable} ON ${patientTable.id} = ${schedulingTable.patient_id}
+                INNER JOIN ${userTable} ON ${userTable.id} = ${patientTable.user_id}
+                INNER JOIN ${doctorTable} ON ${doctorTable.id} = ${schedulingTable.doctor_id}
+                INNER JOIN ${specialtyTable} ON ${specialtyTable.id} = ${schedulingTable.specialty_id}
+                WHERE ${schedulingTable.status} = 'PENDING' AND ${schedulingTable.dateOfConfirmation} IS NULL
+            `)
+            return schedulingToConfirm.rows
+        } catch(e) {
             return ResponseHandler.error((e as Error).message)
         }
     }

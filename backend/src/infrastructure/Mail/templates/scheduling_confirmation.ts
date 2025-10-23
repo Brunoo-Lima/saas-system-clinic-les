@@ -5,7 +5,7 @@ export const generateSchedulingEmail = (scheduling: any) => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confirmação de Agendamento - LifeCare</title>
+    <title>Confirme seu Agendamento - LifeCare</title>
     <style>
         /* Reset CSS para compatibilidade entre clientes de email */
         body, table, td, a {
@@ -76,6 +76,12 @@ export const generateSchedulingEmail = (scheduling: any) => {
             margin: 20px 0;
             text-align: center;
         }
+        .button-confirm {
+            background-color: #28a745;
+        }
+        .button-cancel {
+            background-color: #dc3545;
+        }
         .appointment-details {
             background-color: #f0f7fb;
             border-radius: 8px;
@@ -85,6 +91,14 @@ export const generateSchedulingEmail = (scheduling: any) => {
         .appointment-details h3 {
             color: #1a7db7;
             margin-top: 0;
+        }
+        .urgent-alert {
+            background-color: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
         }
         .contact-info {
             background-color: #e8f5f7;
@@ -103,14 +117,18 @@ export const generateSchedulingEmail = (scheduling: any) => {
             font-style: italic;
             margin-top: 5px;
         }
-        .status-confirmed {
+        .status-pending {
             display: inline-block;
-            background-color: #28a745;
-            color: white;
+            background-color: #ffc107;
+            color: #856404;
             padding: 5px 15px;
             border-radius: 20px;
             font-weight: bold;
             margin: 10px 0;
+        }
+        .action-buttons {
+            text-align: center;
+            margin: 25px 0;
         }
         @media screen and (max-width: 600px) {
             .email-body {
@@ -118,8 +136,9 @@ export const generateSchedulingEmail = (scheduling: any) => {
             }
             .button {
                 display: block;
-                margin: 20px auto;
+                margin: 10px auto;
                 text-align: center;
+                width: 80%;
             }
         }
     </style>
@@ -140,45 +159,36 @@ export const generateSchedulingEmail = (scheduling: any) => {
                     <!-- Corpo do email -->
                     <tr>
                         <td class="email-body">
-                            <h2 style="margin-top: 0; color: #1a7db7;">Agendamento Confirmado!</h2>
+                            <h2 style="margin-top: 0; color: #1a7db7;">Confirme seu Agendamento</h2>
                             
-                            <div class="status-confirmed">✓ CONFIRMADO</div>
+                            <div class="status-pending">⏳ AGUARDANDO CONFIRMAÇÃO</div>
                             
-                            <p>Olá [Nome do Paciente],</p>
-                            <p>Seu agendamento na <strong>LifeCare</strong> foi confirmado com sucesso! Estamos ansiosos para atendê-lo(a).</p>
+                            <div class="urgent-alert">
+                                <h3 style="color: #856404; margin-top: 0;">⚠️ ATENÇÃO: Confirmação Necessária</h3>
+                                <p style="margin: 0; font-weight: bold;">Você tem <strong>24 horas</strong> para confirmar este agendamento, ou ele será automaticamente cancelado.</p>
+                            </div>
+                            
+                            <p>Olá ${scheduling.patient.name},</p>
+                            <p>Identificamos que seu agendamento na <strong>LifeCare</strong> ainda não foi confirmado. Para garantir que sua vaga seja mantida, pedimos que confirme sua presença o mais breve possível.</p>
                             
                             <div class="appointment-details">
                                 <h3>📅 Detalhes do Agendamento</h3>
-                                <p><strong>Paciente:</strong> [Nome do Paciente]<br>
-                                <strong>Médico(a):</strong> Dr(a). [Nome do Médico]<br>
-                                <strong>Especialidade:</strong> [Especialidade]<br>
-                                <strong>Data:</strong> [Data do Agendamento]<br>
-                                <strong>Horário:</strong> [Horário do Agendamento]<br>
-                                <strong>Local:</strong> [Endereço da Clínica/Unidade]<br>
-                                <strong>Nº do Agendamento:</strong> [Número do Agendamento]</p>
+                                <p><strong>Paciente:</strong> ${scheduling.patient.name}<br>
+                                <strong>Médico(a):</strong> Dr(a). ${scheduling.doctor.name}<br>
+                                <strong>Especialidade:</strong> ${scheduling.specialty.name}<br>
+                                <strong>Data:</strong> ${scheduling.date}<br>
+                                <strong>Nº do Agendamento:</strong> ${scheduling.id}</p>
                             </div>
-                            
-                            <h3 style="color: #1a7db7;">📋 Preparação para a Consulta</h3>
-                            <ul>
-                                <li>Chegue com 15 minutos de antecedência</li>
-                                <li>Traga seu documento de identidade e carteirinha do convênio (se aplicável)</li>
-                                <li>Em caso de primeira consulta, preencha o formulário online em nossa área do paciente</li>
-                                <li>Liste suas dúvidas e sintomas para otimizar o tempo com o médico</li>
-                            </ul>
-                            
-                            <div style="text-align: center;">
-                                <a href="#" class="button">Acessar Minha Área do Paciente</a>
-                            </div>
-                            
+
                             <div class="contact-info">
-                                <p><strong>Precisa remarcar ou cancelar?</strong><br>
-                                Entre em contato conosco com pelo menos 24 horas de antecedência:<br>
+                                <p><strong>Precisa de ajuda?</strong><br>
+                                Entre em contato conosco para qualquer dúvida:<br>
                                 Telefone: (11) 3456-7890<br>
                                 WhatsApp: (11) 98765-4321<br>
                                 E-mail: agendamento@lifecare.com.br</p>
                             </div>
                             
-                            <p>Agradecemos sua confiança em nossos serviços!</p>
+                            <p><strong>Prazo final para confirmação:</strong> [Data e Hora Limite]</p>
                             
                             <p>Atenciosamente,<br>
                             <strong>Equipe LifeCare</strong></p>
@@ -189,7 +199,7 @@ export const generateSchedulingEmail = (scheduling: any) => {
                     <tr>
                         <td class="email-footer">
                             <p>© 2023 LifeCare Clínica Médica. Todos os direitos reservados.</p>
-                            <p>Este e-mail foi enviado automaticamente como confirmação do seu agendamento.</p>
+                            <p>Este e-mail foi enviado automaticamente como lembrete para confirmação do seu agendamento.</p>
                             <p>
                                 <a href="#" style="color: #5a6d7e;">Políticas de Privacidade</a> | 
                                 <a href="#" style="color: #5a6d7e;">Termos de Uso</a> | 
