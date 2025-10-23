@@ -40,7 +40,7 @@ export class SchedulingFactory {
         .setDate(!isNaN(combinedDate.valueOf()) ? combinedDate: undefined)
         .setDateOfConfirmation(schedulingDTO.dateOfConfirmation ? new Date(schedulingDTO.dateOfConfirmation) : undefined)
         .setDateOfRealizable(schedulingDTO.dateOfRealizable ? new Date(schedulingDTO.dateOfRealizable) : undefined)
-        .setTimeOfConsultation("00:00:00") // Por padrao setamos 1 hora para a consulta
+        .setTimeOfConsultation(undefined) // Por padrao setamos 1 hora para a consulta
         .setDoctor(doctor)
         .setInsurance(insurance)
         .setIsReturn(schedulingDTO.isReturn)

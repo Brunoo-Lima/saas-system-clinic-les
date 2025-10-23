@@ -9,8 +9,9 @@ export class DateSchedulingValidator implements IProcessValidator {
             const dateScheduling = scheduling.date
 
             if(!dateScheduling) return ResponseHandler.error("The date Scheduling is required to confirm.")
-            if(dateScheduling?.getDate() < dateNow.getDate()) return ResponseHandler.error("Cannot be scheduling confirm because the date is less than now !")
-            
+            if (dateScheduling.getTime() < dateNow.getTime()) {
+                return ResponseHandler.error( 'Cannot confirm scheduling because the date is before today!');
+            }
             return ResponseHandler.success("The date of scheduling is valid")
         } catch (e) {
             return ResponseHandler.error((e as Error).message)

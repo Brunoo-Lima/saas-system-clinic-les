@@ -1,4 +1,4 @@
-import { and, eq, or, sql } from "drizzle-orm";
+import { and, eq, or, SQL, sql } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Scheduling } from "../../../../domain/entities/EntityScheduling/Scheduling";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -17,11 +17,10 @@ export class ConsultationSchedulingRepository implements IRepository {
         const schedulingInserted = await dbUse.insert(schedulingTable).values({
             id: scheduling.getUUIDHash(),
             date: (scheduling.date as Date),
-            dateOfConfirmation: scheduling.dateOfConfirmation?.toISOString() ?? new Date().toISOString() , // Alterar o schema para poder adicionar null
+            dateOfConfirmation: scheduling.dateOfConfirmation?.toISOString(), // Alterar o schema para poder adicionar null
             isReturn: scheduling.isReturn ?? false,
             dateOfRealizable: scheduling.dateOfRealizable ?? null,
             status: scheduling.status ?? "",
-            timeOfConsultation: scheduling.timeOfConsultation ?? "00:00:00",
             doctor_id: scheduling.doctor?.getUUIDHash(),
             insurance_id:  scheduling.insurance?.getUUIDHash() ?? null,
             patient_id: scheduling.patient?.getUUIDHash(),
@@ -60,12 +59,14 @@ export class ConsultationSchedulingRepository implements IRepository {
 
             return schedulingUpdated
         } catch(e) {
+            console.log(e)
             return ResponseHandler.error("Failed to update the scheduling.")
         }
     }
     deleteEntity(scheduling: Scheduling, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
+
     async findAllEntity(scheduling: Scheduling, limit: number, offset: number){
         try {
             const filters = []
@@ -84,12 +85,9 @@ export class ConsultationSchedulingRepository implements IRepository {
             .select({
                 id: schedulingTable.id,
                 date: schedulingTable.date,
-                dateOfRealizable: schedulingTable.dateOfRealizable,
-                dateOfConfirmation: schedulingTable.dateOfConfirmation,
                 status: schedulingTable.status,
                 isReturn: schedulingTable.isReturn,
                 priceOfConsultation: schedulingTable.priceOfConsultation,
-                timeOfConsultation: schedulingTable.timeOfConsultation,
                 createdAt: schedulingTable.createdAt,
                 updatedAt: schedulingTable.updatedAt,
                 insurance: sql`

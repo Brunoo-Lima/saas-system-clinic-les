@@ -13,6 +13,6 @@ export interface IScheduling {
     isReturn?: boolean | undefined
     insurance?: Insurance | undefined
     specialty?: Specialty | undefined
-    status?: "CONFIRMED" | "PENDING" | "CONCLUDE" | "CANCELED" | undefined,
+    status?: "CONFIRMED" | "PENDING" | "CONCLUDE" | "CANCELED" | "CONFIRMATION_PENDING" | undefined,
     dateOfConfirmation?: Date | undefined
 }

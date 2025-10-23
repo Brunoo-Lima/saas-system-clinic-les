@@ -40,7 +40,7 @@ export class CreateSchedulingService {
                 new UUIDValidator(),
                 new DateSchedulingValidator(),
                 new ExistsScheduling(),
-                new RequiredGeneralData(Object.keys(consultationSchedulingDomain.props), ["dateOfConfirmation", "dateOfRealizable"])
+                new RequiredGeneralData(Object.keys(consultationSchedulingDomain.props), ["dateOfConfirmation", "dateOfRealizable", "timeOfConsultation"])
             ])
 
             validator.setValidator(`F-${doctor.constructor.name}`, [

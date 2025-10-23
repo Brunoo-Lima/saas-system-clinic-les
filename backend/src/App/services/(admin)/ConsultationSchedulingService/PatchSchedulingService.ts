@@ -7,7 +7,6 @@ import { InsertTimeOfConsultation } from "../../../../domain/validators/Consulta
 import { StatusValidationToUpdated } from "../../../../domain/validators/ConsultationScheduling/StatusValidationToUpdate";
 import { RequiredGeneralData } from "../../../../domain/validators/General/RequiredGeneralData";
 import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
-import { IProcessValidator } from "../../../../domain/validators/IProcessValidator";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { ConsultationSchedulingRepository } from "../../../../infrastructure/database/repositories/ConsultationSchedulingRepository/ConsultationSchedulingRepository";
