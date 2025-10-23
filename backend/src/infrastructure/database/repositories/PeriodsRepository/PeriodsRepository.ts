@@ -21,7 +21,7 @@ export class PeriodsRepository implements IRepository {
         ).returning();
     }
     async findEntity(period: Period, tx?: any): Promise<any> {
-        throw new Error("Method not implemented.");
+        
     }
     async updateEntity(period: Period, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
