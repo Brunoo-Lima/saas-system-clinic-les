@@ -21,7 +21,7 @@ export class CreateSchedulingService {
     private doctorRepository: IRepository;
     private patientRepository: IRepository;
 
-    constructor(){
+    constructor() {
         this.repository = new ConsultationSchedulingRepository()
         this.insuranceRepository = new InsuranceRepository()
         this.specialtyRepository = new SpecialtyRepository()
@@ -29,10 +29,10 @@ export class CreateSchedulingService {
         this.patientRepository = new PatientRepository()
     }
     async execute(schedulingDTO: ConsultationSchedulingDTO) {
-        try {   
+        try {
             const consultationSchedulingDomain = SchedulingFactory.createFromDTO(schedulingDTO)
             const { doctor, specialty, insurance, patient } = consultationSchedulingDomain
-            if(!doctor || !specialty || !insurance || !patient) return ResponseHandler.error("You can all required data of the: Doctor, Patient, Insurance and Specialty")
+            if (!doctor || !specialty || !insurance || !patient) return ResponseHandler.error("You can all required data of the: Doctor, Patient, Insurance and Specialty")
 
             const validator = new ValidatorController()
             validator.setValidator(`C-${consultationSchedulingDomain.constructor.name}`, [
@@ -41,18 +41,13 @@ export class CreateSchedulingService {
                 new ExistsScheduling(),
                 new RequiredGeneralData(Object.keys(consultationSchedulingDomain.props), ["dateOfConfirmation", "dateOfRealizable"])
             ])
-            
+
             validator.setValidator(`F-${doctor.constructor.name}`, [
                 new UUIDValidator(),
                 new EntityExistsToInserted(),
             ])
-            
+
             validator.setValidator(`F-${specialty.constructor.name}`, [
-                new UUIDValidator(),
-                new EntityExistsToInserted(),
-            ])
-            
-            validator.setValidator(`F-${insurance.constructor.name}`, [
                 new UUIDValidator(),
                 new EntityExistsToInserted(),
             ])
@@ -62,15 +57,23 @@ export class CreateSchedulingService {
                 new EntityExistsToInserted(),
             ])
             const entitiesIsValid = await Promise.all([
-                await validator.process(`C-${consultationSchedulingDomain.constructor.name}`, consultationSchedulingDomain, this.repository),   
-                await validator.process(`F-${doctor.constructor.name}`, doctor, this.doctorRepository),   
+                await validator.process(`C-${consultationSchedulingDomain.constructor.name}`, consultationSchedulingDomain, this.repository),
+                await validator.process(`F-${doctor.constructor.name}`, doctor, this.doctorRepository),
                 await validator.process(`F-${specialty.constructor.name}`, specialty, this.specialtyRepository),
-                await validator.process(`F-${insurance.constructor.name}`, insurance, this.insuranceRepository),
                 await validator.process(`F-${patient.constructor.name}`, patient, this.patientRepository)
             ])
+            if (consultationSchedulingDomain.insurance?.getUUIDHash()) {
+                validator.setValidator(`F-${insurance.constructor.name}`, [
+                    new UUIDValidator(),
+                    new EntityExistsToInserted(),
+                ])
+
+                const insuranceIsValid = await validator.process(`F-${insurance.constructor.name}`, insurance, this.insuranceRepository)
+                if(!insuranceIsValid.success) return insuranceIsValid
+            }
             const hasErrors = entitiesIsValid.filter((er) => !er.success)
-            if(hasErrors.length) return ResponseHandler.error(hasErrors.map((err) => err.message).flat())
-            
+            if (hasErrors.length) return ResponseHandler.error(hasErrors.map((err) => err.message).flat())
+
             const schedulingInserted = await this.repository.create(consultationSchedulingDomain);
             return ResponseHandler.success(schedulingInserted, "Success ! Scheduling confirmed.")
         } catch (e) {

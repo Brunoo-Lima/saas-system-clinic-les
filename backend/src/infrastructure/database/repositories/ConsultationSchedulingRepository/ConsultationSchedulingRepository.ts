@@ -22,7 +22,7 @@ export class ConsultationSchedulingRepository implements IRepository {
             status: scheduling.status ?? "",
             timeOfConsultation: scheduling.timeOfConsultation ?? "00:00:00",
             doctor_id: scheduling.doctor?.getUUIDHash(),
-            insurance_id:  scheduling.insurance?.getUUIDHash(),
+            insurance_id:  scheduling.insurance?.getUUIDHash() ?? null,
             patient_id: scheduling.patient?.getUUIDHash(),
             specialty_id: scheduling.specialty?.getUUIDHash(),
             priceOfConsultation: scheduling.priceOfConsultation ?? 0,
