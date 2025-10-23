@@ -22,8 +22,6 @@ export class ClinicRepository implements IRepository {
       phone: clinic.phone ?? "",
       timeToConfirmScheduling: clinic.timeToConfirmScheduling ?? "",
       address_id: clinic.address?.getUUIDHash(),
-      created_at: clinic.getCreatedAt().toISOString(),
-      updated_at: clinic.getUpdatedAt().toISOString(),
       user_id: clinic.user?.getUUIDHash()
     }).returning()
 
