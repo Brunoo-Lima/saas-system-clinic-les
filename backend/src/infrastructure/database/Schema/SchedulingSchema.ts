@@ -19,7 +19,7 @@ export const schedulingTable = pgTable("scheduling", {
   id: uuid("sch_id").primaryKey(),
   date: timestamp("sch_date").notNull(),
   dateOfRealizable: timestamp("sch_date_of_realizable"),
-  dateOfConfirmation: date("sch_date_of_confirmation").notNull(),
+  dateOfConfirmation: date("sch_date_of_confirmation"),
   status: varchar("sch_status").notNull(),
   isReturn: boolean("sch_is_return").notNull(),
   priceOfConsultation: real("sch_price_of_consultation").default(0),

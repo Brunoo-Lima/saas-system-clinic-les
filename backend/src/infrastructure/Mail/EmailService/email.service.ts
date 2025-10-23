@@ -2,6 +2,7 @@
 import "dotenv/config";
 import nodemailer from "nodemailer";
 import { generateEmail } from "../templates/welcome-user";
+import { generateSchedulingEmail } from "../templates/scheduling_confirmation";
 
 class EmailService {
   private transporter: any
@@ -18,13 +19,29 @@ class EmailService {
     });
   }
 
-  async sendMail(userInformation: any) {
+  async sendMail(dataEMail: any) {
     try {
+      const { template } = dataEMail
+      let htmlTemplate;
+      let subject;
+      let emails
+
+      switch(template){
+        case "welcome": 
+          htmlTemplate = generateEmail(dataEMail)
+          subject = "Boas vindas"
+          emails = dataEMail.email;
+          break
+        case "scheduling": 
+          htmlTemplate = generateSchedulingEmail(dataEMail)
+          subject = "Confirmação de agendamento"
+          emails = dataEMail.patient.email
+      }
       await this.transporter.sendMail({
         from: `"LifeCare" <${process.env.EMAIL_USER}>`,
-        to: userInformation.email,
-        subject: "Boas vindas",
-        html: generateEmail(userInformation)
+        to: emails,
+        subject: subject,
+        html: htmlTemplate
       });
     } catch(e){
       console.log(e)

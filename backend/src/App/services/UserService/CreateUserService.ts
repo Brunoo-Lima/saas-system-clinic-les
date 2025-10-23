@@ -44,6 +44,7 @@ export class CreateUserService {
             const newUser = await this.userRepository.create(userDomain);
             const { password, ...userResponse } = newUser.data
 
+            newUser.data.template = "welcome"
             await queueClient.add("welcome_email", newUser.data)
             return ResponseHandler.success(userResponse, "Success ! User was inserted.");
 

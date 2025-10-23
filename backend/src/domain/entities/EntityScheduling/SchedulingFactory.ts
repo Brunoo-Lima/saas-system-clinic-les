@@ -11,26 +11,26 @@ export class SchedulingFactory {
         const patient = new PatientBuilder()
         .setCpf(schedulingDTO?.patient?.cpf)
         .build()
-        patient.setUuidHash(schedulingDTO?.patient?.id ?? "")
+        patient.setUuidHash(schedulingDTO?.patient?.id ?? undefined!)
 
         // DOCTOR
         const doctor = new DoctorBuilder()
         .setCpf(schedulingDTO?.doctor?.cpf)
         .setCrm(schedulingDTO?.doctor?.crm)
         .build()
-        doctor.setUuidHash(schedulingDTO?.doctor?.id ?? "")
+        doctor.setUuidHash(schedulingDTO?.doctor?.id ?? undefined!)
 
    
         const insurance = new InsuranceBuilder()
         .setName(schedulingDTO?.insurance?.name)
         .build();
-        insurance.setUuidHash(schedulingDTO?.insurance?.id ?? "");
+        insurance.setUuidHash(schedulingDTO?.insurance?.id ?? undefined!);
 
     
         const specialty = new SpecialtyBuilder()
             .setName(schedulingDTO?.specialty?.name)
             .build();
-        specialty.setUuidHash(schedulingDTO?.specialty?.id ??"");
+        specialty.setUuidHash(schedulingDTO?.specialty?.id ?? undefined!);
 
         const combinedString = `${schedulingDTO?.date}T${schedulingDTO?.hour}`; 
         const combinedDate = new Date(combinedString);

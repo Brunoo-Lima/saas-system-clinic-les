@@ -16,9 +16,9 @@ export class InsertTimeOfConsultation implements IProcessValidator{
 
 
             const schedulingData: Array<any> | IResponseHandler = await repository.findEntity(scheduling);
-            
             const schedulingQueriesDAO = new SchedulingQueriesDAO()
             if(!Array.isArray(schedulingData)) return schedulingData
+    
             if(schedulingData.length === 0) return ResponseHandler.error("Does't exists scheduling with this id.")
             
             schedulingCopy.specialty?.setUuidHash(schedulingData[0].specialty_id)
