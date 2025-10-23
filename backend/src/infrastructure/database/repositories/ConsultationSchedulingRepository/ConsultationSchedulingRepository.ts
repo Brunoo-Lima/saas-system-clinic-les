@@ -9,6 +9,7 @@ import { patientTable } from "../../Schema/PatientSchema";
 import { doctorTable } from "../../Schema/DoctorSchema";
 import { userTable } from "../../Schema/UserSchema";
 import { specialtyTable } from "../../Schema/SpecialtySchema";
+import { insuranceTable } from "../../Schema/InsuranceSchema";
 
 export class ConsultationSchedulingRepository implements IRepository {
     async create(scheduling: Scheduling, tx?: any): Promise<any> {
@@ -91,6 +92,17 @@ export class ConsultationSchedulingRepository implements IRepository {
                 timeOfConsultation: schedulingTable.timeOfConsultation,
                 createdAt: schedulingTable.createdAt,
                 updatedAt: schedulingTable.updatedAt,
+                insurance: sql`
+                   (
+                     SELECT 
+                        json_build_object(
+                            'id', ${insuranceTable.id},
+                            'name', ${insuranceTable.name}
+                        )
+                    FROM ${insuranceTable}
+                    WHERE ${insuranceTable.id} = ${schedulingTable.insurance_id}
+                   )
+                `,
                 specialties: sql`(
                     SELECT 
                         json_build_object(
