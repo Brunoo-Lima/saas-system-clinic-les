@@ -25,15 +25,15 @@ export const Dropdown = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuCheckboxItem
-          checked={selectedGender === 'male'}
-          onCheckedChange={(checked) => onChangeGender(checked ? 'male' : null)}
+          checked={selectedGender === 'Male'}
+          onCheckedChange={(checked) => onChangeGender(checked ? 'Male' : null)}
         >
           Masculino
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
-          checked={selectedGender === 'female'}
+          checked={selectedGender === 'Female'}
           onCheckedChange={(checked) =>
-            onChangeGender(checked ? 'female' : null)
+            onChangeGender(checked ? 'Female' : null)
           }
         >
           Feminino

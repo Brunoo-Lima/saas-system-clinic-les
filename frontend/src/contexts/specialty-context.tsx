@@ -1,7 +1,7 @@
 import type { ISpecialty } from '@/@types/ISpecialty';
 import { usePagination } from '@/hooks/use-pagination';
 import { useGetSpecialties } from '@/services/specialty-service';
-import { createContext, useState, type ChangeEvent } from 'react';
+import { createContext, useState, useMemo, type ChangeEvent } from 'react';
 
 interface ISpecialtyContextProps {
   searchTerm: string;
@@ -14,7 +14,7 @@ interface ISpecialtyContextProps {
   paginatedData: ISpecialty[];
   handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
   handlePage: (page: number) => void;
-  handleDelete: (id: number) => void;
+  handleDelete: (id: string) => void;
 }
 
 export const SpecialtyContext = createContext<
@@ -32,13 +32,33 @@ export const SpecialtyProvider = ({
   );
   const itemsPerPage = 10;
 
-  const { data: filteredList = [] } = useGetSpecialties({
+  const { data: specialties = [] } = useGetSpecialties({
     limit: itemsPerPage,
     offset: 0,
   });
 
+  const filtered = useMemo(() => {
+    let data = specialties;
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      data = data.filter((specialty) =>
+        specialty.name.toLowerCase().includes(term),
+      );
+    }
+
+    if (selectedSpecialty) {
+      data = data.filter(
+        (specialty) =>
+          specialty.name.toLowerCase() === selectedSpecialty.toLowerCase(),
+      );
+    }
+
+    return data;
+  }, [selectedSpecialty, searchTerm, specialties]);
+
   const { totalPages, page, setPage, paginatedData } = usePagination(
-    filteredList,
+    filtered,
     itemsPerPage,
   );
 
@@ -51,8 +71,9 @@ export const SpecialtyProvider = ({
     setPage(1);
   };
 
-  const handleDelete = (_id: number) => {
-    // setFilteredList((prev) => prev.filter((p) => p.id !== id));
+  const handleDelete = (id: string) => {
+    // Implementar lógica de delete se necessário
+    console.log('Delete specialty:', id);
   };
 
   const contextValue = {

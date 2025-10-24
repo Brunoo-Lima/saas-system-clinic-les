@@ -6,14 +6,16 @@ import {
   PageHeader,
   PageHeaderContent,
   PageTitle,
-} from "@/components/ui/page-container";
-import { Suspense, useEffect } from "react";
-import { AddSpecialtyButton } from "./_components/add-specialty-button";
-import { InputSearch } from "@/components/ui/input-search";
-import { DataTable } from "@/components/ui/data-table";
-import { specialtyTableColumns } from "./_components/table/table-columns";
-import { PaginationComponent } from "@/components/pagination-component";
-import { useSpecialty } from "@/hooks/use-specialty";
+} from '@/components/ui/page-container';
+import { Suspense, useEffect } from 'react';
+import { AddSpecialtyButton } from './_components/add-specialty-button';
+import { InputSearch } from '@/components/ui/input-search';
+import { DataTable } from '@/components/ui/data-table';
+import { specialtyTableColumns } from './_components/table/table-columns';
+import { PaginationComponent } from '@/components/pagination-component';
+import { useSpecialty } from '@/hooks/use-specialty';
+import { Dropdown } from '../medicos/_components/actions/dropdown';
+import { medicalSpecialties } from '../medicos/_constants';
 
 export default function SpecialtiesPage() {
   const {
@@ -23,10 +25,12 @@ export default function SpecialtiesPage() {
     page,
     handlePage,
     totalPages,
+    selectedSpecialty,
+    setSelectedSpecialty,
   } = useSpecialty();
 
   useEffect(() => {
-    document.title = "Especialidades";
+    document.title = 'Especialidades';
   }, []);
 
   return (
@@ -51,6 +55,13 @@ export default function SpecialtiesPage() {
             placeholder="Buscar convênio"
             value={searchTerm}
             onChange={handleSearch}
+          />
+
+          <Dropdown
+            label="Especialidade"
+            items={medicalSpecialties}
+            value={selectedSpecialty}
+            onChange={setSelectedSpecialty}
           />
         </div>
 

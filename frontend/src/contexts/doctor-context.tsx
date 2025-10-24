@@ -1,7 +1,7 @@
 import type { IDoctor } from '@/@types/IDoctor';
 import { usePagination } from '@/hooks/use-pagination';
 import { useGetDoctors } from '@/services/doctor-service';
-import { createContext, useState, type ChangeEvent } from 'react';
+import { createContext, useState, useMemo, type ChangeEvent } from 'react';
 
 interface IDoctorContextProps {
   searchTerm: string;
@@ -16,7 +16,7 @@ interface IDoctorContextProps {
   paginatedData: IDoctor[];
   handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
   handlePage: (page: number) => void;
-  handleDelete: (id: number) => void;
+  handleDelete: (id: string) => void;
 }
 
 export const DoctorContext = createContext<IDoctorContextProps | undefined>(
@@ -31,33 +31,37 @@ export const DoctorProvider = ({ children }: { children: React.ReactNode }) => {
   );
   const itemsPerPage = 6;
 
-  const { data: filtered = [] } = useGetDoctors();
+  const { data: doctors = [] } = useGetDoctors();
 
-  console.log(filtered);
+  const filtered = useMemo(() => {
+    let data = doctors;
 
-  // const filtered = useMemo(() => {
-  //   let data = filteredList;
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      data = data.filter(
+        (doctor: IDoctor) =>
+          doctor.name.toLowerCase().includes(term) ||
+          doctor.crm.toLowerCase().includes(term) ||
+          doctor.user?.email?.toLowerCase().includes(term) ||
+          doctor.cpf?.includes(searchTerm),
+      );
+    }
 
-  //   if (searchTerm) {
-  //     data = data.filter((doctor) =>
-  //       doctor.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  //     );
-  //   }
+    if (selectedGender) {
+      data = data.filter((doctor: IDoctor) => doctor.sex === selectedGender);
+    }
 
-  //   if (selectedGender) {
-  //     data = data.filter((doctor) => doctor.sex === selectedGender);
-  //   }
+    if (selectedSpecialty) {
+      data = data.filter((doctor: IDoctor) =>
+        doctor.specialties.some(
+          (specialty) =>
+            specialty.name.toLowerCase() === selectedSpecialty.toLowerCase(),
+        ),
+      );
+    }
 
-  //   if (selectedSpecialty) {
-  //     data = data.filter((doctor) =>
-  //       doctor.specialties.some(
-  //         (s) => s.specialty.toLowerCase() === selectedSpecialty.toLowerCase(),
-  //       ),
-  //     );
-  //   }
-
-  //   return data;
-  // }, [selectedGender, selectedSpecialty, searchTerm, filteredList]);
+    return data;
+  }, [selectedGender, selectedSpecialty, searchTerm, doctors]);
 
   const { totalPages, page, setPage, paginatedData } = usePagination(
     filtered,
@@ -73,8 +77,9 @@ export const DoctorProvider = ({ children }: { children: React.ReactNode }) => {
     setPage(1);
   };
 
-  const handleDelete = (_id: number) => {
-    // setFilteredList((prev) => prev.filter((p) => p.id !== id));
+  const handleDelete = (id: string) => {
+    // Implementar lógica de delete se necessário
+    console.log('Delete doctor:', id);
   };
 
   const contextValue = {

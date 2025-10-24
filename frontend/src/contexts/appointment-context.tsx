@@ -42,7 +42,6 @@ export const AppointmentProvider = ({
   const filtered = useMemo(() => {
     let data = appointments;
 
-    // Filtro por busca (paciente ou médico)
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       data = data.filter(
@@ -55,14 +54,6 @@ export const AppointmentProvider = ({
       );
     }
 
-    // Filtro por gênero do paciente
-    if (selectedGender) {
-      data = data.filter(
-        (appointment) => appointment.patient.sex === selectedGender,
-      );
-    }
-
-    // Filtro por especialidade
     if (selectedSpecialty) {
       data = data.filter(
         (appointment) =>
@@ -72,7 +63,7 @@ export const AppointmentProvider = ({
     }
 
     return data;
-  }, [selectedGender, selectedSpecialty, searchTerm, appointments]);
+  }, [selectedSpecialty, searchTerm, appointments]);
 
   const { totalPages, page, setPage, paginatedData } = usePagination(
     filtered,

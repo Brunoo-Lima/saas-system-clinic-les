@@ -61,8 +61,8 @@ export const DoctorsPage = () => {
             <Dropdown
               label="Gênero"
               items={[
-                { value: 'male', label: 'Masculino' },
-                { value: 'female', label: 'Feminino' },
+                { value: 'Male', label: 'Masculino' },
+                { value: 'Female', label: 'Feminino' },
               ]}
               value={selectedGender}
               onChange={setSelectedGender}
