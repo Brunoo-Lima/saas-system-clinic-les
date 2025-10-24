@@ -1,41 +1,53 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { allAppointmentsList } from '@/mocks/historic-appointments/all-appointments';
 import { getStatus, getStatusUi } from '../_constants/get-message';
 import { Separator } from '@/components/ui/separator';
+import type { IAppointmentReturn } from '@/services/appointment-service';
+import { format } from 'date-fns';
 
-const ScheduledAppointments = () => {
+interface IAllAppointmentsProps {
+  appointments?: IAppointmentReturn[];
+}
+
+const ScheduledAppointments = ({ appointments }: IAllAppointmentsProps) => {
+  const filtered = appointments?.filter((p) => p.status === 'PENDING');
+
   return (
     <div className="flex flex-col gap-y-4">
-      {allAppointmentsList
-        .filter((p) => p.status === 'scheduled')
-        .map((ap) => (
-          <Card key={ap.id}>
-            <CardHeader className="flex justify-between items-center">
-              <CardTitle>
-                Paciente:{' '}
-                <strong className="font-semibold">{ap.pacient_name}</strong>
-              </CardTitle>
-              <Badge className={`py-1 px-2 ${getStatus(ap.status)}`}>
-                {getStatusUi[ap.status]}
-              </Badge>
-            </CardHeader>
+      {filtered?.map((ap) => (
+        <Card key={ap.id}>
+          <CardHeader className="flex justify-between items-center">
+            <CardTitle>
+              Paciente:{' '}
+              <strong className="font-semibold">{ap.patient.name}</strong>
+            </CardTitle>
+            <Badge className={`py-1 px-2 ${getStatus(ap.status)}`}>
+              {getStatusUi[ap.status]}
+            </Badge>
+          </CardHeader>
 
-            <Separator />
+          <Separator />
 
-            <CardContent>
-              <p>
-                Médico(a): <strong>{ap.doctor}</strong>
-              </p>
-              <p>
-                Especialidade: <strong>{ap.specialty}</strong>
-              </p>
-              <p>
-                Data e hora: {ap.date} às {ap.hour}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+          <CardContent>
+            <p>
+              Médico(a): <strong>{ap.doctor.name}</strong>
+            </p>
+            <p>
+              Especialidade: <strong>{ap.specialties?.name}</strong>
+            </p>
+            <p>
+              Data e hora: {format(new Date(ap.date), 'dd/MM/yyyy')} às{' '}
+              {ap.date.includes('T') ? ap.date.split('T')[1].slice(0, 5) : ''}
+            </p>
+          </CardContent>
+        </Card>
+      ))}
+
+      {filtered?.length === 0 && (
+        <div className="flex flex-col items-center justify-center gap-4 mt-8">
+          <p className="text-muted-foreground">Nenhum agendamento agendando.</p>
+        </div>
+      )}
     </div>
   );
 };

@@ -111,12 +111,12 @@ export const UpdateInsuranceForm = ({
 
   const saveName = () => {
     if (!insurance?.id) return;
-    mutate(
-      { id: insurance.id, insurance: { name: form.getValues().type } },
-      {
-        onSuccess: () => setEditingName(false),
-      },
-    );
+    // mutate(
+    //   // { id: insurance.id, insurance: { name: form.getValues().type } },
+    //   {
+    //     onSuccess: () => setEditingName(false),
+    //   },
+    // );
   };
   const saveModalities = () => {
     if (!insurance?.id) return;

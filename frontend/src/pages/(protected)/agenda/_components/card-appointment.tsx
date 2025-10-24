@@ -64,7 +64,7 @@ export const CardAppointment = ({
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <ClockIcon className="h-3 w-3" />
-                {appointment.timeOfConsultation}
+                {/* {appointment.date} */}
               </span>
             </div>
           </div>

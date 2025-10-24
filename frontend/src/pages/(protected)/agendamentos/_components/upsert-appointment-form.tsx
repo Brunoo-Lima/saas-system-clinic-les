@@ -405,7 +405,7 @@ export const UpsertAppointmentForm = ({
                     {patients?.map((patient) => (
                       <SelectItem
                         key={patient.id}
-                        value={patient.id.toString()}
+                        value={patient?.id?.toString() || ''}
                       >
                         {patient.name}
                       </SelectItem>
@@ -416,14 +416,6 @@ export const UpsertAppointmentForm = ({
               </FormItem>
             )}
           />
-
-          {/* <div className="flex items-center gap-x-2"> */}
-          {/* <p>Convênio?</p> */}
-          {/* <Switch
-              checked={hasInsurance}
-              onCheckedChange={() => setHasInsurance(!hasInsurance)}
-            />
-          </div> */}
 
           <FormField
             control={form.control}
