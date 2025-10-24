@@ -125,7 +125,7 @@ export const CardAppointment = ({
           <UpsertAppointmentForm
             doctors={doctors}
             appointment={normalizeAppointmentData(appointment)}
-            onSuccess={() => {}}
+            onSuccess={() => setIsUpsertAppointmentDialogOpen(false)}
           />
         </Dialog>
         <DropdownCard

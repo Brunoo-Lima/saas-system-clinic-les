@@ -51,7 +51,10 @@ import {
   useCreateAppointment,
   useUpdateAppointment,
 } from '@/services/appointment-service';
-import { formatDateToBackend } from '../../agenda/utilities/utilities';
+import {
+  formatDateToBackend,
+  formatDateToBackendRobust,
+} from '../../agenda/utilities/utilities';
 import { useGetAgenda } from '@/services/agenda-service';
 import type { IAppointment } from '@/@types/IAppointment';
 import { getAppointmentDefaultValues } from './_helpers/get-appointment-default-values';
@@ -156,14 +159,14 @@ export const UpsertAppointmentForm = ({
     const dayOfWeek = dateObj.getDay(); // 0 (domingo) → 6 (sábado)
     const dateString = format(dateObj, 'yyyy-MM-dd');
 
-    console.log('Checking date:', dateString, 'Day of week:', dayOfWeek);
+    // console.log('Checking date:', dateString, 'Day of week:', dayOfWeek);
 
     // Verifica se a data está bloqueada
     const isDateBlocked = blockedDates.some(
       (blocked) => blocked.date === dateString,
     );
     if (isDateBlocked) {
-      console.log('Date is blocked');
+      // console.log('Date is blocked');
       setAvailableHours([]);
       form.setValue('hour', '');
 
@@ -182,7 +185,7 @@ export const UpsertAppointmentForm = ({
     // Encontra o período do dia específico
     const period = agendaPeriods.find((p) => p.dayWeek === dayOfWeek);
 
-    console.log('Found period for day:', period);
+    // console.log('Found period for day:', period);
 
     if (period) {
       // Remove os segundos do timeFrom e timeTo se existirem
@@ -212,7 +215,7 @@ export const UpsertAppointmentForm = ({
         );
       }
 
-      console.log('Available hours:', hours);
+      // console.log('Available hours:', hours);
       setAvailableHours(hours);
 
       // Se o horário atual não estiver mais disponível, limpa o campo
@@ -221,7 +224,7 @@ export const UpsertAppointmentForm = ({
         form.setValue('hour', '');
       }
     } else {
-      console.log('No period found for this day');
+      // console.log('No period found for this day');
       setAvailableHours([]);
       form.setValue('hour', '');
     }
@@ -245,7 +248,6 @@ export const UpsertAppointmentForm = ({
     if (!agendaPeriods.length) return true;
 
     const dayOfWeek = date.getDay();
-    // const dateString = format(date, 'yyyy-MM-dd');
 
     // Verifica se a data está bloqueada
     if (isDateBlocked(date)) return true;
@@ -255,52 +257,85 @@ export const UpsertAppointmentForm = ({
   };
 
   useEffect(() => {
-    console.log(form.formState.errors);
+    console.log('errors', form.formState.errors);
   }, [form.formState.errors]);
 
   const onSubmit = (values: AppointmentFormSchema) => {
     try {
-      const payload = {
-        date: formatDateToBackend(values.date as Date),
-        hour: `${values.hour}:00`, // Adiciona os segundos
-        priceOfConsultation: values.priceOfConsultation,
-        isReturn: !!values.isReturn || false,
-        status: 'PENDING', // Valor padrão
-        doctor: {
-          id: values.doctorId,
-        },
-        patient: {
-          id: values.patientId,
-        },
-        specialty: {
-          id: values.specialtyId,
-        },
-        insurance: {
-          id: values.insuranceId || '',
-        },
-      };
-
-      console.log('payload', payload);
-
       if (appointment) {
+        const updatePayload: any = {};
+
+        // Apenas campos que foram alterados/preenchidos
+        if (values.date)
+          updatePayload.date = formatDateToBackendRobust(values.date as Date);
+        if (values.hour) updatePayload.hour = `${values.hour}:00`;
+        if (
+          values.priceOfConsultation !== undefined &&
+          values.priceOfConsultation !== null
+        ) {
+          updatePayload.priceOfConsultation = values.priceOfConsultation;
+        }
+        if (values.isReturn !== undefined)
+          updatePayload.isReturn = !!values.isReturn;
+
+        // Para relacionamentos, só envia se tiver valor
+        if (values.doctorId) updatePayload.doctor = { id: values.doctorId };
+        if (values.patientId) updatePayload.patient = { id: values.patientId };
+        if (values.specialtyId)
+          updatePayload.specialty = { id: values.specialtyId };
+
+        // Insurance pode ser opcional - trata caso de remoção
+        if (values.insuranceId !== undefined) {
+          updatePayload.insurance = values.insuranceId
+            ? { id: values.insuranceId }
+            : null;
+        }
+
+        console.log('updatePayload', updatePayload);
+
         updateAppointment(
-          { id: appointment.id, appointment: { ...payload } },
+          {
+            id: appointment.id,
+            appointment: updatePayload,
+          },
           {
             onSuccess: () => {
-              toast.success('Agendamento atualizado com sucesso!');
               onSuccess();
+            },
+            onError: (error: any) => {
+              console.error('Erro na mutation:', error);
             },
           },
         );
       } else {
-        createAppointment(payload, {
+        const createPayload = {
+          date: formatDateToBackend(values.date as Date),
+          hour: `${values.hour}:00`,
+          priceOfConsultation: values.priceOfConsultation,
+          isReturn: !!values.isReturn || false,
+          status: 'PENDING',
+          doctor: { id: values.doctorId },
+          patient: { id: values.patientId },
+          specialty: { id: values.specialtyId },
+          insurance: values.insuranceId
+            ? { id: values.insuranceId }
+            : undefined,
+        };
+
+        console.log('createPayload', createPayload);
+
+        createAppointment(createPayload, {
           onSuccess: () => {
             toast.success('Agendamento criado com sucesso!');
             onSuccess();
           },
+          onError: (error: any) => {
+            console.error('Erro na mutation:', error);
+          },
         });
       }
     } catch (error) {
+      console.error('Erro no onSubmit:', error);
       toast.error('Erro ao salvar agendamento.');
     }
   };

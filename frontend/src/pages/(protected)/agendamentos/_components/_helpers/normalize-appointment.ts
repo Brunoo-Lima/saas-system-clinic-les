@@ -17,7 +17,7 @@ export const normalizeAppointmentData = (
     id: data.patient.id,
   },
   insurance: {
-    id: data.insurance.id,
+    id: data.insurance?.id || '',
   },
   specialty: {
     id: data.specialties?.id || '',
