@@ -15,7 +15,8 @@ export class SchedulingQueriesDAO {
     async schedulingPerDoctor(scheduling: Scheduling, tx?: NodePgDatabase<Record<string, never>> & {$client: Pool}){
         try {
             const dbUse = tx ? tx : db
-            const timeOfConsultation = `${scheduling.timeOfConsultation ?? 0} hour`
+            const timeOfConsultation = `${scheduling.timeOfConsultation ?? 1} hour`
+            console.log(scheduling.date)
             const sqlCreated = sql`
                 ${schedulingTable.status} = ('PENDING') AND
                 (${schedulingTable.id} = ${scheduling.getUUIDHash()} OR ${schedulingTable.id} IS NOT NULL)
