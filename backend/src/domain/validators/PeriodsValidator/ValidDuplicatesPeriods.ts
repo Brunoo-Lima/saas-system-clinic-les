@@ -1,0 +1,1 @@
+// Validar se ja existe um periodo configurado para o medico durante a criacao.

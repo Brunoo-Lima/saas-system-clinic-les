@@ -30,8 +30,13 @@ export class CountryRepository implements IRepository {
         return countriesFounded
     
     }
-    updateEntity(entity: EntityDomain): Promise<any> {
-        throw new Error("Method not implemented.");
+    async updateEntity(country: Country, tx?: any): Promise<any> {
+       const dbUse = tx ? tx : db
+       return await dbUse.update(countryTable).set({
+            name: countryTable.name
+       }).where(
+            eq(countryTable.id, country.getUUIDHash())
+       ).returning()
     }
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
         throw new Error("Method not implemented.");

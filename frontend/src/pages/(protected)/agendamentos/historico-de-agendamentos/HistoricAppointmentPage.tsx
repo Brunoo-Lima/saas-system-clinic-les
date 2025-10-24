@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/page-container';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useGetAppointments } from '@/services/appointment-service';
 import {
   BookCheckIcon,
   BookXIcon,
@@ -32,6 +33,7 @@ const CanceledAppointments = React.lazy(
 export default function HistoricAppointmentPage() {
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState('all');
+  const { data: appointments } = useGetAppointments();
 
   useEffect(() => {
     document.title = 'Histórico de agendamentos';
@@ -72,7 +74,7 @@ export default function HistoricAppointmentPage() {
           <TabsContent value="all">
             {activeTab === 'all' && (
               <Suspense fallback={<p>Carregando...</p>}>
-                <AllAppointments />
+                <AllAppointments appointments={appointments} />
               </Suspense>
             )}
           </TabsContent>
@@ -80,7 +82,7 @@ export default function HistoricAppointmentPage() {
           <TabsContent value="scheduled">
             {activeTab === 'scheduled' && (
               <Suspense fallback={<p>Carregando...</p>}>
-                <ScheduledAppointments />
+                <ScheduledAppointments appointments={appointments} />
               </Suspense>
             )}
           </TabsContent>
@@ -88,7 +90,7 @@ export default function HistoricAppointmentPage() {
           <TabsContent value="finished">
             {activeTab === 'finished' && (
               <Suspense fallback={<p>Carregando...</p>}>
-                <FinishedAppointments />
+                <FinishedAppointments appointments={appointments} />
               </Suspense>
             )}
           </TabsContent>
@@ -96,7 +98,7 @@ export default function HistoricAppointmentPage() {
           <TabsContent value="canceled">
             {activeTab === 'canceled' && (
               <Suspense fallback={<p>Carregando...</p>}>
-                <CanceledAppointments />
+                <CanceledAppointments appointments={appointments} />
               </Suspense>
             )}
           </TabsContent>

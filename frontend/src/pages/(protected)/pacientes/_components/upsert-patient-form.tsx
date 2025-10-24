@@ -129,8 +129,9 @@ export const UpsertPatientForm = ({
       ? values.cardInsurances
       : [];
 
-    const payload: IPatientPayload = {
+    const payload: Omit<IPatientPayload, 'id'> = {
       ...values,
+
       dateOfBirth: dateOfBirthString,
       cardInsurances,
     };

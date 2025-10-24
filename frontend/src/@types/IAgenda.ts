@@ -24,3 +24,21 @@ export interface IAgendaRequest {
   };
   datesBlocked?: IBlockedDate[]; // Opcional
 }
+
+export interface IAgendaReturn {
+  id: string;
+  dateFrom: string; // Formato "YYYY-MM-DD"
+  dateTo: string; // Formato "YYYY-MM-DD"
+  isActivate: boolean;
+  periodToWork: {
+    id: string;
+    dayWeek: number;
+    timeFrom: string;
+    timeTo: string;
+    specialty: {
+      id: string;
+      name: string;
+    };
+  }[];
+  datesBlocked?: IBlockedDate[]; // Opcional
+}

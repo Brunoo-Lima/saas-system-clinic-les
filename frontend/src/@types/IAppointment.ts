@@ -1,6 +1,6 @@
 export interface IAppointment {
   id: string;
-  date: string;
+  date: Date | string;
   hour: string;
   priceOfConsultation: number;
   isReturn?: boolean;

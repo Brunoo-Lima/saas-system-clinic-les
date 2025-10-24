@@ -1,68 +1,55 @@
-import {
-  Activity,
-  Baby,
-  Bone,
-  Brain,
-  Eye,
-  Hand,
-  Heart,
-  Hospital,
-  Stethoscope,
-} from "lucide-react";
+import { Stethoscope } from 'lucide-react';
 
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import type { IAppointmentReturn } from '@/services/appointment-service';
 
 interface ITopSpecialtiesProps {
-  topSpecialties: {
-    specialty: string;
-    appointments: number;
-  }[];
+  appointments?: IAppointmentReturn[];
 }
 
-const getSpecialtyIcon = (specialty: string) => {
-  const specialtyLower = specialty.toLowerCase();
+export const TopSpecialties = ({ appointments }: ITopSpecialtiesProps) => {
+  const specialtiesCount =
+    appointments?.reduce((acc, appointment) => {
+      const specialtyName =
+        appointment.specialties?.name || 'Sem especialidade';
 
-  if (specialtyLower.includes("cardiolog")) return Heart;
-  if (
-    specialtyLower.includes("ginecolog") ||
-    specialtyLower.includes("obstetri")
-  )
-    return Baby;
-  if (specialtyLower.includes("pediatr")) return Activity;
-  if (specialtyLower.includes("dermatolog")) return Hand;
-  if (
-    specialtyLower.includes("ortoped") ||
-    specialtyLower.includes("traumatolog")
-  )
-    return Bone;
-  if (specialtyLower.includes("oftalmolog")) return Eye;
-  if (specialtyLower.includes("neurolog")) return Brain;
+      if (!acc[specialtyName]) {
+        acc[specialtyName] = 0;
+      }
+      acc[specialtyName]++;
+      return acc;
+    }, {} as Record<string, number>) || {};
 
-  return Stethoscope;
-};
+  // Converter para array e ordenar por quantidade (maior primeiro)
+  const topSpecialties = Object.entries(specialtiesCount)
+    .map(([specialty, count]) => ({
+      specialty,
+      count,
+    }))
+    .sort((a, b) => b.count - a.count);
 
-export const TopSpecialties = ({ topSpecialties }: ITopSpecialtiesProps) => {
-  const maxAppointments = Math.max(
-    ...topSpecialties.map((i) => i.appointments)
-  );
+  const maxAppointments =
+    topSpecialties.length > 0
+      ? Math.max(...topSpecialties.map((i) => i.count))
+      : 0;
+
   return (
     <Card className="mx-auto w-full">
       <CardContent>
         <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Hospital className="text-muted-foreground" />
+            <Stethoscope className="text-muted-foreground" />
             <CardTitle className="text-base">Especialidades</CardTitle>
           </div>
         </div>
 
-        {/* specialtys List */}
         <div className="space-y-6">
           {topSpecialties.map((specialty) => {
-            const Icon = getSpecialtyIcon(specialty.specialty);
-            // Porcentagem de ocupação da especialidade baseando-se no maior número de agendamentos
             const progressValue =
-              (specialty.appointments / maxAppointments) * 100;
+              maxAppointments > 0
+                ? (specialty.count / maxAppointments) * 100
+                : 0;
 
             return (
               <div
@@ -70,14 +57,14 @@ export const TopSpecialties = ({ topSpecialties }: ITopSpecialtiesProps) => {
                 className="flex items-center gap-2"
               >
                 <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
-                  <Icon className="text-primary h-5 w-5" />
+                  <Stethoscope className="text-primary h-5 w-5" />
                 </div>
                 <div className="flex w-full flex-col justify-center">
                   <div className="flex w-full justify-between">
                     <h3 className="text-sm">{specialty.specialty}</h3>
                     <div className="text-right">
                       <span className="text-muted-foreground text-sm font-medium">
-                        {specialty.appointments} agend.
+                        {specialty.count} agend.
                       </span>
                     </div>
                   </div>

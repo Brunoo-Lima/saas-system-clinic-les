@@ -1,10 +1,36 @@
-import type { IAppointment } from '@/@types/IAppointment';
 import api from './api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-export const createAppointmentService = async (appointment: IAppointment) => {
+export interface IAppointmentPayload {
+  date: string;
+  hour: string;
+  priceOfConsultation: number;
+  isReturn?: boolean;
+  status: 'CONFIRMED' | 'PENDING' | 'CONCLUDE' | 'CANCELED' | string;
+  doctor: {
+    id: string;
+  };
+  patient: {
+    id: string;
+  };
+  insurance?: {
+    id: string;
+  };
+  specialty: {
+    id: string;
+  };
+}
+
+export const createAppointmentService = async (
+  appointment: IAppointmentPayload,
+) => {
   const { data } = await api.post('/scheduling', appointment);
+
+  if (data.success === false) {
+    throw new Error(data.message);
+  }
+
   return data;
 };
 
@@ -31,12 +57,13 @@ interface IAppointmentGet {
 export interface IAppointmentReturn {
   id: string;
   date: string;
-  dateOfRealizable: string | null;
-  dateOfConfirmation: string;
   status: string;
   isReturn: boolean;
   priceOfConsultation: number;
-  timeOfConsultation: string;
+  specialties?: {
+    id: string;
+    name: string;
+  };
   patient: {
     id: string;
     name: string;
@@ -53,6 +80,10 @@ export interface IAppointmentReturn {
     cpf: string;
     sex: 'Male' | 'Female';
     dateOfBirth: string;
+  };
+  insurance: {
+    id: string;
+    name: string;
   };
 }
 
@@ -80,5 +111,36 @@ export const useGetAppointments = (params?: IAppointmentGet) => {
   return useQuery<IAppointmentReturn[]>({
     queryKey: ['appointments', params],
     queryFn: () => getAppointmentService(params || {}),
+  });
+};
+
+interface IUpdateAppointment {
+  id: string;
+  appointment: IAppointmentPayload;
+}
+
+export const updateAppointmentService = async ({
+  id,
+  appointment,
+}: IUpdateAppointment) => {
+  const { data } = await api.patch(`/scheduling/?id=${id}`, appointment);
+
+  if (data.success === false) {
+    throw new Error(data.message || 'Erro ao atualizar agendamento.');
+  }
+  return data;
+};
+
+export const useUpdateAppointment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateAppointmentService,
+    onSuccess: () => {
+      toast.success('Agendamento atualizado com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Erro ao atualizar agendamento.');
+    },
   });
 };

@@ -9,38 +9,38 @@ export class SchedulingFactory {
     static createFromDTO(schedulingDTO: ConsultationSchedulingDTO) {
         // PATIENT
         const patient = new PatientBuilder()
-        .setCpf(schedulingDTO.patient.cpf)
+        .setCpf(schedulingDTO?.patient?.cpf)
         .build()
-        patient.setUuidHash(schedulingDTO.patient.id ?? "")
+        patient.setUuidHash(schedulingDTO?.patient?.id ?? undefined!)
 
         // DOCTOR
         const doctor = new DoctorBuilder()
-        .setCpf(schedulingDTO.doctor.cpf)
-        .setCrm(schedulingDTO.doctor.crm)
+        .setCpf(schedulingDTO?.doctor?.cpf)
+        .setCrm(schedulingDTO?.doctor?.crm)
         .build()
-        doctor.setUuidHash(schedulingDTO.doctor.id ?? "")
+        doctor.setUuidHash(schedulingDTO?.doctor?.id ?? undefined!)
 
    
         const insurance = new InsuranceBuilder()
-        .setName(schedulingDTO.insurance.name)
+        .setName(schedulingDTO?.insurance?.name)
         .build();
-        insurance.setUuidHash(schedulingDTO.insurance.id ?? "");
+        insurance.setUuidHash(schedulingDTO?.insurance?.id ?? undefined!);
 
     
         const specialty = new SpecialtyBuilder()
-            .setName(schedulingDTO.specialty.name)
+            .setName(schedulingDTO?.specialty?.name)
             .build();
-        specialty.setUuidHash(schedulingDTO.specialty.id ??"");
+        specialty.setUuidHash(schedulingDTO?.specialty?.id ?? undefined!);
 
-        const combinedString = `${schedulingDTO.date}T${schedulingDTO.hour}`; 
+        const combinedString = `${schedulingDTO?.date}T${schedulingDTO?.hour}`; 
         const combinedDate = new Date(combinedString);
         combinedDate.setHours(combinedDate.getHours() - 3) // Padrao PT-BR
 
         const scheduling = new SchedulingBuilder()
-        .setDate(combinedDate ?? undefined)
+        .setDate(!isNaN(combinedDate.valueOf()) ? combinedDate: undefined)
         .setDateOfConfirmation(schedulingDTO.dateOfConfirmation ? new Date(schedulingDTO.dateOfConfirmation) : undefined)
         .setDateOfRealizable(schedulingDTO.dateOfRealizable ? new Date(schedulingDTO.dateOfRealizable) : undefined)
-        .setTimeOfConsultation("01:00:00") // Por padrao setamos 1 hora para a consulta
+        .setTimeOfConsultation(undefined) // Por padrao setamos 1 hora para a consulta
         .setDoctor(doctor)
         .setInsurance(insurance)
         .setIsReturn(schedulingDTO.isReturn)

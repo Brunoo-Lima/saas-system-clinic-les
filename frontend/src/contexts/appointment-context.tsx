@@ -3,7 +3,7 @@ import {
   useGetAppointments,
   type IAppointmentReturn,
 } from '@/services/appointment-service';
-import { createContext, useState, type ChangeEvent } from 'react';
+import { createContext, useState, useMemo, type ChangeEvent } from 'react';
 
 interface IAppointmentContextProps {
   searchTerm: string;
@@ -18,7 +18,7 @@ interface IAppointmentContextProps {
   paginatedData: IAppointmentReturn[];
   handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
   handlePage: (page: number) => void;
-  handleDelete: (id: number) => void;
+  handleDelete: (id: string) => void;
 }
 
 export const AppointmentContext = createContext<
@@ -37,31 +37,42 @@ export const AppointmentProvider = ({
   );
   const itemsPerPage = 6;
 
-  const { data: filtered = [] } = useGetAppointments();
+  const { data: appointments = [] } = useGetAppointments();
 
-  // const filtered = useMemo(() => {
-  //   let data = filteredList;
+  const filtered = useMemo(() => {
+    let data = appointments;
 
-  //   if (searchTerm) {
-  //     data = data.filter((Appointment) =>
-  //       Appointment.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  //     );
-  //   }
+    // Filtro por busca (paciente ou médico)
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      data = data.filter(
+        (appointment) =>
+          appointment.patient.name.toLowerCase().includes(term) ||
+          appointment.doctor.name.toLowerCase().includes(term) ||
+          appointment.patient.email.toLowerCase().includes(term) ||
+          appointment.patient.phone.includes(searchTerm) ||
+          appointment.patient.cpf.includes(searchTerm),
+      );
+    }
 
-  //   if (selectedGender) {
-  //     data = data.filter((Appointment) => Appointment.sex === selectedGender);
-  //   }
+    // Filtro por gênero do paciente
+    if (selectedGender) {
+      data = data.filter(
+        (appointment) => appointment.patient.sex === selectedGender,
+      );
+    }
 
-  //   if (selectedSpecialty) {
-  //     data = data.filter((Appointment) =>
-  //       Appointment.specialties.some(
-  //         (s) => s.specialty.toLowerCase() === selectedSpecialty.toLowerCase(),
-  //       ),
-  //     );
-  //   }
+    // Filtro por especialidade
+    if (selectedSpecialty) {
+      data = data.filter(
+        (appointment) =>
+          appointment.specialties?.name.toLowerCase() ===
+          selectedSpecialty.toLowerCase(),
+      );
+    }
 
-  //   return data;
-  // }, [selectedGender, selectedSpecialty, searchTerm, filteredList]);
+    return data;
+  }, [selectedGender, selectedSpecialty, searchTerm, appointments]);
 
   const { totalPages, page, setPage, paginatedData } = usePagination(
     filtered,
@@ -77,8 +88,9 @@ export const AppointmentProvider = ({
     setPage(1);
   };
 
-  const handleDelete = (_id: number) => {
-    // setFilteredList((prev) => prev.filter((p) => p.id !== id));
+  const handleDelete = (id: string) => {
+    // Implementar lógica de delete se necessário
+    console.log('Delete appointment:', id);
   };
 
   const contextValue = {

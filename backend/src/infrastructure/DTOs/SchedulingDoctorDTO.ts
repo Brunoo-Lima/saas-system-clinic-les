@@ -7,6 +7,7 @@ export interface SchedulingDoctorDTO {
     dateTo: string,
     isActivate: boolean,
     datesBlocked: Array<{
+        id?: string,
         date: string,
         reason: string
     }>

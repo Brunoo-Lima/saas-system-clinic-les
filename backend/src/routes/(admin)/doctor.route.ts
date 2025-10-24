@@ -4,6 +4,9 @@ import { privateRoute } from '../../App/middlewares/privateRoute';
 import { CreateDoctorController } from '../../App/controllers/(admin)/DoctorController/CreateDoctorController';
 import { FindDoctorController } from '../../App/controllers/(admin)/DoctorController/FindDoctorController';
 import { FindAllDoctorController } from '../../App/controllers/(admin)/DoctorController/FindAllDoctorsController';
+import { PatchDoctorController } from '../../App/controllers/(admin)/DoctorController/PatchDoctorController';
+import { AddSpecialtiesToDoctorController } from '../../App/controllers/(admin)/DoctorController/DoctorToRelationsController/AddSpecialtiesToDoctorController';
+import { AddPeriodsToDoctorController } from '../../App/controllers/(admin)/DoctorController/DoctorToRelationsController/AddPeriodsToDoctorController';
 
 const DoctorRoutes: Router = Router();
 
@@ -14,5 +17,8 @@ DoctorRoutes.post('/doctor', authMiddleware, privateRoute, (req, res, next) => {
 
 DoctorRoutes.post('/doctor/find', authMiddleware, privateRoute, new FindDoctorController().handle)
 DoctorRoutes.get('/doctor/findall', authMiddleware, privateRoute, new FindAllDoctorController().handle)
+DoctorRoutes.patch('/doctor', authMiddleware, privateRoute, new PatchDoctorController().handle)
+DoctorRoutes.post('/doctor/specialties/add', authMiddleware, privateRoute, new AddSpecialtiesToDoctorController().handle)
+DoctorRoutes.post('/doctor/periods/add', authMiddleware, privateRoute, new AddPeriodsToDoctorController().handle)
 
 export { DoctorRoutes };

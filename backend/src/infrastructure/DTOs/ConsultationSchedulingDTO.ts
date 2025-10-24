@@ -3,12 +3,13 @@ import { InsuranceDTO } from "./InsuranceDTO"
 import { PatientDTO } from "./PatientDTO"
 
 export interface ConsultationSchedulingDTO { 
+    id?: string
     date?: string
     hour: string
     dateOfRealizable: string;
     priceOfConsultation: number
     isReturn: boolean
-    status: "CONFIRMED" | "PENDING" | "CONCLUDE" | "CANCELED",
+    status: "CONFIRMED" | "PENDING" | "CONCLUDE" | "CANCELED" | "CONFIRMATION_PENDING",
     dateOfConfirmation: string
     doctor: DoctorDTO
     patient: PatientDTO

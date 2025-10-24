@@ -22,17 +22,16 @@ export class ExistsScheduling implements IProcessValidator {
                 const dateTo = new Date(doctorHasScheduling.dateTo)
 
                 if (scheduling.date < dateFrom || scheduling.date > dateTo) return ResponseHandler.error("This date is't available in scheduling doctor")
-                const datesBlocked = doctorHasScheduling.datesBlocked.filter((dt: any) => {
+                const datesBlocked = doctorHasScheduling.datesBlocked?.filter((dt: any) => {
                     const dateBlocked = new Date(dt.dateBlocked).toISOString().split("T")
                     const dateScheduling= scheduling.date?.toISOString().split("T")
                     return dateScheduling?.[0]?.trim() === dateBlocked[0]?.trim()
                 })
                 if(datesBlocked.length) return ResponseHandler.error("This date is blocked in doctor scheduling")
             }
-            const schedulingDao = new SchedulingQueriesDAO()
-            const schedulingToDoctorExists = await schedulingDao.schedulingPerDoctor(scheduling)
-
-            if (Array.isArray(schedulingToDoctorExists.data) && schedulingToDoctorExists.data.length) return ResponseHandler.error("The scheduling cannot be confirmed because already exists the scheduling in this date")
+            // const schedulingDao = new SchedulingQueriesDAO()
+            // const schedulingToDoctorExists = await schedulingDao.schedulingPerDoctor(scheduling)
+            // if (Array.isArray(schedulingToDoctorExists.data) && schedulingToDoctorExists.data.length) return ResponseHandler.error("The scheduling cannot be confirmed because already exists the scheduling in this date")
             
             return ResponseHandler.success(scheduling, "Success ! The scheduling can be inserted")
         } catch (e) {

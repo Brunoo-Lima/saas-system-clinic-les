@@ -36,7 +36,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     if ("success" in user && !user.success) {
       return res.status(401).json(ResponseHandler.error(user.message));
     }
-    if (!userDomain.password || user.password !== userDomain.password) { return ResponseHandler.error("Incorrect email or password"); }
+    if (!userDomain.password || user.password !== userDomain.password) {return res.status(401).json(ResponseHandler.error("Incorrect email or password")) }
     if ((user.role !== userDomain.role)) {
       return res.status(401).json(ResponseHandler.error("Access denied !"))
     }

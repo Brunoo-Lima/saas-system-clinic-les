@@ -35,6 +35,7 @@ export interface IPatientPayload {
   phone: string;
   cardInsurances: ICardInsurancePayload[];
   address: IAddress;
+  id?: string;
 }
 
 export const createPatient = async (patient: IPatientPayload) => {

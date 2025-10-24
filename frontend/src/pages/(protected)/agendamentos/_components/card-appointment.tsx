@@ -11,14 +11,22 @@ import { Separator } from '@/components/ui/separator';
 import { CalendarIcon, DollarSignIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { AddAppointmentForm } from './add-appointment-form';
 import type { IAppointmentReturn } from '@/services/appointment-service';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
+import { DropdownCard } from './actions/dropdown-card';
+import { toast } from 'sonner';
+import type { IDoctor } from '@/@types/IDoctor';
+import { UpsertAppointmentForm } from './upsert-appointment-form';
+import { normalizeAppointmentData } from './_helpers/normalize-appointment';
 
 interface ICardAppointmentProps {
   appointment: IAppointmentReturn;
+  doctors: IDoctor[];
 }
-export const CardAppointment = ({ appointment }: ICardAppointmentProps) => {
+export const CardAppointment = ({
+  appointment,
+  doctors,
+}: ICardAppointmentProps) => {
   const [isUpsertAppointmentDialogOpen, setIsUpsertAppointmentDialogOpen] =
     useState(false);
 
@@ -27,13 +35,13 @@ export const CardAppointment = ({ appointment }: ICardAppointmentProps) => {
     const dayOfWeek = date.getDay();
 
     const daysMap = {
-      0: 'domingo',
-      1: 'segunda-feira',
-      2: 'terça-feira',
-      3: 'quarta-feira',
-      4: 'quinta-feira',
-      5: 'sexta-feira',
-      6: 'sábado',
+      0: 'Domingo',
+      1: 'Segunda-feira',
+      2: 'Terça-feira',
+      3: 'Quarta-feira',
+      4: 'Quinta-feira',
+      5: 'Sexta-feira',
+      6: 'Sábado',
     };
 
     return daysMap[dayOfWeek as keyof typeof daysMap] || '';
@@ -52,18 +60,23 @@ export const CardAppointment = ({ appointment }: ICardAppointmentProps) => {
     }
   };
 
-  // const handleDeleteAppointmentClick = () => {
-  //   if (!appointment) return;
-  //   toast.success('Agendamento deletado com sucesso.');
-  // };
+  const handleDeleteAppointmentClick = () => {
+    if (!appointment) return;
+    toast.success('Agendamento deletado com sucesso.');
+  };
+
+  const dateString = appointment?.date ?? '';
+  const hasTimePart = dateString.includes('T');
+  const hour = hasTimePart ? dateString.split('T')[1].slice(0, 5) : '';
+
+  const formattedDate = format(parseISO(appointment.date), 'dd/MM/yyyy');
 
   return (
     <Card className="sm:min-w-[350px] w-[450px]">
       <CardHeader>
         <div className="flex flex-col gap-2">
           <h2 className="text-lg font-semibold">
-            Agendamento:
-            {/* {appointment.specialty} */}
+            Agendamento: {appointment.specialties?.name}
           </h2>
           <p className="text-sm font-medium">
             Médico: {appointment.doctor.name}
@@ -77,11 +90,10 @@ export const CardAppointment = ({ appointment }: ICardAppointmentProps) => {
       <CardContent className="flex flex-col gap-2">
         <Badge variant="outline">
           <CalendarIcon className="mr-1" />
-          {getDayOfWeekFromDate(appointment.date)}
+          {getDayOfWeekFromDate(appointment.date)} - Data: {formattedDate} -{' '}
+          {hour}
         </Badge>
-        <Badge variant="outline" className="flex flex-col items-start gap-1">
-          Data: {format(new Date(appointment.date), 'dd/MM/yyyy HH:mm')}
-        </Badge>
+
         <Badge variant="outline">
           <DollarSignIcon className="mr-1" />
           {Intl.NumberFormat('pt-BR', {
@@ -89,6 +101,8 @@ export const CardAppointment = ({ appointment }: ICardAppointmentProps) => {
             currency: 'BRL',
           }).format(appointment.priceOfConsultation)}
         </Badge>
+
+        <Badge variant="outline">Forma de pagamento:</Badge>
 
         <Badge variant="outline">
           Status: {formatStatus(appointment.status)}
@@ -108,18 +122,17 @@ export const CardAppointment = ({ appointment }: ICardAppointmentProps) => {
           <DialogTrigger asChild>
             <Button className="w-11/12">Ver detalhes</Button>
           </DialogTrigger>
-          <AddAppointmentForm
-            doctors={[]}
-            patients={[]}
-            isOpen={isUpsertAppointmentDialogOpen}
-            onSuccess={() => {}}
+          <UpsertAppointmentForm
+            doctors={doctors}
+            appointment={normalizeAppointmentData(appointment)}
+            onSuccess={() => setIsUpsertAppointmentDialogOpen(false)}
           />
         </Dialog>
-        {/* 
         <DropdownCard
-          onDeleteappointment={handleDeleteappointmentClick}
-          onSendNewPassword={handleSendNewPassword}
-        /> */}
+          appointmentId={appointment.id}
+          onDelete={handleDeleteAppointmentClick}
+          doctorId={appointment.doctor.id}
+        />
       </CardFooter>
     </Card>
   );

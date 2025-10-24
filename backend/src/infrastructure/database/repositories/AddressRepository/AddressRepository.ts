@@ -1,4 +1,4 @@
-import { eq, ilike, or } from "drizzle-orm";
+import { and, eq, ilike, or, sql } from "drizzle-orm";
 import { Address } from "../../../../domain/entities/EntityAddress/Address";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -37,16 +37,40 @@ export class AddressRepository implements IRepository {
                 )
             )
         return addressesFounded
-        
+
     }
-    updateEntity(entity: EntityDomain): Promise<any> {
-        throw new Error("Method not implemented.");
+    async updateEntity(address: Address, tx?: any): Promise<any> {
+        const dbUse = tx ? tx : db
+        return await dbUse.update(addressTable).set({
+            cep: address.cep,
+            name: address.nameAddress,
+            neighborhood: address.neighborhood,
+            number: address.number,
+            street: address.street,
+            updatedAt: address.getUpdatedAt()
+
+        }).where(
+            eq(addressTable.id, address.getUUIDHash())
+        ).returning()
     }
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    findAllEntity(entity?: EntityDomain): Promise<any[]> {
-        throw new Error("Method not implemented.");
+    async findAllEntity(address: Address, tx?: any) {
+        try {
+            const dbUse = tx ? tx : db
+            const filters = []
+
+            if (address.getUUIDHash()) filters.push(eq(addressTable.id, address.getUUIDHash()))
+            if (address.nameAddress) filters.push(ilike(addressTable.name, address.nameAddress))
+
+            const clause = filters.length > 1 ? and : or
+            return await dbUse.select().from(addressTable).where(
+                clause(...filters)
+            )
+        } catch (e) {
+            return ResponseHandler.error("Failed to find the address")
+        }
     }
 
 }

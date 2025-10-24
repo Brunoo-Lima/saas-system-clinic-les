@@ -1,4 +1,4 @@
-import { and, eq, or, sql } from "drizzle-orm";
+import { and, eq, or, SQL, sql } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Scheduling } from "../../../../domain/entities/EntityScheduling/Scheduling";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -8,6 +8,8 @@ import { IRepository } from "../IRepository";
 import { patientTable } from "../../Schema/PatientSchema";
 import { doctorTable } from "../../Schema/DoctorSchema";
 import { userTable } from "../../Schema/UserSchema";
+import { specialtyTable } from "../../Schema/SpecialtySchema";
+import { insuranceTable } from "../../Schema/InsuranceSchema";
 
 export class ConsultationSchedulingRepository implements IRepository {
     async create(scheduling: Scheduling, tx?: any): Promise<any> {
@@ -15,13 +17,12 @@ export class ConsultationSchedulingRepository implements IRepository {
         const schedulingInserted = await dbUse.insert(schedulingTable).values({
             id: scheduling.getUUIDHash(),
             date: (scheduling.date as Date),
-            dateOfConfirmation: scheduling.dateOfConfirmation?.toISOString() ?? new Date().toISOString() , // Alterar o schema para poder adicionar null
+            dateOfConfirmation: scheduling.dateOfConfirmation?.toISOString(), // Alterar o schema para poder adicionar null
             isReturn: scheduling.isReturn ?? false,
             dateOfRealizable: scheduling.dateOfRealizable ?? null,
             status: scheduling.status ?? "",
-            timeOfConsultation: scheduling.timeOfConsultation ?? "00:00:00",
             doctor_id: scheduling.doctor?.getUUIDHash(),
-            insurance_id:  scheduling.insurance?.getUUIDHash(),
+            insurance_id:  scheduling.insurance?.getUUIDHash() ?? null,
             patient_id: scheduling.patient?.getUUIDHash(),
             specialty_id: scheduling.specialty?.getUUIDHash(),
             priceOfConsultation: scheduling.priceOfConsultation ?? 0,
@@ -30,15 +31,42 @@ export class ConsultationSchedulingRepository implements IRepository {
         }).returning()
         return schedulingInserted;
     }
-    findEntity(entity: EntityDomain | Array<EntityDomain>, tx?: any): Promise<any> {
+    async findEntity(scheduling: Scheduling, tx?: any): Promise<any> {
+        const dbUse = tx ? tx : db
+        return await dbUse.select().from(schedulingTable).where(
+            eq(schedulingTable.id, scheduling.getUUIDHash())
+        )
+    }
+    async updateEntity(scheduling: Scheduling, tx?: any): Promise<any> {
+        try {
+            const dbUse = tx ? tx : db
+            const schedulingUpdated = await dbUse.update(schedulingTable).set({
+                date: scheduling.date,
+                dateOfConfirmation: scheduling.dateOfConfirmation?.toISOString() ?? undefined,
+                dateOfRealizable: scheduling.dateOfRealizable ?? undefined,
+                isReturn: scheduling.isReturn,
+                insurance_id: scheduling.insurance?.getUUIDHash() || undefined,
+                patient_id: scheduling.patient?.getUUIDHash() || undefined,
+                doctor_id: scheduling.doctor?.getUUIDHash() || undefined,
+                specialty_id: scheduling.specialty?.getUUIDHash() || undefined,
+                priceOfConsultation: scheduling.priceOfConsultation,
+                status: scheduling.status,
+                timeOfConsultation: scheduling.timeOfConsultation === "01:00:00" ? undefined : scheduling.timeOfConsultation,
+                updatedAt: scheduling.getUpdatedAt() ?? new Date().toISOString()
+            }).where(
+                eq(schedulingTable.id, scheduling.getUUIDHash())
+            ).returning()
+
+            return schedulingUpdated
+        } catch(e) {
+            console.log(e)
+            return ResponseHandler.error("Failed to update the scheduling.")
+        }
+    }
+    deleteEntity(scheduling: Scheduling, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    updateEntity(entity: EntityDomain | Array<EntityDomain>, tx?: any): Promise<any> {
-        throw new Error("Method not implemented.");
-    }
-    deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
-        throw new Error("Method not implemented.");
-    }
+
     async findAllEntity(scheduling: Scheduling, limit: number, offset: number){
         try {
             const filters = []
@@ -57,14 +85,32 @@ export class ConsultationSchedulingRepository implements IRepository {
             .select({
                 id: schedulingTable.id,
                 date: schedulingTable.date,
-                dateOfRealizable: schedulingTable.dateOfRealizable,
-                dateOfConfirmation: schedulingTable.dateOfConfirmation,
                 status: schedulingTable.status,
                 isReturn: schedulingTable.isReturn,
                 priceOfConsultation: schedulingTable.priceOfConsultation,
-                timeOfConsultation: schedulingTable.timeOfConsultation,
                 createdAt: schedulingTable.createdAt,
                 updatedAt: schedulingTable.updatedAt,
+                insurance: sql`
+                   (
+                     SELECT 
+                        json_build_object(
+                            'id', ${insuranceTable.id},
+                            'name', ${insuranceTable.name}
+                        )
+                    FROM ${insuranceTable}
+                    WHERE ${insuranceTable.id} = ${schedulingTable.insurance_id}
+                   )
+                `,
+                specialties: sql`(
+                    SELECT 
+                        json_build_object(
+                            'id', ${specialtyTable.id},
+                            'name', ${specialtyTable.name}
+                        )
+                    FROM ${specialtyTable}
+                    WHERE
+                        ${specialtyTable.id} = ${schedulingTable.specialty_id}
+                )`,
                 patient: sql`
                     (SELECT 
                         json_build_object(
@@ -106,7 +152,6 @@ export class ConsultationSchedulingRepository implements IRepository {
             .offset(offset)
 
         } catch(e){
-            console.log(e)
             return ResponseHandler.error("Failed to find all scheduling")
         }
     }

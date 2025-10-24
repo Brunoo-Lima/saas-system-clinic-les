@@ -18,6 +18,7 @@ import { CountryRepository } from "../../../../infrastructure/database/repositor
 import { DoctorRepository } from "../../../../infrastructure/database/repositories/DoctorRepository/DoctorRepository";
 import { findOrCreate } from "../../../../infrastructure/database/repositories/findOrCreate";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
+import { PeriodsRepository } from "../../../../infrastructure/database/repositories/PeriodsRepository/PeriodsRepository";
 import { StateRepository } from "../../../../infrastructure/database/repositories/StateRepository/StateRepository";
 import { UserRepository } from "../../../../infrastructure/database/repositories/UserRepository/UserRepository";
 import { DoctorDTO } from "../../../../infrastructure/DTOs/DoctorDTO";
@@ -30,6 +31,7 @@ export class CreateDoctorService {
     private stateRepository: IRepository;
     private cityRepository: IRepository;
     private userRepository: IRepository;
+    private periodRepository: IRepository;
 
     constructor() {
         this.repository = new DoctorRepository()
@@ -38,6 +40,7 @@ export class CreateDoctorService {
         this.stateRepository = new StateRepository()
         this.cityRepository = new CityRepository()
         this.userRepository = new UserRepository()
+        this.periodRepository = new PeriodsRepository()
     }
     async execute(doctorDTO: DoctorDTO) {
         try {
@@ -69,12 +72,15 @@ export class CreateDoctorService {
                 const userInserted = await this.userRepository.create(doctorDomain.user as User, tx)
                 const { password, ...userOmitted } = userInserted.data
                 const doctorInserted = await this.repository.create(doctorDomain, tx);
-
+                const periodsInserted = await this.periodRepository.create(doctorDomain.periodToWork ?? [], tx, doctorDomain.getUUIDHash())
                 // Disparo do email para a fila.
+                
+                userInserted.data.template = "welcome"
                 await queueClient.add("welcome_email", userInserted.data)
 
                 return ResponseHandler.success({
                     doctor: doctorInserted[0],
+                    periods: periodsInserted[0],
                     address: addressInserted[0],
                     user: userOmitted
                 }, "Entities inserted !")

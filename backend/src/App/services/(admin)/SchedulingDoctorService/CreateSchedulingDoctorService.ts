@@ -75,6 +75,7 @@ export class CreateSchedulingDoctorService{
             })
 
             if(!Array.isArray(entitiesInserted.datesBlocked) || !entitiesInserted.scheduling) return ResponseHandler.error("The all entities cannot be created !")
+            
             return ResponseHandler.success(entitiesInserted, "Success ! Doctor Scheduling is opened.")
         } catch(e) {
             return ResponseHandler.error((e as Error).message)

@@ -4,9 +4,7 @@ export const appointmentFormSchema = z.object({
   specialtyId: z.string().min(1, {
     message: 'Especialidade é obrigatória.',
   }),
-  insuranceId: z.string().min(1, {
-    message: 'Convênio é obrigatório.',
-  }),
+  insuranceId: z.string().optional().nullable(),
   patientId: z.string().min(1, {
     message: 'Paciente é obrigatório.',
   }),

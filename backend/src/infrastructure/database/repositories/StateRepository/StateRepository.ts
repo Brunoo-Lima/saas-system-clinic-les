@@ -32,8 +32,15 @@ export class StateRepository implements IRepository{
         )
         return statesFounded[0]?.state
     }
-    updateEntity(entity: EntityDomain): Promise<any> {
-        throw new Error("Method not implemented.");
+    async updateEntity(state: State, tx?: any): Promise<any> {
+        const dbUse = tx ? tx : db
+        return await dbUse.update(stateTable).set({
+            name: state.name,
+            uf: state.uf
+        }).where(
+            eq(stateTable.id, state.getUUIDHash())
+        )
+        .returning()
     }
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
         throw new Error("Method not implemented.");

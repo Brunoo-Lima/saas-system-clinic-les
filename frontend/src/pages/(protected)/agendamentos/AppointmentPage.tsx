@@ -15,10 +15,13 @@ import { useNavigate } from 'react-router-dom';
 import { CardAppointment } from './_components/card-appointment';
 import { PaginationComponent } from '@/components/pagination-component';
 import { useAppointment } from '@/hooks/use-appointment';
+import { useGetDoctors } from '@/services/doctor-service';
 
 export default function AppointmentPage() {
   const { paginatedData, page, totalPages, handlePage } = useAppointment();
   const navigate = useNavigate();
+
+  const { data: doctors } = useGetDoctors();
 
   useEffect(() => {
     document.title = 'Agendamentos';
@@ -35,7 +38,7 @@ export default function AppointmentPage() {
         </PageHeaderContent>
 
         <PageActions>
-          <AddAppointmentButton patients={[]} doctors={[]} />
+          <AddAppointmentButton doctors={doctors} />
           <Button
             type="button"
             variant="outline"
@@ -54,6 +57,7 @@ export default function AppointmentPage() {
                 <CardAppointment
                   key={appointment.id}
                   appointment={appointment}
+                  doctors={doctors}
                 />
               ))}
             </Suspense>

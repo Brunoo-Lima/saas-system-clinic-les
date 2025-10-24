@@ -3,7 +3,7 @@ import { IUserRepository } from "./IUserRepository";
 import db from "../../connection";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { randomUUID } from "crypto";
-import { eq, or } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { userTable } from "../../Schema/UserSchema";
 import { IRepository } from "../IRepository";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
@@ -11,7 +11,7 @@ import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 export class UserRepository implements IRepository {
 
   async create(user: User, tx?: any) {
- 
+
     const dbUse = tx ? tx : db
     const userInserted = await dbUse
       .insert(userTable)
@@ -34,7 +34,7 @@ export class UserRepository implements IRepository {
       userInserted[0],
       "User created successfully."
     );
-  
+
   }
   async getUserByEmail(email: string): Promise<any> {
     try {
@@ -49,31 +49,34 @@ export class UserRepository implements IRepository {
     }
   }
   async findEntity(user: User): Promise<any> {
-    
+
     const userFounded = await db
       .select()
       .from(userTable)
       .where(
         or(
           eq(userTable.id, user.getUUIDHash() ?? ""),
-          eq(userTable.email, user.email!)
+          and(
+            eq(userTable.email, user.email!),
+            eq(userTable.password, user.password ?? "")
+          )
         )
       )
     return userFounded[0] || null;
   }
   async updateEntity(user: User) {
     const userUpdated = await db.update(userTable)
-    .set({
-      avatar: user.avatar,
-      email: user.email,
-      password: user.password,
-      profileCompleted: user.profileCompleted,
-      status: user.status,
-      emailVerified: user.emailVerified,
-      updatedAt: user.getUpdatedAt()
-    }).where(
-      eq(userTable.id, user.getUUIDHash())
-    ).returning()
+      .set({
+        avatar: user.avatar,
+        email: user.email,
+        password: user.password,
+        profileCompleted: user.profileCompleted,
+        status: user.status,
+        emailVerified: user.emailVerified,
+        updatedAt: user.getUpdatedAt()
+      }).where(
+        eq(userTable.id, user.getUUIDHash())
+      ).returning()
     return userUpdated
   }
   deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
