@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
-import { format, parse } from 'date-fns';
-import { useState } from 'react';
+import { format, parse, isValid } from 'date-fns';
+import { useState, useEffect } from 'react';
 
 const InputDate = ({
   value,
@@ -17,9 +17,19 @@ const InputDate = ({
     value ? format(value, 'dd/MM/yyyy') : '',
   );
 
+  // Sincroniza o inputValue quando o value prop muda
+  useEffect(() => {
+    if (value && isValid(value)) {
+      setInputValue(format(value, 'dd/MM/yyyy'));
+    } else if (!value) {
+      setInputValue('');
+    }
+  }, [value]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '');
 
+    // Aplica a formatação DD/MM/AAAA
     if (value.length > 2) {
       value = value.substring(0, 2) + '/' + value.substring(2);
     }
@@ -29,10 +39,11 @@ const InputDate = ({
 
     setInputValue(value);
 
+    // Tenta fazer o parse apenas quando a data estiver completa
     if (value.length === 10) {
       try {
         const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
-        if (!isNaN(parsedDate.getTime())) {
+        if (isValid(parsedDate)) {
           onChange(parsedDate);
         } else {
           onChange(undefined);
@@ -46,20 +57,35 @@ const InputDate = ({
   };
 
   const handleBlur = () => {
-    if (inputValue.length === 10) {
-      try {
-        const parsedDate = parse(inputValue, 'dd/MM/yyyy', new Date());
-        if (isNaN(parsedDate.getTime())) {
-          setInputValue('');
-          onChange(undefined);
-        }
-      } catch {
+    // Se o input estiver vazio, não faz nada
+    if (!inputValue.trim()) {
+      return;
+    }
+
+    // Se não está completo, limpa o campo
+    if (inputValue.length < 10) {
+      setInputValue('');
+      onChange(undefined);
+      return;
+    }
+
+    // Se está completo, valida a data
+    try {
+      const parsedDate = parse(inputValue, 'dd/MM/yyyy', new Date());
+      if (!isValid(parsedDate)) {
         setInputValue('');
         onChange(undefined);
       }
-    } else if (inputValue.length > 0 && inputValue.length < 10) {
+    } catch {
       setInputValue('');
       onChange(undefined);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Permite apagar normalmente
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      return;
     }
   };
 
@@ -69,6 +95,7 @@ const InputDate = ({
       value={inputValue}
       onChange={handleChange}
       onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
       placeholder={placeholder || 'DD/MM/AAAA'}
       maxLength={10}
       className={cn(

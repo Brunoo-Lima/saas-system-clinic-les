@@ -14,7 +14,7 @@ export interface IAppointmentPayload {
   patient: {
     id: string;
   };
-  insurance: {
+  insurance?: {
     id: string;
   };
   specialty: {
@@ -57,13 +57,10 @@ interface IAppointmentGet {
 export interface IAppointmentReturn {
   id: string;
   date: string;
-  dateOfRealizable: string | null;
-  dateOfConfirmation: string;
   status: string;
   isReturn: boolean;
   priceOfConsultation: number;
-  timeOfConsultation: string;
-  specialties: {
+  specialties?: {
     id: string;
     name: string;
   };
@@ -83,6 +80,10 @@ export interface IAppointmentReturn {
     cpf: string;
     sex: 'Male' | 'Female';
     dateOfBirth: string;
+  };
+  insurance: {
+    id: string;
+    name: string;
   };
 }
 
@@ -110,5 +111,36 @@ export const useGetAppointments = (params?: IAppointmentGet) => {
   return useQuery<IAppointmentReturn[]>({
     queryKey: ['appointments', params],
     queryFn: () => getAppointmentService(params || {}),
+  });
+};
+
+interface IUpdateAppointment {
+  id: string;
+  appointment: IAppointmentPayload;
+}
+
+export const updateAppointmentService = async ({
+  id,
+  appointment,
+}: IUpdateAppointment) => {
+  const { data } = await api.patch(`/scheduling/?id=${id}`, appointment);
+
+  if (data.success === false) {
+    throw new Error(data.message || 'Erro ao atualizar agendamento.');
+  }
+  return data;
+};
+
+export const useUpdateAppointment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateAppointmentService,
+    onSuccess: () => {
+      toast.success('Agendamento atualizado com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Erro ao atualizar agendamento.');
+    },
   });
 };

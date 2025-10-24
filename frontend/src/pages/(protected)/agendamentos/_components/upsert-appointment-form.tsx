@@ -42,32 +42,31 @@ import {
   type AppointmentFormSchema,
 } from '@/validations/appointment-form-schema';
 import type { IDoctor } from '@/@types/IDoctor';
-import type { IAppointment } from '@/@types/IAppointment';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Switch } from '@/components/ui/switch';
-import { getAppointmentDefaultValues } from './_helpers/get-appointment-default-values';
 import { useGetSpecialties } from '@/services/specialty-service';
 import { useGetAllPatients } from '@/services/patient-service';
 import { useGetAllInsurances } from '@/services/insurance-service';
-import { useCreateAppointment } from '@/services/appointment-service';
+import {
+  useCreateAppointment,
+  useUpdateAppointment,
+} from '@/services/appointment-service';
 import { formatDateToBackend } from '../../agenda/utilities/utilities';
 import { useGetAgenda } from '@/services/agenda-service';
+import type { IAppointment } from '@/@types/IAppointment';
+import { getAppointmentDefaultValues } from './_helpers/get-appointment-default-values';
 
-interface IAddAppointmentFormProps {
-  isOpen: boolean;
+interface IUpsertAppointmentFormProps {
   doctors: IDoctor[];
   appointment?: IAppointment;
   onSuccess: () => void;
 }
 
-export const AddAppointmentForm = ({
+export const UpsertAppointmentForm = ({
   appointment,
   doctors,
   onSuccess,
-  isOpen,
-}: IAddAppointmentFormProps) => {
-  const [hasInsurance, setHasInsurance] = useState<boolean>(false);
+}: IUpsertAppointmentFormProps) => {
   const [availableHours, setAvailableHours] = useState<string[]>([]);
   const form = useForm<AppointmentFormSchema>({
     shouldUnregister: true,
@@ -82,8 +81,9 @@ export const AddAppointmentForm = ({
   const { data: specialties } = useGetSpecialties();
   const { data: patients } = useGetAllPatients();
   const { data: insurances } = useGetAllInsurances();
-  const { mutate, isPending } = useCreateAppointment();
+  const { mutate: createAppointment, isPending } = useCreateAppointment();
   const { data: agenda } = useGetAgenda(selectedDoctorId);
+  const { mutate: updateAppointment } = useUpdateAppointment();
 
   const doctorsFiltered = useMemo(() => {
     if (!selectedSpecialtyId) return doctors;
@@ -123,18 +123,6 @@ export const AddAppointmentForm = ({
     );
   }, [activeAgenda]);
 
-  // DEBUG: Verificar os dados processados
-  console.log('activeAgenda', activeAgenda);
-  console.log('agendaPeriods', agendaPeriods);
-  console.log('blockedDates', blockedDates);
-  console.log('selectedSpecialtyId', selectedSpecialtyId);
-
-  useEffect(() => {
-    if (isOpen) {
-      form.reset(getAppointmentDefaultValues(appointment));
-    }
-  }, [isOpen, form, appointment]);
-
   // useEffect para resetar o médico quando a especialidade mudar
   useEffect(() => {
     if (selectedSpecialtyId && form.getValues('doctorId')) {
@@ -154,7 +142,11 @@ export const AddAppointmentForm = ({
   useEffect(() => {
     if (!selectedDate || agendaPeriods.length === 0) {
       setAvailableHours([]);
-      form.setValue('hour', '');
+
+      if (!appointment) {
+        form.setValue('hour', '');
+      }
+
       return;
     }
 
@@ -233,7 +225,7 @@ export const AddAppointmentForm = ({
       setAvailableHours([]);
       form.setValue('hour', '');
     }
-  }, [selectedDate, agendaPeriods, blockedDates, form]);
+  }, [selectedDate, agendaPeriods, blockedDates, form, appointment]);
 
   // Função para verificar se uma data está bloqueada
   const isDateBlocked = (date: Date) => {
@@ -262,13 +254,17 @@ export const AddAppointmentForm = ({
     return !agendaPeriods.some((p) => p.dayWeek === dayOfWeek);
   };
 
+  useEffect(() => {
+    console.log(form.formState.errors);
+  }, [form.formState.errors]);
+
   const onSubmit = (values: AppointmentFormSchema) => {
     try {
       const payload = {
         date: formatDateToBackend(values.date as Date),
         hour: `${values.hour}:00`, // Adiciona os segundos
         priceOfConsultation: values.priceOfConsultation,
-        isReturn: values.isReturn || false,
+        isReturn: !!values.isReturn || false,
         status: 'PENDING', // Valor padrão
         doctor: {
           id: values.doctorId,
@@ -280,19 +276,32 @@ export const AddAppointmentForm = ({
           id: values.specialtyId,
         },
         insurance: {
-          id: values.insuranceId,
+          id: values.insuranceId || '',
         },
       };
 
       console.log('payload', payload);
 
-      mutate(payload, {
-        onSuccess: () => {
-          onSuccess();
-        },
-      });
+      if (appointment) {
+        updateAppointment(
+          { id: appointment.id, appointment: { ...payload } },
+          {
+            onSuccess: () => {
+              toast.success('Agendamento atualizado com sucesso!');
+              onSuccess();
+            },
+          },
+        );
+      } else {
+        createAppointment(payload, {
+          onSuccess: () => {
+            toast.success('Agendamento criado com sucesso!');
+            onSuccess();
+          },
+        });
+      }
     } catch (error) {
-      toast.error('Erro ao criar agendamento.');
+      toast.error('Erro ao salvar agendamento.');
     }
   };
 
@@ -373,46 +382,44 @@ export const AddAppointmentForm = ({
             )}
           />
 
-          <div className="flex items-center gap-x-2">
-            <p>Convênio?</p>
-            <Switch
+          {/* <div className="flex items-center gap-x-2"> */}
+          {/* <p>Convênio?</p> */}
+          {/* <Switch
               checked={hasInsurance}
               onCheckedChange={() => setHasInsurance(!hasInsurance)}
             />
-          </div>
+          </div> */}
 
-          {hasInsurance && (
-            <FormField
-              control={form.control}
-              name="insuranceId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Convênio</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Selecione um convênio" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {insurances?.map((insurance) => (
-                        <SelectItem
-                          key={insurance.id}
-                          value={insurance.id.toString()}
-                        >
-                          {insurance.type}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
+          <FormField
+            control={form.control}
+            name="insuranceId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Convênio (opcional)</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value || ''}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione um convênio" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {insurances?.map((insurance) => (
+                      <SelectItem
+                        key={insurance.id}
+                        value={insurance.id.toString()}
+                      >
+                        {insurance.type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}
@@ -554,10 +561,22 @@ export const AddAppointmentForm = ({
             )}
           />
 
-          <div className="flex items-center gap-x-3">
-            <Checkbox id="isReturn" {...form.register('isReturn')} />
-            <label htmlFor="isReturn">Retorno?</label>
-          </div>
+          <FormField
+            control={form.control}
+            name="isReturn"
+            render={({ field }) => (
+              <FormItem className="flex items-center gap-x-3">
+                <Checkbox
+                  id="isReturn"
+                  checked={field.value || false}
+                  onCheckedChange={(checked) =>
+                    field.onChange(Boolean(checked))
+                  }
+                />
+                <label htmlFor="isReturn">Retorno?</label>
+              </FormItem>
+            )}
+          />
 
           <DialogFooter>
             <Button type="submit" disabled={isPending}>

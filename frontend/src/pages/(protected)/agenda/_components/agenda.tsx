@@ -11,7 +11,11 @@ import { CardAppointment } from './card-appointment';
 import { CardAgenda } from './card-agenda';
 import type { IAgendaRequest, IAvailabilitySettings } from '@/@types/IAgenda';
 import { formatDateToBackend } from '../utilities/utilities';
-import { useCreateAgenda, useGetAgenda } from '@/services/agenda-service';
+import {
+  useCreateAgenda,
+  useGetAgenda,
+  useUpdateAgenda,
+} from '@/services/agenda-service';
 import { toast } from 'sonner';
 import { useGetAppointments } from '@/services/appointment-service';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
@@ -94,6 +98,8 @@ export function Agenda({ doctorId }: IAgendaProps) {
 
   const { mutate: createAgenda, isPending: isCreatingAgenda } =
     useCreateAgenda();
+  const { mutate: updateAgenda, isPending: isUpdatingAgenda } =
+    useUpdateAgenda();
   const { data: doctors } = useGetDoctors({ id: doctorId });
 
   const currentDoctorId = doctorId || '';
@@ -147,33 +153,85 @@ export function Agenda({ doctorId }: IAgendaProps) {
   }, [existingAgendas, doctors]);
 
   const handleSaveAgenda = (dateFrom: Date, dateTo: Date) => {
-    const agendaData: IAgendaRequest = {
-      dateFrom: formatDateToBackend(dateFrom),
-      dateTo: formatDateToBackend(dateTo),
-      doctor: {
-        id: doctorId || '',
-      },
-    };
+    const changes: Partial<IAgendaRequest> = {};
 
-    // Adiciona datesBlocked apenas se houver datas bloqueadas
-    if (availabilitySettings.blockedDates.length > 0) {
-      // mapeia para o formato do backend
-      agendaData.datesBlocked = availabilitySettings.blockedDates.map(
-        (blocked) => ({
-          date: blocked.date,
-          reason: blocked.reason,
-        }),
-      );
+    // Pega a agenda atual para comparar
+    const currentAgenda = existingAgendas?.[0];
+
+    // Só envia dateFrom se mudou
+    const newDateFrom = formatDateToBackend(dateFrom);
+    if (!currentAgenda || currentAgenda.dateFrom !== newDateFrom) {
+      changes.dateFrom = newDateFrom;
     }
 
-    createAgenda(agendaData, {
-      onSuccess: () => {
-        toast.success('Agenda salva com sucesso!');
-      },
-      onError: (error: any) => {
-        toast.error(error.message || 'Erro ao salvar agenda');
-      },
-    });
+    // Só envia dateTo se mudou
+    const newDateTo = formatDateToBackend(dateTo);
+    if (!currentAgenda || currentAgenda.dateTo !== newDateTo) {
+      changes.dateTo = newDateTo;
+    }
+
+    // Só envia datesBlocked se mudou
+    const currentBlockedDates =
+      currentAgenda?.datesBlocked?.map((b) => ({
+        date: b.dateBlocked,
+        reason: b.reason,
+      })) || [];
+
+    const newBlockedDates = availabilitySettings.blockedDates.map(
+      (blocked) => ({
+        date: blocked.date,
+        reason: blocked.reason,
+      }),
+    );
+
+    // Compara se os blockedDates mudaram (comparação simples)
+    if (
+      JSON.stringify(currentBlockedDates) !== JSON.stringify(newBlockedDates)
+    ) {
+      changes.datesBlocked = newBlockedDates;
+    }
+
+    // Só envia se realmente há mudanças
+    if (Object.keys(changes).length === 0) {
+      toast.info('Nenhuma alteração detectada');
+      return;
+    }
+
+    console.log('📤 Mudanças detectadas:', changes);
+
+    if (hasNoAgendaData) {
+      createAgenda(
+        {
+          dateFrom: newDateFrom,
+          dateTo: newDateTo,
+          doctor: { id: doctorId || '' },
+          datesBlocked: newBlockedDates,
+        },
+        {
+          onSuccess: () => {
+            toast.success('Agenda criada com sucesso!');
+          },
+          onError: (error: any) => {
+            toast.error(error.message || 'Erro ao criar agenda');
+          },
+        },
+      );
+    } else {
+      updateAgenda(
+        {
+          doctorId: currentDoctorId,
+          agenda: changes,
+        },
+        {
+          onSuccess: () => {
+            toast.success('Agenda atualizada com sucesso!');
+          },
+          onError: (error: any) => {
+            toast.error(error.message || 'Erro ao atualizar agenda');
+          },
+        },
+      );
+    }
   };
 
   const saveAgenda = () => {
@@ -208,20 +266,24 @@ export function Agenda({ doctorId }: IAgendaProps) {
     return availabilitySettings.workingDays[dayName];
   };
 
+  const isSaving = isCreatingAgenda || isUpdatingAgenda;
+
   return (
     <div className="container mx-auto max-w-7xl">
       <div className="flex justify-end mb-4">
-        {hasNoAgendaData && (
-          <div className="flex justify-end mb-4">
-            <button
-              onClick={saveAgenda}
-              disabled={isCreatingAgenda}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-            >
-              {isCreatingAgenda ? 'Salvando...' : 'Salvar Agenda'}
-            </button>
-          </div>
-        )}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={saveAgenda}
+            disabled={isSaving}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+          >
+            {isSaving
+              ? 'Salvando...'
+              : hasNoAgendaData
+              ? 'Criar Agenda'
+              : 'Atualizar Agenda'}
+          </button>
+        </div>
       </div>
 
       {dateFrom && dateTo && (

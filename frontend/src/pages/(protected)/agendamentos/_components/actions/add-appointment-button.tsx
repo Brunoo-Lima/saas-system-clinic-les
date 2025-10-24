@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 
 import type { IDoctor } from '@/@types/IDoctor';
-import { AddAppointmentForm } from '../add-appointment-form';
+import { UpsertAppointmentForm } from '../upsert-appointment-form';
 
 interface IAddAppointmentButtonProps {
   doctors: IDoctor[];
@@ -25,8 +25,7 @@ export const AddAppointmentButton = ({
         </Button>
       </DialogTrigger>
 
-      <AddAppointmentForm
-        isOpen={isOpen}
+      <UpsertAppointmentForm
         doctors={doctors}
         onSuccess={() => setIsOpen(false)}
       />

@@ -11,12 +11,13 @@ import { Separator } from '@/components/ui/separator';
 import { CalendarIcon, DollarSignIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { AddAppointmentForm } from './add-appointment-form';
 import type { IAppointmentReturn } from '@/services/appointment-service';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { DropdownCard } from './actions/dropdown-card';
 import { toast } from 'sonner';
 import type { IDoctor } from '@/@types/IDoctor';
+import { UpsertAppointmentForm } from './upsert-appointment-form';
+import { normalizeAppointmentData } from './_helpers/normalize-appointment';
 
 interface ICardAppointmentProps {
   appointment: IAppointmentReturn;
@@ -64,12 +65,18 @@ export const CardAppointment = ({
     toast.success('Agendamento deletado com sucesso.');
   };
 
+  const dateString = appointment?.date ?? '';
+  const hasTimePart = dateString.includes('T');
+  const hour = hasTimePart ? dateString.split('T')[1].slice(0, 5) : '';
+
+  const formattedDate = format(parseISO(appointment.date), 'dd/MM/yyyy');
+
   return (
     <Card className="sm:min-w-[350px] w-[450px]">
       <CardHeader>
         <div className="flex flex-col gap-2">
           <h2 className="text-lg font-semibold">
-            Agendamento: {appointment.specialties.name}
+            Agendamento: {appointment.specialties?.name}
           </h2>
           <p className="text-sm font-medium">
             Médico: {appointment.doctor.name}
@@ -83,8 +90,8 @@ export const CardAppointment = ({
       <CardContent className="flex flex-col gap-2">
         <Badge variant="outline">
           <CalendarIcon className="mr-1" />
-          {getDayOfWeekFromDate(appointment.date)} - Data:{' '}
-          {format(new Date(appointment.date), 'dd/MM/yyyy - HH:mm')}
+          {getDayOfWeekFromDate(appointment.date)} - Data: {formattedDate} -{' '}
+          {hour}
         </Badge>
 
         <Badge variant="outline">
@@ -94,6 +101,8 @@ export const CardAppointment = ({
             currency: 'BRL',
           }).format(appointment.priceOfConsultation)}
         </Badge>
+
+        <Badge variant="outline">Forma de pagamento:</Badge>
 
         <Badge variant="outline">
           Status: {formatStatus(appointment.status)}
@@ -113,9 +122,9 @@ export const CardAppointment = ({
           <DialogTrigger asChild>
             <Button className="w-11/12">Ver detalhes</Button>
           </DialogTrigger>
-          <AddAppointmentForm
+          <UpsertAppointmentForm
             doctors={doctors}
-            isOpen={isUpsertAppointmentDialogOpen}
+            appointment={normalizeAppointmentData(appointment)}
             onSuccess={() => {}}
           />
         </Dialog>
