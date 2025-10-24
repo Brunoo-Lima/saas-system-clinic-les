@@ -25,20 +25,10 @@ import { useEffect, useState, type ChangeEvent } from 'react';
 import type { IDoctor } from '@/@types/IDoctor';
 import { toast } from 'sonner';
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
-
 import { getDoctorDefaultValues } from '../_helpers/get-doctor-default-values';
 import FormSelectCustom from '@/components/ui/form-custom/form-select-custom';
 import FormInputPhoneCustom from '@/components/ui/form-custom/form-input-phone-custom';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { CalendarIcon, RefreshCcwIcon } from 'lucide-react';
-import { Calendar } from '@/components/ui/calendar';
+import { RefreshCcwIcon } from 'lucide-react';
 import { InputPassword } from '@/components/ui/input-password';
 import { formatCPF } from '@/utils/format-cpf';
 import { Input } from '@/components/ui/input';
@@ -55,6 +45,7 @@ import {
 import { formatCEP } from '@/utils/format-cep';
 import { brazilianStates } from '@/utils/brazilian-states';
 import { useCreateDoctor } from '@/services/doctor-service';
+import InputDate from '@/components/ui/input-date';
 
 interface IUpsertDoctorFormProps {
   doctor?: IDoctor;
@@ -102,7 +93,7 @@ export const UpsertDoctorForm = ({
     }
   }, [isOpen, form, doctor]);
 
-  // Adicione este useEffect para sincronizar as especialidades
+  // sincroniza as especialidades
   useEffect(() => {
     form.setValue(
       'specialties',
@@ -110,7 +101,7 @@ export const UpsertDoctorForm = ({
     );
   }, [selectedSpecialties, form]);
 
-  // E este para sincronizar os períodos quando especialidades são removidas
+  // sincroniza os períodos quando especialidades são removidas
   useEffect(() => {
     const currentPeriods = form.getValues('periodToWork') || [];
     const filteredPeriods = currentPeriods.filter((period) =>
@@ -210,7 +201,6 @@ export const UpsertDoctorForm = ({
 
       mutate(payload as any, {
         onSuccess: () => {
-          toast.success('Médico salvo com sucesso.');
           onSuccess();
         },
       });
@@ -281,10 +271,29 @@ export const UpsertDoctorForm = ({
               name="percentDistribution"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Valor de repasse</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="120" {...field} />
-                  </FormControl>
+                  <FormLabel>Porcentagem de repasse</FormLabel>
+                  <Select
+                    onValueChange={(value) => field.onChange(parseFloat(value))}
+                    defaultValue={field.value?.toString()}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-32">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="w-32">
+                      <SelectItem value="0.1">10%</SelectItem>
+                      <SelectItem value="0.2">20%</SelectItem>
+                      <SelectItem value="0.3">30%</SelectItem>
+                      <SelectItem value="0.4">40%</SelectItem>
+                      <SelectItem value="0.5">50%</SelectItem>
+                      <SelectItem value="0.6">60%</SelectItem>
+                      <SelectItem value="0.7">70%</SelectItem>
+                      <SelectItem value="0.8">80%</SelectItem>
+                      <SelectItem value="0.9">90%</SelectItem>
+                      <SelectItem value="1.0">100%</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -536,50 +545,13 @@ export const UpsertDoctorForm = ({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Data de Nascimento</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            'w-full pl-3 text-left font-normal',
-                            !field.value && 'text-muted-foreground',
-                          )}
-                        >
-                          {field.value ? (
-                            // Converter para Date antes de formatar
-                            format(
-                              field.value instanceof Date
-                                ? field.value
-                                : new Date(field.value),
-                              'PPP',
-                              { locale: ptBR },
-                            )
-                          ) : (
-                            <span>Selecione uma data</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={
-                          field.value instanceof Date
-                            ? field.value
-                            : field.value
-                            ? new Date(field.value)
-                            : undefined
-                        }
-                        onSelect={field.onChange}
-                        disabled={(date: Date) =>
-                          date > new Date() || date < new Date('1900-01-01')
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <FormControl>
+                    <InputDate
+                      value={field.value ? new Date(field.value) : undefined}
+                      onChange={(date) => field.onChange(date)}
+                      placeholder="DD/MM/AAAA"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

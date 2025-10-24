@@ -52,7 +52,7 @@ export default function SpecialtiesPage() {
         <div className="flex md:justify-between justify-start gap-2  flex-wrap md:flex-nowrap ">
           <InputSearch
             className="md:w-96 w-full"
-            placeholder="Buscar convênio"
+            placeholder="Buscar especialidade"
             value={searchTerm}
             onChange={handleSearch}
           />

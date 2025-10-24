@@ -34,16 +34,8 @@ import {
 import { Switch } from '@/components/ui/switch';
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
 import FormSelectCustom from '@/components/ui/form-custom/form-select-custom';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { CalendarIcon, RefreshCcwIcon } from 'lucide-react';
-import { Calendar } from '@/components/ui/calendar';
+
+import { RefreshCcwIcon } from 'lucide-react';
 import { InputPassword } from '@/components/ui/input-password';
 import type { IPatient } from '@/@types/IPatient';
 import { getPatientDefaultValues } from '../_helpers/get-patient-default-values';
@@ -54,6 +46,7 @@ import {
 import { formatCPF } from '@/utils/format-cpf';
 import { brazilianStates } from '@/utils/brazilian-states';
 import { formatCEP } from '@/utils/format-cep';
+import InputDate from '@/components/ui/input-date';
 
 interface IUpsertPatientFormProps {
   isOpen: boolean;
@@ -274,50 +267,13 @@ export const UpsertPatientForm = ({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Data de Nascimento</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            'w-full pl-3 text-left font-normal',
-                            !field.value && 'text-muted-foreground',
-                          )}
-                        >
-                          {field.value ? (
-                            // Converter para Date antes de formatar
-                            format(
-                              field.value instanceof Date
-                                ? field.value
-                                : new Date(field.value),
-                              'PPP',
-                              { locale: ptBR },
-                            )
-                          ) : (
-                            <span>Selecione uma data</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={
-                          field.value instanceof Date
-                            ? field.value
-                            : field.value
-                            ? new Date(field.value)
-                            : undefined
-                        }
-                        onSelect={field.onChange}
-                        disabled={(date: Date) =>
-                          date > new Date() || date < new Date('1900-01-01')
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <FormControl>
+                    <InputDate
+                      value={field.value ? new Date(field.value) : undefined}
+                      onChange={(date) => field.onChange(date)}
+                      placeholder="DD/MM/AAAA"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
