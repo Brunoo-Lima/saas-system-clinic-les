@@ -28,7 +28,7 @@ export class SchedulingDoctorRepository implements IRepository {
         const filters = []
 
         if (schedulingDoctor.getUUIDHash()) filters.push(eq(doctorSchedulingTable.id, schedulingDoctor.getUUIDHash() ?? ""),)
-        if (schedulingDoctor.doctor?.getUUIDHash()) filters.push(eq(doctorTable.id, schedulingDoctor.doctor?.getUUIDHash() ?? ""),)
+        if (schedulingDoctor.doctor?.getUUIDHash()) filters.push(eq(doctorTable.id, schedulingDoctor.doctor?.getUUIDHash() ?? ""))
         if (schedulingDoctor.doctor?.crm) filters.push(eq(doctorTable.crm, schedulingDoctor.doctor?.crm ?? ""),)
         if (schedulingDoctor.doctor?.cpf) filters.push(eq(doctorTable.cpf, schedulingDoctor.doctor?.cpf ?? ""))
 
@@ -65,8 +65,6 @@ export class SchedulingDoctorRepository implements IRepository {
                     or(...filters)
                 )
             )
-            .limit(1); // garante apenas um resultado
-
         return schedulingDoctorFounded[0] ?? null;
     }
 

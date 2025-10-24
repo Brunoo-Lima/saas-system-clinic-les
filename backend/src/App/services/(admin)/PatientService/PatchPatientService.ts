@@ -7,6 +7,7 @@ import { EntityExistsToUpdated } from "../../../../domain/validators/General/Ent
 import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
+import db from "../../../../infrastructure/database/connection";
 import { AddressRepository } from "../../../../infrastructure/database/repositories/AddressRepository/AddressRepository";
 import { CardInsuranceRepository } from "../../../../infrastructure/database/repositories/CardInsuranceRepository/CardInsuranceRepository";
 import { CityRepository } from "../../../../infrastructure/database/repositories/CityRepository/CityRepository";
@@ -35,11 +36,10 @@ export class PatchPatientService {
     }
     async execute(patientDTO: PatientDTO, id: string | undefined) {
         try {
-            const returned = {
-                deleted: {},
-                updated: {}
-            }
+
             const patientDomain = PatientFactory.createFromDTO(patientDTO)
+            patientDomain.setUuidHash(id ?? "")
+
             const address = patientDomain?.address
             const city = address?.city
             const state = city?.state
@@ -85,7 +85,18 @@ export class PatchPatientService {
                 ])
                 const cardInsuranceIsValid = await validator.process(`${cardInsurances[0].constructor.name}`, cardInsurances, this.cardInsuranceRepository)
                 if (!cardInsuranceIsValid.success) return cardInsuranceIsValid
+                
             }
+
+           const entitiesUpdated = await db.transaction(async (tx) => {
+                if(city?.getUUIDHash()) await this.cityRepository.updateEntity(city, tx)
+                if(state?.getUUIDHash()) await this.cityRepository.updateEntity(state, tx)
+                if(country?.getUUIDHash()) await this.cityRepository.updateEntity(country, tx)
+                if(address?.getUUIDHash()) await this.addressRepository.updateEntity(address, tx)
+                if(cardInsurances[0]) await this.cardInsuranceRepository.updateEntity(cardInsurances, tx)
+                
+                const patientUpdated = await this.repository.updateEntity(patientDomain, tx)
+           })
 
         } catch (e) {
             return ResponseHandler.error((e as Error))
