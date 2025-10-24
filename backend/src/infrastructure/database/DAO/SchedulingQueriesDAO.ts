@@ -9,40 +9,38 @@ import { patientTable } from "../Schema/PatientSchema";
 import { userTable } from "../Schema/UserSchema";
 import { doctorTable } from "../Schema/DoctorSchema";
 import { specialtyTable } from "../Schema/SpecialtySchema";
-import { addressTable } from "../Schema/AddressSchema";
 
 export class SchedulingQueriesDAO {
-    async schedulingPerDoctor(scheduling: Scheduling, tx?: NodePgDatabase<Record<string, never>> & {$client: Pool}){
+    async schedulingPerDoctor(scheduling: Scheduling, tx?: NodePgDatabase<Record<string, never>> & { $client: Pool }) {
         try {
+
             const dbUse = tx ? tx : db
             const timeOfConsultation = `${scheduling.timeOfConsultation ?? 1} hour`
-            console.log(scheduling.date)
             const sqlCreated = sql`
-                ${schedulingTable.status} = ('PENDING') AND
-                (${schedulingTable.id} = ${scheduling.getUUIDHash()} OR ${schedulingTable.id} IS NOT NULL)
+                (scheduling.sch_status = 'PENDING' AND scheduling.fk_sch_doc_id = ${scheduling.doctor?.getUUIDHash()}) AND
+                CAST(scheduling.sch_date AS DATE) = CAST(${scheduling.date} AS DATE) AND
+                (scheduling.sch_date + ${timeOfConsultation}::interval)::time >= (${scheduling.date}::timestamp)::time
             `
-            if(scheduling.doctor?.getUUIDHash()) sqlCreated.append(sql` AND ${schedulingTable.doctor_id} = ${scheduling.doctor?.getUUIDHash()}`)
-            if(!Number.isNaN(scheduling.date?.valueOf())) sqlCreated.append(sql` AND ((${schedulingTable.date}) + ${timeOfConsultation}::interval) >= ${scheduling.date!.toISOString()}::timestamp`)
-            
+
             const schedulingPerDoctor = await dbUse
-            .select({
-                id: schedulingTable.id,
-                date: schedulingTable.date,
-                status: schedulingTable.status
-            })
-            .from(schedulingTable)
-            .where(
-              sqlCreated
-            )
+                .select({
+                    id: schedulingTable.id,
+                    date: schedulingTable.date,
+                    status: schedulingTable.status
+                })
+                .from(schedulingTable)
+                .where(
+                    sqlCreated
+                )
 
             return ResponseHandler.success(schedulingPerDoctor, "Scheduling can be inserted")
-        } catch(e) {
+        } catch (e) {
             return ResponseHandler.error((e as Error).message)
         }
     }
-    async avgTimeOfConsultation(scheduling: Scheduling, tx?: NodePgDatabase<Record<string, never>> & {$client: Pool}){
+    async avgTimeOfConsultation(scheduling: Scheduling, tx?: NodePgDatabase<Record<string, never>> & { $client: Pool }) {
         try {
-            const  dbUse = tx ? tx : db
+            const dbUse = tx ? tx : db
             const timePerConsultation = await dbUse.execute(
                 sql`
                     SELECT 
@@ -57,11 +55,11 @@ export class SchedulingQueriesDAO {
                 `
             )
             return ResponseHandler.success(...timePerConsultation.rows, "Success ! Time per consultation returned")
-        } catch(e){
+        } catch (e) {
             return ResponseHandler.error((e as Error).message)
         }
     }
-    async getNextScheduling(tx?: NodePgDatabase<Record<string, never>> & {$client: Pool}){
+    async getNextScheduling(tx?: NodePgDatabase<Record<string, never>> & { $client: Pool }) {
         try {
             const dbUse = tx ? tx : db
             const schedulingToConfirm = await dbUse.execute(sql`
@@ -92,7 +90,7 @@ export class SchedulingQueriesDAO {
 
             `)
             return schedulingToConfirm.rows
-        } catch(e) {
+        } catch (e) {
             return ResponseHandler.error((e as Error).message)
         }
     }
