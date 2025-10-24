@@ -1,3 +1,7 @@
+'use client';
+
+import React, { Suspense, useEffect, useMemo } from 'react';
+
 import {
   PageActions,
   PageContainer,
@@ -7,24 +11,39 @@ import {
   PageHeaderContent,
   PageTitle,
 } from '@/components/ui/page-container';
+
 import { DatePicker } from './_components/date-picker';
 import { StatsCards } from './_components/stats-cards';
-
 import { TopDoctors } from './_components/top-doctors';
-import { AppointmentToday } from './_components/appointment-today';
+import { AppointmentNext } from './_components/appointment-next';
 import { TopSpecialties } from './_components/top-specialties';
-import { topDoctors } from '@/mocks/top-doctors';
-import { doctorsList } from '@/mocks/doctors-list';
-import { appointmentList } from '@/mocks/appointment-list';
-import { topSpecialties } from '@/mocks/top-specialties';
-import { dailyAppointmentsData } from '@/mocks/daily-appointments-data';
-import React, { useEffect } from 'react';
 
+import { dailyAppointmentsData } from '@/mocks/daily-appointments-data';
+import { useGetAllPatients } from '@/services/patient-service';
+import { useGetDoctors } from '@/services/doctor-service';
+import { useGetAppointments } from '@/services/appointment-service';
+
+// ✅ Lazy load apenas o gráfico, que é mais pesado
 const AppointmentsChart = React.lazy(
   () => import('./_components/appointments-chart'),
 );
 
 export const DashboardPage = () => {
+  const { data: patients } = useGetAllPatients();
+  const { data: doctors } = useGetDoctors();
+  const { data: appointments } = useGetAppointments();
+
+  // ✅ Evita re-render desnecessário
+  const stats = useMemo(
+    () => ({
+      totalRevenue: 6000,
+      totalAppointments: appointments?.length || 0,
+      totalPatients: patients?.length || 0,
+      totalDoctors: doctors?.length || 0,
+    }),
+    [appointments, patients, doctors],
+  );
+
   useEffect(() => {
     document.title = 'Dashboard';
   }, []);
@@ -35,7 +54,7 @@ export const DashboardPage = () => {
         <PageHeaderContent>
           <PageTitle>Dashboard</PageTitle>
           <PageDescription>
-            Tenha uma visão geral da sua clinica
+            Tenha uma visão geral da sua clínica
           </PageDescription>
         </PageHeaderContent>
 
@@ -45,20 +64,23 @@ export const DashboardPage = () => {
       </PageHeader>
 
       <PageContent>
-        <StatsCards
-          totalRevenue={6000}
-          totalAppointments={appointmentList.length}
-          totalPatients={[1, 2, 3, 4].length}
-          totalDoctors={doctorsList.length}
-        />
+        <StatsCards {...stats} />
 
         <div className="grid md:grid-cols-[2.25fr_1fr] grid-cols-1 gap-4">
-          <AppointmentsChart dailyAppointmentsData={dailyAppointmentsData} />
-          <TopDoctors doctors={topDoctors} />
+          <AppointmentNext appointments={appointments} />
+
+          <TopDoctors doctors={doctors} appointments={appointments} />
         </div>
+
         <div className="grid md:grid-cols-[2.25fr_1fr] grid-cols-1 gap-4">
-          <AppointmentToday />
-          <TopSpecialties topSpecialties={topSpecialties} />
+          <Suspense
+            fallback={
+              <div className="h-[300px] bg-muted animate-pulse rounded-lg" />
+            }
+          >
+            <AppointmentsChart dailyAppointmentsData={dailyAppointmentsData} />
+          </Suspense>
+          <TopSpecialties appointments={appointments} />
         </div>
       </PageContent>
     </PageContainer>
