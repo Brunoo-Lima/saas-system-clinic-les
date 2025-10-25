@@ -13,10 +13,12 @@ import { DoctorDTO } from "../../../../../infrastructure/DTOs/DoctorDTO";
 export class AddPeriodsToDoctorService {
     private repository: IRepository;
     private doctorRepository: IRepository;
+    private periodRepository: IRepository;
 
     constructor(){
         this.repository = new PeriodsRepository()
         this.doctorRepository = new DoctorRepository()
+        this.periodRepository = new PeriodsRepository()
     }
     async execute(doctorDTO: DoctorDTO){
         try {
@@ -34,7 +36,7 @@ export class AddPeriodsToDoctorService {
             ])
 
             validator.setValidator(`C-${doctorDomain.periodToWork?.[0]?.constructor.name}`, [
-                new ValidPeriodsToDoctor(validator)
+                new ValidPeriodsToDoctor(validator, this.periodRepository)
             ])
             
             const doctorIsValid = await validator.process(`F-${doctorDomain.constructor.name}`, doctorDomain, this.doctorRepository)
