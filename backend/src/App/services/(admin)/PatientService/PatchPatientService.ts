@@ -85,11 +85,11 @@ export class PatchPatientService {
             }
 
             if (cardInsurances.length && cardInsurances[0]) {
-                validator.setValidator(`${cardInsurances[0].constructor.name}`, [
+                validator.setValidator(`U-${cardInsurances[0].constructor.name}`, [
                     new UUIDValidator(),
                     new EntityExistsToInserted()
                 ])
-                const cardInsuranceIsValid = await validator.process(`${cardInsurances[0].constructor.name}`, cardInsurances, this.cardInsuranceRepository)
+                const cardInsuranceIsValid = await validator.process(`U-${cardInsurances[0].constructor.name}`, cardInsurances, this.cardInsuranceRepository)
                 if (!cardInsuranceIsValid.success) return cardInsuranceIsValid
             }
 

@@ -10,6 +10,7 @@ import { userRoutes } from './user.route';
 import { userPrivateRoutes } from './(admin)/user.private.routes';
 import {schedulingDoctorRoute} from './(admin)/schedulingDoctor.route';
 import { schedulingRoutes } from './(admin)/consultationScheduling.route';
+import { financialRoute } from './(admin)/financial.route';
 
 const routes: Router = express.Router();
 
@@ -24,4 +25,6 @@ routes.use(userRoutes);
 routes.use(userPrivateRoutes);
 routes.use(schedulingDoctorRoute);
 routes.use(schedulingRoutes);
+routes.use(financialRoute);
+
 export { routes };

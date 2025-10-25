@@ -1,5 +1,5 @@
 import { IResponseHandler, ResponseHandler } from "../../../helpers/ResponseHandler";
-import { SchedulingQueriesDAO } from "../../../infrastructure/database/DAO/SchedulingQueriesDAO";
+import { SchedulingQueriesDAO } from "../../../infrastructure/database/DAO/Queries/SchedulingQueriesDAO";
 import { IRepository } from "../../../infrastructure/database/repositories/IRepository";
 import { Scheduling } from "../../entities/EntityScheduling/Scheduling";
 import { IProcessValidator } from "../IProcessValidator";

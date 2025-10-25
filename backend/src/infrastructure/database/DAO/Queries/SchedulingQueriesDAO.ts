@@ -1,14 +1,14 @@
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { ResponseHandler } from "../../../helpers/ResponseHandler";
-import db from "../connection";
+import { ResponseHandler } from "../../../../helpers/ResponseHandler";
+import db from "../../connection";
 import { Pool } from "pg";
-import { schedulingTable } from "../Schema/SchedulingSchema";
+import { schedulingTable } from "../../Schema/SchedulingSchema";
 import { sql } from "drizzle-orm";
-import { Scheduling } from "../../../domain/entities/EntityScheduling/Scheduling";
-import { patientTable } from "../Schema/PatientSchema";
-import { userTable } from "../Schema/UserSchema";
-import { doctorTable } from "../Schema/DoctorSchema";
-import { specialtyTable } from "../Schema/SpecialtySchema";
+import { Scheduling } from "../../../../domain/entities/EntityScheduling/Scheduling";
+import { patientTable } from "../../Schema/PatientSchema";
+import { userTable } from "../../Schema/UserSchema";
+import { doctorTable } from "../../Schema/DoctorSchema";
+import { specialtyTable } from "../../Schema/SpecialtySchema";
 
 export class SchedulingQueriesDAO {
     async schedulingPerDoctor(scheduling: Scheduling, tx?: NodePgDatabase<Record<string, never>> & { $client: Pool }) {

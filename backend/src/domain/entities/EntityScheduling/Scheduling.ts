@@ -51,6 +51,10 @@ export class Scheduling extends EntityDomain {
         return this.schedulingProps
     }
     
+    public set status(status : "CONFIRMED" | "PENDING" | "CONCLUDE" | "CANCELED" | "CONFIRMATION_PENDING" | undefined,) {
+        this.schedulingProps.status = status;
+    }
+    
     public set timeOfConsultation(time : string | undefined) {
         this.schedulingProps.timeOfConsultation = time
     }
