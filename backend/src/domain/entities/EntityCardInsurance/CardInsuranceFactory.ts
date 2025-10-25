@@ -6,14 +6,14 @@ import { CartInsuranceBuilder } from "./CardInsuranceBuilder";
 export class CardInsuranceFactory {
     static createFromDTO(cardDTO: CardDTO) {
         const modality = new Modality({
-            name: cardDTO.modality.name
+            name: cardDTO.modality?.name
         })
-        modality.setUuidHash(cardDTO.modality.id ?? modality.getUUIDHash())
+        modality.setUuidHash(cardDTO.modality?.id ?? "")
 
         const insurance = new InsuranceBuilder()
-            .setName(cardDTO.insurance.name ?? "")
+            .setName(cardDTO.insurance?.name ?? "")
             .build()
-        insurance.setUuidHash(cardDTO.insurance.id ?? insurance.getUUIDHash())
+        insurance.setUuidHash(cardDTO.insurance?.id ?? "")
 
         const cardInsurance = new CartInsuranceBuilder()
             .setCardNumber(cardDTO.cardInsuranceNumber)

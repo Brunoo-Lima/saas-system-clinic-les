@@ -41,8 +41,14 @@ export class CountryRepository implements IRepository {
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    findAllEntity(entity?: EntityDomain): Promise<any[]> {
-        throw new Error("Method not implemented.");
+    async findAllEntity(country: Country, tx?: any) {
+        const dbUse = tx ? tx : db
+        return await dbUse.select().from(countryTable).where(
+            or(
+                eq(countryTable.id, country.getUUIDHash()),
+                eq(countryTable.name, country.name ?? "")
+            )
+        )
     }
 
 }

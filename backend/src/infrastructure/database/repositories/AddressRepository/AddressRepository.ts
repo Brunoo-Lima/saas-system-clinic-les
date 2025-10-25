@@ -41,6 +41,7 @@ export class AddressRepository implements IRepository {
     }
     async updateEntity(address: Address, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
+        
         return await dbUse.update(addressTable).set({
             cep: address.cep,
             name: address.nameAddress,
@@ -59,14 +60,11 @@ export class AddressRepository implements IRepository {
     async findAllEntity(address: Address, tx?: any) {
         try {
             const dbUse = tx ? tx : db
-            const filters = []
-
-            if (address.getUUIDHash()) filters.push(eq(addressTable.id, address.getUUIDHash()))
-            if (address.nameAddress) filters.push(ilike(addressTable.name, address.nameAddress))
-
-            const clause = filters.length > 1 ? and : or
             return await dbUse.select().from(addressTable).where(
-                clause(...filters)
+                or(
+                    eq(addressTable.id, address.getUUIDHash()),
+                    ilike(addressTable.name, address.nameAddress ?? "")
+                )
             )
         } catch (e) {
             return ResponseHandler.error("Failed to find the address")
