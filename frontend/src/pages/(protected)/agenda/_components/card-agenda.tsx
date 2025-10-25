@@ -285,62 +285,6 @@ export const CardAgenda = ({
 
         <div className="mt-6 space-y-2">
           <Dialog
-            open={isAvailabilityDialogOpen}
-            onOpenChange={setIsAvailabilityDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full bg-transparent"
-                size="lg"
-              >
-                <SettingsIcon className="h-4 w-4 mr-2" />
-                Dias Disponíveis
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Configurar Dias de Atendimento</DialogTitle>
-                <DialogDescription>
-                  Selecione os dias da semana em que você atende
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                {Object.entries(availabilitySettings.workingDays).map(
-                  ([day, isEnabled]) => (
-                    <div
-                      key={day}
-                      className="flex items-center justify-between"
-                    >
-                      <Label
-                        htmlFor={day}
-                        className="text-base capitalize cursor-pointer"
-                      >
-                        {day === 'monday' && 'Segunda-feira'}
-                        {day === 'tuesday' && 'Terça-feira'}
-                        {day === 'wednesday' && 'Quarta-feira'}
-                        {day === 'thursday' && 'Quinta-feira'}
-                        {day === 'friday' && 'Sexta-feira'}
-                        {day === 'saturday' && 'Sábado'}
-                        {day === 'sunday' && 'Domingo'}
-                      </Label>
-                      <Switch
-                        id={day}
-                        checked={isEnabled}
-                        onCheckedChange={() =>
-                          toggleWorkingDay(
-                            day as keyof IAvailabilitySettings['workingDays'],
-                          )
-                        }
-                      />
-                    </div>
-                  ),
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog
             open={isBlockDateDialogOpen}
             onOpenChange={setIsBlockDateDialogOpen}
           >
@@ -365,6 +309,66 @@ export const CardAgenda = ({
               isDateBlocked={isDateBlocked}
             />
           </Dialog>
+
+          <div className="flex flex-col gap-2">
+            <Dialog
+              open={isAvailabilityDialogOpen}
+              onOpenChange={setIsAvailabilityDialogOpen}
+            >
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full bg-transparent"
+                  size="lg"
+                >
+                  <SettingsIcon className="h-4 w-4 mr-2" />
+                  Dias Disponíveis
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Configurar Dias de Atendimento</DialogTitle>
+                  <DialogDescription>
+                    Selecione os dias da semana em que você atende
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  {Object.entries(availabilitySettings.workingDays).map(
+                    ([day, isEnabled]) => (
+                      <div
+                        key={day}
+                        className="flex items-center justify-between"
+                      >
+                        <Label
+                          htmlFor={day}
+                          className="text-base capitalize cursor-pointer"
+                        >
+                          {day === 'monday' && 'Segunda-feira'}
+                          {day === 'tuesday' && 'Terça-feira'}
+                          {day === 'wednesday' && 'Quarta-feira'}
+                          {day === 'thursday' && 'Quinta-feira'}
+                          {day === 'friday' && 'Sexta-feira'}
+                          {day === 'saturday' && 'Sábado'}
+                          {day === 'sunday' && 'Domingo'}
+                        </Label>
+                        <Switch
+                          id={day}
+                          checked={isEnabled}
+                          onCheckedChange={() =>
+                            toggleWorkingDay(
+                              day as keyof IAvailabilitySettings['workingDays'],
+                            )
+                          }
+                        />
+                      </div>
+                    ),
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* <Button >Atualizar dia de atendimento</Button> */}
+          </div>
         </div>
       </CardContent>
     </Card>

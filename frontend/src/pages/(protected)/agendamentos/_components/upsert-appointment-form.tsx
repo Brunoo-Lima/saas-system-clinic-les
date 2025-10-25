@@ -302,9 +302,6 @@ export const UpsertAppointmentForm = ({
             onSuccess: () => {
               onSuccess();
             },
-            onError: (error: any) => {
-              console.error('Erro na mutation:', error);
-            },
           },
         );
       } else {
@@ -328,9 +325,6 @@ export const UpsertAppointmentForm = ({
           onSuccess: () => {
             toast.success('Agendamento criado com sucesso!');
             onSuccess();
-          },
-          onError: (error: any) => {
-            console.error('Erro na mutation:', error);
           },
         });
       }

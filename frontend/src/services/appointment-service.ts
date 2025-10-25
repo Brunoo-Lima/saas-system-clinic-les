@@ -27,7 +27,7 @@ export const createAppointmentService = async (
 ) => {
   const { data } = await api.post('/scheduling', appointment);
 
-  if (data.success === false) {
+  if (!data.success) {
     throw new Error(data.message);
   }
 

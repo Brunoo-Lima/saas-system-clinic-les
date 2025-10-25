@@ -27,7 +27,7 @@ export const useCreateAgenda = () => {
   });
 };
 
-interface IAgendaDoctor {
+export interface IAgendaDoctor {
   id: string;
   dateFrom: string; // Formato "YYYY-MM-DD"
   dateTo: string; // Formato "YYYY-MM-DD"

@@ -102,7 +102,9 @@ export const CardAppointment = ({
           }).format(appointment.priceOfConsultation)}
         </Badge>
 
-        <Badge variant="outline">Forma de pagamento:</Badge>
+        <Badge variant="outline">
+          Forma de pagamento: {appointment.insurance?.name || 'Particular'}
+        </Badge>
 
         <Badge variant="outline">
           Status: {formatStatus(appointment.status)}

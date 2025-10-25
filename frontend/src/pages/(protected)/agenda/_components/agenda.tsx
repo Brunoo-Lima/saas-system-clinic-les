@@ -80,6 +80,7 @@ export function Agenda({ doctorId }: IAgendaProps) {
   const [dateTo, setDateTo] = useState<Date | undefined>(
     endOfMonth(new Date()),
   );
+  const [specialtyId, setSpecialtyId] = useState<string>('');
   const [availabilitySettings, setAvailabilitySettings] =
     useState<IAvailabilitySettings>({
       workingDays: {
@@ -110,6 +111,17 @@ export function Agenda({ doctorId }: IAgendaProps) {
     scheduling_date: formattedDate,
   });
 
+  useEffect(() => {
+    if (doctors && doctors.length > 0) {
+      const doctor = doctors[0];
+      if (doctor.specialties && doctor.specialties.length > 0) {
+        setSpecialtyId(doctor.specialties[0].id);
+      } else if (doctor.specialty) {
+        setSpecialtyId(doctor.specialty.id);
+      }
+    }
+  }, [doctors]);
+
   const hasNoAgendaData = !existingAgendas || existingAgendas.length === 0;
 
   useEffect(() => {
@@ -133,7 +145,7 @@ export function Agenda({ doctorId }: IAgendaProps) {
         blockedDates: blockedDates,
       }));
 
-      // CORREÇÃO: Se já existe agenda, usar as datas da agenda
+      // Se já existe agenda, usar as datas da agenda
       if (latestAgenda.dateFrom && latestAgenda.dateTo) {
         setDateFrom(new Date(latestAgenda.dateFrom));
         setDateTo(new Date(latestAgenda.dateTo));
@@ -308,6 +320,8 @@ export function Agenda({ doctorId }: IAgendaProps) {
           isDayAvailable={isDayAvailable}
           appointments={appointments}
           currentDoctorId={currentDoctorId}
+          specialtyId={specialtyId}
+          existingAgendas={existingAgendas}
         />
 
         <Card className="lg:col-span-2">
