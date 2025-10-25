@@ -8,8 +8,8 @@ import { IProcessValidator } from "../IProcessValidator";
 import { ValidatorController } from "../ValidatorController";
 
 export class ValidPeriodsToDoctor implements IProcessValidator {
-    constructor(private validator: ValidatorController){}    
-    async valid(doctor: Doctor, repository: IRepository){
+    constructor(private validator: ValidatorController, private repository: IRepository){}    
+    async valid(doctor: Doctor){
         try {
 
             const periods = doctor.periodToWork
@@ -20,7 +20,7 @@ export class ValidPeriodsToDoctor implements IProcessValidator {
                 new EntityExits()
             ])
             
-            const periodsIsValid = await this.validator.process(`F-${doctor.periodToWork?.constructor.name}`, periods as Period[], repository)
+            const periodsIsValid = await this.validator.process(`F-${doctor.periodToWork?.constructor.name}`, periods as Period[], this.repository)
            
             if(!periodsIsValid.success) return ResponseHandler.error(periodsIsValid.message)
             

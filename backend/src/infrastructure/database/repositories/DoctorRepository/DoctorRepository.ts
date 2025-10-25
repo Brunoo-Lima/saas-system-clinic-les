@@ -38,6 +38,7 @@ export class DoctorRepository implements IRepository {
 
     async findEntity(doctor: Doctor, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
+        console.log(doctor)
         const doctorFounded = await dbUse
             .select({
                 doctor: doctorTable,
