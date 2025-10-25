@@ -48,7 +48,6 @@ export class CreateDoctorService {
             const validator = new ValidatorController()
             validator.setValidator(`C-${doctorDomain.constructor.name}`, [
                 new UUIDValidator(),
-                new ValidPeriodsToDoctor(validator),
                 new AllValidatorToCreateDoctor(validator),
                 new EntityExits(),
                 new RequiredGeneralData(Object.keys(doctorDomain))
@@ -56,7 +55,6 @@ export class CreateDoctorService {
 
             const entitiesValidated = await validator.process(`C-${doctorDomain.constructor.name}`, doctorDomain, this.repository)
             if (!entitiesValidated.success) return ResponseHandler.error(entitiesValidated.message)
-
             const entitiesInserted = await db.transaction(async (tx) => {
 
                 const addressDomain = doctorDomain.address as Address;
