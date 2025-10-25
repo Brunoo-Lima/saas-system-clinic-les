@@ -38,30 +38,25 @@ export class ConsultationSchedulingRepository implements IRepository {
         )
     }
     async updateEntity(scheduling: Scheduling, tx?: any): Promise<any> {
-        try {
-            const dbUse = tx ? tx : db
-            const schedulingUpdated = await dbUse.update(schedulingTable).set({
-                date: scheduling.date,
-                dateOfConfirmation: scheduling.dateOfConfirmation?.toISOString() ?? undefined,
-                dateOfRealizable: scheduling.dateOfRealizable ?? undefined,
-                isReturn: scheduling.isReturn,
-                insurance_id: scheduling.insurance?.getUUIDHash() || undefined,
-                patient_id: scheduling.patient?.getUUIDHash() || undefined,
-                doctor_id: scheduling.doctor?.getUUIDHash() || undefined,
-                specialty_id: scheduling.specialty?.getUUIDHash() || undefined,
-                priceOfConsultation: scheduling.priceOfConsultation,
-                status: scheduling.status,
-                timeOfConsultation: scheduling.timeOfConsultation === "01:00:00" ? undefined : scheduling.timeOfConsultation,
-                updatedAt: scheduling.getUpdatedAt() ?? new Date().toISOString()
-            }).where(
-                eq(schedulingTable.id, scheduling.getUUIDHash())
-            ).returning()
+        const dbUse = tx ? tx : db
+        const schedulingUpdated = await dbUse.update(schedulingTable).set({
+            date: scheduling.date,
+            dateOfConfirmation: scheduling.dateOfConfirmation?.toISOString() ?? undefined,
+            dateOfRealizable: scheduling.dateOfRealizable ?? undefined,
+            isReturn: scheduling.isReturn,
+            insurance_id: scheduling.insurance?.getUUIDHash() || undefined,
+            patient_id: scheduling.patient?.getUUIDHash() || undefined,
+            doctor_id: scheduling.doctor?.getUUIDHash() || undefined,
+            specialty_id: scheduling.specialty?.getUUIDHash() || undefined,
+            priceOfConsultation: scheduling.priceOfConsultation,
+            status: scheduling.status,
+            timeOfConsultation: scheduling.timeOfConsultation === "01:00:00" ? undefined : scheduling.timeOfConsultation,
+            updatedAt: scheduling.getUpdatedAt() ?? new Date().toISOString()
+        }).where(
+            eq(schedulingTable.id, scheduling.getUUIDHash())
+        ).returning()
 
-            return schedulingUpdated
-        } catch(e) {
-            console.log(e)
-            return ResponseHandler.error("Failed to update the scheduling.")
-        }
+        return schedulingUpdated
     }
     deleteEntity(scheduling: Scheduling, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
