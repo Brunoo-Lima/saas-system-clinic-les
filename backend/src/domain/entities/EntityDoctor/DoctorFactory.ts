@@ -73,18 +73,18 @@ export class DoctorFactory {
 
         // Doctor
         const doctor = new DoctorBuilder()
-            .setPhone(doctorDTO?.phone ?? undefined)
-            .setCpf(doctorDTO?.cpf ?? undefined)
+            .setPhone(doctorDTO?.phone || undefined)
+            .setCpf(doctorDTO?.cpf || undefined)
             .setDateOfBirth(
                 doctorDTO?.dateOfBirth ? new Date(doctorDTO?.dateOfBirth) : undefined
             )
             .setPeriod(periods)
-            .setName(doctorDTO?.name  ?? undefined)
+            .setName(doctorDTO?.name || undefined)
             .setUser(user)
-            .setSex(doctorDTO?.sex  ?? undefined)
-            .setCrm(doctorDTO?.crm  ?? undefined)
-            .setSpecialties(specialties ?? undefined)
-            .setPercentDistribution(doctorDTO?.percentDistribution ?? undefined)
+            .setSex(doctorDTO?.sex || undefined)
+            .setCrm(doctorDTO?.crm || undefined)
+            .setSpecialties(specialties|| undefined)
+            .setPercentDistribution(doctorDTO?.percentDistribution || undefined)
             .setAddress(address)
             .build();
 
