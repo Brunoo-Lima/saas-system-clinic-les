@@ -38,28 +38,27 @@ export class DoctorRepository implements IRepository {
 
     async findEntity(doctor: Doctor, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
-        console.log(doctor)
         const doctorFounded = await dbUse
             .select({
                 doctor: doctorTable,
                 periods: sql`json_agg(
-            json_build_object(
-                'id', ${periodDoctorTable.id},
-                'dayWeek', ${periodDoctorTable.dayWeek},
-                'timeFrom', ${periodDoctorTable.timeFrom},
-                'timeTo', ${periodDoctorTable.timeTo},
-                'specialty_id', ${periodDoctorTable.specialty_id}
-            )
-            )`.as("periods"),
-                specialties: sql`
-                json_agg(
-                    json_build_object(
-                        'id', ${specialtyTable.id},
-                        'name', ${specialtyTable.name}
-                    )
+                json_build_object(
+                    'id', ${periodDoctorTable.id},
+                    'dayWeek', ${periodDoctorTable.dayWeek},
+                    'timeFrom', ${periodDoctorTable.timeFrom},
+                    'timeTo', ${periodDoctorTable.timeTo},
+                    'specialty_id', ${periodDoctorTable.specialty_id}
                 )
-            `
-            })
+                )`.as("periods"),
+                    specialties: sql`
+                    json_agg(
+                        json_build_object(
+                            'id', ${specialtyTable.id},
+                            'name', ${specialtyTable.name}
+                        )
+                    )
+                `
+                })
             .from(doctorTable)
             .leftJoin(periodDoctorTable, eq(periodDoctorTable.doctor_id, doctorTable.id))
             .leftJoin(
@@ -168,7 +167,7 @@ export class DoctorRepository implements IRepository {
                 name: doctorTable.name,
                 cpf: doctorTable.cpf,
                 sex: doctorTable.sex,
-                date_of_birth: sql`CAST(${doctorTable.date_of_birth} AS DATE)`,
+                dateOfBirth: sql`CAST(${doctorTable.date_of_birth} AS DATE)`,
                 phone: doctorTable.phone,
                 specialties: sql`(
                     SELECT 
