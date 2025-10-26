@@ -1,4 +1,4 @@
-import { and, eq, ilike, inArray, isNotNull, or } from "drizzle-orm";
+import { and, DrizzleError, eq, ilike, inArray, isNotNull, or } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Specialty } from "../../../../domain/entities/EntitySpecialty/Specialty";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -73,8 +73,17 @@ export class SpecialtyRepository implements IRepository {
         );
         return specialtiesInserted
     }
-    deleteEntity(entity: EntityDomain, id?: string): Promise<void> {
-        throw new Error("Method not implemented.");
+    async deleteEntity(specialties: Array<Specialty> | Specialty, id?: string){
+        try {
+            const specialtiesFormatted = Array.isArray(specialties) ? specialties : [specialties]
+            return await db.delete(specialtyTable).where(
+                inArray(specialtyTable.id, specialtiesFormatted.map((sp) => sp.getUUIDHash()).filter(sp => sp))
+            )
+        } catch(e) {
+            const error = {...(e as any)}
+            const errorCode = error?.cause?.code
+            return ResponseHandler.error(errorCode === "23503" ? "You cannot deleted this entity because this linked with outer entity, remove the link and delete again !":"Failed to deleted the specialty")
+        }
     }
     async findAllEntity(specialties: Array<Specialty>, limit: number, offset: number) {
         try {

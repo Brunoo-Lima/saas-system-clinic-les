@@ -13,7 +13,7 @@ import { FinancialDTO } from "../../../../infrastructure/DTOs/FinancialDTO";
 
 export class CreateFinancialService {
     private repository: IRepository;
-    private schedulingRepository: IRepository;
+    private schedulingRepository: IRepository & ConsultationSchedulingRepository;
 
     constructor(){
         this.repository = new FinancialRepository()

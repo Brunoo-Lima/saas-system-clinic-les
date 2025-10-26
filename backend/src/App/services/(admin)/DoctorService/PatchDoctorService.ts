@@ -47,18 +47,26 @@ export class PatchDoctorService {
 
             const entitiesUpdated = await db.transaction(async (tx) => {
                 let addressUpdated;
-                if (doctorDTO.address?.id) addressUpdated = await this.addressRepository.updateEntity(doctorDomain.address as Address, tx);
-                if (doctorDTO.address?.city.id) await this.cityRepository.updateEntity(doctorDomain?.address?.city as City, tx);
-                if (doctorDTO.address?.state.id) await this.stateRepository.updateEntity(doctorDomain?.address?.city?.state as State, tx)
-                if (doctorDTO.address?.country.id) await this.countryRepository.updateEntity(doctorDomain?.address?.city?.state?.country as Country, tx)
+                let periodsUpdated;
+                let periodsDeleted;
+
+                if (doctorDTO?.address?.id) {
+                    doctorDomain.address?.setUuidHash(doctorDTO.address.id)
+                    addressUpdated = await this.addressRepository.updateEntity(doctorDomain.address as Address, tx);
+                }
+                if (doctorDTO?.address?.city?.id) await this.cityRepository.updateEntity(doctorDomain?.address?.city as City, tx);
+                if (doctorDTO?.address?.state?.id) await this.stateRepository.updateEntity(doctorDomain?.address?.city?.state as State, tx)
+                if (doctorDTO?.address?.country?.id) await this.countryRepository.updateEntity(doctorDomain?.address?.city?.state?.country as Country, tx)
 
                 const doctorUpdated = await this.repository.updateEntity(doctorDomain, tx);
-                const periodsUpdated = await Promise.all(doctorDomain.periodToWork?.map(async (per) => {
-                    return await this.periodsRepository.updateEntity(per, tx)
-                }) ?? [])
+                if(doctorDTO?.periodToWork){
+                    periodsUpdated = await Promise.all(doctorDomain.periodToWork?.map(async (per) => {
+                        return await this.periodsRepository.updateEntity(per, tx)
+                    }) ?? [])
+                    periodsDeleted = await this.periodsRepository.deleteEntity(doctorDomain.periodToWork ?? [], tx)
+                }
 
                 // Vai apagar tudo que nao estiver dentro do array
-                const periodsDeleted = await this.periodsRepository.deleteEntity(doctorDomain.periodToWork ?? [], tx)
                 return {
                     updated: {
                         ...doctorUpdated.updated,
@@ -74,6 +82,7 @@ export class PatchDoctorService {
 
             return ResponseHandler.success(entitiesUpdated, "Success ! Doctor was updated.")
         } catch (e) {
+            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }
