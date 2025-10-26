@@ -38,6 +38,12 @@ export class DoctorRepository implements IRepository {
 
     async findEntity(doctor: Doctor, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
+        const filters = []
+        
+        if(doctor.crm) filters.push(eq(doctorTable.crm, doctor.crm))
+        if(doctor.cpf) filters.push(eq(doctorTable.crm, doctor.cpf))
+        if(doctor.name) filters.push(eq(doctorTable.crm, doctor.name))
+
         const doctorFounded = await dbUse
             .select({
                 doctor: doctorTable,
@@ -72,9 +78,7 @@ export class DoctorRepository implements IRepository {
             .where(
                 or(
                     eq(doctorTable.id, doctor.getUUIDHash() ?? undefined),
-                    eq(doctorTable.crm, doctor.crm ?? ""),
-                    eq(doctorTable.cpf, doctor.cpf ?? ""),
-                    eq(doctorTable.name, doctor.name ?? "")
+                    ...filters
                 )
             )
             .groupBy(

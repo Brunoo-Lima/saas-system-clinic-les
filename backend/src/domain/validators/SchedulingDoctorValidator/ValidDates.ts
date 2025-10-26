@@ -8,6 +8,8 @@ export class ValidDatesToSchedulingDoctor implements IProcessValidator {
             const regex = /^(19|20)\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/
             const dateFrom = schedulingDoctor.dayFrom;
             const dateTo = schedulingDoctor.dayTo;
+            const dateNow = new Date()
+            dateNow.setHours(dateNow.getHours() - schedulingDoctor.getTimezone())
 
             if (!dateFrom || !dateTo)  throw new Error("dateFrom is null or undefined");
 
@@ -23,6 +25,9 @@ export class ValidDatesToSchedulingDoctor implements IProcessValidator {
             const dateToFormatted = `${yearTo}-${monthTo}-${dayTo}`;
             if(!regex.test(dateFromFormatted) || !regex.test(dateToFormatted)) return ResponseHandler.error(("The date From or To is invalid."))
             
+            if(dateFrom < dateNow) return ResponseHandler.error("The Date from is before now !")
+            if(dateTo < dateNow || dateTo < dateFrom) return ResponseHandler.error("The date to is before now or before the date from")
+
             return ResponseHandler.success(schedulingDoctor, "The dates is valid !")
         } catch(e) {
             return ResponseHandler.error((e as Error).message)

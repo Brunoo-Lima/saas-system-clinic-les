@@ -58,7 +58,7 @@ export class CardInsuranceRepository implements IRepository {
                 insurance_id: cd.insurance?.getUUIDHash() || undefined,
                 modality_id: cd.modality?.getUUIDHash() || undefined,
                 updatedAt: cd.getUpdatedAt() || undefined,
-                validate: cd.validate ? new Date(cd.validate).toISOString() : undefined
+                validate: cd.validate ? new Date(cd.validate)?.toISOString() : undefined
             }).where(
                 eq(cardInsuranceTable.id, cd.getUUIDHash())
             ).returning()

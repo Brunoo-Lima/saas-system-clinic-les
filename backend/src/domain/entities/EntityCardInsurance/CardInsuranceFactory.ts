@@ -19,7 +19,7 @@ export class CardInsuranceFactory {
             .setCardNumber(cardDTO.cardInsuranceNumber)
             .setInsurance(insurance)
             .setModality(modality)
-            .setValidate(cardDTO.validate)
+            .setValidate(new Date(cardDTO.validate) || undefined)
             .build()
 
         return cardInsurance;

@@ -1,17 +1,13 @@
-import { City } from "../../../../domain/entities/EntityAddress/City";
 import { CardInsuranceFactory } from "../../../../domain/entities/EntityCardInsurance/CardInsuranceFactory";
 import { PatientFactory } from "../../../../domain/entities/EntityPatient/PatientFactory";
-import { CardInsuranceVinculate } from "../../../../domain/validators/CardInsuranceValidator/CardInsuranceVinculate";
 import { EntityExistsToInserted } from "../../../../domain/validators/General/EntityExistsToInserted";
 import { EntityExistsToUpdated } from "../../../../domain/validators/General/EntityExistsToUpdated";
-import { RequiredGeneralData } from "../../../../domain/validators/General/RequiredGeneralData";
 import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../../../infrastructure/database/connection";
 import { AddressRepository } from "../../../../infrastructure/database/repositories/AddressRepository/AddressRepository";
 import { CardInsuranceRepository } from "../../../../infrastructure/database/repositories/CardInsuranceRepository/CardInsuranceRepository";
-import { findOrCreate } from "../../../../infrastructure/database/repositories/findOrCreate";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { PatientRepository } from "../../../../infrastructure/database/repositories/PatientRepository/PatientRepository";
 import { PatientDTO } from "../../../../infrastructure/DTOs/PatientDTO";
@@ -52,7 +48,7 @@ export class PatchPatientService {
             if (patientDomain.address?.getUUIDHash()) {
                 const address = patientDomain.address
 
-                validator.setValidator(`U-${address.constructor.name}`, [new EntityExistsToUpdated(), new UUIDValidator()])
+                validator.setValidator(`U-${address.constructor.name}`, [new EntityExistsToInserted(), new UUIDValidator()])
                 const addressIsValid = await validator.process(`U-${address.constructor.name}`, address, this.addressRepository)
                 if (!addressIsValid.success) return addressIsValid
             }

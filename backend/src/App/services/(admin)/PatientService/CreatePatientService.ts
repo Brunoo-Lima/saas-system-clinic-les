@@ -109,8 +109,8 @@ export class CreatePatientService {
                 if (cardInsurances.some((cd) => cd.cardNumber !== "")) cardInsuranceInserted = await this.cardInsuranceRepository.create(cardInsurances!, tx, patientDomain.getUUIDHash() ?? "")
 
                 // Disparo do email para a fila.
-                //userInserted.data.template = "welcome"
-                //await queueClient.add("welcome_email", userInserted.data)
+                userInserted.data.template = "welcome"
+                await queueClient.add("welcome_email", userInserted.data)
 
                 return ResponseHandler.success({
                     patient: patientInserted[0],
@@ -126,6 +126,7 @@ export class CreatePatientService {
             return entitiesInserted
 
         } catch (e) {
+            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }
