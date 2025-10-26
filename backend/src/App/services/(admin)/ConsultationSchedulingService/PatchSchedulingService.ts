@@ -19,7 +19,7 @@ import { IRepository } from "../../../../infrastructure/database/repositories/IR
 import { ConsultationSchedulingDTO } from "../../../../infrastructure/DTOs/ConsultationSchedulingDTO";
 
 export class PatchSchedulingService {
-    private repository: IRepository;
+    private repository: IRepository & ConsultationSchedulingRepository;
     private financialRepository: IRepository;
 
     constructor(){
