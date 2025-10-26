@@ -13,9 +13,20 @@ export const getDoctorDefaultValues = (doctor?: IDoctor): DoctorFormSchema => ({
   phone: doctor?.phone ?? '',
   dateOfBirth: doctor?.dateOfBirth ?? '',
   percentDistribution: doctor?.percentDistribution ?? 0,
-  specialties: doctor?.specialties ?? [],
+  specialties:
+    doctor?.specialties.map((s) => ({
+      id: s.id,
+      name: s.name,
+      percentDistribution: s.percentDistribution,
+    })) ?? [],
   sex: doctor?.sex ?? 'Male',
-  periodToWork: doctor?.periodToWork ?? [],
+  periodToWork:
+    doctor?.periodToWork.map((period) => ({
+      dayWeek: period.dayWeek,
+      timeFrom: period.timeFrom,
+      timeTo: period.timeTo,
+      specialty_id: period.specialty_id,
+    })) ?? [],
   address: {
     name: doctor?.address?.name ?? '',
     cep: doctor?.address?.cep ?? '',

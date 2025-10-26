@@ -44,7 +44,7 @@ export const AppointmentNext = ({
       <CardContent>
         {sortedAppointments.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            Nenhum agendamento para hoje
+            Nenhum agendamento para hoje.
           </div>
         ) : (
           <div className="space-y-4">

@@ -89,7 +89,8 @@ export const UpsertDoctorForm = ({
 
   useEffect(() => {
     if (isOpen) {
-      form.reset(getDoctorDefaultValues(doctor) ?? {});
+      form.reset(getDoctorDefaultValues(doctor));
+      setSelectedSpecialties(doctor?.specialties?.map((s) => s.id) ?? []);
     }
   }, [isOpen, form, doctor]);
 
@@ -154,10 +155,10 @@ export const UpsertDoctorForm = ({
     try {
       const payload = {
         name: data.name,
-        cpf: data.cpf.replace(/\D/g, ''), // Remove formatação do CPF
+        cpf: data.cpf,
         crm: data.crm,
         sex: data.sex,
-        phone: data.phone.replace(/\D/g, ''), // Remove formatação do telefone
+        phone: data.phone,
         dateOfBirth:
           data.dateOfBirth instanceof Date
             ? data.dateOfBirth.toISOString().split('T')[0]
@@ -185,7 +186,7 @@ export const UpsertDoctorForm = ({
           street: data.address.street,
           number: data.address.number,
           neighborhood: data.address.neighborhood,
-          cep: data.address.cep.replace(/\D/g, ''), // Remove formatação do CEP
+          cep: data.address.cep,
           city: {
             name: data.address.city.name,
           },

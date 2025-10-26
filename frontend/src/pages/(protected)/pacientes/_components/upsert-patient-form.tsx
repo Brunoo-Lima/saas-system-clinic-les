@@ -47,6 +47,7 @@ import { formatCPF } from '@/utils/format-cpf';
 import { brazilianStates } from '@/utils/brazilian-states';
 import { formatCEP } from '@/utils/format-cep';
 import InputDate from '@/components/ui/input-date';
+import { useGetAllInsurances } from '@/services/insurance-service';
 
 interface IUpsertPatientFormProps {
   isOpen: boolean;
@@ -71,6 +72,7 @@ export const UpsertPatientForm = ({
   });
 
   const { mutate, isPending } = useCreatePatient();
+  const { data: insurances } = useGetAllInsurances();
 
   useEffect(() => {
     if (isOpen && patient) {
@@ -330,11 +332,17 @@ export const UpsertPatientForm = ({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {/* {insurancesList.map((ins) => (
+                          {insurances?.map((ins) => (
                             <SelectItem key={ins.id} value={ins.id.toString()}>
-                              {ins.name}
+                              {ins.type}
                             </SelectItem>
-                          ))} */}
+                          ))}
+
+                          {!insurances?.length && (
+                            <SelectItem value="null">
+                              Nenhum convênio
+                            </SelectItem>
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -468,7 +476,11 @@ export const UpsertPatientForm = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>UF</FormLabel>
-                  <Select onValueChange={field.onChange}>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="UF" />
