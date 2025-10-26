@@ -74,10 +74,9 @@ export class PatientRepository implements IRepository {
                 updatedAt: patient.getUpdatedAt()
             }).where(
                 or(
-                    eq(patientTable.id, patient.getUUIDHash() ?? ""),
-                    eq(patientTable.cpf, patient.cpf ?? "")
+                    eq(patientTable.id, patient.getUUIDHash() ?? "")
                 )
-            )
+            ).returning()
         return patientUpdated
     }
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {

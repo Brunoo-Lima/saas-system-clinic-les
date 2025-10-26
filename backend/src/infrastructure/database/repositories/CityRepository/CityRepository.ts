@@ -1,4 +1,4 @@
-import { eq, ilike, or } from "drizzle-orm";
+import { eq, ilike, isNotNull, or, sql } from "drizzle-orm";
 import { City } from "../../../../domain/entities/EntityAddress/City";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -44,8 +44,16 @@ export class CityRepository implements IRepository {
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    findAllEntity(entity?: EntityDomain): Promise<any[]> {
-        throw new Error("Method not implemented.");
+    async findAllEntity(city: City, tx?: any) {
+        const dbUse = tx ? tx : db
+
+        return await dbUse.select().from(cityTable).where(
+            or(
+                eq(cityTable.id, city.getUUIDHash()),
+                eq(cityTable.name, city.name ?? "")
+            )
+        )
+
     }
 
 }
