@@ -121,7 +121,8 @@ export class SchedulingDoctorRepository implements IRepository {
                                             ${doctorSchedulingTable}.${doctorSchedulingTable.dateTo}::date,
                                             '1 day'::interval
                                         ) AS gs
-                                        WHERE EXTRACT(DOW FROM gs) = ${periodDoctorTable.dayWeek}
+                                        WHERE EXTRACT(DOW FROM gs) = ${periodDoctorTable.dayWeek} and
+                                        ${periodDoctorTable.doctor_id} = ${doctorSchedulingTable.doctor_id}
                                     )
                                 )
                             )
