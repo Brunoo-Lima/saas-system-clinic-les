@@ -10,7 +10,7 @@ import { relations } from "drizzle-orm";
 import { specialtyTable } from "./SpecialtySchema";
 
 // Period
-export const periodDoctorTable = pgTable("period", {
+export const periodDoctorTable = pgTable("periods", {
   id: uuid("per_id").primaryKey(),
   dayWeek: smallint("per_dayWeek").notNull(),
   timeFrom: time("per_timeFrom").notNull(),

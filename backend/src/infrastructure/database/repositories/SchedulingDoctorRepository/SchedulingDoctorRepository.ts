@@ -68,7 +68,7 @@ export class SchedulingDoctorRepository implements IRepository {
         return schedulingDoctorFounded[0] ?? null;
     }
 
-    async updateEntity(schedulingDoctor: DoctorScheduling,  tx?: any): Promise<any> {
+    async updateEntity(schedulingDoctor: DoctorScheduling, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
         return await dbUse.update(doctorSchedulingTable).set({
             dateFrom: schedulingDoctor.dayFrom?.toISOString(),
@@ -109,6 +109,19 @@ export class SchedulingDoctorRepository implements IRepository {
                                             )
                                         FROM ${specialtyTable}
                                         WHERE ${specialtyTable.id} = ${periodDoctorTable.specialty_id}
+                                    ),
+                                    'datesAvailable', (
+                                        SELECT 
+                                            COALESCE(
+                                                json_agg(gs::date
+                                                ), '[]'::json
+                                            )
+                                        FROM generate_series(
+                                            ${doctorSchedulingTable}.${doctorSchedulingTable.dateFrom}::date,
+                                            ${doctorSchedulingTable}.${doctorSchedulingTable.dateTo}::date,
+                                            '1 day'::interval
+                                        ) AS gs
+                                        WHERE EXTRACT(DOW FROM gs) = ${periodDoctorTable.dayWeek}
                                     )
                                 )
                             )

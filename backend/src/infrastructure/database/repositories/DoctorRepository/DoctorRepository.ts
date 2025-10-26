@@ -9,6 +9,7 @@ import { periodDoctorTable } from "../../Schema/PeriodSchema";
 import { specialtyTable } from "../../Schema/SpecialtySchema";
 import { addressTable } from "../../Schema/AddressSchema";
 import { userTable } from "../../Schema/UserSchema";
+import { doctorSchedulingTable } from "../../Schema/DoctorScheduling";
 
 export class DoctorRepository implements IRepository {
     async create(doctor: Doctor, tx?: any): Promise<any> {

@@ -27,7 +27,7 @@ export class ExistsScheduling implements IProcessValidator {
                     const dateScheduling = scheduling.date?.toISOString().split("T")
                     return dateScheduling?.[0]?.trim() === dateBlocked[0]?.trim()
                 })
-                if (datesBlocked.length) return ResponseHandler.error("This date is blocked in doctor scheduling")
+                if (datesBlocked?.length) return ResponseHandler.error("This date is blocked in doctor scheduling")
             }
             // const schedulingDao = new SchedulingQueriesDAO()
             // const schedulingToDoctorExists = await schedulingDao.schedulingPerDoctor(scheduling)
