@@ -36,10 +36,6 @@ export class PatchPatientService {
             const address = patientDomain?.address
             address?.setUuidHash(patientDTO?.address?.id ?? undefined!)
 
-            const city = address?.city
-            const state = city?.state
-            const country = state?.country
-
             const cardInsurances = patientDTO.cardInsurances?.map((card) => {
                 const cardInsurance = CardInsuranceFactory.createFromDTO(card)
                 cardInsurance.setUuidHash(card.id ?? cardInsurance.getUUIDHash())
@@ -55,15 +51,8 @@ export class PatchPatientService {
 
             if (patientDomain.address?.getUUIDHash()) {
                 const address = patientDomain.address
-                const city = address.city
-                const state = city?.state
-                const country = state?.country
 
                 validator.setValidator(`U-${address.constructor.name}`, [new EntityExistsToUpdated(), new UUIDValidator()])
-                validator.setValidator(`U-${city?.constructor.name ?? "city"}`, [new EntityExistsToUpdated(), new UUIDValidator(), new RequiredGeneralData(Object.keys(city ?? {}))])
-                validator.setValidator(`U-${state?.constructor.name ?? "state"}`, [new EntityExistsToUpdated(), new UUIDValidator(), new RequiredGeneralData(Object.keys(state ?? {}))])
-                validator.setValidator(`U-${country?.constructor.name ?? "country"}`, [new EntityExistsToUpdated(), new UUIDValidator(), new RequiredGeneralData(Object.keys(country ?? {}))])
-
                 const addressIsValid = await validator.process(`U-${address.constructor.name}`, address, this.addressRepository)
                 if (!addressIsValid.success) return addressIsValid
             }

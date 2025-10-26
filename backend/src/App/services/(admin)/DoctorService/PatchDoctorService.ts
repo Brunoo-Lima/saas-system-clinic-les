@@ -62,7 +62,7 @@ export class PatchDoctorService {
                 return {
                     updated: {
                         ...doctorUpdated.updated,
-                        address:addressUpdated,
+                        address: addressUpdated,
                         periodToWork: periodsUpdated
                     },
                     deleted: {
