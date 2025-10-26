@@ -20,9 +20,9 @@ export class CalculateTransfers implements IProcessValidator {
                 if ((Array.isArray(schedulingData) && !schedulingData.length)) return ResponseHandler.error("You sended the scheduling id, but not exits.")
 
                 const schedulingFounded = schedulingData[0]
-                const doctorId = schedulingFounded.doctor.id
-                const insuranceId = schedulingFounded.insurance.id
-                const specialtyId = schedulingFounded.specialties.id
+                const doctorId = schedulingFounded.doctor?.id
+                const insuranceId = schedulingFounded.insurance?.id
+                const specialtyId = schedulingFounded.specialties?.id
                 const consultationPrice = schedulingFounded.priceOfConsultation ?? 0
 
                 const percentDoctor = await this.financialQueriesDAO.getTotalDoctorSpecialty(doctorId) as any
@@ -53,6 +53,7 @@ export class CalculateTransfers implements IProcessValidator {
 
             return ResponseHandler.success(financial, "Success ! Financial total calculated.")
         } catch (e) {
+            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }

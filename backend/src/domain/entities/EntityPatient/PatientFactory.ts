@@ -23,7 +23,6 @@ export class PatientFactory {
     // Country
     const country = new Country({ name: patientDTO.address?.country });
 
-
     // State
     const state = new StateBuilder()
       .setCountry(country)
