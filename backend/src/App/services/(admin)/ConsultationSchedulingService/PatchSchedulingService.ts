@@ -68,12 +68,12 @@ export class PatchSchedulingService {
 
                 const doctorIsValid = await validator.process(`F-doctor`, schedulingDomain.doctor as Doctor)
                 if(!doctorIsValid.success) return doctorIsValid
-
                 const specialtiesIsValid = await validator.process(`F-specialties`, specialty as Specialty)
                 if(!specialtiesIsValid.success) return specialtiesIsValid
-
+                
                 const financialIsValid = await validator.process(`C-${financialDomain.constructor.name}`, financialDomain, this.financialRepository)
-                if(!financialIsValid.success) return financialDomain
+                if(!financialIsValid.success) return financialIsValid
+         
             }
 
             validator.setValidator(`U-${schedulingDomain.constructor.name}`, allValidators)
