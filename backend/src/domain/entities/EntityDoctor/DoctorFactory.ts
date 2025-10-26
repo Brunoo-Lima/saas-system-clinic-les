@@ -23,26 +23,21 @@ export class DoctorFactory {
 
         // Country
         const country = new Country({
-            name: doctorDTO?.address?.country?.name ?? ""
+            name: doctorDTO?.address?.country ?? ""
         });
-        country.setUuidHash(
-            doctorDTO?.address?.country?.id ?? country.getUUIDHash()
-        );
 
         // State
         const state = new StateBuilder()
             .setCountry(country)
-            .setName(doctorDTO?.address?.state?.name)
-            .setUf(doctorDTO?.address?.state?.uf)
+            .setName(doctorDTO?.address?.state)
+            .setUf(doctorDTO?.address?.uf)
             .build();
-        state.setUuidHash(doctorDTO?.address?.state?.id ?? state.getUUIDHash());
 
         // City
         const city = new CityBuilder()
             .setState(state)
-            .setName(doctorDTO?.address?.city?.name)
+            .setName(doctorDTO?.address?.city)
             .build();
-        city.setUuidHash(doctorDTO?.address?.city?.id ?? city.getUUIDHash());
 
         // Address
         const address = new AddressBuilder()

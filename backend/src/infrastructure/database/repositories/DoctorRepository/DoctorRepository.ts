@@ -7,7 +7,7 @@ import { doctorTable, doctorToSpecialtyTable } from "../../Schema/DoctorSchema";
 import { IRepository } from "../IRepository";
 import { periodDoctorTable } from "../../Schema/PeriodSchema";
 import { specialtyTable } from "../../Schema/SpecialtySchema";
-import { addressTable, cityTable, countryTable, stateTable } from "../../Schema/AddressSchema";
+import { addressTable } from "../../Schema/AddressSchema";
 import { userTable } from "../../Schema/UserSchema";
 
 export class DoctorRepository implements IRepository {
@@ -217,24 +217,12 @@ export class DoctorRepository implements IRepository {
                         'cep', ${addressTable.cep},
                         'number', ${addressTable.number},
                         'neighborhood', ${addressTable.neighborhood},
-                        'city', json_build_object(
-                            'id', ${cityTable.id},
-                            'name', ${cityTable.name}
-                        ),
-                        'state', json_build_object(
-                            'id', ${stateTable.id},
-                            'name', ${stateTable.name},
-                            'uf', ${stateTable.uf}
-                        ),
-                        'country', json_build_object(
-                            'id', ${countryTable.id},
-                            'name', ${countryTable.name}
-                        )
+                        'city', ${addressTable.city},
+                        'state', ${addressTable.state},
+                        'uf', ${addressTable.uf},
+                        'country', ${addressTable.country}
                     )
                     FROM ${addressTable}
-                    LEFT JOIN ${cityTable} ON ${cityTable.id} = ${addressTable.city_id}
-                    LEFT JOIN ${stateTable} ON ${stateTable.id} = ${cityTable.state_id}
-                    LEFT JOIN ${countryTable} ON ${countryTable.id} = ${stateTable.country_id} 
                     WHERE ${addressTable.id} = ${doctorTable.address_id}
                 )
                 `,

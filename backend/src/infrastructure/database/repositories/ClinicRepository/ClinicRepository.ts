@@ -8,8 +8,7 @@ import { EntityDomain } from '../../../../domain/entities/EntityDomain';
 import { specialtyTable } from '../../Schema/SpecialtySchema';
 import { insuranceTable, insuranceToModalitiesTable } from '../../Schema/InsuranceSchema';
 import { userTable } from '../../Schema/UserSchema';
-import { addressTable, cityTable, countryTable, stateTable } from '../../Schema/AddressSchema';
-import { modalityTable } from '../../Schema/ModalitiesSchema';
+import { addressTable } from '../../Schema/AddressSchema';
 
 export class ClinicRepository implements IRepository {
   async create(clinic: Clinic, tx?: any): Promise<any> {
@@ -154,24 +153,12 @@ export class ClinicRepository implements IRepository {
               'cep', ${addressTable.cep},
               'number', ${addressTable.number},
               'neighborhood', ${addressTable.neighborhood},
-              'city', json_build_object(
-                'id', ${cityTable.id},
-                'name', ${cityTable.name}
-              ),
-              'state', json_build_object(
-                'id', ${stateTable.id},
-                'name', ${stateTable.name},
-                'uf', ${stateTable.uf}
-              ),
-              'country', json_build_object(
-                'id', ${countryTable.id},
-                'name', ${countryTable.name}
-              )
+              'city', ${addressTable.city},
+              'state', ${addressTable.state},
+              'country', ${addressTable.country},
+              'uf', ${addressTable.uf}
             )
             FROM ${addressTable}
-            LEFT JOIN ${cityTable} ON ${cityTable.id} = ${addressTable.city_id}
-            LEFT JOIN ${stateTable} ON ${stateTable.id} = ${cityTable.state_id}
-            LEFT JOIN ${countryTable} ON ${countryTable.id} = ${stateTable.country_id} 
             WHERE ${addressTable.id} = ${clinicTable.address_id}
           )`,
           specialties: sql`

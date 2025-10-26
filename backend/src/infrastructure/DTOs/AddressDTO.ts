@@ -5,17 +5,8 @@ export interface AddressDTO {
     number: string,
     cep: string,
     neighborhood: string,
-    city: {
-        id: string,
-        name: string,
-    },
-    state: {
-        id: string,
-        name: string,
-        uf: string
-    },
-    country: {
-        id: string,
-        name: string
-    }
+    city: string
+    state: string,
+    uf: string
+    country: string
 }

@@ -5,33 +5,26 @@ import { State } from "../../../../domain/entities/EntityAddress/State";
 import { DoctorFactory } from "../../../../domain/entities/EntityDoctor/DoctorFactory";
 import { EntityExistsToInserted } from "../../../../domain/validators/General/EntityExistsToInserted";
 import { EntityExistsToUpdated } from "../../../../domain/validators/General/EntityExistsToUpdated";
+import { EntityExits } from "../../../../domain/validators/General/EntityExits";
 import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../../../infrastructure/database/connection";
 import { AddressRepository } from "../../../../infrastructure/database/repositories/AddressRepository/AddressRepository";
-import { CityRepository } from "../../../../infrastructure/database/repositories/CityRepository/CityRepository";
-import { CountryRepository } from "../../../../infrastructure/database/repositories/CountryRepository/CountryRepository";
 import { DoctorRepository } from "../../../../infrastructure/database/repositories/DoctorRepository/DoctorRepository";
+import { findOrCreate } from "../../../../infrastructure/database/repositories/findOrCreate";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { PeriodsRepository } from "../../../../infrastructure/database/repositories/PeriodsRepository/PeriodsRepository";
-import { StateRepository } from "../../../../infrastructure/database/repositories/StateRepository/StateRepository";
 import { DoctorDTO } from "../../../../infrastructure/DTOs/DoctorDTO";
 
 export class PatchDoctorService {
     private repository: IRepository;
-    private countryRepository: IRepository;
     private addressRepository: IRepository;
-    private stateRepository: IRepository;
-    private cityRepository: IRepository;
     private periodsRepository: IRepository;
 
     constructor() {
         this.repository = new DoctorRepository()
         this.addressRepository = new AddressRepository()
-        this.countryRepository = new CountryRepository()
-        this.stateRepository = new StateRepository()
-        this.cityRepository = new CityRepository()
         this.periodsRepository = new PeriodsRepository()
     }
     async execute(doctorDTO: DoctorDTO, id: string | undefined) {
@@ -54,9 +47,6 @@ export class PatchDoctorService {
                     doctorDomain.address?.setUuidHash(doctorDTO.address.id)
                     addressUpdated = await this.addressRepository.updateEntity(doctorDomain.address as Address, tx);
                 }
-                if (doctorDTO?.address?.city?.id) await this.cityRepository.updateEntity(doctorDomain?.address?.city as City, tx);
-                if (doctorDTO?.address?.state?.id) await this.stateRepository.updateEntity(doctorDomain?.address?.city?.state as State, tx)
-                if (doctorDTO?.address?.country?.id) await this.countryRepository.updateEntity(doctorDomain?.address?.city?.state?.country as Country, tx)
 
                 const doctorUpdated = await this.repository.updateEntity(doctorDomain, tx);
                 if(doctorDTO?.periodToWork){
@@ -70,7 +60,7 @@ export class PatchDoctorService {
                 return {
                     updated: {
                         ...doctorUpdated.updated,
-                        address: addressUpdated,
+                        address:addressUpdated,
                         periodToWork: periodsUpdated
                     },
                     deleted: {
@@ -82,7 +72,6 @@ export class PatchDoctorService {
 
             return ResponseHandler.success(entitiesUpdated, "Success ! Doctor was updated.")
         } catch (e) {
-            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }

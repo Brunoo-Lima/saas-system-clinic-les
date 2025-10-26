@@ -15,8 +15,11 @@ export class AddressRepository implements IRepository {
             number: address.number as string,
             neighborhood: address.neighborhood ?? "",
             cep: address.cep as string,
-            street: address.street as string,
-            city_id: address.city?.getUUIDHash()
+            city: address.city?.name || "",
+            state: address.city?.state?.name || "",
+            country: address.city?.state?.country?.name || "",
+            uf: address.city?.state?.uf || "",
+            street: address.street as string
         }).returning()
 
         return addressInserted
@@ -48,6 +51,10 @@ export class AddressRepository implements IRepository {
             neighborhood: address.neighborhood,
             number: address.number,
             street: address.street,
+            city: address.city?.name,
+            state: address.city?.state?.name,
+            country: address.city?.state?.country?.name,
+            uf: address.city?.state?.uf,
             updatedAt: address.getUpdatedAt()
 
         }).where(

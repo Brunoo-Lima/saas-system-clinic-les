@@ -10,7 +10,7 @@ import { schedulingTable } from "./SchedulingSchema";
 
 
 //Movimentacoes 
-export const financialTable = pgTable("appointment", {
+export const financialTable = pgTable("financial", {
   id: uuid("fin_id").primaryKey(),
   total: real("fin_total_brute").default(0),
   date: date("fin_date").notNull(),

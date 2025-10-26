@@ -13,34 +13,29 @@ import { ValidatorController } from "../../../../domain/validators/ValidatorCont
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../../../infrastructure/database/connection";
 import { AddressRepository } from "../../../../infrastructure/database/repositories/AddressRepository/AddressRepository";
-import { CityRepository } from "../../../../infrastructure/database/repositories/CityRepository/CityRepository";
-import { CountryRepository } from "../../../../infrastructure/database/repositories/CountryRepository/CountryRepository";
 import { DoctorRepository } from "../../../../infrastructure/database/repositories/DoctorRepository/DoctorRepository";
 import { findOrCreate } from "../../../../infrastructure/database/repositories/findOrCreate";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { PeriodsRepository } from "../../../../infrastructure/database/repositories/PeriodsRepository/PeriodsRepository";
-import { StateRepository } from "../../../../infrastructure/database/repositories/StateRepository/StateRepository";
+import { SpecialtyRepository } from "../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository";
 import { UserRepository } from "../../../../infrastructure/database/repositories/UserRepository/UserRepository";
 import { DoctorDTO } from "../../../../infrastructure/DTOs/DoctorDTO";
 import { queueClient } from "../../../../infrastructure/queue/queue_email_client";
 
 export class CreateDoctorService {
     private repository: IRepository;
-    private countryRepository: IRepository;
     private addressRepository: IRepository;
-    private stateRepository: IRepository;
-    private cityRepository: IRepository;
     private userRepository: IRepository;
     private periodRepository: IRepository;
+    private specialtyRepository: IRepository;
 
     constructor() {
         this.repository = new DoctorRepository()
         this.addressRepository = new AddressRepository()
-        this.countryRepository = new CountryRepository()
-        this.stateRepository = new StateRepository()
-        this.cityRepository = new CityRepository()
         this.userRepository = new UserRepository()
         this.periodRepository = new PeriodsRepository()
+        this.specialtyRepository = new SpecialtyRepository()
+
     }
     async execute(doctorDTO: DoctorDTO) {
         try {
@@ -50,23 +45,17 @@ export class CreateDoctorService {
                 new UUIDValidator(),
                 new AllValidatorToCreateDoctor(validator),
                 new EntityExits(),
+                new ValidPeriodsToDoctor(validator, this.periodRepository, this.specialtyRepository),
                 new RequiredGeneralData(Object.keys(doctorDomain))
             ])
-
             const entitiesValidated = await validator.process(`C-${doctorDomain.constructor.name}`, doctorDomain, this.repository)
             if (!entitiesValidated.success) return ResponseHandler.error(entitiesValidated.message)
+            
             const entitiesInserted = await db.transaction(async (tx) => {
 
                 const addressDomain = doctorDomain.address as Address;
-                const cityDomain = doctorDomain.address?.city as City;
-                const stateDomain = doctorDomain.address?.city?.state as State;
-                const countryDomain = doctorDomain.address?.city?.state?.country as Country;
+                const addressInserted = await this.addressRepository.create(addressDomain, tx);
 
-                await findOrCreate(this.countryRepository, countryDomain, tx);
-                await findOrCreate(this.stateRepository, stateDomain, tx);
-                await findOrCreate(this.cityRepository, cityDomain, tx);
-
-                const addressInserted = await findOrCreate(this.addressRepository, addressDomain, tx);
                 const userInserted = await this.userRepository.create(doctorDomain.user as User, tx)
                 const { password, ...userOmitted } = userInserted.data
                 const doctorInserted = await this.repository.create(doctorDomain, tx);
@@ -74,7 +63,7 @@ export class CreateDoctorService {
                 // Disparo do email para a fila.
                 
                 userInserted.data.template = "welcome"
-                await queueClient.add("welcome_email", userInserted.data)
+                //await queueClient.add("welcome_email", userInserted.data)
 
                 return ResponseHandler.success({
                     doctor: doctorInserted[0],
