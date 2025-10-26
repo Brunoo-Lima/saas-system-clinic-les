@@ -43,9 +43,12 @@ export class CreateSchedulingDoctorService{
             .setDoctor(doctorDomain)
             .setIsActivated(true)
             .build()
+
             schedulingDoctorDomain.doctor?.setUuidHash(schedulingDoctor.doctor.id ?? "")
             
             const validator = new ValidatorController()
+
+            validator.setValidator(`FD-${schedulingDoctorDomain?.doctor?.constructor.name}`, [ new UUIDValidator(), new EntityExistsToInserted()])
             validator.setValidator(`C-${schedulingDoctorDomain.constructor.name}`, [
                 new UUIDValidator(),
                 new ExistsSchedulingOpened(),
@@ -53,10 +56,10 @@ export class CreateSchedulingDoctorService{
                 new RequiredGeneralData(Object.keys(schedulingDoctorDomain.props), ["datesBlocked"]),
             ])
             
-            validator.setValidator(`F-${schedulingDoctorDomain?.doctor?.constructor.name}`, [new UUIDValidator(true), new EntityExistsToInserted()])
-            const entityIsValid = await validator.process(`C-${schedulingDoctorDomain.constructor.name}`, schedulingDoctorDomain, this.repository)
-            const doctorIsValid = await validator.process(`F-${schedulingDoctorDomain?.doctor?.constructor.name}`, schedulingDoctorDomain.doctor as Doctor, this.doctorRepository)
             
+            const entityIsValid = await validator.process(`C-${schedulingDoctorDomain.constructor.name}`, schedulingDoctorDomain, this.repository)
+            const doctorIsValid = await validator.process(`FD-${schedulingDoctorDomain?.doctor?.constructor.name}`, schedulingDoctorDomain.doctor as Doctor, this.doctorRepository)
+          
             if(!entityIsValid.success) return entityIsValid
             if(!doctorIsValid.success) return doctorIsValid
             
