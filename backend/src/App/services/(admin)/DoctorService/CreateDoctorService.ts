@@ -63,7 +63,7 @@ export class CreateDoctorService {
                 // Disparo do email para a fila.
                 
                 userInserted.data.template = "welcome"
-                //await queueClient.add("welcome_email", userInserted.data)
+                await queueClient.add("welcome_email", userInserted.data)
 
                 return ResponseHandler.success({
                     doctor: doctorInserted[0],

@@ -28,11 +28,10 @@ export class AddressRepository implements IRepository {
     async findEntity(address: Address, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
         const filters = [
-            ilike(addressTable.name, address.nameAddress ?? "")
+            ilike(addressTable.name, address.nameAddress ?? ""),
+            eq(addressTable.id, address.getUUIDHash())
         ]
-        const addressId = address.getUUIDHash()
 
-        if (addressId && addressId !== "") filters.push(eq(addressTable.id, addressId))
         const addressesFounded = await dbUse.select().from(addressTable)
             .where(
                 or(
