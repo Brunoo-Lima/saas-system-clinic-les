@@ -59,12 +59,12 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
       <CardContent className="flex flex-col gap-2 flex-1">
         <Badge variant="outline">
           <CalendarIcon className="mr-1" />
-          {doctor.periodToWork
-            .map((p) => formattedDayWeek(p.dayWeek))
-            .join(', ')}
+          {doctor?.periodToWork
+            ?.map((p) => formattedDayWeek(p.dayWeek))
+            .join(', ') || 'N/A'}
         </Badge>
         <Badge variant="outline" className="flex flex-col items-start gap-1">
-          {doctor.periodToWork.map((a) => (
+          {doctor?.periodToWork?.map((a) => (
             <span key={a.dayWeek} className="flex items-center gap-x-2">
               <ClockIcon size={16} className="mr-1" />
               {`${a.timeFrom.slice(0, 5)} - ${a.timeTo.slice(

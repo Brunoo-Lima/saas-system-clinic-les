@@ -41,6 +41,7 @@ import type { IPatient } from '@/@types/IPatient';
 import { getPatientDefaultValues } from '../_helpers/get-patient-default-values';
 import {
   useCreatePatient,
+  useUpdatePatient,
   type IPatientPayload,
 } from '@/services/patient-service';
 import { formatCPF } from '@/utils/format-cpf';
@@ -71,14 +72,21 @@ export const UpsertPatientForm = ({
     name: 'cardInsurances',
   });
 
-  const { mutate, isPending } = useCreatePatient();
+  const { mutate: createPatient, isPending: isCreating } = useCreatePatient();
+  const { mutate: updatePatient, isPending: isUpdating } = useUpdatePatient();
   const { data: insurances } = useGetAllInsurances();
+
+  const isPending = isCreating || isUpdating;
 
   useEffect(() => {
     if (isOpen && patient) {
       form.reset(getPatientDefaultValues(patient));
     }
   }, [isOpen, patient, form]);
+
+  useEffect(() => {
+    console.log(form.formState.errors);
+  }, [form.formState.errors]);
 
   const cardInsurances = form.watch('cardInsurances');
   const hasInsurance = cardInsurances ? cardInsurances.length > 0 : false;
@@ -124,26 +132,119 @@ export const UpsertPatientForm = ({
       ? values.cardInsurances
       : [];
 
-    const payload: Omit<IPatientPayload, 'id'> = {
-      ...values,
+    // Para criação, envia todos os dados
+    if (!patient) {
+      const payload: IPatientPayload = {
+        ...values,
+        dateOfBirth: dateOfBirthString,
+        cardInsurances,
+      };
 
-      dateOfBirth: dateOfBirthString,
-      cardInsurances,
-    };
+      createPatient(payload, {
+        onSuccess: () => {
+          onSuccess();
+          form.reset();
+        },
+      });
+    } else {
+      // Para atualização, usar dirtyFields para pegar apenas campos modificados
+      const dirtyFields = form.formState.dirtyFields;
 
-    mutate(payload, {
-      onSuccess: () => {
-        onSuccess();
-        form.reset();
-      },
-    });
+      const payload: any = {
+        id: patient.id,
+      };
+
+      // Função para construir o payload apenas com campos modificados
+      const buildDirtyPayload = (
+        dirtyFields: any,
+        values: any,
+        basePath: string = '',
+      ) => {
+        Object.keys(dirtyFields).forEach((key) => {
+          const fullPath = basePath ? `${basePath}.${key}` : key;
+          const isDirty = dirtyFields[key];
+
+          if (isDirty === true) {
+            // Campo primitivo sujo - adicionar ao payload
+            const pathParts = fullPath.split('.');
+            let current = payload;
+
+            for (let i = 0; i < pathParts.length - 1; i++) {
+              const part = pathParts[i];
+              if (!current[part]) {
+                current[part] = {};
+              }
+              current = current[part];
+            }
+
+            current[pathParts[pathParts.length - 1]] = getNestedValue(
+              values,
+              fullPath,
+            );
+          } else if (typeof isDirty === 'object') {
+            // Objeto nested - processar recursivamente
+            buildDirtyPayload(isDirty, values, fullPath);
+          }
+        });
+      };
+
+      // Função auxiliar para pegar valores nested
+      const getNestedValue = (obj: any, path: string) => {
+        return path.split('.').reduce((current, key) => current?.[key], obj);
+      };
+
+      // Construir payload apenas com campos sujos
+      buildDirtyPayload(dirtyFields, values);
+
+      if (payload.user) {
+        // Se algum campo do user foi modificado, garantir que venha como objeto completo
+        payload.user = {
+          ...(patient.user || {}), // Manter dados existentes
+          ...payload.user, // Sobrescrever com campos modificados
+        };
+      }
+
+      // Garantir que o ID do endereço seja incluído se houver mudanças no address
+      if (payload.address) {
+        payload.address = {
+          id: patient.address.id,
+          ...(patient.address || {}), // Manter dados existentes do endereço
+          ...payload.address, // Sobrescrever com campos modificados
+        };
+      }
+
+      // Campos que precisam de formatação especial
+      if (dirtyFields.dateOfBirth) {
+        payload.dateOfBirth = dateOfBirthString;
+      }
+
+      if (dirtyFields.cardInsurances) {
+        payload.cardInsurances = cardInsurances;
+      }
+
+      console.log(
+        'Payload PATCH para atualização:',
+        JSON.stringify(payload, null, 2),
+      );
+
+      updatePatient(
+        { id: patient.id, patient: payload },
+        {
+          onSuccess: () => {
+            onSuccess();
+            console.log('Paciente atualizado com sucesso');
+            form.reset(values);
+          },
+        },
+      );
+    }
   };
 
   return (
-    <DialogContent className="w-full sm:max-w-lg lg:max-w-2xl max-h-[90vh]  overflow-y-auto">
+    <DialogContent className="w-full sm:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle>
-          {patient ? patient.name : 'Adicionar paciente'}
+          {patient ? `Editar ${patient.name}` : 'Adicionar paciente'}
         </DialogTitle>
         <DialogDescription>
           {patient
@@ -457,22 +558,29 @@ export const UpsertPatientForm = ({
 
           <div className="grid grid-cols-4 gap-4">
             <FormInputCustom
-              name="address.city.name"
+              name="address.city"
               label="Cidade"
               placeholder="Digite o nome da cidade"
               control={form.control}
             />
 
-            <FormInputCustom
-              name="address.state.name"
-              label="Estado"
-              placeholder="Digite o nome do estado"
+            <FormField
               control={form.control}
+              name="address.state"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Estado</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Estado" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             <FormField
               control={form.control}
-              name="address.state.uf"
+              name="address.uf"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>UF</FormLabel>
@@ -499,17 +607,28 @@ export const UpsertPatientForm = ({
               )}
             />
 
-            <FormInputCustom
-              name="address.country.name"
-              label="País"
-              placeholder="Digite o país"
+            <FormField
               control={form.control}
+              name="address.country"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>País</FormLabel>
+                  <FormControl>
+                    <Input placeholder="País" {...field} value="Brasil" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
 
           <DialogFooter>
             <Button type="submit" disabled={isPending} className="w-full mt-4">
-              {isPending ? 'Salvando...' : 'Salvar'}
+              {isPending
+                ? 'Salvando...'
+                : patient
+                ? 'Atualizar paciente'
+                : 'Salvar paciente'}
             </Button>
           </DialogFooter>
         </form>

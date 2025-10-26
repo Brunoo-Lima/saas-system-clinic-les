@@ -23,20 +23,3 @@ export interface IUserPerson {
   username: string;
   password: string;
 }
-
-// export interface ISpecialtyDoctor {
-//   specialty: string;
-//   availableWeekDay: DayAvailability[];
-// }
-
-// export interface DayAvailability {
-//   day: string; // ex: "1" para segunda, "2" para terça etc
-//   intervals: TimeInterval[];
-// }
-
-// export interface TimeInterval {
-//   from: string;
-//   to: string;
-// }
-
-// export type Availability = DayAvailability[];

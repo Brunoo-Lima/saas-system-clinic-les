@@ -6,16 +6,10 @@ export const addressFormSchema = z.object({
   number: z.string().min(1, 'Número é obrigatório'),
   neighborhood: z.string().min(1, 'Bairro é obrigatório'),
   cep: z.string().min(1, 'CEP é obrigatório'),
-  city: z.object({
-    name: z.string().min(1, 'Cidade é obrigatória'),
-  }),
-  state: z.object({
-    name: z.string().min(1, 'Estado é obrigatório'),
-    uf: z.string(),
-  }),
-  country: z.object({
-    name: z.string(),
-  }),
+  city: z.string().min(1, 'Cidade é obrigatória'),
+  state: z.string().min(1, 'Estado é obrigatório'),
+  uf: z.string().min(1, 'UF é obrigatória'),
+  country: z.string().min(1, 'País é obrigatório'),
 });
 
 export type AddressFormSchema = z.infer<typeof addressFormSchema>;

@@ -80,12 +80,12 @@ export const DoctorsPage = () => {
         <div className="flex flex-col gap-y-4">
           <div className="flex flex-wrap gap-6 flex-1">
             <Suspense fallback={<p>Carregando...</p>}>
-              {paginatedData.map((doctor) => (
+              {paginatedData?.map((doctor) => (
                 <CardDoctor key={doctor.id} doctor={doctor} />
               ))}
             </Suspense>
 
-            {paginatedData.length === 0 && <p>Nenhum médico encontrado.</p>}
+            {paginatedData?.length === 0 && <p>Nenhum médico encontrado.</p>}
           </div>
 
           <PaginationComponent

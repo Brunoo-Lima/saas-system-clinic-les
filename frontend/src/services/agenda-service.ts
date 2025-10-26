@@ -107,3 +107,37 @@ export const useUpdateAgenda = () => {
     },
   });
 };
+
+export interface IAddPeriodsAgendaProps {
+  id: string;
+  periodToWork: {
+    dayWeek: number;
+    timeFrom: string;
+    timeTo: string;
+    specialty_id: string;
+  }[];
+}
+
+export const addPeriodsAgenda = async ({
+  id,
+  periodToWork,
+}: IAddPeriodsAgendaProps) => {
+  const { data } = await api.post('/doctor/periods/add', { id, periodToWork });
+
+  return data;
+};
+
+export const useAddPeriodsAgenda = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: addPeriodsAgenda,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['agenda'] });
+      toast.success('Período adicionado com sucesso!');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Erro ao adicionar período.');
+    },
+  });
+};

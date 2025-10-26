@@ -21,7 +21,7 @@ export const getDoctorDefaultValues = (doctor?: IDoctor): DoctorFormSchema => ({
     })) ?? [],
   sex: doctor?.sex ?? 'Male',
   periodToWork:
-    doctor?.periodToWork.map((period) => ({
+    doctor?.periodToWork?.map((period) => ({
       dayWeek: period.dayWeek,
       timeFrom: period.timeFrom,
       timeTo: period.timeTo,
@@ -33,15 +33,9 @@ export const getDoctorDefaultValues = (doctor?: IDoctor): DoctorFormSchema => ({
     street: doctor?.address?.street ?? '',
     number: doctor?.address?.number ?? '',
     neighborhood: doctor?.address?.neighborhood ?? '',
-    city: {
-      name: doctor?.address?.city?.name ?? '',
-    },
-    state: {
-      name: doctor?.address?.state?.name ?? '',
-      uf: doctor?.address?.state?.uf ?? '',
-    },
-    country: {
-      name: doctor?.address?.country?.name ?? 'Brasil',
-    },
+    city: doctor?.address?.city ?? '',
+    state: doctor?.address?.state ?? '',
+    country: doctor?.address?.country ?? '',
+    uf: doctor?.address?.uf ?? '',
   },
 });

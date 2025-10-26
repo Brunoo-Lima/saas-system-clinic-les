@@ -44,7 +44,7 @@ import {
 } from '@/components/ui/select';
 import { formatCEP } from '@/utils/format-cep';
 import { brazilianStates } from '@/utils/brazilian-states';
-import { useCreateDoctor } from '@/services/doctor-service';
+import { useCreateDoctor, useUpdateDoctor } from '@/services/doctor-service';
 import InputDate from '@/components/ui/input-date';
 
 interface IUpsertDoctorFormProps {
@@ -74,8 +74,13 @@ export const UpsertDoctorForm = ({
     name: 'periodToWork',
   });
 
-  const { mutate, isPending } = useCreateDoctor();
+  const { mutate: createMutate, isPending: isPendingCreate } =
+    useCreateDoctor();
+  const { mutate: updateMutate, isPending: isPendingUpdate } =
+    useUpdateDoctor();
   const { data: specialtiesBackend } = useGetSpecialties();
+
+  console.log('doctor', doctor);
 
   const specialties =
     specialtiesBackend?.map((specialty) => ({
@@ -105,8 +110,10 @@ export const UpsertDoctorForm = ({
   // sincroniza os períodos quando especialidades são removidas
   useEffect(() => {
     const currentPeriods = form.getValues('periodToWork') || [];
-    const filteredPeriods = currentPeriods.filter((period) =>
-      selectedSpecialties.includes(period.specialty_id),
+    const filteredPeriods = currentPeriods.filter(
+      (period) =>
+        period.specialty_id &&
+        selectedSpecialties.includes(period.specialty_id),
     );
 
     if (filteredPeriods.length !== currentPeriods.length) {
@@ -153,60 +160,128 @@ export const UpsertDoctorForm = ({
 
   const onSubmit = async (data: DoctorFormSchema) => {
     try {
-      const payload = {
-        name: data.name,
-        cpf: data.cpf,
-        crm: data.crm,
-        sex: data.sex,
-        phone: data.phone,
-        dateOfBirth:
-          data.dateOfBirth instanceof Date
-            ? data.dateOfBirth.toISOString().split('T')[0]
-            : data.dateOfBirth,
-        percentDistribution: data.percentDistribution || 0.2,
-        user: {
-          username: data.user.username || data.name, // Fallback para name se username não existir
-          email: data.user.email,
-          password: data.user.password,
-          avatar: data.user.avatar || '',
-        },
-        specialties: data.specialties, // Já está no formato [{ id }]
-        periodToWork: data.periodToWork.map((period) => ({
-          ...period,
-          dayWeek: +period.dayWeek,
-          timeFrom: period.timeFrom.includes(':')
-            ? period.timeFrom
-            : period.timeFrom + ':00',
-          timeTo: period.timeTo.includes(':')
-            ? period.timeTo
-            : period.timeTo + ':00',
-        })),
-        address: {
-          name: data.address.name,
-          street: data.address.street,
-          number: data.address.number,
-          neighborhood: data.address.neighborhood,
-          cep: data.address.cep,
-          city: {
-            name: data.address.city.name,
+      if (!doctor) {
+        const payload = {
+          name: data.name,
+          cpf: data.cpf,
+          crm: data.crm,
+          sex: data.sex,
+          phone: data.phone,
+          dateOfBirth:
+            data.dateOfBirth instanceof Date
+              ? data.dateOfBirth.toISOString().split('T')[0]
+              : data.dateOfBirth,
+          percentDistribution: data.percentDistribution || 0.2,
+          user: {
+            username: data.user.username || data.name,
+            email: data.user.email,
+            password: data.user.password,
+            avatar: data.user.avatar || '',
           },
-          state: {
-            name: data.address.state.name,
-            uf: data.address.state.uf,
+          specialties: data.specialties,
+          periodToWork: data.periodToWork.map((period) => ({
+            ...period,
+            dayWeek: +period.dayWeek,
+            timeFrom: period.timeFrom.includes(':')
+              ? period.timeFrom
+              : period.timeFrom + ':00',
+            timeTo: period.timeTo.includes(':')
+              ? period.timeTo
+              : period.timeTo + ':00',
+          })),
+          address: {
+            name: data.address.name,
+            street: data.address.street,
+            number: data.address.number,
+            neighborhood: data.address.neighborhood,
+            cep: data.address.cep,
+            city: data.address.city,
+            state: data.address.state,
+            uf: data.address.uf,
+            country: data.address.country,
           },
-          country: {
-            name: data.address.country.name,
-          },
-        },
-      };
+        };
 
-      mutate(payload as any, {
-        onSuccess: () => {
-          onSuccess();
-        },
-      });
+        createMutate(payload as any, {
+          onSuccess: () => {
+            onSuccess();
+          },
+          onError: (error: any) => {
+            console.error(error);
+            toast.error('Erro ao criar médico.');
+          },
+        });
+      } else {
+        const updatePayload = {
+          name: data.name,
+          cpf: data.cpf,
+          crm: data.crm,
+          sex: data.sex,
+          phone: data.phone,
+          dateOfBirth:
+            data.dateOfBirth instanceof Date
+              ? data.dateOfBirth.toISOString().split('T')[0]
+              : data.dateOfBirth,
+          user: {
+            username: data.user.username || data.name,
+            email: data.user.email,
+            ...(data.user.password && { password: data.user.password }),
+            avatar: data.user.avatar || '',
+          },
+          // CORREÇÃO: Envia apenas os IDs das especialidades para o update
+          specialties: data.specialties.map((spec) => {
+            const specialtyInfo = specialties.find((s) => s.value === spec.id);
+            return {
+              id: spec.id,
+              percentDistribution: data.percentDistribution || 0.2,
+              name: specialtyInfo?.label || '',
+            };
+          }),
+          periodToWork: data.periodToWork.map((period) => ({
+            ...period,
+            dayWeek: +period.dayWeek,
+            timeFrom: period.timeFrom.includes(':')
+              ? period.timeFrom
+              : period.timeFrom + ':00',
+            timeTo: period.timeTo.includes(':')
+              ? period.timeTo
+              : period.timeTo + ':00',
+            specialty_id: period.specialty_id,
+          })),
+          address: {
+            name: data.address.name,
+            street: data.address.street,
+            number: data.address.number,
+            neighborhood: data.address.neighborhood,
+            cep: data.address.cep,
+            city: data.address.city,
+            state: data.address.state,
+            uf: data.address.uf,
+            country: data.address.country,
+          },
+        };
+
+        updateMutate(
+          {
+            id: doctor.id,
+            doctor: updatePayload as any,
+          },
+          {
+            onSuccess: () => {
+              toast.success('Médico atualizado com sucesso!');
+              onSuccess();
+            },
+            onError: (error: any) => {
+              console.error('Erro detalhado:', error);
+              toast.error(
+                error.response?.data?.message || 'Erro ao atualizar médico.',
+              );
+            },
+          },
+        );
+      }
     } catch (error: any) {
-      console.error(error);
+      console.error('Erro no submit:', error);
       toast.error('Erro ao salvar médico.');
     }
   };
@@ -219,6 +294,8 @@ export const UpsertDoctorForm = ({
       specialty_id: specialtyId,
     });
   };
+
+  const isPending = isPendingCreate || isPendingUpdate;
 
   return (
     <DialogContent className="w-full sm:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -625,14 +702,14 @@ export const UpsertDoctorForm = ({
 
           <div className="grid grid-cols-3 gap-4">
             <FormInputCustom
-              name="address.city.name"
+              name="address.city"
               label="Cidade"
               placeholder="Digite a cidade"
               control={form.control}
             />
 
             <FormInputCustom
-              name="address.state.name"
+              name="address.state"
               label="Estado"
               placeholder="Digite o estado"
               control={form.control}
@@ -641,11 +718,15 @@ export const UpsertDoctorForm = ({
             <div className="grid grid-cols-2 gap-2">
               <FormField
                 control={form.control}
-                name="address.state.uf"
+                name="address.uf"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>UF</FormLabel>
-                    <Select onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="UF" />
@@ -665,7 +746,7 @@ export const UpsertDoctorForm = ({
               />
 
               <FormInputCustom
-                name="address.country.name"
+                name="address.country"
                 label="País"
                 placeholder="Digite o país"
                 control={form.control}
