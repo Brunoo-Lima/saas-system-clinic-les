@@ -13,7 +13,6 @@ import { IRepository } from "../../../../infrastructure/database/repositories/IR
 import { PatientRepository } from "../../../../infrastructure/database/repositories/PatientRepository/PatientRepository";
 import { SpecialtyRepository } from "../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository";
 import { ConsultationSchedulingDTO } from "../../../../infrastructure/DTOs/ConsultationSchedulingDTO";
-import { queueScheduling } from "../../../../infrastructure/queue/queue_email_client";
 
 export class CreateSchedulingService {
     private repository: IRepository;
