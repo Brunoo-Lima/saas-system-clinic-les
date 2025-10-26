@@ -3,7 +3,7 @@ import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Patient } from "../../../../domain/entities/EntityPatient/Patient";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
-import { addressTable, cityTable, countryRelations, countryTable, stateTable } from "../../Schema/AddressSchema";
+import { addressTable } from "../../Schema/AddressSchema";
 import { IRepository } from "../IRepository";
 import { patientTable } from "../../Schema/PatientSchema";
 import { userTable } from "../../Schema/UserSchema";
@@ -107,24 +107,12 @@ export class PatientRepository implements IRepository {
                         'cep', ${addressTable.cep},
                         'number', ${addressTable.number},
                         'neighborhood', ${addressTable.neighborhood},
-                        'city', json_build_object(
-                            'id', ${cityTable.id},
-                            'name', ${cityTable.name}
-                        ),
-                        'state', json_build_object(
-                            'id', ${stateTable.id},
-                            'name', ${stateTable.name},
-                            'uf', ${stateTable.uf}
-                        ),
-                        'country', json_build_object(
-                            'id', ${countryTable.id},
-                            'name', ${countryTable.name}
-                        )
+                        'city', ${addressTable.city},
+                        'state', ${addressTable.state},
+                        'country', ${addressTable.state},
+                        'uf', ${addressTable.uf}
                     )
                     FROM ${addressTable}
-                    LEFT JOIN ${cityTable} ON ${cityTable.id} = ${addressTable.city_id}
-                    LEFT JOIN ${stateTable} ON ${stateTable.id} = ${cityTable.state_id}
-                    LEFT JOIN ${countryTable} ON ${countryTable.id} = ${stateTable.country_id} 
                     WHERE ${addressTable.id} = ${patientTable.address_id}
                 )
                 `.as("address"),

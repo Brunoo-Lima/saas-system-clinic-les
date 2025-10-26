@@ -6,13 +6,7 @@ import { AddressRepository } from '../../../../infrastructure/database/repositor
 import { ClinicRepository } from '../../../../infrastructure/database/repositories/ClinicRepository/ClinicRepository';
 import { findOrCreate } from '../../../../infrastructure/database/repositories/findOrCreate';
 import { IRepository } from '../../../../infrastructure/database/repositories/IRepository';
-import { City } from '../../../../domain/entities/EntityAddress/City';
-import { State } from '../../../../domain/entities/EntityAddress/State';
-import { Country } from '../../../../domain/entities/EntityAddress/Country';
 import { Address } from '../../../../domain/entities/EntityAddress/Address';
-import { CountryRepository } from '../../../../infrastructure/database/repositories/CountryRepository/CountryRepository';
-import { StateRepository } from '../../../../infrastructure/database/repositories/StateRepository/StateRepository';
-import { CityRepository } from '../../../../infrastructure/database/repositories/CityRepository/CityRepository';
 import { RequiredGeneralData } from '../../../../domain/validators/General/RequiredGeneralData';
 import { InsuranceRepository } from '../../../../infrastructure/database/repositories/InsurancesRepository/InsurancesRepository';
 import { ValidInsuranceData } from '../../../../domain/validators/InsuranceValidator/ValidInsuranceData';
@@ -24,17 +18,11 @@ import { ClinicFactory } from '../../../../domain/entities/EntityClinic/ClinicFa
 export class CreateClinicService {
   private repository: IRepository;
   private addressRepository: IRepository
-  private countryRepository: IRepository;
-  private stateRepository: IRepository;
-  private cityRepository: IRepository;
   private specialtiesRepository: IRepository;
 
   constructor() {
     this.repository = new ClinicRepository();
     this.addressRepository = new AddressRepository();
-    this.countryRepository = new CountryRepository()
-    this.stateRepository = new StateRepository()
-    this.cityRepository = new CityRepository()
     this.specialtiesRepository = new SpecialtyRepository();
   }
 
@@ -81,22 +69,16 @@ export class CreateClinicService {
         if (!specialtiesValid.success) return specialtiesValid
       }
 
+      
       const entitiesInserted = await db.transaction(async (tx) => {
         const addressDomain = clinicDomain.address as Address;
-        const cityDomain = clinicDomain.address?.city as City;
-        const stateDomain = clinicDomain.address?.city?.state as State;
-        const countryDomain = clinicDomain.address?.city?.state?.country as Country;
-
-        await findOrCreate(this.countryRepository, countryDomain, tx);
-        await findOrCreate(this.stateRepository, stateDomain, tx);
-        await findOrCreate(this.cityRepository, cityDomain, tx);
         if(clinicDomain.specialties) {
           await Promise.all(
             clinicDomain.specialties?.map(async (sp) => await findOrCreate(this.specialtiesRepository, sp, tx))
           )
         }
         
-        const addressInserted = await findOrCreate(this.addressRepository, addressDomain, tx);
+        const addressInserted = await this.addressRepository.create(addressDomain, tx)
         const clinicInserted = await this.repository.create(clinicDomain, tx)
 
         return {
