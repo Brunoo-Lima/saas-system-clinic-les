@@ -1,7 +1,6 @@
 import { DoctorFactory } from "../../../../domain/entities/EntityDoctor/DoctorFactory";
 import { DoctorSchedulingBuilder } from "../../../../domain/entities/EntityDoctorScheduling/DoctorSchedulingBuilder";
 import { SchedulingBlockedDays } from "../../../../domain/entities/EntitySchedulingBlockedDays/SchedulingBlockedDays";
-import { EntityExistsToUpdated } from "../../../../domain/validators/General/EntityExistsToUpdated";
 import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -39,10 +38,15 @@ export class PatchSchedulingDoctorService {
             .build()
 
             schedulingDoctorDomain.setUuidHash(schedulingDTO.id ?? "")
-
-            const validator = new ValidatorController()
-            validator.setValidator(`U-${schedulingDoctorDomain.constructor.name}`, [ new UUIDValidator(), new EntityExistsToUpdated()])            
+            schedulingDoctorDomain.doctor?.setUuidHash(schedulingDTO.doctor?.id ?? "")
             
+            const validator = new ValidatorController()
+            validator.setValidator(`U-${schedulingDoctorDomain.constructor.name}`, [ 
+                new UUIDValidator()
+            ])            
+
+            const schedulingDoctorIsValid = await validator.process(`U-${schedulingDoctorDomain.constructor.name}`, schedulingDoctorDomain, this.repository)
+            if(!schedulingDoctorIsValid.success) return schedulingDoctorIsValid;
             if(schedulingDoctorDomain.datesBlocked?.length && schedulingDoctorDomain.datesBlocked[0]){
                 validator.setValidator(`F-${schedulingDoctorDomain.datesBlocked[0].constructor.name}`, [
                     new UUIDValidator()
@@ -54,15 +58,38 @@ export class PatchSchedulingDoctorService {
             const entitiesUpdated = await db.transaction(async (tx) => {
                 const schedulingDoctorUpdated = await this.repository.updateEntity(schedulingDoctorDomain, tx)
                 const datesBlockedUpdated = await this.blockedRepository.updateEntity(schedulingDoctorDomain.datesBlocked ?? [], tx)
-              
+
+                let datesCreated;
+                let datesRemoved;
+
+                if(Array.isArray(datesBlockedUpdated)) {
+                    const idsUpdated = datesBlockedUpdated.flat().filter((dt) => dt.id).map(dt => dt.id)
+                    const datesToCreate = schedulingDoctorDomain.datesBlocked?.filter((dt) => !idsUpdated.includes(dt.getUUIDHash())) ?? []
+                    
+                    if(datesToCreate.length) {
+                        datesCreated = await this.blockedRepository.create(datesToCreate, tx, schedulingDoctorDomain.getUUIDHash())
+                        if(Array.isArray(datesCreated)){
+                            const idsCreated = datesCreated.filter((dt) => dt.id).map((dt => dt.id))
+                            idsUpdated.push(...idsCreated)
+                        }
+                    
+                    }
+                    datesRemoved = await this.blockedRepository.deleteEntity(schedulingDoctorDomain.datesBlocked as [], tx)
+                }
+
                 return {
                     scheduling: schedulingDoctorUpdated[0],
-                    datesBlocked: datesBlockedUpdated
+                    datesBlocked: {
+                        updated: datesBlockedUpdated.flat(),
+                        created: datesCreated,
+                        deleted: datesRemoved
+                    }
                 }
             })
 
             return ResponseHandler.success(entitiesUpdated, "Success ! ")
         } catch(e){
+            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }

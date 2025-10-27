@@ -1,4 +1,3 @@
-import { get } from "https";
 import { EntityDomain } from "../EntityDomain";
 import { IDoctorScheduling } from "./types/IDocotorScheduling";
 
@@ -28,4 +27,9 @@ export class DoctorScheduling extends EntityDomain{
     public get datesBlocked() {
         return this.doctorSchedulingProps.datesBlocked
     }
+    
+    public set is_activate(active: boolean | undefined) {
+        this.is_activate = active
+    }
+    
 }
