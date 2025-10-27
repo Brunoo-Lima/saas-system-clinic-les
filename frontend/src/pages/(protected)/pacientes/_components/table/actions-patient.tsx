@@ -29,6 +29,7 @@ import { useState } from 'react';
 import { UpsertPatientForm } from '../upsert-patient-form';
 import type { IPatient } from '@/@types/IPatient';
 import { toast } from 'sonner';
+import { usePasswordUser } from '@/services/user-service';
 
 interface IActionsPatientProps {
   patient: IPatient;
@@ -36,14 +37,16 @@ interface IActionsPatientProps {
 export const ActionsPatient = ({ patient }: IActionsPatientProps) => {
   const [upsertDialogIsOpen, setUpsertDialogIsOpen] = useState<boolean>(false);
 
+  const { mutate } = usePasswordUser();
+
   const handleDeletePatientClick = () => {
     if (!patient) return;
 
     toast.success('Paciente deletado com sucesso!');
   };
 
-  const handleGenerateNewPassword = () => {
-    toast.success('Nova senha enviada para email!');
+  const handleSendNewPassword = () => {
+    mutate(patient.id);
   };
 
   return (
@@ -62,7 +65,7 @@ export const ActionsPatient = ({ patient }: IActionsPatientProps) => {
               <EditIcon />
               Editar
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleGenerateNewPassword}>
+            <DropdownMenuItem onClick={handleSendNewPassword}>
               <RotateCcwKeyIcon />
               Reenviar senha
             </DropdownMenuItem>

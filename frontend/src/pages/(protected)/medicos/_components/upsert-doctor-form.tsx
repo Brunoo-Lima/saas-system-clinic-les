@@ -85,8 +85,6 @@ export const UpsertDoctorForm = ({
     useUpdateDoctor();
   const { data: specialtiesBackend } = useGetSpecialties();
 
-  console.log('doctor', doctor);
-
   const specialties =
     specialtiesBackend?.map((specialty) => ({
       value: specialty.id,
@@ -502,7 +500,6 @@ export const UpsertDoctorForm = ({
                   </div>
 
                   {specialtyPeriods.map((period) => {
-                    // Encontra o índice global do período
                     const globalIndex = periodFields.findIndex(
                       (p) => p.id === period.id,
                     );
