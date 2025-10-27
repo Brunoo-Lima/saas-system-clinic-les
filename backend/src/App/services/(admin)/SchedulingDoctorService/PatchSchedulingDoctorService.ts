@@ -89,7 +89,6 @@ export class PatchSchedulingDoctorService {
 
             return ResponseHandler.success(entitiesUpdated, "Success ! ")
         } catch(e){
-            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }

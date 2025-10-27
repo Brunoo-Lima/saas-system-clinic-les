@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { DropdownCard } from './actions/dropdown-card';
 import { formattedDayWeek } from '@/utils/format-day-week';
 import type { IDoctor } from '@/@types/IDoctor';
+import { usePasswordUser } from '@/services/user-service';
 
 interface ICardDoctorProps {
   doctor: IDoctor;
@@ -24,6 +25,7 @@ interface ICardDoctorProps {
 export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
   const [isUpsertDoctorDialogOpen, setIsUpsertDoctorDialogOpen] =
     useState(false);
+  const { mutate } = usePasswordUser();
 
   const doctorInitials = doctor.name
     .split(' ')
@@ -37,7 +39,7 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
   };
 
   const handleSendNewPassword = () => {
-    toast.success('Nova senha enviada para email!');
+    mutate(doctor.id);
   };
 
   return (
