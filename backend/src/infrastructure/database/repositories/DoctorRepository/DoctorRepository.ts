@@ -93,12 +93,12 @@ export class DoctorRepository implements IRepository {
         let specialtiesToDoctorUpdated;
 
         const doctorUpdated = await dbUse.update(doctorTable).set({
-            cpf: doctor.cpf,
-            crm: doctor.crm,
+            cpf: doctor.cpf || undefined,
+            crm: doctor.crm || undefined,
             date_of_birth: doctor.dateOfBirth?.toISOString(),
-            name: doctor.name,
-            phone: doctor.phone,
-            sex: doctor.sex,
+            name: doctor.name || undefined,
+            phone: doctor.phone || undefined,
+            sex: doctor.sex || undefined,
             updatedAt: doctor.getUpdatedAt()
 
         }).where(
