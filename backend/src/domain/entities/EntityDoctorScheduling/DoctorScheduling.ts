@@ -1,3 +1,4 @@
+import { get } from "https";
 import { EntityDomain } from "../EntityDomain";
 import { IDoctorScheduling } from "./types/IDocotorScheduling";
 
@@ -23,5 +24,8 @@ export class DoctorScheduling extends EntityDomain{
     
     public get props() {
         return this.doctorSchedulingProps
+    }
+    public get datesBlocked() {
+        return this.doctorSchedulingProps.datesBlocked
     }
 }
