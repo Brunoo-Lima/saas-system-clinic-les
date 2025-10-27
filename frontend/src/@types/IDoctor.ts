@@ -22,4 +22,5 @@ export interface IUserPerson {
   email: string;
   username: string;
   password: string;
+  id?: string;
 }

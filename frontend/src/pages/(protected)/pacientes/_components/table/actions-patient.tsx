@@ -45,8 +45,10 @@ export const ActionsPatient = ({ patient }: IActionsPatientProps) => {
     toast.success('Paciente deletado com sucesso!');
   };
 
+  console.log('pat', patient.id);
   const handleSendNewPassword = () => {
-    mutate(patient.id);
+    if (!patient.user.id) return;
+    mutate(patient.user.id);
   };
 
   return (

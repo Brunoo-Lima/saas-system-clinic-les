@@ -39,7 +39,8 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
   };
 
   const handleSendNewPassword = () => {
-    mutate(doctor.id);
+    if (!doctor.user.id) return;
+    mutate(doctor.user.id);
   };
 
   return (

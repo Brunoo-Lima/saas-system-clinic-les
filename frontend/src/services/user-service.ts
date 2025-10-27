@@ -12,7 +12,7 @@ export const usePasswordUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: resetPasswordUser,
+    mutationFn: (id: string) => resetPasswordUser(id),
     onSuccess: () => {
       toast.success('Nova senha enviada para o email do usuário!');
       queryClient.invalidateQueries({ queryKey: ['users'] });

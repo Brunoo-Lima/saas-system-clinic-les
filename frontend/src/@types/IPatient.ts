@@ -28,4 +28,5 @@ export interface IUserPerson {
   username: string;
   password: string;
   confirmPassword: string;
+  id?: string;
 }
