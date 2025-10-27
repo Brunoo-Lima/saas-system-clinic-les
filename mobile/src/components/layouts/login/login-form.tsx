@@ -6,14 +6,22 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useState } from 'react';
 import { LoginFormSchema, loginSchema } from '@/validation/login-form-schema';
 import { useRouter } from 'expo-router';
+import { loginService } from '../../../../services/login-service';
+import { StorageService } from '../../../../services/storage-service';
 
 interface ILoginFormProps {
   role: 'paciente' | 'medico';
 }
+
+const roleMapping = {
+  paciente: 'patient',
+  medico: 'doctor',
+} as const;
 
 export const LoginForm = ({ role }: ILoginFormProps) => {
   const router = useRouter();
@@ -30,19 +38,38 @@ export const LoginForm = ({ role }: ILoginFormProps) => {
   });
   const [loading, setLoading] = useState(false);
 
-  const onSubmit = (data: LoginFormSchema) => {
+  const onSubmit = async (data: LoginFormSchema) => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
 
-      console.log('Login:', { role, ...data });
+    try {
+      // Converte o role para o formato do back-end
+      const backendRole = roleMapping[role];
 
+      const { token, user } = await loginService({
+        email: data.email,
+        password: data.password,
+        role: backendRole,
+      });
+
+      // Salva o token no SecureStore
+      await StorageService.setItem('userToken', token);
+      await StorageService.setItem('userRole', backendRole);
+      await StorageService.setItem('userData', JSON.stringify(user));
+
+      console.log('Login realizado com sucesso:', user);
+
+      // Redireciona baseado no role
       if (role === 'paciente') {
         router.push('/paciente/agendamentos');
       } else {
         router.push('/medico/painel');
       }
-    }, 1200);
+    } catch (error: any) {
+      console.error('Erro no login:', error);
+      Alert.alert('Erro', error.message || 'Erro ao fazer login');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
