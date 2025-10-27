@@ -8,9 +8,9 @@ export class Doctor extends Person {
     ){
         super(
             {
-                cpf: doctorProps.cpf ?? "",
+                cpf: doctorProps.cpf || undefined,
                 dateOfBirth: doctorProps.dateOfBirth,
-                name: doctorProps.name ?? ""
+                name: doctorProps.name || undefined
             }
         )
     }
