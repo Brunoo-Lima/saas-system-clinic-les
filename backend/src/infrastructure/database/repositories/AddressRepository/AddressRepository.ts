@@ -45,15 +45,15 @@ export class AddressRepository implements IRepository {
         const dbUse = tx ? tx : db
         
         return await dbUse.update(addressTable).set({
-            cep: address.cep,
-            name: address.nameAddress,
-            neighborhood: address.neighborhood,
-            number: address.number,
-            street: address.street,
-            city: address.city?.name,
-            state: address.city?.state?.name,
-            country: address.city?.state?.country?.name,
-            uf: address.city?.state?.uf,
+            cep: address.cep || undefined,
+            name: address.nameAddress || undefined,
+            neighborhood: address.neighborhood || undefined,
+            number: address.number || undefined,
+            street: address.street || undefined,
+            city: address.city?.name || undefined,
+            state: address.city?.state?.name || undefined,
+            country: address.city?.state?.country?.name || undefined,
+            uf: address.city?.state?.uf || undefined,
             updatedAt: address.getUpdatedAt()
 
         }).where(
