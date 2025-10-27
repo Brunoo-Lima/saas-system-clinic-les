@@ -37,7 +37,7 @@ export const getDoctorDefaultValues = (doctor?: IDoctor): DoctorFormSchema => ({
     neighborhood: doctor?.address?.neighborhood ?? '',
     city: doctor?.address?.city ?? '',
     state: doctor?.address?.state ?? '',
-    country: doctor?.address?.country ?? '',
+    country: doctor?.address?.country ?? 'Brasil',
     uf: doctor?.address?.uf ?? '',
   },
 });
