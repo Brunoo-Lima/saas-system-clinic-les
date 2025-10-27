@@ -1,4 +1,4 @@
-import { inArray, or } from "drizzle-orm";
+import { eq, inArray, notInArray, or, SQL } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { SchedulingBlockedDays } from "../../../../domain/entities/EntitySchedulingBlockedDays/SchedulingBlockedDays";
 import db from "../../connection";
@@ -40,11 +40,31 @@ export class BlockedDatesRepository implements IRepository {
             )
         )
     }
-    async updateEntity(entity: EntityDomain | Array<EntityDomain>, tx?: any): Promise<any> {
-        throw new Error("Method not implemented.");
+    async updateEntity(datesBlocked: SchedulingBlockedDays | Array<SchedulingBlockedDays>, tx?: any): Promise<any> {
+        const datesBlockedFormatted = Array.isArray(datesBlocked) ? datesBlocked : [datesBlocked]
+        const datesBlockedFiltered = datesBlockedFormatted.filter((dt) => dt.getUUIDHash() && dt.dateBlocked)
+        const dbUse = tx ? tx : db
+
+        const datesUpdated = await Promise.all(datesBlockedFiltered.map(async (dt) => {
+            return await dbUse.update(schedulingBlockedDays).set({
+                dateBlocked: dt.dateBlocked?.toISOString(),
+                reason: dt.reason,
+            })
+            .where(
+                eq(schedulingBlockedDays.id, dt.getUUIDHash())
+            )
+            .returning()
+        }))
+        return datesUpdated
     }
-    deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
-        throw new Error("Method not implemented.");
+    async deleteEntity(datesBlocked: SchedulingBlockedDays | Array<SchedulingBlockedDays>, tx?: any) {
+        const dbUse = tx ? tx : db
+        const datesBlockedFormatted = Array.isArray(datesBlocked) ? datesBlocked : [datesBlocked]
+        return await dbUse.delete(schedulingBlockedDays).where(
+          
+            notInArray(schedulingBlockedDays.id, datesBlockedFormatted.map(dt => dt.getUUIDHash()))
+         
+        ).returning()
     }
     findAllEntity(entity?: EntityDomain | Array<EntityDomain>, limit?: number, offset?: number): Promise<any> {
         throw new Error("Method not implemented.");

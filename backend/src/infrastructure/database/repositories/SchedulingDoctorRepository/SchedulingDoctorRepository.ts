@@ -26,12 +26,13 @@ export class SchedulingDoctorRepository implements IRepository {
     async findEntity(schedulingDoctor: DoctorScheduling, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db;
         const filters = []
-
-        if (schedulingDoctor.getUUIDHash()) filters.push(eq(doctorSchedulingTable.id, schedulingDoctor.getUUIDHash() ?? ""),)
+        const statusActivate = []
+        if (schedulingDoctor.getUUIDHash()) filters.push(eq(doctorSchedulingTable.id, schedulingDoctor.getUUIDHash() ?? ""))
         if (schedulingDoctor.doctor?.getUUIDHash()) filters.push(eq(doctorTable.id, schedulingDoctor.doctor?.getUUIDHash() ?? ""))
         if (schedulingDoctor.doctor?.crm) filters.push(eq(doctorTable.crm, schedulingDoctor.doctor?.crm ?? ""),)
         if (schedulingDoctor.doctor?.cpf) filters.push(eq(doctorTable.cpf, schedulingDoctor.doctor?.cpf ?? ""))
-
+        if (typeof schedulingDoctor.is_activate === "boolean") statusActivate.push(eq(doctorSchedulingTable.isActivate, schedulingDoctor.is_activate as boolean))
+        
         const schedulingDoctorFounded = await dbUse
             .select(
                 {
@@ -61,7 +62,7 @@ export class SchedulingDoctorRepository implements IRepository {
             )
             .where(
                 and(
-                    eq(doctorSchedulingTable.isActivate, schedulingDoctor.is_activate ?? true),
+                    ...statusActivate,
                     or(...filters)
                 )
             )
