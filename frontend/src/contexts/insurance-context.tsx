@@ -1,7 +1,7 @@
 import type { IInsurance } from '@/@types/IInsurance';
 import { usePagination } from '@/hooks/use-pagination';
 import { useGetAllInsurances } from '@/services/insurance-service';
-import { createContext, useState, type ChangeEvent } from 'react';
+import { createContext, useState, useMemo, type ChangeEvent } from 'react';
 
 interface IInsurancesContextProps {
   searchTerm: string;
@@ -14,7 +14,7 @@ interface IInsurancesContextProps {
   paginatedData: IInsurance[];
   handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
   handlePage: (page: number) => void;
-  handleDelete: (id: number) => void;
+  handleDelete: (id: string) => void;
 }
 
 export const InsurancesContext = createContext<
@@ -32,13 +32,31 @@ export const InsuranceProvider = ({
   );
   const itemsPerPage = 10;
 
-  const { data: filteredList = [] } = useGetAllInsurances({
+  const { data: insurances = [] } = useGetAllInsurances({
     limit: itemsPerPage,
     offset: 0,
   });
 
+  const filtered = useMemo(() => {
+    let data = insurances;
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+
+      data = data.filter(
+        (insurance) =>
+          insurance.type.toLowerCase().includes(term) ||
+          insurance.modalities.some((modality) =>
+            modality.name.toLowerCase().includes(term),
+          ),
+      );
+    }
+
+    return data;
+  }, [searchTerm, insurances]);
+
   const { totalPages, page, setPage, paginatedData } = usePagination(
-    filteredList,
+    filtered,
     itemsPerPage,
   );
 
@@ -51,8 +69,9 @@ export const InsuranceProvider = ({
     setPage(1);
   };
 
-  const handleDelete = (_id: number) => {
-    // setFilteredList((prev) => prev.filter((p) => p.id !== id));
+  const handleDelete = (id: string) => {
+    // Implementar lógica de delete se necessário
+    console.log('Delete insurance:', id);
   };
 
   const contextValue = {

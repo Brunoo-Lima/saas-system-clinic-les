@@ -1,5 +1,5 @@
 import { IResponseHandler, ResponseHandler } from "../../../helpers/ResponseHandler";
-import { SchedulingQueriesDAO } from "../../../infrastructure/database/DAO/SchedulingQueriesDAO";
+import { SchedulingQueriesDAO } from "../../../infrastructure/database/DAO/Queries/SchedulingQueriesDAO";
 import { IRepository } from "../../../infrastructure/database/repositories/IRepository";
 import { Scheduling } from "../../entities/EntityScheduling/Scheduling";
 import { IProcessValidator } from "../IProcessValidator";
@@ -27,7 +27,7 @@ export class InsertTimeOfConsultation implements IProcessValidator {
                 scheduling.dateOfRealizable?.setHours(scheduling.dateOfRealizable.getHours() - 3) // Altero para o horário padrao de brasilia
 
                 const avgScheduling: any = await schedulingQueriesDAO.avgTimeOfConsultation(schedulingCopy)
-                scheduling.timeOfConsultation = avgScheduling.data?.avg_consultation ?? "01:00:00"
+                scheduling.timeOfConsultation = (avgScheduling.data?.avg_consultation && avgScheduling.data?.avg_consultation > 0) || "01:00:00"
                 return ResponseHandler.success(scheduling, "Time of consultation inserted")
             }
 

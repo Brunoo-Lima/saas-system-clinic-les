@@ -8,15 +8,20 @@ import { ResponseHandler } from "../../../../../helpers/ResponseHandler";
 import { DoctorRepository } from "../../../../../infrastructure/database/repositories/DoctorRepository/DoctorRepository";
 import { IRepository } from "../../../../../infrastructure/database/repositories/IRepository";
 import { PeriodsRepository } from "../../../../../infrastructure/database/repositories/PeriodsRepository/PeriodsRepository";
+import { SpecialtyRepository } from "../../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository";
 import { DoctorDTO } from "../../../../../infrastructure/DTOs/DoctorDTO";
 
 export class AddPeriodsToDoctorService {
     private repository: IRepository;
     private doctorRepository: IRepository;
+    private periodRepository: IRepository;
+    private specialtyRepository: IRepository;
 
     constructor(){
         this.repository = new PeriodsRepository()
         this.doctorRepository = new DoctorRepository()
+        this.periodRepository = new PeriodsRepository()
+        this.specialtyRepository = new SpecialtyRepository()
     }
     async execute(doctorDTO: DoctorDTO){
         try {
@@ -34,7 +39,7 @@ export class AddPeriodsToDoctorService {
             ])
 
             validator.setValidator(`C-${doctorDomain.periodToWork?.[0]?.constructor.name}`, [
-                new ValidPeriodsToDoctor(validator)
+                new ValidPeriodsToDoctor(validator, this.periodRepository, this.specialtyRepository)
             ])
             
             const doctorIsValid = await validator.process(`F-${doctorDomain.constructor.name}`, doctorDomain, this.doctorRepository)

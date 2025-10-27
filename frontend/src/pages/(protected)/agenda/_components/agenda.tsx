@@ -19,7 +19,7 @@ import {
 import { toast } from 'sonner';
 import { useGetAppointments } from '@/services/appointment-service';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
-import { useGetDoctors } from '@/services/doctor-service';
+import type { IDoctor } from '@/@types/IDoctor';
 
 export type StatusConfigProps = {
   label: string;
@@ -69,10 +69,11 @@ const extractWorkingDaysFromPeriods = (periodToWork: any[]) => {
 };
 
 interface IAgendaProps {
-  doctorId: string;
+  doctorId: string | undefined;
+  doctor: IDoctor;
 }
 
-export function Agenda({ doctorId }: IAgendaProps) {
+export function Agenda({ doctorId, doctor }: IAgendaProps) {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
     startOfMonth(new Date()),
@@ -80,6 +81,8 @@ export function Agenda({ doctorId }: IAgendaProps) {
   const [dateTo, setDateTo] = useState<Date | undefined>(
     endOfMonth(new Date()),
   );
+  const currentSpecialtyId = doctor?.specialties?.[0]?.id || '';
+
   const [availabilitySettings, setAvailabilitySettings] =
     useState<IAvailabilitySettings>({
       workingDays: {
@@ -100,7 +103,6 @@ export function Agenda({ doctorId }: IAgendaProps) {
     useCreateAgenda();
   const { mutate: updateAgenda, isPending: isUpdatingAgenda } =
     useUpdateAgenda();
-  const { data: doctors } = useGetDoctors({ id: doctorId });
 
   const currentDoctorId = doctorId || '';
 
@@ -133,14 +135,13 @@ export function Agenda({ doctorId }: IAgendaProps) {
         blockedDates: blockedDates,
       }));
 
-      // CORREÇÃO: Se já existe agenda, usar as datas da agenda
+      // Se já existe agenda, usar as datas da agenda
       if (latestAgenda.dateFrom && latestAgenda.dateTo) {
         setDateFrom(new Date(latestAgenda.dateFrom));
         setDateTo(new Date(latestAgenda.dateTo));
       }
-    } else if (doctors && doctors.length > 0) {
+    } else if (doctor) {
       // Se não existe agenda mas existe médico, usa os dados do médico
-      const doctor = doctors[0];
       if (doctor.periodToWork) {
         const workingDays = extractWorkingDaysFromPeriods(doctor.periodToWork);
 
@@ -150,7 +151,7 @@ export function Agenda({ doctorId }: IAgendaProps) {
         }));
       }
     }
-  }, [existingAgendas, doctors]);
+  }, [existingAgendas, doctor]);
 
   const handleSaveAgenda = (dateFrom: Date, dateTo: Date) => {
     const changes: Partial<IAgendaRequest> = {};
@@ -211,9 +212,6 @@ export function Agenda({ doctorId }: IAgendaProps) {
           onSuccess: () => {
             toast.success('Agenda criada com sucesso!');
           },
-          onError: (error: any) => {
-            toast.error(error.message || 'Erro ao criar agenda');
-          },
         },
       );
     } else {
@@ -225,9 +223,6 @@ export function Agenda({ doctorId }: IAgendaProps) {
         {
           onSuccess: () => {
             toast.success('Agenda atualizada com sucesso!');
-          },
-          onError: (error: any) => {
-            toast.error(error.message || 'Erro ao atualizar agenda');
           },
         },
       );
@@ -308,6 +303,7 @@ export function Agenda({ doctorId }: IAgendaProps) {
           isDayAvailable={isDayAvailable}
           appointments={appointments}
           currentDoctorId={currentDoctorId}
+          currentSpecialtyId={currentSpecialtyId}
         />
 
         <Card className="lg:col-span-2">

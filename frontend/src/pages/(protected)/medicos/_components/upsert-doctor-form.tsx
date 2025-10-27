@@ -19,26 +19,21 @@ import {
   type DoctorFormSchema,
 } from '@/validations/doctor-form-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useFieldArray, useForm, type Resolver } from 'react-hook-form';
+import {
+  useFieldArray,
+  useForm,
+  type Resolver,
+  type SubmitHandler,
+} from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState, type ChangeEvent } from 'react';
 import type { IDoctor } from '@/@types/IDoctor';
 import { toast } from 'sonner';
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
-
 import { getDoctorDefaultValues } from '../_helpers/get-doctor-default-values';
 import FormSelectCustom from '@/components/ui/form-custom/form-select-custom';
 import FormInputPhoneCustom from '@/components/ui/form-custom/form-input-phone-custom';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { CalendarIcon, RefreshCcwIcon } from 'lucide-react';
-import { Calendar } from '@/components/ui/calendar';
+import { RefreshCcwIcon } from 'lucide-react';
 import { InputPassword } from '@/components/ui/input-password';
 import { formatCPF } from '@/utils/format-cpf';
 import { Input } from '@/components/ui/input';
@@ -54,7 +49,8 @@ import {
 } from '@/components/ui/select';
 import { formatCEP } from '@/utils/format-cep';
 import { brazilianStates } from '@/utils/brazilian-states';
-import { useCreateDoctor } from '@/services/doctor-service';
+import { useCreateDoctor, useUpdateDoctor } from '@/services/doctor-service';
+import InputDate from '@/components/ui/input-date';
 
 interface IUpsertDoctorFormProps {
   doctor?: IDoctor;
@@ -83,8 +79,13 @@ export const UpsertDoctorForm = ({
     name: 'periodToWork',
   });
 
-  const { mutate, isPending } = useCreateDoctor();
+  const { mutate: createMutate, isPending: isPendingCreate } =
+    useCreateDoctor();
+  const { mutate: updateMutate, isPending: isPendingUpdate } =
+    useUpdateDoctor();
   const { data: specialtiesBackend } = useGetSpecialties();
+
+  console.log('doctor', doctor);
 
   const specialties =
     specialtiesBackend?.map((specialty) => ({
@@ -97,12 +98,37 @@ export const UpsertDoctorForm = ({
   }, [form.formState.errors]);
 
   useEffect(() => {
-    if (isOpen) {
-      form.reset(getDoctorDefaultValues(doctor) ?? {});
+    if (isOpen && doctor) {
+      console.log('🔄 Inicializando formulário com doctor:', doctor);
+
+      const defaultValues = getDoctorDefaultValues(doctor);
+
+      // CORREÇÃO: Garante que todos os períodos tenham specialty_id
+      if (defaultValues.periodToWork) {
+        defaultValues.periodToWork = defaultValues.periodToWork.map(
+          (period, index) => {
+            console.log(
+              `Período ${index} - specialty_id:`,
+              period.specialty_id,
+            );
+            return {
+              ...period,
+              specialty_id: period.specialty_id || '', // Garante que não seja undefined
+            };
+          },
+        );
+      }
+
+      form.reset(defaultValues);
+      setSelectedSpecialties(doctor?.specialties?.map((s) => s.id) ?? []);
+
+      // Debug após o reset
+      setTimeout(() => {
+        console.log('📋 Valores após reset:', form.getValues('periodToWork'));
+      }, 100);
     }
   }, [isOpen, form, doctor]);
 
-  // Adicione este useEffect para sincronizar as especialidades
   useEffect(() => {
     form.setValue(
       'specialties',
@@ -110,11 +136,13 @@ export const UpsertDoctorForm = ({
     );
   }, [selectedSpecialties, form]);
 
-  // E este para sincronizar os períodos quando especialidades são removidas
+  // sincroniza os períodos quando especialidades são removidas
   useEffect(() => {
     const currentPeriods = form.getValues('periodToWork') || [];
-    const filteredPeriods = currentPeriods.filter((period) =>
-      selectedSpecialties.includes(period.specialty_id),
+    const filteredPeriods = currentPeriods.filter(
+      (period) =>
+        period.specialty_id &&
+        selectedSpecialties.includes(period.specialty_id),
     );
 
     if (filteredPeriods.length !== currentPeriods.length) {
@@ -159,63 +187,159 @@ export const UpsertDoctorForm = ({
     });
   };
 
-  const onSubmit = async (data: DoctorFormSchema) => {
+  const onSubmit: SubmitHandler<DoctorFormSchema> = (values) => {
     try {
-      const payload = {
-        name: data.name,
-        cpf: data.cpf.replace(/\D/g, ''), // Remove formatação do CPF
-        crm: data.crm,
-        sex: data.sex,
-        phone: data.phone.replace(/\D/g, ''), // Remove formatação do telefone
-        dateOfBirth:
-          data.dateOfBirth instanceof Date
-            ? data.dateOfBirth.toISOString().split('T')[0]
-            : data.dateOfBirth,
-        percentDistribution: data.percentDistribution || 0.2,
-        user: {
-          username: data.user.username || data.name, // Fallback para name se username não existir
-          email: data.user.email,
-          password: data.user.password,
-          avatar: data.user.avatar || '',
-        },
-        specialties: data.specialties, // Já está no formato [{ id }]
-        periodToWork: data.periodToWork.map((period) => ({
-          ...period,
-          dayWeek: +period.dayWeek,
-          timeFrom: period.timeFrom.includes(':')
-            ? period.timeFrom
-            : period.timeFrom + ':00',
-          timeTo: period.timeTo.includes(':')
-            ? period.timeTo
-            : period.timeTo + ':00',
-        })),
-        address: {
-          name: data.address.name,
-          street: data.address.street,
-          number: data.address.number,
-          neighborhood: data.address.neighborhood,
-          cep: data.address.cep.replace(/\D/g, ''), // Remove formatação do CEP
-          city: {
-            name: data.address.city.name,
+      if (!doctor) {
+        const payload = {
+          name: values.name,
+          cpf: values.cpf,
+          crm: values.crm,
+          sex: values.sex,
+          phone: values.phone,
+          dateOfBirth:
+            values.dateOfBirth instanceof Date
+              ? values.dateOfBirth.toISOString().split('T')[0]
+              : values.dateOfBirth,
+          percentDistribution: values.percentDistribution || 0.2,
+          user: {
+            username: values.user.username || values.name,
+            email: values.user.email,
+            password: values.user.password,
+            avatar: values.user.avatar || '',
           },
-          state: {
-            name: data.address.state.name,
-            uf: data.address.state.uf,
+          specialties: values.specialties,
+          periodToWork:
+            values.periodToWork?.map((period) => ({
+              ...period,
+              dayWeek: +period.dayWeek,
+              timeFrom: period.timeFrom.includes(':')
+                ? period.timeFrom
+                : period.timeFrom + ':00',
+              timeTo: period.timeTo.includes(':')
+                ? period.timeTo
+                : period.timeTo + ':00',
+            })) || [],
+          address: {
+            name: values.address.name,
+            street: values.address.street,
+            number: values.address.number,
+            neighborhood: values.address.neighborhood,
+            cep: values.address.cep,
+            city: values.address.city,
+            state: values.address.state,
+            uf: values.address.uf,
+            country: values.address.country,
           },
-          country: {
-            name: data.address.country.name,
-          },
-        },
-      };
+        };
 
-      mutate(payload as any, {
-        onSuccess: () => {
-          toast.success('Médico salvo com sucesso.');
-          onSuccess();
-        },
-      });
+        createMutate(payload as any, {
+          onSuccess: () => {
+            onSuccess();
+          },
+        });
+      } else {
+        const dirtyFields = form.formState.dirtyFields;
+
+        const payload: any = {
+          id: doctor.id,
+        };
+
+        // Função para construir payload apenas com campos modificados
+        const buildDirtyPayload = (
+          dirtyFields: any,
+          values: any,
+          basePath: string = '',
+        ) => {
+          Object.keys(dirtyFields).forEach((key) => {
+            const fullPath = basePath ? `${basePath}.${key}` : key;
+            const isDirty = dirtyFields[key];
+
+            if (isDirty === true) {
+              // Campo primitivo sujo - adicionar ao payload
+              const pathParts = fullPath.split('.');
+              let current = payload;
+
+              for (let i = 0; i < pathParts.length - 1; i++) {
+                const part = pathParts[i];
+                if (!current[part]) {
+                  current[part] = {};
+                }
+                current = current[part];
+              }
+
+              current[pathParts[pathParts.length - 1]] = getNestedValue(
+                values,
+                fullPath,
+              );
+            } else if (typeof isDirty === 'object') {
+              // Objeto nested - processar recursivamente
+              buildDirtyPayload(isDirty, values, fullPath);
+            }
+          });
+        };
+
+        // Função auxiliar para pegar valores nested
+        const getNestedValue = (obj: any, path: string) => {
+          return path.split('.').reduce((current, key) => current?.[key], obj);
+        };
+
+        // Construir payload apenas com campos sujos
+        buildDirtyPayload(dirtyFields, values);
+
+        if (dirtyFields.periodToWork) {
+          payload.periodToWork =
+            values.periodToWork?.map((period) => ({
+              ...period,
+              dayWeek: +period.dayWeek,
+              timeFrom: period.timeFrom.includes(':')
+                ? period.timeFrom
+                : period.timeFrom + ':00',
+              timeTo: period.timeTo.includes(':')
+                ? period.timeTo
+                : period.timeTo + ':00',
+              specialty_id: period.specialty_id, // Inclui mesmo se for undefined
+            })) || [];
+        }
+
+        if (dirtyFields.specialties) {
+          payload.specialties = values.specialties.map((spec) => ({
+            id: spec.id,
+            percentDistribution: values.percentDistribution || 0.2,
+          }));
+        }
+
+        if (payload.user) {
+          payload.user = {
+            ...(doctor.user || {}),
+            ...payload.user,
+          };
+        }
+
+        if (payload.address) {
+          payload.address = {
+            ...(doctor.address || {}),
+            ...payload.address,
+          };
+        }
+
+        if (dirtyFields.dateOfBirth) {
+          payload.dateOfBirth =
+            values.dateOfBirth instanceof Date
+              ? values.dateOfBirth.toISOString().split('T')[0]
+              : values.dateOfBirth;
+        }
+
+        updateMutate(
+          { id: doctor.id, doctor: payload },
+          {
+            onSuccess: () => {
+              onSuccess();
+            },
+          },
+        );
+      }
     } catch (error: any) {
-      console.error(error);
+      console.error('💥 Erro no submit:', error);
       toast.error('Erro ao salvar médico.');
     }
   };
@@ -228,6 +352,8 @@ export const UpsertDoctorForm = ({
       specialty_id: specialtyId,
     });
   };
+
+  const isPending = isPendingCreate || isPendingUpdate;
 
   return (
     <DialogContent className="w-full sm:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -281,10 +407,29 @@ export const UpsertDoctorForm = ({
               name="percentDistribution"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Valor de repasse</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="120" {...field} />
-                  </FormControl>
+                  <FormLabel>Porcentagem de repasse</FormLabel>
+                  <Select
+                    onValueChange={(value) => field.onChange(parseFloat(value))}
+                    defaultValue={field.value?.toString()}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-32">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="w-32">
+                      <SelectItem value="0.1">10%</SelectItem>
+                      <SelectItem value="0.2">20%</SelectItem>
+                      <SelectItem value="0.3">30%</SelectItem>
+                      <SelectItem value="0.4">40%</SelectItem>
+                      <SelectItem value="0.5">50%</SelectItem>
+                      <SelectItem value="0.6">60%</SelectItem>
+                      <SelectItem value="0.7">70%</SelectItem>
+                      <SelectItem value="0.8">80%</SelectItem>
+                      <SelectItem value="0.9">90%</SelectItem>
+                      <SelectItem value="1.0">100%</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -329,7 +474,6 @@ export const UpsertDoctorForm = ({
               )}
             />
 
-            {/* Campos de Período para cada especialidade selecionada */}
             {selectedSpecialties.map((specialtyId) => {
               const specialty = specialties.find(
                 (s) => s.value === specialtyId,
@@ -536,50 +680,13 @@ export const UpsertDoctorForm = ({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Data de Nascimento</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            'w-full pl-3 text-left font-normal',
-                            !field.value && 'text-muted-foreground',
-                          )}
-                        >
-                          {field.value ? (
-                            // Converter para Date antes de formatar
-                            format(
-                              field.value instanceof Date
-                                ? field.value
-                                : new Date(field.value),
-                              'PPP',
-                              { locale: ptBR },
-                            )
-                          ) : (
-                            <span>Selecione uma data</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={
-                          field.value instanceof Date
-                            ? field.value
-                            : field.value
-                            ? new Date(field.value)
-                            : undefined
-                        }
-                        onSelect={field.onChange}
-                        disabled={(date: Date) =>
-                          date > new Date() || date < new Date('1900-01-01')
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <FormControl>
+                    <InputDate
+                      value={field.value ? new Date(field.value) : undefined}
+                      onChange={(date) => field.onChange(date)}
+                      placeholder="DD/MM/AAAA"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -652,14 +759,14 @@ export const UpsertDoctorForm = ({
 
           <div className="grid grid-cols-3 gap-4">
             <FormInputCustom
-              name="address.city.name"
+              name="address.city"
               label="Cidade"
               placeholder="Digite a cidade"
               control={form.control}
             />
 
             <FormInputCustom
-              name="address.state.name"
+              name="address.state"
               label="Estado"
               placeholder="Digite o estado"
               control={form.control}
@@ -668,11 +775,15 @@ export const UpsertDoctorForm = ({
             <div className="grid grid-cols-2 gap-2">
               <FormField
                 control={form.control}
-                name="address.state.uf"
+                name="address.uf"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>UF</FormLabel>
-                    <Select onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="UF" />
@@ -692,7 +803,7 @@ export const UpsertDoctorForm = ({
               />
 
               <FormInputCustom
-                name="address.country.name"
+                name="address.country"
                 label="País"
                 placeholder="Digite o país"
                 control={form.control}

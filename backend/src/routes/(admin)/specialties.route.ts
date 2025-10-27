@@ -6,6 +6,7 @@ import { CreateSpecialtiesController } from '../../App/controllers/(admin)/Speci
 import { FindSpecialtyController } from '../../App/controllers/(admin)/SpecialtiesController/FindSpecialtiesController';
 import { GetSpecialtiesController } from '../../App/controllers/(admin)/SpecialtiesController/GetSpecialtiesController';
 import { UpdateSpecialtiesController } from '../../App/controllers/(admin)/SpecialtiesController/UpdateSpecialtiesController';
+import { DeleteSpecialtiesController } from '../../App/controllers/(admin)/SpecialtiesController/DeleteSpecialtiesController';
 
 const specialtyRoutes: Router = Router();
 specialtyRoutes.post(
@@ -22,6 +23,8 @@ specialtyRoutes.post(
 );
 
 specialtyRoutes.put('/specialty', authMiddleware, privateRoute, new UpdateSpecialtiesController().handle)
+specialtyRoutes.delete('/specialty', authMiddleware, privateRoute, new DeleteSpecialtiesController().handle)
+
 specialtyRoutes.get(
   '/specialty/findall',
   authMiddleware,

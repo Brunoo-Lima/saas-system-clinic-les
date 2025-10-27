@@ -11,9 +11,6 @@ import { PatientDTO } from "../../../../infrastructure/DTOs/PatientDTO";
 import { AddressRepository } from "../../../../infrastructure/database/repositories/AddressRepository/AddressRepository";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { PatientRepository } from "../../../../infrastructure/database/repositories/PatientRepository/PatientRepository";
-import { CountryRepository } from "../../../../infrastructure/database/repositories/CountryRepository/CountryRepository";
-import { StateRepository } from "../../../../infrastructure/database/repositories/StateRepository/StateRepository";
-import { CityRepository } from "../../../../infrastructure/database/repositories/CityRepository/CityRepository";
 import { findOrCreate } from "../../../../infrastructure/database/repositories/findOrCreate";
 import { State } from "../../../../domain/entities/EntityAddress/State";
 import { City } from "../../../../domain/entities/EntityAddress/City";
@@ -35,9 +32,6 @@ import { queueClient } from "../../../../infrastructure/queue/queue_email_client
 export class CreatePatientService {
     private repository: IRepository;
     private addressRepository: IRepository;
-    private countryRepository: IRepository;
-    private stateRepository: IRepository;
-    private cityRepository: IRepository;
     private userRepository: IRepository;
     private cardInsuranceRepository: IRepository;
     private modalityRepository: IRepository;
@@ -45,9 +39,6 @@ export class CreatePatientService {
     constructor() {
         this.repository = new PatientRepository()
         this.addressRepository = new AddressRepository()
-        this.countryRepository = new CountryRepository()
-        this.stateRepository = new StateRepository()
-        this.cityRepository = new CityRepository()
         this.userRepository = new UserRepository()
         this.cardInsuranceRepository = new CardInsuranceRepository()
         this.modalityRepository = new ModalityRepository()
@@ -109,15 +100,8 @@ export class CreatePatientService {
             const entitiesInserted = await db.transaction(async (tx) => {
                 let cardInsuranceInserted;
                 const addressDomain = patientDomain.address as Address;
-                const cityDomain = patientDomain.address?.city as City;
-                const stateDomain = patientDomain.address?.city?.state as State;
-                const countryDomain = patientDomain.address?.city?.state?.country as Country;
 
-                await findOrCreate(this.countryRepository, countryDomain, tx);
-                await findOrCreate(this.stateRepository, stateDomain, tx);
-                await findOrCreate(this.cityRepository, cityDomain, tx);
-
-                const addressInserted = await findOrCreate(this.addressRepository, addressDomain, tx);
+                const addressInserted = await this.addressRepository.create(addressDomain, tx);
                 const userInserted = await this.userRepository.create(patientDomain.user as User, tx)
                 const { password, ...userOmitted } = userInserted.data
                 const patientInserted = await this.repository.create(patientDomain, tx);
@@ -127,6 +111,7 @@ export class CreatePatientService {
                 // Disparo do email para a fila.
                 userInserted.data.template = "welcome"
                 await queueClient.add("welcome_email", userInserted.data)
+
                 return ResponseHandler.success({
                     patient: patientInserted[0],
                     address: addressInserted[0],
@@ -141,6 +126,7 @@ export class CreatePatientService {
             return entitiesInserted
 
         } catch (e) {
+            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }

@@ -26,6 +26,9 @@ import { formatDateToBackend, parseBackendDate } from '../utilities/utilities';
 import type { IAppointmentReturn } from '@/services/appointment-service';
 import InputDate from '@/components/ui/input-date';
 import { eachDayOfInterval, isWithinInterval, format } from 'date-fns';
+import { useAddPeriodsAgenda } from '@/services/agenda-service'; // Importe o hook
+import type { IAddPeriodsAgendaProps } from '@/services/agenda-service'; // Importe o tipo
+import { toast } from 'sonner';
 
 interface ICardAgendaProps {
   availabilitySettings: IAvailabilitySettings;
@@ -41,7 +44,18 @@ interface ICardAgendaProps {
   setDateTo: (date: Date | undefined) => void;
   appointments: IAppointmentReturn[] | undefined;
   currentDoctorId: string;
+  currentSpecialtyId: string;
 }
+
+const dayWeekMap: { [key: string]: number } = {
+  monday: 1,
+  tuesday: 2,
+  wednesday: 3,
+  thursday: 4,
+  friday: 5,
+  saturday: 6,
+  sunday: 7,
+};
 
 export const CardAgenda = ({
   availabilitySettings,
@@ -51,6 +65,7 @@ export const CardAgenda = ({
   setDate,
   appointments,
   currentDoctorId,
+  currentSpecialtyId,
   dateFrom,
   setDateFrom,
   dateTo,
@@ -62,6 +77,11 @@ export const CardAgenda = ({
   const [dateToBlock, setDateToBlock] = useState<Date | undefined>(new Date());
   const [blockReason, setBlockReason] = useState<string>('Data bloqueada');
   const [availableDates, setAvailableDates] = useState<Date[]>([]);
+  const [timeFrom, setTimeFrom] = useState<string>('08:00:00'); // Horário padrão
+  const [timeTo, setTimeTo] = useState<string>('17:00:00'); // Horário padrão
+
+  const { mutate: addPeriods, isPending: isAddingPeriods } =
+    useAddPeriodsAgenda();
 
   // Verificar se uma data específica está bloqueada
   const isDateBlocked = (checkDate: Date): boolean => {
@@ -135,6 +155,41 @@ export const CardAgenda = ({
         (blocked) => blocked.date !== dateString,
       ),
     }));
+  };
+
+  // Função para enviar os dias disponíveis para a API
+  const handleUpdateWorkingDays = () => {
+    // Converter workingDays para o formato esperado pela API
+    const periodToWork = Object.entries(availabilitySettings.workingDays)
+      .filter(([_, isEnabled]) => isEnabled)
+      .map(([dayName]) => ({
+        dayWeek: dayWeekMap[dayName],
+        timeFrom: timeFrom,
+        timeTo: timeTo,
+        specialty_id: currentSpecialtyId,
+      }));
+
+    if (periodToWork.length === 0) {
+      toast.error('Selecione pelo menos um dia da semana');
+      return;
+    }
+
+    if (!currentSpecialtyId) {
+      toast.error('Especialidade não selecionada');
+      return;
+    }
+
+    const payload: IAddPeriodsAgendaProps = {
+      periodToWork,
+      id: currentDoctorId,
+    };
+
+    addPeriods(payload, {
+      onSuccess: () => {
+        setIsAvailabilityDialogOpen(false);
+        toast.success('Dias de atendimento atualizados com sucesso!');
+      },
+    });
   };
 
   // Converter blockedDates para Date[] para o Calendar
@@ -232,7 +287,7 @@ export const CardAgenda = ({
           </div>
         </div>
 
-        {/* Display das datas disponíveis - ADICIONADO NOVAMENTE */}
+        {/* Display das datas disponíveis */}
         {dateFrom && dateTo && (
           <div className="mt-4 p-3 bg-muted/50 rounded-lg">
             <div className="flex justify-between items-center mb-2">
@@ -285,62 +340,6 @@ export const CardAgenda = ({
 
         <div className="mt-6 space-y-2">
           <Dialog
-            open={isAvailabilityDialogOpen}
-            onOpenChange={setIsAvailabilityDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full bg-transparent"
-                size="lg"
-              >
-                <SettingsIcon className="h-4 w-4 mr-2" />
-                Dias Disponíveis
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Configurar Dias de Atendimento</DialogTitle>
-                <DialogDescription>
-                  Selecione os dias da semana em que você atende
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                {Object.entries(availabilitySettings.workingDays).map(
-                  ([day, isEnabled]) => (
-                    <div
-                      key={day}
-                      className="flex items-center justify-between"
-                    >
-                      <Label
-                        htmlFor={day}
-                        className="text-base capitalize cursor-pointer"
-                      >
-                        {day === 'monday' && 'Segunda-feira'}
-                        {day === 'tuesday' && 'Terça-feira'}
-                        {day === 'wednesday' && 'Quarta-feira'}
-                        {day === 'thursday' && 'Quinta-feira'}
-                        {day === 'friday' && 'Sexta-feira'}
-                        {day === 'saturday' && 'Sábado'}
-                        {day === 'sunday' && 'Domingo'}
-                      </Label>
-                      <Switch
-                        id={day}
-                        checked={isEnabled}
-                        onCheckedChange={() =>
-                          toggleWorkingDay(
-                            day as keyof IAvailabilitySettings['workingDays'],
-                          )
-                        }
-                      />
-                    </div>
-                  ),
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog
             open={isBlockDateDialogOpen}
             onOpenChange={setIsBlockDateDialogOpen}
           >
@@ -365,6 +364,103 @@ export const CardAgenda = ({
               isDateBlocked={isDateBlocked}
             />
           </Dialog>
+
+          <div className="flex flex-col gap-2">
+            <Dialog
+              open={isAvailabilityDialogOpen}
+              onOpenChange={setIsAvailabilityDialogOpen}
+            >
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full bg-transparent"
+                  size="lg"
+                >
+                  <SettingsIcon className="h-4 w-4 mr-2" />
+                  Dias Disponíveis
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Configurar Dias de Atendimento</DialogTitle>
+                  <DialogDescription>
+                    Selecione os dias da semana em que você atende
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  {/* Inputs para horário */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="timeFrom" className="text-sm font-medium">
+                        Horário Início
+                      </Label>
+                      <input
+                        type="time"
+                        id="timeFrom"
+                        value={timeFrom.slice(0, 5)} // Remove os segundos para o input
+                        onChange={(e) => setTimeFrom(e.target.value + ':00')} // Adiciona segundos
+                        className="w-full p-2 border rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="timeTo" className="text-sm font-medium">
+                        Horário Fim
+                      </Label>
+                      <input
+                        type="time"
+                        id="timeTo"
+                        value={timeTo.slice(0, 5)} // Remove os segundos para o input
+                        onChange={(e) => setTimeTo(e.target.value + ':00')} // Adiciona segundos
+                        className="w-full p-2 border rounded-md"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Dias da semana */}
+                  {Object.entries(availabilitySettings.workingDays).map(
+                    ([day, isEnabled]) => (
+                      <div
+                        key={day}
+                        className="flex items-center justify-between"
+                      >
+                        <Label
+                          htmlFor={day}
+                          className="text-base capitalize cursor-pointer"
+                        >
+                          {day === 'monday' && 'Segunda-feira'}
+                          {day === 'tuesday' && 'Terça-feira'}
+                          {day === 'wednesday' && 'Quarta-feira'}
+                          {day === 'thursday' && 'Quinta-feira'}
+                          {day === 'friday' && 'Sexta-feira'}
+                          {day === 'saturday' && 'Sábado'}
+                          {day === 'sunday' && 'Domingo'}
+                        </Label>
+                        <Switch
+                          id={day}
+                          checked={isEnabled}
+                          onCheckedChange={() =>
+                            toggleWorkingDay(
+                              day as keyof IAvailabilitySettings['workingDays'],
+                            )
+                          }
+                        />
+                      </div>
+                    ),
+                  )}
+                </div>
+
+                {/* Botão para salvar */}
+                <div className="flex justify-end">
+                  <Button
+                    onClick={handleUpdateWorkingDays}
+                    disabled={isAddingPeriods}
+                  >
+                    {isAddingPeriods ? 'Salvando...' : 'Salvar Dias'}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
       </CardContent>
     </Card>

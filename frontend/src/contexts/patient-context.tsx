@@ -1,7 +1,7 @@
 import type { IPatient } from '@/@types/IPatient';
 import { usePagination } from '@/hooks/use-pagination';
 import { useGetAllPatients } from '@/services/patient-service';
-import { createContext, useState, type ChangeEvent } from 'react';
+import { createContext, useState, useMemo, type ChangeEvent } from 'react';
 
 interface IPatientContextProps {
   searchTerm: string;
@@ -30,26 +30,31 @@ export const PatientProvider = ({
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const itemsPerPage = 10;
 
-  const { data: filtered = [] } = useGetAllPatients({
+  const { data: patients = [] } = useGetAllPatients({
     limit: itemsPerPage,
     offset: 0,
   });
 
-  // const filtered = useMemo(() => {
-  //   let data = filteredList;
+  const filtered = useMemo(() => {
+    let data = patients;
 
-  //   if (searchTerm) {
-  //     data = data.filter((patient) =>
-  //       patient.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  //     );
-  //   }
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      data = data.filter(
+        (patient) =>
+          patient.name.toLowerCase().includes(term) ||
+          patient.cpf.includes(searchTerm) ||
+          patient.phone.includes(searchTerm) ||
+          patient.user?.email?.toLowerCase().includes(term),
+      );
+    }
 
-  //   if (selectedGender) {
-  //     data = data.filter((patient) => patient.sex === selectedGender);
-  //   }
+    if (selectedGender) {
+      data = data.filter((patient) => patient.sex === selectedGender);
+    }
 
-  //   return data;
-  // }, [selectedGender, searchTerm, filteredList]);
+    return data;
+  }, [selectedGender, searchTerm, patients]);
 
   const { totalPages, page, setPage, paginatedData } = usePagination(
     filtered,
@@ -65,8 +70,9 @@ export const PatientProvider = ({
     setPage(1);
   };
 
-  const handleDelete = (_id: number) => {
-    // setFilteredList((prev) => prev.filter((p) => p.id !== id));
+  const handleDelete = (id: number) => {
+    // Implementar lógica de delete se necessário
+    console.log('Delete patient:', id);
   };
 
   const contextValue = {

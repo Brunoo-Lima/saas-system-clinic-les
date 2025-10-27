@@ -7,3 +7,4 @@ const connection = new IORedis(process.env.REDIS_URL ?? "redis://127.0.0.1:6379"
 });
 export const queueClient = new Queue("welcome_email", { connection })
 export const queueScheduling = new Queue("scheduling_email", { connection })
+export const queuePasswordReset = new Queue("password_reset_email", { connection })

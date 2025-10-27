@@ -35,24 +35,21 @@ export class ClinicFactory {
 
     // Country
     const country = new Country({
-      name: clinicDTO.address?.country.name ?? '',
+      name: clinicDTO.address?.country ?? '',
     });
-    country.setUuidHash(clinicDTO.address?.country.id ?? country.getUUIDHash());
 
     // State
     const state = new StateBuilder()
       .setCountry(country)
-      .setName(clinicDTO.address?.state.name)
-      .setUf(clinicDTO.address?.state.uf)
+      .setName(clinicDTO.address?.state)
+      .setUf(clinicDTO.address?.uf)
       .build();
-    state.setUuidHash(clinicDTO.address?.state.id ?? state.getUUIDHash());
 
     // City
     const city = new CityBuilder()
       .setState(state)
-      .setName(clinicDTO.address?.city.name)
+      .setName(clinicDTO.address?.city)
       .build();
-    city.setUuidHash(clinicDTO.address?.city.id ?? city.getUUIDHash());
 
     // Address
     const address = new AddressBuilder()

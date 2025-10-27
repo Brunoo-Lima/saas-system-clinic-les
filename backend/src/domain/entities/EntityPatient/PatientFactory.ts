@@ -21,25 +21,20 @@ export class PatientFactory {
     user.setUuidHash(patientDTO.user?.id ?? user.getUUIDHash());
 
     // Country
-    const country = new Country({ name: patientDTO.address?.country.name });
-    country.setUuidHash(
-      patientDTO.address?.country.id ?? country.getUUIDHash()
-    );
+    const country = new Country({ name: patientDTO.address?.country });
 
     // State
     const state = new StateBuilder()
       .setCountry(country)
-      .setName(patientDTO.address?.state.name)
-      .setUf(patientDTO.address?.state.uf)
+      .setName(patientDTO.address?.state)
+      .setUf(patientDTO.address?.uf)
       .build();
-    state.setUuidHash(patientDTO.address?.state.id ?? state.getUUIDHash());
 
     // City
     const city = new CityBuilder()
       .setState(state)
-      .setName(patientDTO.address?.city.name)
+      .setName(patientDTO.address?.city)
       .build();
-    city.setUuidHash(patientDTO.address?.city.id ?? city.getUUIDHash());
 
     // Address
     const address = new AddressBuilder()
@@ -50,7 +45,7 @@ export class PatientFactory {
       .setCity(city)
       .setStreet(patientDTO.address?.street)
       .build();
-
+      
     // Patient
     const patient = new PatientBuilder()
       .setPhone(patientDTO.phone)

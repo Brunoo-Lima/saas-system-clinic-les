@@ -1,19 +1,19 @@
-import "dayjs/locale/pt-br";
+import 'dayjs/locale/pt-br';
+import dayjs from 'dayjs';
+dayjs.locale('pt-br');
 
-import dayjs from "dayjs";
+import { DollarSign } from 'lucide-react';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
-dayjs.locale("pt-br");
-import { DollarSign } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
-import { formatCurrencyInCents } from "@/utils/format-currency-in-cents";
+} from '@/components/ui/chart';
+import { formatCurrencyInCents } from '@/utils/format-currency-in-cents';
+import { useDashboard } from '@/hooks/use-dashboard';
 
 interface IDailyAppointment {
   date: string;
@@ -28,33 +28,56 @@ interface IAppointmentsChartProps {
 export default function AppointmentsChart({
   dailyAppointmentsData,
 }: IAppointmentsChartProps) {
-  // Gerar 21 dias: 10 antes + hoje + 10 depois
-  const chartDays = Array.from({ length: 21 }).map((_, i) =>
-    dayjs()
-      .subtract(10 - i, "days")
-      .format("YYYY-MM-DD")
-  );
+  const { from, to } = useDashboard();
 
-  const chartData = chartDays.map((date) => {
-    const dataForDay = dailyAppointmentsData.find((item) => item.date === date);
-    return {
-      date: dayjs(date).format("DD/MM"),
-      fullDate: date,
-      appointments: dataForDay?.appointments || 0,
-      revenue: Number(dataForDay?.revenue || 0),
-    };
-  });
+  // Cria um mapa dos dados existentes para busca rápida
+  const dataMap = dailyAppointmentsData.reduce((acc, item) => {
+    acc[item.date] = item;
+    return acc;
+  }, {} as Record<string, IDailyAppointment>);
+
+  // Gera todos os dias do range selecionado
+  const generateCompleteDateRange = () => {
+    const startDate = dayjs(from);
+    const endDate = dayjs(to);
+    const daysDiff = endDate.diff(startDate, 'day');
+
+    const completeData = [];
+
+    for (let i = 0; i <= daysDiff; i++) {
+      const currentDate = startDate.add(i, 'day');
+      const dateString = currentDate.format('YYYY-MM-DD');
+
+      // Verifica se existe dado para esta data
+      const existingData = dataMap[dateString];
+
+      completeData.push({
+        date: currentDate.format('DD/MM'),
+        fullDate: dateString,
+        appointments: existingData?.appointments || 0,
+        revenue: existingData?.revenue || 0,
+      });
+    }
+
+    return completeData;
+  };
+
+  const chartData = generateCompleteDateRange();
 
   const chartConfig = {
     appointments: {
-      label: "Agendamentos",
-      color: "#0B68F7",
+      label: 'Agendamentos',
+      color: '#0B68F7',
     },
     revenue: {
-      label: "Faturamento",
-      color: "#10B981",
+      label: 'Faturamento',
+      color: '#10B981',
     },
   } satisfies ChartConfig;
+
+  const hasNonZeroData = chartData.some(
+    (item) => item.appointments > 0 || item.revenue > 0,
+  );
 
   return (
     <Card>
@@ -63,93 +86,89 @@ export default function AppointmentsChart({
         <CardTitle>Agendamentos e Faturamento</CardTitle>
       </CardHeader>
       <CardContent>
-        <ChartContainer
-          config={chartConfig}
-          className="sm:min-h-full min-h-[170px]"
-        >
-          <AreaChart
-            data={chartData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-            />
-            <YAxis
-              yAxisId="left"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-            />
-            <YAxis
-              yAxisId="right"
-              orientation="right"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => formatCurrencyInCents(value)}
-            />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  formatter={(value, name) => {
-                    if (name === "revenue") {
-                      return (
-                        <>
-                          <div className="h-3 w-3 rounded bg-[#10B981]" />
-                          <span className="text-muted-foreground">
-                            Faturamento:
-                          </span>
-                          <span className="font-semibold">
-                            {formatCurrencyInCents(Number(value))}
-                          </span>
-                        </>
-                      );
-                    }
-                    return (
-                      <>
-                        <div className="h-3 w-3 rounded bg-[#0B68F7]" />
-                        <span className="text-muted-foreground">
-                          Agendamentos:
-                        </span>
-                        <span className="font-semibold">{value}</span>
-                      </>
-                    );
-                  }}
-                  labelFormatter={(label, payload) => {
-                    if (payload && payload[0]) {
-                      return dayjs(payload[0].payload?.fullDate).format(
-                        "DD/MM/YYYY (dddd)"
-                      );
-                    }
-                    return label;
-                  }}
-                />
-              }
-            />
-            <Area
-              yAxisId="left"
-              type="monotone"
-              dataKey="appointments"
-              stroke="var(--color-appointments)"
-              fill="var(--color-appointments)"
-              fillOpacity={0.2}
-              strokeWidth={2}
-            />
-            <Area
-              yAxisId="right"
-              type="monotone"
-              dataKey="revenue"
-              stroke="var(--color-revenue)"
-              fill="var(--color-revenue)"
-              fillOpacity={0.2}
-              strokeWidth={2}
-            />
-          </AreaChart>
-        </ChartContainer>
+        {!hasNonZeroData ? (
+          <div className="h-[400px] flex items-center justify-center text-muted-foreground">
+            Nenhum dado disponível para o período selecionado
+          </div>
+        ) : (
+          <ChartContainer config={chartConfig} className="h-[400px] w-full">
+            <AreaChart
+              data={chartData}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fontSize: 12 }}
+                interval="preserveStartEnd"
+              />
+              <YAxis
+                yAxisId="left"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fontSize: 12 }}
+                width={80}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(v) => formatCurrencyInCents(v)}
+                tick={{ fontSize: 12 }}
+                width={80}
+              />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    labelFormatter={(label, payload) => {
+                      const fullDate = payload?.[0]?.payload?.fullDate;
+                      return fullDate
+                        ? dayjs(fullDate).format('DD/MM/YYYY (dddd)')
+                        : label;
+                    }}
+                    formatter={(value, name) => {
+                      if (name === 'revenue') {
+                        return [
+                          formatCurrencyInCents(Number(value)),
+                          ' Faturamento',
+                        ];
+                      }
+                      return [value, ' Agendamentos'];
+                    }}
+                  />
+                }
+              />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="appointments"
+                stroke="var(--color-appointments)"
+                fill="var(--color-appointments)"
+                fillOpacity={0.2}
+                strokeWidth={2}
+                name="appointments"
+              />
+              <Area
+                yAxisId="right"
+                type="monotone"
+                dataKey="revenue"
+                stroke="var(--color-revenue)"
+                fill="var(--color-revenue)"
+                fillOpacity={0.2}
+                strokeWidth={2}
+                name="revenue"
+              />
+            </AreaChart>
+          </ChartContainer>
+        )}
       </CardContent>
     </Card>
   );

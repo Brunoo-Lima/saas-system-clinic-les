@@ -23,26 +23,21 @@ export class DoctorFactory {
 
         // Country
         const country = new Country({
-            name: doctorDTO?.address?.country.name ?? ""
+            name: doctorDTO?.address?.country ?? ""
         });
-        country.setUuidHash(
-            doctorDTO?.address?.country.id ?? country.getUUIDHash()
-        );
 
         // State
         const state = new StateBuilder()
             .setCountry(country)
-            .setName(doctorDTO?.address?.state.name)
-            .setUf(doctorDTO?.address?.state.uf)
+            .setName(doctorDTO?.address?.state)
+            .setUf(doctorDTO?.address?.uf)
             .build();
-        state.setUuidHash(doctorDTO?.address?.state.id ?? state.getUUIDHash());
 
         // City
         const city = new CityBuilder()
             .setState(state)
-            .setName(doctorDTO?.address?.city.name)
+            .setName(doctorDTO?.address?.city)
             .build();
-        city.setUuidHash(doctorDTO?.address?.city.id ?? city.getUUIDHash());
 
         // Address
         const address = new AddressBuilder()
@@ -78,18 +73,18 @@ export class DoctorFactory {
 
         // Doctor
         const doctor = new DoctorBuilder()
-            .setPhone(doctorDTO?.phone ?? undefined)
-            .setCpf(doctorDTO?.cpf ?? undefined)
+            .setPhone(doctorDTO?.phone || undefined)
+            .setCpf(doctorDTO?.cpf || undefined)
             .setDateOfBirth(
                 doctorDTO?.dateOfBirth ? new Date(doctorDTO?.dateOfBirth) : undefined
             )
             .setPeriod(periods)
-            .setName(doctorDTO?.name  ?? undefined)
+            .setName(doctorDTO?.name || undefined)
             .setUser(user)
-            .setSex(doctorDTO?.sex  ?? undefined)
-            .setCrm(doctorDTO?.crm  ?? undefined)
-            .setSpecialties(specialties ?? undefined)
-            .setPercentDistribution(doctorDTO?.percentDistribution ?? undefined)
+            .setSex(doctorDTO?.sex || undefined)
+            .setCrm(doctorDTO?.crm || undefined)
+            .setSpecialties(specialties|| undefined)
+            .setPercentDistribution(doctorDTO?.percentDistribution || undefined)
             .setAddress(address)
             .build();
 

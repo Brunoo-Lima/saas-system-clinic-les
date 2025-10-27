@@ -70,6 +70,14 @@ export const TopDoctors = ({
               </div>
             );
           })}
+
+          {!doctors.length && (
+            <div className="flex items-center justify-center">
+              <p className="text-muted-foreground text-sm">
+                Nenhum médico encontrado.
+              </p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

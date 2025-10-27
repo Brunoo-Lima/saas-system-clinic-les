@@ -8,8 +8,8 @@ export class Patient extends Person {
     ) {
         super({
             dateOfBirth: patientProps.dateOfBirth,
-            cpf: patientProps.cpf ?? "",
-            name: patientProps.name ?? ""
+            cpf: patientProps.cpf ?? undefined,
+            name: patientProps.name ?? undefined
         })
     }
 

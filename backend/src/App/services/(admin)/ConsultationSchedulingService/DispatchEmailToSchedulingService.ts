@@ -1,6 +1,6 @@
 import { SchedulingBuilder } from "../../../../domain/entities/EntityScheduling/SchedulingBuilder";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
-import { SchedulingQueriesDAO } from "../../../../infrastructure/database/DAO/SchedulingQueriesDAO";
+import { SchedulingQueriesDAO } from "../../../../infrastructure/database/DAO/Queries/SchedulingQueriesDAO";
 import { ConsultationSchedulingRepository } from "../../../../infrastructure/database/repositories/ConsultationSchedulingRepository/ConsultationSchedulingRepository";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { queueScheduling } from "../../../../infrastructure/queue/queue_email_client";
@@ -16,7 +16,7 @@ export class DispatchEmailToSchedulingService {
             const schedulingToConfirm = await schedulingQueriesDAO.getNextScheduling()
 
             if (!Array.isArray(schedulingToConfirm)) return ResponseHandler.error("Error to find the scheduling")
-               
+
             schedulingToConfirm.map(async (sch: any) => {
                 const scheduling = new SchedulingBuilder()
                     .setStatus("CONFIRMATION_PENDING")

@@ -33,7 +33,6 @@ export const DashboardPage = () => {
   const { data: doctors } = useGetDoctors();
   const { data: appointments } = useGetAppointments();
 
-  // ✅ Evita re-render desnecessário
   const stats = useMemo(
     () => ({
       totalRevenue: 6000,

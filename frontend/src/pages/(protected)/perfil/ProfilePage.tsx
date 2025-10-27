@@ -29,21 +29,15 @@ export default function ProfilePage() {
     email: data?.user.email,
     cnpj: data?.cnpj,
     address: {
-      cep: data?.address?.cep,
+      cep: data?.address?.cep || '',
       name: data?.address?.name,
-      street: data?.address?.street,
-      number: data?.address?.number,
-      neighborhood: data?.address?.neighborhood,
-      city: {
-        name: data?.address?.city.name,
-      },
-      state: {
-        name: data?.address?.state.name,
-        uf: data?.address?.state.uf,
-      },
-      country: {
-        name: data?.address?.country.name || '',
-      },
+      street: data?.address?.street || '',
+      number: data?.address?.number || '',
+      neighborhood: data?.address?.neighborhood || '',
+      city: data?.address?.city || '',
+      state: data?.address?.state || '',
+      country: data?.address?.country || '',
+      uf: data?.address?.uf || '',
     },
   });
 
@@ -60,16 +54,10 @@ export default function ProfilePage() {
           street: data.address?.street || '',
           number: data.address?.number || '',
           neighborhood: data.address?.neighborhood || '',
-          city: {
-            name: data?.address?.city.name,
-          },
-          state: {
-            name: data.address?.state.name || '',
-            uf: data.address?.state.uf || '',
-          },
-          country: {
-            name: data?.address?.country.name || '',
-          },
+          city: data.address?.city || '',
+          state: data.address?.state || '',
+          country: data.address?.country || '',
+          uf: data.address?.uf || '',
         },
       });
     }
@@ -297,16 +285,13 @@ export default function ProfilePage() {
                   <Input
                     placeholder="São Paulo"
                     disabled={!isEditingAddress}
-                    value={formData.address?.city.name}
+                    value={formData.address?.city}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
                         address: {
                           ...formData.address,
-                          city: {
-                            ...formData.address?.city,
-                            name: e.target.value,
-                          },
+                          city: e.target.value,
                         },
                       })
                     }
@@ -318,16 +303,13 @@ export default function ProfilePage() {
                   <Input
                     placeholder="SP"
                     disabled={!isEditingAddress}
-                    value={formData.address?.state?.name}
+                    value={formData.address?.state}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
                         address: {
                           ...formData.address,
-                          state: {
-                            ...formData.address?.state,
-                            name: e.target.value,
-                          },
+                          state: e.target.value,
                         },
                       })
                     }
@@ -341,16 +323,13 @@ export default function ProfilePage() {
                   <Input
                     placeholder="Brasil"
                     disabled={!isEditingAddress}
-                    value={formData.address?.country.name}
+                    value={formData.address?.country}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
                         address: {
                           ...formData.address,
-                          country: {
-                            ...formData.address?.country,
-                            name: e.target.value,
-                          },
+                          country: e.target.value,
                         },
                       })
                     }

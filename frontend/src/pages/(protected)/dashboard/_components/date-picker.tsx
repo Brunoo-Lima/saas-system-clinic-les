@@ -1,76 +1,73 @@
-import { addMonths, format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { parseAsIsoDate, useQueryState } from "nuqs";
-import * as React from "react";
-import type { DateRange } from "react-day-picker";
+import { addMonths, format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { parseAsIsoDate, useQueryState } from 'nuqs';
+import * as React from 'react';
+import type { DateRange } from 'react-day-picker';
 
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { useDashboard } from '@/hooks/use-dashboard';
 
 export function DatePicker({
   className,
 }: React.HTMLAttributes<HTMLDivElement>) {
-  //conceito de url state usando o nuqs
-  const [from, setFrom] = useQueryState(
-    "from",
-    parseAsIsoDate.withDefault(new Date())
+  const [from, setFromUrl] = useQueryState(
+    'from',
+    parseAsIsoDate.withDefault(new Date()),
   );
-  const [to, setTo] = useQueryState(
-    "to",
-    parseAsIsoDate.withDefault(addMonths(new Date(), 1))
+  const [to, setToUrl] = useQueryState(
+    'to',
+    parseAsIsoDate.withDefault(addMonths(new Date(), 1)),
   );
+
+  const { setFrom, setTo } = useDashboard();
 
   const handleDateSelect = (dateRange: DateRange | undefined) => {
     if (dateRange?.from) {
-      setFrom(dateRange.from, {
-        shallow: false,
-      });
+      setFromUrl(dateRange.from);
+      setFrom(dateRange.from);
     }
     if (dateRange?.to) {
-      setTo(dateRange.to, {
-        shallow: false,
-      });
+      setToUrl(dateRange.to);
+      setTo(dateRange.to);
     }
   };
 
-  const date = {
-    from,
-    to,
-  };
+  const date = { from, to };
 
   return (
-    <div className={cn("grid gap-2", className)}>
+    <div className={cn('grid gap-2', className)}>
       <Popover>
         <PopoverTrigger asChild>
           <Button
             id="date"
-            variant={"outline"}
+            variant={'outline'}
             className={cn(
-              "justify-start text-left font-normal",
-              !date && "text-muted-foreground"
+              'justify-start text-left font-normal',
+              !date && 'text-muted-foreground',
             )}
           >
             <CalendarIcon />
             {date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, "LLL dd, y", {
+                  {format(date.from, 'LLL dd, y', {
                     locale: ptBR,
-                  })}{" "}
-                  -{" "}
-                  {format(date.to, "LLL dd, y", {
+                  })}{' '}
+                  -{' '}
+                  {format(date.to, 'LLL dd, y', {
                     locale: ptBR,
                   })}
                 </>
               ) : (
-                format(date.from, "LLL dd, y")
+                format(date.from, 'LLL dd, y')
               )
             ) : (
               <span>Pick a date</span>

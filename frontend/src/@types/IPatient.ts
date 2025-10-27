@@ -7,7 +7,7 @@ export type IModality =
   | 'apartamento';
 
 export interface IPatient extends IPerson {
-  id: number;
+  id: string;
   user: IUserPerson;
   cardInsurances: ICardInsurance[];
 }

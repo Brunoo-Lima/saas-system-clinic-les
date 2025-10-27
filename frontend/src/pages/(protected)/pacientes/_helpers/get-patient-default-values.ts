@@ -1,9 +1,6 @@
 import type { IPatient } from '@/@types/IPatient';
-import type { PatientFormSchema } from '@/validations/patient-form-schema';
 
-export const getPatientDefaultValues = (
-  patient?: IPatient,
-): PatientFormSchema => ({
+export const getPatientDefaultValues = (patient?: IPatient) => ({
   name: patient?.name ?? '',
   user: {
     email: patient?.user.email ?? '',
@@ -17,20 +14,15 @@ export const getPatientDefaultValues = (
   dateOfBirth: patient?.dateOfBirth ?? '',
   cardInsurances: patient?.cardInsurances ?? [],
   address: {
+    id: patient?.address?.id ?? '',
     name: patient?.address?.name ?? '',
     cep: patient?.address?.cep ?? '',
     street: patient?.address?.street ?? '',
     number: patient?.address?.number ?? '',
     neighborhood: patient?.address?.neighborhood ?? '',
-    city: {
-      name: patient?.address?.city?.name ?? '',
-    },
-    state: {
-      name: patient?.address?.state?.name ?? '',
-      uf: patient?.address?.state?.uf ?? '',
-    },
-    country: {
-      name: patient?.address?.country?.name ?? 'Brasil',
-    },
+    city: patient?.address?.city ?? '',
+    state: patient?.address?.state ?? '',
+    country: patient?.address?.country ?? 'Brasil',
+    uf: patient?.address?.uf ?? '',
   },
 });

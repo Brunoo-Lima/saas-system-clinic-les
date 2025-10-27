@@ -7,8 +7,9 @@ import { doctorTable, doctorToSpecialtyTable } from "../../Schema/DoctorSchema";
 import { IRepository } from "../IRepository";
 import { periodDoctorTable } from "../../Schema/PeriodSchema";
 import { specialtyTable } from "../../Schema/SpecialtySchema";
-import { addressTable, cityTable, countryTable, stateTable } from "../../Schema/AddressSchema";
+import { addressTable } from "../../Schema/AddressSchema";
 import { userTable } from "../../Schema/UserSchema";
+import { doctorSchedulingTable } from "../../Schema/DoctorScheduling";
 
 export class DoctorRepository implements IRepository {
     async create(doctor: Doctor, tx?: any): Promise<any> {
@@ -38,27 +39,33 @@ export class DoctorRepository implements IRepository {
 
     async findEntity(doctor: Doctor, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
+        const filters = []
+        
+        if(doctor.crm) filters.push(eq(doctorTable.crm, doctor.crm))
+        if(doctor.cpf) filters.push(eq(doctorTable.crm, doctor.cpf))
+        if(doctor.name) filters.push(eq(doctorTable.crm, doctor.name))
+
         const doctorFounded = await dbUse
             .select({
                 doctor: doctorTable,
                 periods: sql`json_agg(
-            json_build_object(
-                'id', ${periodDoctorTable.id},
-                'dayWeek', ${periodDoctorTable.dayWeek},
-                'timeFrom', ${periodDoctorTable.timeFrom},
-                'timeTo', ${periodDoctorTable.timeTo},
-                'specialty_id', ${periodDoctorTable.specialty_id}
-            )
-            )`.as("periods"),
-                specialties: sql`
-                json_agg(
-                    json_build_object(
-                        'id', ${specialtyTable.id},
-                        'name', ${specialtyTable.name}
-                    )
+                json_build_object(
+                    'id', ${periodDoctorTable.id},
+                    'dayWeek', ${periodDoctorTable.dayWeek},
+                    'timeFrom', ${periodDoctorTable.timeFrom},
+                    'timeTo', ${periodDoctorTable.timeTo},
+                    'specialty_id', ${periodDoctorTable.specialty_id}
                 )
-            `
-            })
+                )`.as("periods"),
+                    specialties: sql`
+                    json_agg(
+                        json_build_object(
+                            'id', ${specialtyTable.id},
+                            'name', ${specialtyTable.name}
+                        )
+                    )
+                `
+                })
             .from(doctorTable)
             .leftJoin(periodDoctorTable, eq(periodDoctorTable.doctor_id, doctorTable.id))
             .leftJoin(
@@ -72,9 +79,7 @@ export class DoctorRepository implements IRepository {
             .where(
                 or(
                     eq(doctorTable.id, doctor.getUUIDHash() ?? undefined),
-                    eq(doctorTable.crm, doctor.crm ?? ""),
-                    eq(doctorTable.cpf, doctor.cpf ?? ""),
-                    eq(doctorTable.name, doctor.name ?? "")
+                    ...filters
                 )
             )
             .groupBy(
@@ -167,7 +172,7 @@ export class DoctorRepository implements IRepository {
                 name: doctorTable.name,
                 cpf: doctorTable.cpf,
                 sex: doctorTable.sex,
-                date_of_birth: sql`CAST(${doctorTable.date_of_birth} AS DATE)`,
+                dateOfBirth: sql`CAST(${doctorTable.date_of_birth} AS DATE)`,
                 phone: doctorTable.phone,
                 specialties: sql`(
                     SELECT 
@@ -213,24 +218,16 @@ export class DoctorRepository implements IRepository {
                     SELECT json_build_object(
                         'id', ${addressTable.id},
                         'name', ${addressTable.name},
-                        'city', json_build_object(
-                            'id', ${cityTable.id},
-                            'name', ${cityTable.name}
-                        ),
-                        'state', json_build_object(
-                            'id', ${stateTable.id},
-                            'name', ${stateTable.name},
-                            'uf', ${stateTable.uf}
-                        ),
-                        'country', json_build_object(
-                            'id', ${countryTable.id},
-                            'name', ${countryTable.name}
-                        )
+                        'street', ${addressTable.street},
+                        'cep', ${addressTable.cep},
+                        'number', ${addressTable.number},
+                        'neighborhood', ${addressTable.neighborhood},
+                        'city', ${addressTable.city},
+                        'state', ${addressTable.state},
+                        'uf', ${addressTable.uf},
+                        'country', ${addressTable.country}
                     )
                     FROM ${addressTable}
-                    LEFT JOIN ${cityTable} ON ${cityTable.id} = ${addressTable.city_id}
-                    LEFT JOIN ${stateTable} ON ${stateTable.id} = ${cityTable.state_id}
-                    LEFT JOIN ${countryTable} ON ${countryTable.id} = ${stateTable.country_id} 
                     WHERE ${addressTable.id} = ${doctorTable.address_id}
                 )
                 `,

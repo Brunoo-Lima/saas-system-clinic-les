@@ -66,16 +66,10 @@ export const FormCompleteProfile = () => {
         neighborhood: '',
         street: '',
         number: '',
-        state: {
-          name: '',
-          uf: '',
-        },
-        city: {
-          name: '',
-        },
-        country: {
-          name: 'Brasil',
-        },
+        city: '',
+        state: '',
+        uf: '',
+        country: 'Brasil',
       },
     },
   });
@@ -285,21 +279,21 @@ export const FormCompleteProfile = () => {
               <div className="grid gap-4 md:grid-cols-4">
                 <FormInputCustom
                   control={form.control}
-                  name="address.city.name"
+                  name="address.city"
                   label="Cidade"
                   placeholder="Cidade"
                 />
 
                 <FormInputCustom
                   control={form.control}
-                  name="address.state.name"
+                  name="address.state"
                   label="Estado"
                   placeholder="Estado"
                 />
 
                 <FormField
                   control={form.control}
-                  name="address.state.uf"
+                  name="address.uf"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>UF</FormLabel>
@@ -324,7 +318,7 @@ export const FormCompleteProfile = () => {
 
                 <FormInputCustom
                   control={form.control}
-                  name="address.country.name"
+                  name="address.country"
                   label="Pais"
                   placeholder="Brasil"
                 />

@@ -41,7 +41,7 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
   };
 
   return (
-    <Card className="sm:min-w-[350px] w-[450px]">
+    <Card className="sm:min-w-[350px] w-[450px] overflow-hidden">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Avatar className="h-10 w-10">
@@ -57,14 +57,16 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
       </CardHeader>
       <Separator />
       <CardContent className="flex flex-col gap-2 flex-1">
-        <Badge variant="outline">
-          <CalendarIcon className="mr-1" />
-          {doctor.periodToWork
-            .map((p) => formattedDayWeek(p.dayWeek))
-            .join(', ')}
+        <Badge variant="outline" className="">
+          <CalendarIcon className="mr-1 shrink-0" />
+          <p className="overflow-hidden text-ellipsis whitespace-nowrap w-[250px]">
+            {doctor?.periodToWork
+              ?.map((p) => formattedDayWeek(p.dayWeek))
+              .join(', ') || 'N/A'}
+          </p>
         </Badge>
-        <Badge variant="outline" className="flex flex-col items-start gap-1">
-          {doctor.periodToWork.map((a) => (
+        <Badge variant="outline" className="flex flex-col items-start gap-1 ">
+          {doctor?.periodToWork?.slice(0, 4).map((a) => (
             <span key={a.dayWeek} className="flex items-center gap-x-2">
               <ClockIcon size={16} className="mr-1" />
               {`${a.timeFrom.slice(0, 5)} - ${a.timeTo.slice(

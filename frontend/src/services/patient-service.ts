@@ -89,3 +89,28 @@ export const useGetAllPatients = (params?: IPatientProps) => {
     queryFn: () => getPatients(params || {}),
   });
 };
+
+interface IUpdatePatientProps {
+  id: string;
+  patient: Partial<IPatientPayload>;
+}
+
+export const updatePatient = async ({ id, patient }: IUpdatePatientProps) => {
+  const { data } = await api.patch(`/patient/?id=${id}`, patient);
+  return data;
+};
+
+export const useUpdatePatient = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updatePatient,
+    onSuccess: () => {
+      toast.success('Paciente atualizado com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['patients'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Erro ao atualizar paciente.');
+    },
+  });
+};

@@ -22,6 +22,10 @@ const workerScheduling = new Worker("scheduling_email",
   { connection }
 )
 
+const workerPasswordReset = new Worker("password_reset_email", async(job) => {
+  await EmailService.sendMail(job.data)
+}, { connection })
+
 worker.on("failed", (job, err) => {
   console.error(`❌ Falha ao enviar e-mail (Job ${job?.id}):`, err);
 });
@@ -30,3 +34,6 @@ workerScheduling.on("failed", (job, err) => {
   console.error(`❌ Falha ao enviar e-mail (Job ${job?.id}):`, err);
 });
 
+workerPasswordReset.on("failed", (job, err) => {
+  console.error(`❌ Falha ao enviar e-mail (Job ${job?.id}):`, err);
+})

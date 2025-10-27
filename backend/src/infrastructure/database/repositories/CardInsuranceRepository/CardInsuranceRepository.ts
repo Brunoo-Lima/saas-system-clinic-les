@@ -1,4 +1,4 @@
-import { eq, inArray, or } from "drizzle-orm";
+import { eq, inArray, notInArray, or } from "drizzle-orm";
 import { CardInsurance } from "../../../../domain/entities/EntityCardInsurance/CardInsurance";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -45,8 +45,29 @@ export class CardInsuranceRepository implements IRepository {
             return ResponseHandler.error("Failed to find the card insurance")
         }
     }
-    updateEntity(entity: EntityDomain): Promise<any> {
-        throw new Error("Method not implemented.");
+    async updateEntity(cardInsurance: CardInsurance | Array<CardInsurance>, tx?: any): Promise<any> {
+        const cardInsuranceFormatted = Array.isArray(cardInsurance) ? cardInsurance : [cardInsurance]
+        const dbUse = tx ? tx : db
+        const cardInsurancesDeleted = await dbUse.delete(cardInsuranceTable).where(
+            notInArray(cardInsuranceTable.id, cardInsuranceFormatted.filter((cd) => cd.getUUIDHash()).map((cd) => cd.getUUIDHash())),
+        )
+
+        const cardInsuranceUpdated = await Promise.all(cardInsuranceFormatted.filter((cd) => cd.getUUIDHash()).map(async (cd) => {
+            return await dbUse.update(cardInsuranceTable).set({
+                cardNumber: cd.cardNumber || undefined,
+                insurance_id: cd.insurance?.getUUIDHash() || undefined,
+                modality_id: cd.modality?.getUUIDHash() || undefined,
+                updatedAt: cd.getUpdatedAt() || undefined,
+                validate: cd.validate ? new Date(cd.validate)?.toISOString() : undefined
+            }).where(
+                eq(cardInsuranceTable.id, cd.getUUIDHash())
+            ).returning()
+        }))
+
+        return {
+            updated: cardInsuranceUpdated,
+            deleted: cardInsurancesDeleted.rows
+        }
     }
     deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
         throw new Error("Method not implemented.");

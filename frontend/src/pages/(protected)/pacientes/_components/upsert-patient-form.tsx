@@ -34,26 +34,21 @@ import {
 import { Switch } from '@/components/ui/switch';
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
 import FormSelectCustom from '@/components/ui/form-custom/form-select-custom';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { CalendarIcon, RefreshCcwIcon } from 'lucide-react';
-import { Calendar } from '@/components/ui/calendar';
+
+import { RefreshCcwIcon } from 'lucide-react';
 import { InputPassword } from '@/components/ui/input-password';
 import type { IPatient } from '@/@types/IPatient';
 import { getPatientDefaultValues } from '../_helpers/get-patient-default-values';
 import {
   useCreatePatient,
+  useUpdatePatient,
   type IPatientPayload,
 } from '@/services/patient-service';
 import { formatCPF } from '@/utils/format-cpf';
 import { brazilianStates } from '@/utils/brazilian-states';
 import { formatCEP } from '@/utils/format-cep';
+import InputDate from '@/components/ui/input-date';
+import { useGetAllInsurances } from '@/services/insurance-service';
 
 interface IUpsertPatientFormProps {
   isOpen: boolean;
@@ -77,13 +72,21 @@ export const UpsertPatientForm = ({
     name: 'cardInsurances',
   });
 
-  const { mutate, isPending } = useCreatePatient();
+  const { mutate: createPatient, isPending: isCreating } = useCreatePatient();
+  const { mutate: updatePatient, isPending: isUpdating } = useUpdatePatient();
+  const { data: insurances } = useGetAllInsurances();
+
+  const isPending = isCreating || isUpdating;
 
   useEffect(() => {
     if (isOpen && patient) {
       form.reset(getPatientDefaultValues(patient));
     }
   }, [isOpen, patient, form]);
+
+  useEffect(() => {
+    console.log(form.formState.errors);
+  }, [form.formState.errors]);
 
   const cardInsurances = form.watch('cardInsurances');
   const hasInsurance = cardInsurances ? cardInsurances.length > 0 : false;
@@ -129,26 +132,119 @@ export const UpsertPatientForm = ({
       ? values.cardInsurances
       : [];
 
-    const payload: Omit<IPatientPayload, 'id'> = {
-      ...values,
+    // Para criação, envia todos os dados
+    if (!patient) {
+      const payload: IPatientPayload = {
+        ...values,
+        dateOfBirth: dateOfBirthString,
+        cardInsurances,
+      };
 
-      dateOfBirth: dateOfBirthString,
-      cardInsurances,
-    };
+      createPatient(payload, {
+        onSuccess: () => {
+          onSuccess();
+          form.reset();
+        },
+      });
+    } else {
+      // Para atualização, usar dirtyFields para pegar apenas campos modificados
+      const dirtyFields = form.formState.dirtyFields;
 
-    mutate(payload, {
-      onSuccess: () => {
-        onSuccess();
-        form.reset();
-      },
-    });
+      const payload: any = {
+        id: patient.id,
+      };
+
+      // Função para construir o payload apenas com campos modificados
+      const buildDirtyPayload = (
+        dirtyFields: any,
+        values: any,
+        basePath: string = '',
+      ) => {
+        Object.keys(dirtyFields).forEach((key) => {
+          const fullPath = basePath ? `${basePath}.${key}` : key;
+          const isDirty = dirtyFields[key];
+
+          if (isDirty === true) {
+            // Campo primitivo sujo - adicionar ao payload
+            const pathParts = fullPath.split('.');
+            let current = payload;
+
+            for (let i = 0; i < pathParts.length - 1; i++) {
+              const part = pathParts[i];
+              if (!current[part]) {
+                current[part] = {};
+              }
+              current = current[part];
+            }
+
+            current[pathParts[pathParts.length - 1]] = getNestedValue(
+              values,
+              fullPath,
+            );
+          } else if (typeof isDirty === 'object') {
+            // Objeto nested - processar recursivamente
+            buildDirtyPayload(isDirty, values, fullPath);
+          }
+        });
+      };
+
+      // Função auxiliar para pegar valores nested
+      const getNestedValue = (obj: any, path: string) => {
+        return path.split('.').reduce((current, key) => current?.[key], obj);
+      };
+
+      // Construir payload apenas com campos sujos
+      buildDirtyPayload(dirtyFields, values);
+
+      if (payload.user) {
+        // Se algum campo do user foi modificado, garantir que venha como objeto completo
+        payload.user = {
+          ...(patient.user || {}), // Manter dados existentes
+          ...payload.user, // Sobrescrever com campos modificados
+        };
+      }
+
+      // Garantir que o ID do endereço seja incluído se houver mudanças no address
+      if (payload.address) {
+        payload.address = {
+          id: patient.address.id,
+          ...(patient.address || {}), // Manter dados existentes do endereço
+          ...payload.address, // Sobrescrever com campos modificados
+        };
+      }
+
+      // Campos que precisam de formatação especial
+      if (dirtyFields.dateOfBirth) {
+        payload.dateOfBirth = dateOfBirthString;
+      }
+
+      if (dirtyFields.cardInsurances) {
+        payload.cardInsurances = cardInsurances;
+      }
+
+      console.log(
+        'Payload PATCH para atualização:',
+        JSON.stringify(payload, null, 2),
+      );
+
+      updatePatient(
+        { id: patient.id, patient: payload },
+        {
+          onSuccess: () => {
+            onSuccess();
+            console.log('Paciente atualizado com sucesso');
+            form.reset(values);
+          },
+        },
+      );
+    }
   };
 
   return (
-    <DialogContent className="w-full sm:max-w-lg lg:max-w-2xl max-h-[90vh]  overflow-y-auto">
+    <DialogContent className="w-full sm:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle>
-          {patient ? patient.name : 'Adicionar paciente'}
+          {patient ? `Editar ${patient.name}` : 'Adicionar paciente'}
         </DialogTitle>
         <DialogDescription>
           {patient
@@ -274,50 +370,13 @@ export const UpsertPatientForm = ({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Data de Nascimento</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            'w-full pl-3 text-left font-normal',
-                            !field.value && 'text-muted-foreground',
-                          )}
-                        >
-                          {field.value ? (
-                            // Converter para Date antes de formatar
-                            format(
-                              field.value instanceof Date
-                                ? field.value
-                                : new Date(field.value),
-                              'PPP',
-                              { locale: ptBR },
-                            )
-                          ) : (
-                            <span>Selecione uma data</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={
-                          field.value instanceof Date
-                            ? field.value
-                            : field.value
-                            ? new Date(field.value)
-                            : undefined
-                        }
-                        onSelect={field.onChange}
-                        disabled={(date: Date) =>
-                          date > new Date() || date < new Date('1900-01-01')
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <FormControl>
+                    <InputDate
+                      value={field.value ? new Date(field.value) : undefined}
+                      onChange={(date) => field.onChange(date)}
+                      placeholder="DD/MM/AAAA"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -374,11 +433,17 @@ export const UpsertPatientForm = ({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {/* {insurancesList.map((ins) => (
+                          {insurances?.map((ins) => (
                             <SelectItem key={ins.id} value={ins.id.toString()}>
-                              {ins.name}
+                              {ins.type}
                             </SelectItem>
-                          ))} */}
+                          ))}
+
+                          {!insurances?.length && (
+                            <SelectItem value="null">
+                              Nenhum convênio
+                            </SelectItem>
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -493,26 +558,37 @@ export const UpsertPatientForm = ({
 
           <div className="grid grid-cols-4 gap-4">
             <FormInputCustom
-              name="address.city.name"
+              name="address.city"
               label="Cidade"
               placeholder="Digite o nome da cidade"
               control={form.control}
             />
 
-            <FormInputCustom
-              name="address.state.name"
-              label="Estado"
-              placeholder="Digite o nome do estado"
+            <FormField
               control={form.control}
+              name="address.state"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Estado</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Estado" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             <FormField
               control={form.control}
-              name="address.state.uf"
+              name="address.uf"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>UF</FormLabel>
-                  <Select onValueChange={field.onChange}>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="UF" />
@@ -531,17 +607,28 @@ export const UpsertPatientForm = ({
               )}
             />
 
-            <FormInputCustom
-              name="address.country.name"
-              label="País"
-              placeholder="Digite o país"
+            <FormField
               control={form.control}
+              name="address.country"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>País</FormLabel>
+                  <FormControl>
+                    <Input placeholder="País" {...field} value="Brasil" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
 
           <DialogFooter>
             <Button type="submit" disabled={isPending} className="w-full mt-4">
-              {isPending ? 'Salvando...' : 'Salvar'}
+              {isPending
+                ? 'Salvando...'
+                : patient
+                ? 'Atualizar paciente'
+                : 'Salvar paciente'}
             </Button>
           </DialogFooter>
         </form>

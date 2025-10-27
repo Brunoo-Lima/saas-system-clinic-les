@@ -1,7 +1,5 @@
-import { City } from "../../../../domain/entities/EntityAddress/City";
 import { CardInsuranceFactory } from "../../../../domain/entities/EntityCardInsurance/CardInsuranceFactory";
 import { PatientFactory } from "../../../../domain/entities/EntityPatient/PatientFactory";
-import { CardInsuranceVinculate } from "../../../../domain/validators/CardInsuranceValidator/CardInsuranceVinculate";
 import { EntityExistsToInserted } from "../../../../domain/validators/General/EntityExistsToInserted";
 import { EntityExistsToUpdated } from "../../../../domain/validators/General/EntityExistsToUpdated";
 import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
@@ -10,27 +8,18 @@ import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../../../infrastructure/database/connection";
 import { AddressRepository } from "../../../../infrastructure/database/repositories/AddressRepository/AddressRepository";
 import { CardInsuranceRepository } from "../../../../infrastructure/database/repositories/CardInsuranceRepository/CardInsuranceRepository";
-import { CityRepository } from "../../../../infrastructure/database/repositories/CityRepository/CityRepository";
-import { CountryRepository } from "../../../../infrastructure/database/repositories/CountryRepository/CountryRepository";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { PatientRepository } from "../../../../infrastructure/database/repositories/PatientRepository/PatientRepository";
-import { StateRepository } from "../../../../infrastructure/database/repositories/StateRepository/StateRepository";
 import { PatientDTO } from "../../../../infrastructure/DTOs/PatientDTO";
 
 export class PatchPatientService {
     private repository: IRepository;
-    private countryRepository: IRepository;
     private addressRepository: IRepository;
-    private stateRepository: IRepository;
-    private cityRepository: IRepository;
     private cardInsuranceRepository: IRepository;
 
     constructor() {
         this.repository = new PatientRepository()
         this.addressRepository = new AddressRepository()
-        this.countryRepository = new CountryRepository()
-        this.stateRepository = new StateRepository()
-        this.cityRepository = new CityRepository()
         this.cardInsuranceRepository = new CardInsuranceRepository()
 
     }
@@ -41,10 +30,8 @@ export class PatchPatientService {
             patientDomain.setUuidHash(id ?? "")
 
             const address = patientDomain?.address
-            const city = address?.city
-            const state = city?.state
-            const country = state?.country
-            
+            address?.setUuidHash(patientDTO?.address?.id ?? undefined!)
+
             const cardInsurances = patientDTO.cardInsurances?.map((card) => {
                 const cardInsurance = CardInsuranceFactory.createFromDTO(card)
                 cardInsurance.setUuidHash(card.id ?? cardInsurance.getUUIDHash())
@@ -60,46 +47,44 @@ export class PatchPatientService {
 
             if (patientDomain.address?.getUUIDHash()) {
                 const address = patientDomain.address
-                const city = address.city
-                const state = city?.state
-                const country = state?.country
 
-                validator.setValidator(`U-${address.constructor.name}`, [new EntityExistsToUpdated(), new UUIDValidator()])
-                validator.setValidator(`U-${city?.constructor.name ?? "city"}`, [new EntityExistsToUpdated(), new UUIDValidator()])
-                validator.setValidator(`U-${state?.constructor.name ?? "state"}`, [new EntityExistsToUpdated(), new UUIDValidator()])
-                validator.setValidator(`U-${country?.constructor.name ?? "country"}`, [new EntityExistsToUpdated(), new UUIDValidator()])
-
-                const allEntities = []
-                if (city?.getUUIDHash()) allEntities.push(await validator.process(`U-${city?.constructor.name ?? "city"}`, city, this.cityRepository))
-                if (state?.getUUIDHash()) allEntities.push(await validator.process(`U-${state?.constructor.name ?? "city"}`, state, this.stateRepository))
-                if (country?.getUUIDHash()) allEntities.push(await validator.process(`U-${country?.constructor.name ?? "city"}`, country, this.countryRepository))
-
-                allEntities.push(await validator.process(`U-${address.constructor.name}`, address, this.addressRepository))
-                const hasErrors = allEntities.filter((err) => !err.success)
-                if (hasErrors.length) return ResponseHandler.error(hasErrors.map((err) => err.message).flat())
+                validator.setValidator(`U-${address.constructor.name}`, [new EntityExistsToInserted(), new UUIDValidator()])
+                const addressIsValid = await validator.process(`U-${address.constructor.name}`, address, this.addressRepository)
+                if (!addressIsValid.success) return addressIsValid
             }
+
             if (cardInsurances.length && cardInsurances[0]) {
-                validator.setValidator(`${cardInsurances[0].constructor.name}`, [
+                validator.setValidator(`U-${cardInsurances[0].constructor.name}`, [
                     new UUIDValidator(),
                     new EntityExistsToInserted()
                 ])
-                const cardInsuranceIsValid = await validator.process(`${cardInsurances[0].constructor.name}`, cardInsurances, this.cardInsuranceRepository)
+                const cardInsuranceIsValid = await validator.process(`U-${cardInsurances[0].constructor.name}`, cardInsurances, this.cardInsuranceRepository)
                 if (!cardInsuranceIsValid.success) return cardInsuranceIsValid
-                
             }
 
-           const entitiesUpdated = await db.transaction(async (tx) => {
-                if(city?.getUUIDHash()) await this.cityRepository.updateEntity(city, tx)
-                if(state?.getUUIDHash()) await this.cityRepository.updateEntity(state, tx)
-                if(country?.getUUIDHash()) await this.cityRepository.updateEntity(country, tx)
-                if(address?.getUUIDHash()) await this.addressRepository.updateEntity(address, tx)
-                if(cardInsurances[0]) await this.cardInsuranceRepository.updateEntity(cardInsurances, tx)
-                
-                const patientUpdated = await this.repository.updateEntity(patientDomain, tx)
-           })
+            const entitiesUpdated = await db.transaction(async (tx) => {
+                let cardInsuranceUpdated
+                let addressUpdated;
 
+                //Só vai "Criar/procurar se existir valores para isso"
+                if (address?.getUUIDHash()) addressUpdated = await this.addressRepository.updateEntity(address, tx)
+                if (cardInsurances[0]) cardInsuranceUpdated = await this.cardInsuranceRepository.updateEntity(cardInsurances, tx)
+                const patientUpdated = await this.repository.updateEntity(patientDomain, tx)
+            
+                return {    
+                    updated: {
+                        patient: patientUpdated,
+                        cardInsurance: cardInsuranceUpdated?.updated.flat(),
+                        address: addressUpdated
+                    },
+                    deleted: {
+                        cardInsurance: cardInsuranceUpdated?.deleted
+                    }
+                }
+            })
+            return ResponseHandler.success(entitiesUpdated, "Success ! The patient and information updated.")
         } catch (e) {
-            return ResponseHandler.error((e as Error))
+            return ResponseHandler.error((e as Error).message)
         }
     }
 }

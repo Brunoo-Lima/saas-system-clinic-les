@@ -6,6 +6,7 @@ import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { UserRepository } from "../../../../infrastructure/database/repositories/UserRepository/UserRepository";
 import { UserDTO } from "../../../../infrastructure/DTOs/UserDTO";
+import { queuePasswordReset } from "../../../../infrastructure/queue/queue_email_client";
 
 export class PatchUserService {
     private repository: IRepository;
@@ -18,7 +19,6 @@ export class PatchUserService {
             const userDomain = new UserBuilder()
                 .setEmail(userDTO.email)
                 .setUsername(userDTO.username)
-                .setPassword(userDTO.password)
                 .setRole(userDTO.role)
                 .setAvatar(userDTO.avatar || "")
                 .setProfileCompleted(userDTO.profileCompleted)
@@ -44,7 +44,6 @@ export class PatchUserService {
                 role,
                 ...userOmitted
             } = userUpdated[0]
-
             return ResponseHandler.success(userOmitted, "Success ! Data Updated")
         } catch (e) {
             return ResponseHandler.error((e as Error).message)

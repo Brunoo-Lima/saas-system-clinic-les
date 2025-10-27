@@ -73,6 +73,14 @@ export const TopSpecialties = ({ appointments }: ITopSpecialtiesProps) => {
               </div>
             );
           })}
+
+          {topSpecialties.length === 0 && (
+            <div className="flex w-full justify-center">
+              <span className="text-muted-foreground text-sm font-medium">
+                Nenhuma especialidade encontrada.
+              </span>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

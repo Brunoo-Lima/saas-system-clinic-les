@@ -3,6 +3,7 @@ import "dotenv/config";
 import nodemailer from "nodemailer";
 import { generateEmail } from "../templates/welcome-user";
 import { generateSchedulingEmail } from "../templates/scheduling_confirmation";
+import { resetPasswordHTML } from "../templates/reset_password";
 
 class EmailService {
   private transporter: any
@@ -36,7 +37,13 @@ class EmailService {
           htmlTemplate = generateSchedulingEmail(dataEMail)
           subject = "Confirmação de agendamento"
           emails = dataEMail.patient.email
+
+        case "reset_password":
+          htmlTemplate = resetPasswordHTML(dataEMail)
+          subject = "Reset de senha"
+          emails = dataEMail.email
       }
+      
       await this.transporter.sendMail({
         from: `"LifeCare" <${process.env.EMAIL_USER}>`,
         to: emails,

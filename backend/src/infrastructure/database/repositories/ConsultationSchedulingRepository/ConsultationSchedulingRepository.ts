@@ -1,5 +1,4 @@
-import { and, eq, or, SQL, sql } from "drizzle-orm";
-import { EntityDomain } from "../../../../domain/entities/EntityDomain";
+import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { Scheduling } from "../../../../domain/entities/EntityScheduling/Scheduling";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
@@ -33,35 +32,46 @@ export class ConsultationSchedulingRepository implements IRepository {
     }
     async findEntity(scheduling: Scheduling, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
+
         return await dbUse.select().from(schedulingTable).where(
             eq(schedulingTable.id, scheduling.getUUIDHash())
         )
     }
+    async findEntityByLinked(scheduling: Scheduling, tx?: any){
+        const dbUse = tx ? tx : db
+        const conditions = []
+        if(scheduling.doctor?.getUUIDHash()) conditions.push(eq(schedulingTable.doctor_id, scheduling.doctor?.getUUIDHash() ?? ""))
+        if(scheduling.patient?.getUUIDHash()) conditions.push(eq(schedulingTable.patient_id, scheduling.patient?.getUUIDHash() ?? ""))
+        if(scheduling.specialty?.getUUIDHash()) conditions.push(eq(schedulingTable.specialty_id, scheduling.specialty?.getUUIDHash() ?? ""),)
+        if(scheduling.insurance?.getUUIDHash()) conditions.push(eq(schedulingTable.insurance_id, scheduling.insurance?.getUUIDHash() ?? ""),)
+ 
+        return await dbUse.select().from(schedulingTable).where(
+            and(
+                eq(schedulingTable.status, scheduling.status || "PENDING"),
+                ...conditions
+            )
+        )
+    }
     async updateEntity(scheduling: Scheduling, tx?: any): Promise<any> {
-        try {
-            const dbUse = tx ? tx : db
-            const schedulingUpdated = await dbUse.update(schedulingTable).set({
-                date: scheduling.date,
-                dateOfConfirmation: scheduling.dateOfConfirmation?.toISOString() ?? undefined,
-                dateOfRealizable: scheduling.dateOfRealizable ?? undefined,
-                isReturn: scheduling.isReturn,
-                insurance_id: scheduling.insurance?.getUUIDHash() || undefined,
-                patient_id: scheduling.patient?.getUUIDHash() || undefined,
-                doctor_id: scheduling.doctor?.getUUIDHash() || undefined,
-                specialty_id: scheduling.specialty?.getUUIDHash() || undefined,
-                priceOfConsultation: scheduling.priceOfConsultation,
-                status: scheduling.status,
-                timeOfConsultation: scheduling.timeOfConsultation === "01:00:00" ? undefined : scheduling.timeOfConsultation,
-                updatedAt: scheduling.getUpdatedAt() ?? new Date().toISOString()
-            }).where(
-                eq(schedulingTable.id, scheduling.getUUIDHash())
-            ).returning()
+        const dbUse = tx ? tx : db
+        const schedulingUpdated = await dbUse.update(schedulingTable).set({
+            date: scheduling.date,
+            dateOfConfirmation: scheduling.dateOfConfirmation?.toISOString() ?? undefined,
+            dateOfRealizable: scheduling.dateOfRealizable ?? undefined,
+            isReturn: scheduling.isReturn,
+            insurance_id: scheduling.insurance?.getUUIDHash() || undefined,
+            patient_id: scheduling.patient?.getUUIDHash() || undefined,
+            doctor_id: scheduling.doctor?.getUUIDHash() || undefined,
+            specialty_id: scheduling.specialty?.getUUIDHash() || undefined,
+            priceOfConsultation: scheduling.priceOfConsultation,
+            status: scheduling.status,
+            timeOfConsultation: scheduling.timeOfConsultation === "01:00:00" ? undefined : scheduling.timeOfConsultation,
+            updatedAt: scheduling.getUpdatedAt() ?? new Date().toISOString()
+        }).where(
+            eq(schedulingTable.id, scheduling.getUUIDHash())
+        ).returning()
 
-            return schedulingUpdated
-        } catch(e) {
-            console.log(e)
-            return ResponseHandler.error("Failed to update the scheduling.")
-        }
+        return schedulingUpdated
     }
     deleteEntity(scheduling: Scheduling, id?: string): Promise<void> {
         throw new Error("Method not implemented.");
@@ -73,11 +83,7 @@ export class ConsultationSchedulingRepository implements IRepository {
             let clause = or
 
             if(scheduling.getUUIDHash()) filters.push(eq(schedulingTable.id, scheduling.getUUIDHash()))
-            if(scheduling.date) filters.push(
-                sql`
-                    CAST(${schedulingTable.date} AS DATE) = CAST(${scheduling.date.toISOString()} AS DATE)
-                `
-            )
+            if(scheduling.date) filters.push(sql` CAST(${schedulingTable.date} AS DATE) = CAST(${scheduling.date.toISOString()} AS DATE)`)
             if(scheduling.doctor?.getUUIDHash()) filters.push(eq(schedulingTable.doctor_id, scheduling.doctor.getUUIDHash()))
             if(filters.length > 1) clause = and
 

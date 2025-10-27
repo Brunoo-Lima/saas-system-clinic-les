@@ -7,16 +7,12 @@ import {
 } from '@/components/ui/page-container';
 import { Agenda } from './_components/agenda';
 import { useParams } from 'react-router-dom';
-import { useGetDoctors } from '@/services/doctor-service';
+import { useGetDoctorById } from '@/services/doctor-service';
 
 export default function AgendaPage() {
   const { doctorId } = useParams<{ doctorId: string }>();
 
-  const { data: doctors } = useGetDoctors({ id: doctorId });
-
-  const doctor = doctors?.[0];
-
-  const currentDoctorId = doctor?.id;
+  const { data: doctor } = useGetDoctorById(doctorId);
 
   return (
     <PageContainer>
@@ -31,7 +27,7 @@ export default function AgendaPage() {
         </PageHeaderContent>
       </PageHeader>
 
-      {doctor && <Agenda doctorId={currentDoctorId} />}
+      {doctor && <Agenda doctor={doctor} doctorId={doctorId} />}
     </PageContainer>
   );
 }
