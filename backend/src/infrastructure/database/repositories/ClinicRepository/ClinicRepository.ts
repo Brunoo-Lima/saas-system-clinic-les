@@ -114,8 +114,17 @@ export class ClinicRepository implements IRepository {
     }
   }
 
-  updateEntity(entity: EntityDomain): Promise<any> {
-    throw new Error('Method not implemented.');
+  async updateEntity(clinic: Clinic, tx?: any): Promise<any> {
+    const dbUse = tx ? tx : db
+    const clinicUpdated = await db.update(clinicTable).set({
+      name: clinic.name || undefined,
+      cnpj: clinic.cnpj || undefined,
+      phone: clinic.phone || undefined,
+      timeToConfirmScheduling: clinic.timeToConfirmScheduling || undefined,
+      updated_at: clinic.getUpdatedAt()
+    }).returning()
+
+    return clinicUpdated
   }
   deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
     throw new Error('Method not implemented.');
