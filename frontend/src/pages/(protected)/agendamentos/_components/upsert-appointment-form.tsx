@@ -91,7 +91,7 @@ export const UpsertAppointmentForm = ({
   const doctorsFiltered = useMemo(() => {
     if (!selectedSpecialtyId) return doctors;
 
-    return doctors.filter((doctor) =>
+    return doctors?.filter((doctor) =>
       doctor.specialties?.some((s) => s.id.toString() === selectedSpecialtyId),
     );
   }, [selectedSpecialtyId, doctors]);
@@ -458,13 +458,13 @@ export const UpsertAppointmentForm = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {doctorsFiltered.map((doctor) => (
+                    {doctorsFiltered?.map((doctor) => (
                       <SelectItem key={doctor.id} value={doctor.id.toString()}>
                         {doctor.name} -{' '}
                         {doctor.specialties?.map((s) => s.name).join(', ')}
                       </SelectItem>
                     ))}
-                    {doctorsFiltered.length === 0 && (
+                    {doctorsFiltered?.length === 0 && (
                       <div className="p-2 text-sm text-muted-foreground">
                         Nenhum médico disponível para esta especialidade
                       </div>

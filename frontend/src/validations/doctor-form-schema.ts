@@ -5,7 +5,7 @@ const periodToWorkSchema = z.object({
   dayWeek: z.number().min(1, 'Dia da semana é obrigatório'),
   timeFrom: z.string().min(1, 'Horário inicial obrigatório'),
   timeTo: z.string().min(1, 'Horário final obrigatório'),
-  specialty_id: z.string().min(1, 'ID da especialidade é obrigatório'),
+  specialty_id: z.string().optional(),
 });
 
 export const doctorFormSchema = z.object({

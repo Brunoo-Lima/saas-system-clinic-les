@@ -21,12 +21,14 @@ export const getDoctorDefaultValues = (doctor?: IDoctor): DoctorFormSchema => ({
     })) ?? [],
   sex: doctor?.sex ?? 'Male',
   periodToWork:
-    doctor?.periodToWork?.map((period) => ({
-      dayWeek: period.dayWeek,
-      timeFrom: period.timeFrom,
-      timeTo: period.timeTo,
-      specialty_id: period.specialty_id,
-    })) ?? [],
+    doctor?.periodToWork?.map((period) => {
+      return {
+        dayWeek: period.dayWeek,
+        timeFrom: period.timeFrom,
+        timeTo: period.timeTo,
+        specialty_id: period.specialty_id || '',
+      };
+    }) ?? [],
   address: {
     name: doctor?.address?.name ?? '',
     cep: doctor?.address?.cep ?? '',
