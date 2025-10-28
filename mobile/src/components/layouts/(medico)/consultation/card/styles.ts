@@ -47,30 +47,30 @@ const styles = StyleSheet.create({
   },
 
   action: {
-    width: 100,
-    height: 40,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     borderRadius: 8,
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#009689',
   },
   actionCancel: {
-    backgroundColor: '#e7000b',
+    backgroundColor: '#dc2626',
+  },
+  actionPending: {
+    backgroundColor: '#f59e0b',
+  },
+  actionDisabled: {
+    backgroundColor: '#9ca3af',
+  },
+  actionCompleted: {
+    backgroundColor: '#16a34a',
   },
   actionText: {
-    fontSize: 16,
-    fontWeight: 600,
-    color: '#ffffff',
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
   },
-
-  actionPending: {
-    width: 'auto',
-    height: 40,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#D99323',
+  buttonDisabled: {
+    opacity: 0.6,
   },
 });
 
