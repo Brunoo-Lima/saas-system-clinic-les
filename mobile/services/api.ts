@@ -1,9 +1,8 @@
-// services/api.ts
 import axios from 'axios';
 import { StorageService } from './storage-service';
 
 const api = axios.create({
-  baseURL: 'https://lifecare-n3is.onrender.com/',
+  baseURL: process.env.EXPO_PUBLIC_API_URL,
 });
 
 api.interceptors.request.use(async (config) => {
