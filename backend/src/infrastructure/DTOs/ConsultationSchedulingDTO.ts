@@ -9,7 +9,7 @@ export interface ConsultationSchedulingDTO {
     dateOfRealizable: string;
     priceOfConsultation: number
     isReturn: boolean
-    status: "CONFIRMED" | "PENDING" | "CONCLUDE" | "CANCELED" | "CONFIRMATION_PENDING",
+    status: "CONFIRMED" | "PENDING" | "CONCLUDE" | "CANCELED" | "CONFIRMATION_PENDING" | "CANCEL_PENDING",
     dateOfConfirmation: string
     doctor: DoctorDTO
     patient: PatientDTO

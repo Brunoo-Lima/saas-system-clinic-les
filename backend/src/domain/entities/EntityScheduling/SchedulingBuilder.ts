@@ -51,7 +51,7 @@ export class SchedulingBuilder {
     this.data.specialty = specialty
     return this
   }
-  setStatus(status?: "CONFIRMED" | "PENDING" | "CONCLUDE" | "CANCELED" | "CONFIRMATION_PENDING" | undefined) {
+  setStatus(status?: "CONFIRMED" | "PENDING" | "CONCLUDE" | "CANCELED" | "CONFIRMATION_PENDING" | "CANCEL_PENDING" | undefined) {
     this.data.status = status
     return this
   }

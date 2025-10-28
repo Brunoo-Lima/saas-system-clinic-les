@@ -1,4 +1,4 @@
-import { and, eq, ilike, isNotNull, or, sql } from 'drizzle-orm';
+import { and, eq, ilike, inArray, isNotNull, notInArray, or, SQL, sql } from 'drizzle-orm';
 import { Clinic } from '../../../../domain/entities/EntityClinic/Clinic';
 import { ResponseHandler } from '../../../../helpers/ResponseHandler';
 import db from '../../connection';
@@ -116,16 +116,71 @@ export class ClinicRepository implements IRepository {
 
   async updateEntity(clinic: Clinic, tx?: any): Promise<any> {
     const dbUse = tx ? tx : db
-    const clinicUpdated = await db.update(clinicTable).set({
+    let specialties;
+    const clinicUpdated = await dbUse.update(clinicTable).set({
       name: clinic.name || undefined,
       cnpj: clinic.cnpj || undefined,
       phone: clinic.phone || undefined,
       timeToConfirmScheduling: clinic.timeToConfirmScheduling || undefined,
       updated_at: clinic.getUpdatedAt()
-    }).returning()
+    })
+      .where((
+        eq(clinicTable.id, clinic.getUUIDHash())
+      ))
+      .returning()
 
-    return clinicUpdated
+    if (clinic.specialties) specialties = await this.clinicToSpecialtiesSync(clinic, tx)
+
+    return {
+      updated: {
+        clinic: clinicUpdated,
+        specialties: specialties?.updated
+      },
+      deleted: {
+        specialties: specialties?.deleted
+      }
+    }
   }
+
+  async clinicToSpecialtiesSync(clinic: Clinic, tx?: any) {
+    const dbUse = tx ? tx : db
+    const sqlChunks: SQL[] = []
+    const ids = []
+
+    sqlChunks.push(sql`CASE`);
+    for (const specialty of clinic.specialties ?? []) {
+      if (specialty.getUUIDHash()) {
+        sqlChunks.push(
+          sql`WHEN ${clinicToSpecialtyTable.specialty_id} = ${specialty.getUUIDHash()} THEN ${specialty.price}`
+        );
+        ids.push(specialty.getUUIDHash());
+      }
+    }
+    sqlChunks.push(sql`ELSE ${clinicToSpecialtyTable.price} END`);
+
+
+    const sqlFinal: SQL = sql.join(sqlChunks, sql.raw(' '))
+    const specialtiesUpdated = await dbUse.update(clinicToSpecialtyTable).set({
+      price: sqlFinal
+    }).where(
+      and(
+        inArray(clinicToSpecialtyTable.specialty_id, ids),
+        eq(clinicToSpecialtyTable.clinic_id, clinic.getUUIDHash())
+      )
+    ).returning()
+
+    const specialtiesDeleted = await dbUse.delete(clinicToSpecialtyTable).where(
+      and(
+        notInArray(clinicToSpecialtyTable.specialty_id, ids),
+        eq(clinicToSpecialtyTable.clinic_id, clinic.getUUIDHash())
+      )
+    )
+    return {
+      updated: specialtiesUpdated,
+      deleted: specialtiesDeleted
+    }
+  }
+
   deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
     throw new Error('Method not implemented.');
   }
@@ -202,7 +257,7 @@ export class ClinicRepository implements IRepository {
           and(
             or(
               ...userFilters,
-              eq(userTable.email, clinic?.user?.email ?? ""), 
+              eq(userTable.email, clinic?.user?.email ?? ""),
               isNotNull(userTable.id)
             ),
             eq(userTable.id, clinicTable.user_id)

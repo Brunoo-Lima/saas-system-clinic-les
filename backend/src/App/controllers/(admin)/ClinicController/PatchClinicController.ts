@@ -6,9 +6,10 @@ import { PatchClinicService } from "../../../services/(admin)/ClinicService/Patc
 export class PatchClinicController {
     async handle(req: Request, res: Response, next: NextFunction){
         try {
+            const { id } = req.query;
             const clinicDTO = req.body as ClinicDTO
             const service = new PatchClinicService()
-            const clinicUpdated = await service.execute(clinicDTO)
+            const clinicUpdated = await service.execute(clinicDTO, id?.toString())
 
             return res.status(200).json(clinicUpdated)
         } catch(e) {
