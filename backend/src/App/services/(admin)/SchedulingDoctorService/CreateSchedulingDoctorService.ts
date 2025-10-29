@@ -47,7 +47,6 @@ export class CreateSchedulingDoctorService{
             schedulingDoctorDomain.doctor?.setUuidHash(schedulingDoctor.doctor.id ?? "")
             
             const validator = new ValidatorController()
-
             validator.setValidator(`FD-${schedulingDoctorDomain?.doctor?.constructor.name}`, [ new UUIDValidator(), new EntityExistsToInserted()])
             validator.setValidator(`C-${schedulingDoctorDomain.constructor.name}`, [
                 new UUIDValidator(),
@@ -62,7 +61,6 @@ export class CreateSchedulingDoctorService{
           
             if(!entityIsValid.success) return entityIsValid
             if(!doctorIsValid.success) return doctorIsValid
-            
             const entitiesInserted = await db.transaction(async (tx) => { 
                 const response = {
                     scheduling: {},

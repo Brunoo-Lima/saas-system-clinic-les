@@ -45,7 +45,7 @@ export class CreateDoctorService {
                 new UUIDValidator(),
                 new AllValidatorToCreateDoctor(validator),
                 new EntityExits(),
-                new ValidPeriodsToDoctor(validator, this.periodRepository, this.specialtyRepository),
+                new ValidPeriodsToDoctor(validator, this.periodRepository, this.specialtyRepository, "create"),
                 new RequiredGeneralData(Object.keys(doctorDomain))
             ])
             const entitiesValidated = await validator.process(`C-${doctorDomain.constructor.name}`, doctorDomain, this.repository)
