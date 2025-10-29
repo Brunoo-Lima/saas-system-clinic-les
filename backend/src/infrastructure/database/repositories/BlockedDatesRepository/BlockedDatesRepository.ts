@@ -1,4 +1,4 @@
-import { eq, inArray, notInArray, or, SQL } from "drizzle-orm";
+import { and, eq, inArray, notInArray, or, SQL } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { SchedulingBlockedDays } from "../../../../domain/entities/EntitySchedulingBlockedDays/SchedulingBlockedDays";
 import db from "../../connection";
@@ -57,12 +57,14 @@ export class BlockedDatesRepository implements IRepository {
         }))
         return datesUpdated
     }
-    async deleteEntity(datesBlocked: SchedulingBlockedDays | Array<SchedulingBlockedDays>, tx?: any) {
+    async deleteEntity(datesBlocked: SchedulingBlockedDays | Array<SchedulingBlockedDays>, tx?: any, id?: string) {
         const dbUse = tx ? tx : db
         const datesBlockedFormatted = Array.isArray(datesBlocked) ? datesBlocked : [datesBlocked]
         return await dbUse.delete(schedulingBlockedDays).where(
-          
-            notInArray(schedulingBlockedDays.id, datesBlockedFormatted.map(dt => dt.getUUIDHash()))
+            and(
+                notInArray(schedulingBlockedDays.id, datesBlockedFormatted.map(dt => dt.getUUIDHash())),
+                eq(schedulingBlockedDays.doctorScheduling_id, id ?? "")
+            )
          
         ).returning()
     }

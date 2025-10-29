@@ -7,7 +7,7 @@ import { PatchSchedulingDoctorController } from "../../App/controllers/(admin)/S
 
 const schedulingDoctorRoute: Router = Router();
 schedulingDoctorRoute.post("/doctor/scheduling", authMiddleware, privateRoute, new CreateSchedulingDoctorController().handle)
-schedulingDoctorRoute.get("/doctor/scheduling/findall", authMiddleware, privateRoute, new GETAllSchedulingDoctor().handle)
+schedulingDoctorRoute.get("/doctor/scheduling/findall", authMiddleware, new GETAllSchedulingDoctor().handle)
 schedulingDoctorRoute.patch("/doctor/scheduling", authMiddleware, privateRoute, new PatchSchedulingDoctorController().handle)
 
 export { schedulingDoctorRoute };
