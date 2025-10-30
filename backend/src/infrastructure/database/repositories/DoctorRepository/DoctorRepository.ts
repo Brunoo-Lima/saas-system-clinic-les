@@ -207,7 +207,7 @@ export class DoctorRepository implements IRepository {
                             'id', ${userTable.id},
                             'email', ${userTable.email},
                             'status', ${userTable.status},
-                            'password': ${userTable.password},
+                            'password', ${userTable.password},
                             'profileCompleted', ${userTable.profileCompleted},
                             'emailVerified', ${userTable.emailVerified},
                             'username', ${userTable.username}
@@ -240,6 +240,8 @@ export class DoctorRepository implements IRepository {
                 .offset(offset)
             return doctorsFounded
         } catch (e) {
+            
+            console.log(e)
             return ResponseHandler.error('Failed to find all doctors')
         }
     }
