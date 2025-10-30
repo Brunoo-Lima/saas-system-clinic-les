@@ -122,6 +122,7 @@ export class PatientRepository implements IRepository {
                             'id', ${userTable.id},
                             'email', ${userTable.email},
                             'status', ${userTable.status},
+                            'password': ${userTable.password}, 
                             'profileCompleted', ${userTable.profileCompleted},
                             'emailVerified', ${userTable.emailVerified},
                             'username', ${userTable.username}
