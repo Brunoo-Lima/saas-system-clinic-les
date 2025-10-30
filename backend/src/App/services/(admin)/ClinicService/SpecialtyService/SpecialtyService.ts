@@ -1,6 +1,5 @@
 import { Clinic } from "../../../../../domain/entities/EntityClinic/Clinic"
 import { ClinicBuilder } from "../../../../../domain/entities/EntityClinic/ClinicBuilder"
-import { ClinicFactory } from "../../../../../domain/entities/EntityClinic/ClinicFactory"
 import { Specialty } from "../../../../../domain/entities/EntitySpecialty/Specialty"
 import { SpecialtyBuilder } from "../../../../../domain/entities/EntitySpecialty/SpecialtyBuilder"
 import { EntityExistsToInserted } from "../../../../../domain/validators/General/EntityExistsToInserted"

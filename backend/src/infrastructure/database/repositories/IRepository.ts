@@ -5,5 +5,5 @@ export interface IRepository {
   findEntity(entity: EntityDomain | Array<EntityDomain>, tx?: any): Promise<any>;
   updateEntity(entity: EntityDomain | Array<EntityDomain>, tx?: any): Promise<any>;
   deleteEntity(entity: EntityDomain | Array<EntityDomain>, tx?: any, id?: any): Promise<any>;
-  findAllEntity(entity?: EntityDomain | Array<EntityDomain>, limit?: number, offset?: number): Promise<any>;
+  findAllEntity(entity?: EntityDomain | Array<EntityDomain>, limit?: number, offset?: number, id?: string): Promise<any>;
 }
