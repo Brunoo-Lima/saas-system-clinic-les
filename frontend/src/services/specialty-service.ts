@@ -2,16 +2,25 @@ import { toast } from 'sonner';
 import api from './api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-interface ICreateSpecialtyProps {
+interface ISpecialtyProps {
   id?: string;
+  clinicId: string;
   name: string;
+  price: number;
 }
 
-export const createSpecialty = async ({ id, name }: ICreateSpecialtyProps) => {
-  const { data } = await api.post('/specialty', [
+export const createSpecialty = async ({
+  id,
+  name,
+  price,
+  clinicId,
+}: ISpecialtyProps) => {
+  const { data } = await api.post(`/clinic/${clinicId}/specialty`, [
     {
       id,
       name,
+      price,
+      clinicId,
     },
   ]);
 
@@ -37,35 +46,57 @@ export function useCreateSpecialty() {
   });
 }
 
-export interface ISpecialtyProps {
+export interface ISpecialty {
+  id: string;
+  name: string;
+  price: number;
+  clinicId: string;
+}
+
+export interface IGetSpecialtiesParams {
   limit?: number;
   offset?: number;
+  clinicId: string;
 }
 
 export const getSpecialties = async ({
   limit = 10,
   offset = 0,
-}: ISpecialtyProps) => {
+  clinicId,
+}: IGetSpecialtiesParams) => {
+  if (!clinicId) {
+    throw new Error('clinicId é obrigatório para buscar especialidades');
+  }
+
   const { data } = await api.get(
-    `/specialty/findall/?offset=${offset}&limit=${limit}`,
+    `/clinic/${clinicId}/specialty/findall/?offset=${offset}&limit=${limit}`,
   );
+
+  if (data.success === false) {
+    throw new Error(data.message);
+  }
+
   return data.data;
 };
 
-interface ISpecialty {
+export interface ISpecialtyReturn {
   id: string;
   name: string;
+  price: number;
 }
 
-export function useGetSpecialties(params?: ISpecialtyProps) {
+export function useGetSpecialties(params: IGetSpecialtiesParams) {
   return useQuery<ISpecialty[]>({
     queryKey: ['specialties', params],
-    queryFn: () => getSpecialties(params || {}),
+    queryFn: () => getSpecialties(params),
+    enabled: !!params.clinicId,
   });
 }
 
-export const updateSpecialty = async ({ name, id }: ISpecialty) => {
-  const { data } = await api.put(`/specialty`, [{ name, id }]);
+export const updateSpecialty = async ({ name, id, price }: ISpecialtyProps) => {
+  const { data } = await api.put(`/clinic/${id}/specialty`, [
+    { name, id, price },
+  ]);
   return data;
 };
 

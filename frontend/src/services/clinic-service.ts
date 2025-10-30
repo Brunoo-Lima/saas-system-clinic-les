@@ -31,6 +31,7 @@ export const useCreateClinic = () => {
 };
 
 interface IClinicData {
+  id?: string;
   name: string;
   phone: string;
   cnpj: string;

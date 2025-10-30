@@ -116,7 +116,7 @@ export const useGetAppointments = (params?: IAppointmentGet) => {
 
 interface IUpdateAppointment {
   id: string;
-  appointment: IAppointmentPayload;
+  appointment: Partial<IAppointmentPayload>;
 }
 
 export const updateAppointmentService = async ({
@@ -141,6 +141,52 @@ export const useUpdateAppointment = () => {
     },
     onError: (error: any) => {
       toast.error(error.message || 'Erro ao atualizar agendamento.');
+    },
+  });
+};
+
+interface IUpdateAppointmentStatus {
+  id: string;
+  status: string;
+  dateOfRealizable: string;
+  doctor: {
+    id: string;
+  };
+  specialty: {
+    id: string;
+  };
+}
+
+export const updateAppointmentStatusService = async ({
+  id,
+  status,
+  dateOfRealizable,
+  doctor,
+  specialty,
+}: IUpdateAppointmentStatus) => {
+  const { data } = await api.patch(`/scheduling/?id=${id}`, {
+    status,
+    dateOfRealizable,
+    doctor,
+    specialty,
+  });
+
+  if (data.success === false) {
+    throw new Error(data.message || 'Erro ao atualizar status do agendamento.');
+  }
+  return data;
+};
+
+export const useUpdateAppointmentStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateAppointmentStatusService,
+    onSuccess: () => {
+      toast.success('Status atualizado com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Erro ao atualizar status.');
     },
   });
 };

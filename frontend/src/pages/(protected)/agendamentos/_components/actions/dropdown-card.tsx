@@ -23,6 +23,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
+  useUpdateAppointmentStatus,
+  type IAppointmentReturn,
+} from '@/services/appointment-service';
+import {
   CalendarDaysIcon,
   EllipsisIcon,
   SquarePenIcon,
@@ -30,32 +34,43 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 
 interface IDropdownCardProps {
   onDelete: () => void;
-  appointmentId: string;
-  doctorId: string;
+  appointment: IAppointmentReturn;
 }
 
-export const DropdownCard = ({
-  onDelete,
-  appointmentId,
-  doctorId,
-}: IDropdownCardProps) => {
+export const DropdownCard = ({ onDelete, appointment }: IDropdownCardProps) => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const [openDialogEditStatus, setOpenDialogEditStatus] =
     useState<boolean>(false);
   const [status, setStatus] = useState<string | undefined>(undefined);
   const navigate = useNavigate();
 
-  const handleUpdateStatusAppointment = (id: string) => {
-    console.log(id);
-    toast.success('Status atualizado com sucesso.');
+  const { mutate: updateStatus } = useUpdateAppointmentStatus();
+
+  console.log('id', appointment.id);
+
+  const handleUpdateStatusAppointment = async (id: string) => {
+    updateStatus(
+      {
+        id,
+        status: status || '',
+        dateOfRealizable: new Date().toISOString(),
+        doctor: { id: appointment.doctor.id },
+        specialty: { id: appointment.specialties?.id || '' },
+      },
+      {
+        onSuccess: () => {
+          setOpenDialogEditStatus(false);
+          setStatus(undefined);
+        },
+      },
+    );
   };
 
   const handleOpenCalendar = () => {
-    navigate(`/agenda/medico/${doctorId}`);
+    navigate(`/agenda/medico/${appointment.doctor.id}`);
   };
 
   return (
@@ -123,16 +138,16 @@ export const DropdownCard = ({
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="agendado">Agendado</SelectItem>
-              <SelectItem value="cancelado">Cancelado</SelectItem>
-              <SelectItem value="realizado">Realizado</SelectItem>
+              <SelectItem value="SCHEDULED">Agendado</SelectItem>
+              <SelectItem value="CANCELLED">Cancelado</SelectItem>
+              <SelectItem value="CONCLUDE">Realizado</SelectItem>
             </SelectContent>
           </Select>
 
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => handleUpdateStatusAppointment(appointmentId)}
+              onClick={() => handleUpdateStatusAppointment(appointment.id)}
               disabled={!status}
             >
               Salvar

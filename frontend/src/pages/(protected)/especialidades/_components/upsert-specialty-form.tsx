@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
   DialogContent,
@@ -20,6 +20,9 @@ import {
   useCreateSpecialty,
   useUpdateSpecialty,
 } from '@/services/specialty-service';
+import FormInputPriceCustom from '@/components/ui/form-custom/form-input-price-custom';
+import { useGetClinic } from '@/services/clinic-service';
+import { toast } from 'sonner';
 
 interface IUpsertSpecialtyFormProps {
   isOpen: boolean;
@@ -34,24 +37,40 @@ export const UpsertSpecialtyForm = ({
 }: IUpsertSpecialtyFormProps) => {
   const form = useForm<SpecialtyFormSchema>({
     shouldUnregister: true,
-    resolver: zodResolver(specialtyFormSchema),
+    resolver: zodResolver(specialtyFormSchema) as Resolver<SpecialtyFormSchema>,
     defaultValues: {
       name: specialty?.name ?? '',
+      price: specialty?.price ?? 0,
     },
   });
   const createMutation = useCreateSpecialty();
   const updateMutation = useUpdateSpecialty();
+  const { data: clinic } = useGetClinic();
 
   useEffect(() => {
     if (isOpen) {
-      form.reset(specialty ?? {});
+      form.reset({
+        name: specialty?.name ?? '',
+        price: specialty?.price ?? 0,
+      });
     }
   }, [isOpen, form, specialty]);
 
   const onSubmit = (data: SpecialtyFormSchema) => {
+    if (!clinic?.id) {
+      toast.error('ID da clínica não encontrado');
+      return;
+    }
+
     if (specialty?.id) {
+      // Edição
       updateMutation.mutate(
-        { name: data.name, id: specialty.id },
+        {
+          id: specialty.id,
+          name: data.name,
+          price: data.price,
+          clinicId: clinic.id,
+        },
         {
           onSuccess: () => {
             onSuccess();
@@ -60,8 +79,13 @@ export const UpsertSpecialtyForm = ({
         },
       );
     } else {
+      // Criação
       createMutation.mutate(
-        { name: data.name },
+        {
+          name: data.name,
+          price: data.price,
+          clinicId: clinic.id,
+        },
         {
           onSuccess: () => {
             onSuccess();
@@ -88,6 +112,12 @@ export const UpsertSpecialtyForm = ({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormInputCustom name="name" label="Nome" control={form.control} />
+
+          <FormInputPriceCustom
+            name="price"
+            label="Preço"
+            control={form.control}
+          />
 
           <DialogFooter>
             <Button

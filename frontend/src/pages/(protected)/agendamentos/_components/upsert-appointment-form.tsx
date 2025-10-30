@@ -58,6 +58,7 @@ import {
 import { useGetAgenda } from '@/services/agenda-service';
 import type { IAppointment } from '@/@types/IAppointment';
 import { getAppointmentDefaultValues } from './_helpers/get-appointment-default-values';
+import { useGetClinic } from '@/services/clinic-service';
 
 interface IUpsertAppointmentFormProps {
   doctors: IDoctor[];
@@ -81,7 +82,10 @@ export const UpsertAppointmentForm = ({
   const selectedSpecialtyId = form.watch('specialtyId');
   const selectedDate = form.watch('date');
 
-  const { data: specialties } = useGetSpecialties();
+  const { data: clinic } = useGetClinic();
+  const { data: specialties } = useGetSpecialties({
+    clinicId: clinic?.id || '',
+  });
   const { data: patients } = useGetAllPatients();
   const { data: insurances } = useGetAllInsurances();
   const { mutate: createAppointment, isPending } = useCreateAppointment();
@@ -159,18 +163,14 @@ export const UpsertAppointmentForm = ({
     const dayOfWeek = dateObj.getDay(); // 0 (domingo) → 6 (sábado)
     const dateString = format(dateObj, 'yyyy-MM-dd');
 
-    // console.log('Checking date:', dateString, 'Day of week:', dayOfWeek);
-
     // Verifica se a data está bloqueada
     const isDateBlocked = blockedDates.some(
       (blocked) => blocked.date === dateString,
     );
     if (isDateBlocked) {
-      // console.log('Date is blocked');
       setAvailableHours([]);
       form.setValue('hour', '');
 
-      // Mostra toast de aviso
       const blockedInfo = blockedDates.find(
         (blocked) => blocked.date === dateString,
       );
@@ -184,8 +184,6 @@ export const UpsertAppointmentForm = ({
 
     // Encontra o período do dia específico
     const period = agendaPeriods.find((p) => p.dayWeek === dayOfWeek);
-
-    // console.log('Found period for day:', period);
 
     if (period) {
       // Remove os segundos do timeFrom e timeTo se existirem
@@ -215,7 +213,6 @@ export const UpsertAppointmentForm = ({
         );
       }
 
-      // console.log('Available hours:', hours);
       setAvailableHours(hours);
 
       // Se o horário atual não estiver mais disponível, limpa o campo
@@ -224,7 +221,6 @@ export const UpsertAppointmentForm = ({
         form.setValue('hour', '');
       }
     } else {
-      // console.log('No period found for this day');
       setAvailableHours([]);
       form.setValue('hour', '');
     }
@@ -291,8 +287,6 @@ export const UpsertAppointmentForm = ({
             : null;
         }
 
-        console.log('updatePayload', updatePayload);
-
         updateAppointment(
           {
             id: appointment.id,
@@ -323,7 +317,6 @@ export const UpsertAppointmentForm = ({
 
         createAppointment(createPayload, {
           onSuccess: () => {
-            toast.success('Agendamento criado com sucesso!');
             onSuccess();
           },
         });

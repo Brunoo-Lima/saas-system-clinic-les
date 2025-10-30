@@ -9,24 +9,30 @@ export const specialtyTableColumns: ColumnDef<Specialty>[] = [
     id: 'id',
     accessorKey: 'id',
     header: 'ID',
-    size: 50,
+    size: 150,
   },
   {
     id: 'name',
     accessorKey: 'name',
     header: 'Nome',
-    size: 200,
+    size: 50,
   },
   {
-    id: 'createdAt',
-    accessorKey: 'createdAt',
-    header: 'Criado em',
-    size: 200,
-    cell: (params) => {
-      const specialty = params.row.original;
-      return new Date(specialty.createdAt as Date).toLocaleString();
-    },
+    id: 'price',
+    accessorKey: 'price',
+    header: 'Preço',
+    size: 50,
   },
+  // {
+  //   id: 'createdAt',
+  //   accessorKey: 'createdAt',
+  //   header: 'Criado em',
+  //   size: 200,
+  //   cell: (params) => {
+  //     const specialty = params.row.original;
+  //     return new Date(specialty.createdAt as Date).toLocaleString();
+  //   },
+  // },
   {
     id: 'actions',
     header: 'Ações',
