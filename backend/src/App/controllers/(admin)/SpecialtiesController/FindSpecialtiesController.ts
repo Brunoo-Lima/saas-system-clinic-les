@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { SpecialtyRepository } from "../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository";
-import { FindSpecialtyService } from "../../../services/(admin)/SpecialtyService/FindSpecialtyService";
+import { FindSpecialtyService } from "../../../services/(admin)/ClinicService/SpecialtyService/FindSpecialtyService";
 
 export class FindSpecialtyController {
 

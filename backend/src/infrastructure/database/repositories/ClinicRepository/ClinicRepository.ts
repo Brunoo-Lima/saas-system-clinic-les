@@ -181,6 +181,19 @@ export class ClinicRepository implements IRepository {
     }
   }
 
+  async addedSpecialties(clinic: Clinic, tx?: any){ 
+    const dbUse = tx ? tx : db
+    const specialtiesAdded = await dbUse.insert(clinicToSpecialtyTable).values(clinic.specialties?.map((sp) => { 
+      return {
+        clinic_id: clinic.getUUIDHash(),
+        price: sp.price,
+        specialty_id: sp.getUUIDHash()
+      }
+    }) ?? []).returning()
+  
+    return specialtiesAdded
+  }
+
   deleteEntity(entity: EntityDomain | Array<EntityDomain>, id?: string): Promise<void> {
     throw new Error('Method not implemented.');
   }

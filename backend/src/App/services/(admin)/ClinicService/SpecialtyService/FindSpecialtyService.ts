@@ -1,10 +1,10 @@
-import { SpecialtyBuilder } from "../../../../domain/entities/EntitySpecialty/SpecialtyBuilder";
-import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
-import { ValidatorController } from "../../../../domain/validators/ValidatorController";
-import { ResponseHandler } from "../../../../helpers/ResponseHandler";
-import { SpecialtiesDTO } from "../../../../infrastructure/DTOs/SpecialtiesDTO";
-import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
-import { SpecialtyRepository } from "../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository";
+import { SpecialtyBuilder } from "../../../../../domain/entities/EntitySpecialty/SpecialtyBuilder";
+import { UUIDValidator } from "../../../../../domain/validators/General/UUIDValidator";
+import { ValidatorController } from "../../../../../domain/validators/ValidatorController";
+import { ResponseHandler } from "../../../../../helpers/ResponseHandler";
+import { SpecialtiesDTO } from "../../../../../infrastructure/DTOs/SpecialtiesDTO";
+import { IRepository } from "../../../../../infrastructure/database/repositories/IRepository";
+import { SpecialtyRepository } from "../../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository";
 
 export class FindSpecialtyService {
     private repository: IRepository
