@@ -9,7 +9,13 @@ import { IProcessValidator } from "../IProcessValidator";
 import { ValidatorController } from "../ValidatorController";
 
 export class ValidPeriodsToDoctor implements IProcessValidator {
-    constructor(private validator: ValidatorController, private repository: IRepository, private specialtyRepository: IRepository) { }
+    constructor(
+        private validator: ValidatorController, 
+        private repository: IRepository, 
+        private specialtyRepository: IRepository,
+        private typeRequest: string = "update" // Se o type for create a validacao precisa ser diferente
+    ) { }
+    
     async valid(doctor: Doctor) {
         try {
 
@@ -18,6 +24,7 @@ export class ValidPeriodsToDoctor implements IProcessValidator {
             const timeTo: any[] = []
             const daysWeeks: any[] = []
             const hasErrors: any[] = []
+            const validators = [new RequiredGeneralData(Object.keys(doctor.periodToWork?.[0]?.props ?? {}))]
 
             if (!periods) return ResponseHandler.error("You should be only an period")
             for (const period of periods) {
@@ -36,11 +43,9 @@ export class ValidPeriodsToDoctor implements IProcessValidator {
             if (hasErrors.length) return ResponseHandler.error(hasErrors.map((err: { message: any; }) => err.message))
             const specialties = periods.map((per) => per.specialty)
 
+            if(this.typeRequest === "update") { validators.push(new EntityExits())}
             this.validator.setValidator(`F-Specialties-Period`, [new EntityExistsToInserted()])
-            this.validator.setValidator(`F-${doctor.periodToWork?.constructor.name}`, [
-                new RequiredGeneralData(Object.keys(doctor.periodToWork?.[0]?.props ?? {})),
-                new EntityExits()
-            ])
+            this.validator.setValidator(`F-${doctor.periodToWork?.constructor.name}`, validators)
 
             const periodsIsValid = await this.validator.process(`F-${doctor.periodToWork?.constructor.name}`, periods as Period[], this.repository)
             const specialtiesIsValid = await this.validator.process(`F-Specialties-Period`, specialties, this.specialtyRepository)
