@@ -174,7 +174,8 @@ export class ClinicRepository implements IRepository {
         notInArray(clinicToSpecialtyTable.specialty_id, ids),
         eq(clinicToSpecialtyTable.clinic_id, clinic.getUUIDHash())
       )
-    )
+    ).returning()
+
     return {
       updated: specialtiesUpdated,
       deleted: specialtiesDeleted
