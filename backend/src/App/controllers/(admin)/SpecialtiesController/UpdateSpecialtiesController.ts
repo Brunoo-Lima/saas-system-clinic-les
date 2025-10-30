@@ -6,9 +6,10 @@ import { UpdateSpecialtiesService } from "../../../services/(admin)/ClinicServic
 export class UpdateSpecialtiesController {
     async handle(req: Request, res: Response, next: NextFunction) {
         try {
+            const { id } = req.params 
             const specialtiesDTO = req.body as SpecialtiesDTO
             const serviceSpecialty = new UpdateSpecialtiesService()
-            const specialtiesUpdated = await serviceSpecialty.execute(specialtiesDTO)
+            const specialtiesUpdated = await serviceSpecialty.execute(specialtiesDTO, id)
             return res.status(200).json(specialtiesUpdated)
         } catch (e) {
             return res.status(500).json(ResponseHandler.error((e as Error).message))
