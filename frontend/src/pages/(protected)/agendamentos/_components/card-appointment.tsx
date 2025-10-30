@@ -51,9 +51,9 @@ export const CardAppointment = ({
     switch (status) {
       case 'PENDING':
         return 'Pendente';
-      case 'CONFIRMED':
-        return 'Confirmado';
-      case 'CANCELED':
+      case 'CONCLUDE':
+        return 'Realizado';
+      case 'CANCELLED':
         return 'Cancelado';
       default:
         return 'N/A';
@@ -131,9 +131,8 @@ export const CardAppointment = ({
           />
         </Dialog>
         <DropdownCard
-          appointmentId={appointment.id}
+          appointment={appointment}
           onDelete={handleDeleteAppointmentClick}
-          doctorId={appointment.doctor.id}
         />
       </CardFooter>
     </Card>

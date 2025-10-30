@@ -17,15 +17,15 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <NuqsAdapter>
           <DashboardProvider>
-            <InsuranceProvider>
-              <SpecialtyProvider>
+            <SpecialtyProvider>
+              <InsuranceProvider>
                 <PatientProvider>
                   <DoctorProvider>
                     <AppointmentProvider>{children}</AppointmentProvider>
                   </DoctorProvider>
                 </PatientProvider>
-              </SpecialtyProvider>
-            </InsuranceProvider>
+              </InsuranceProvider>
+            </SpecialtyProvider>
           </DashboardProvider>
         </NuqsAdapter>
         <Toaster richColors />

@@ -74,7 +74,7 @@ export class PatchSchedulingDoctorService {
                         }
                     
                     }
-                    datesRemoved = await this.blockedRepository.deleteEntity(schedulingDoctorDomain.datesBlocked as [], tx)
+                    datesRemoved = await this.blockedRepository.deleteEntity(schedulingDoctorDomain.datesBlocked as [], tx, schedulingDoctorDomain.getUUIDHash())
                 }
 
                 return {

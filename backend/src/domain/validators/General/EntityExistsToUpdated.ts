@@ -7,8 +7,8 @@ export class EntityExistsToUpdated implements IProcessValidator {
     async valid(entity: EntityDomain | Array<EntityDomain>, repository: IRepository) {
         try {
             let entityName = entity.constructor.name
-            let entityCopy = Object.create(entity)
-
+            let entityCopy = Object.assign(entity)
+            
             if (Array.isArray(entity)) {
                 const arrayCopied = entity.map(e => {
                     const copy = Object.create(Object.getPrototypeOf(e))

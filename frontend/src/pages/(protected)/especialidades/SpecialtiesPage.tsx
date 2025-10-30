@@ -33,6 +33,8 @@ export default function SpecialtiesPage() {
     document.title = 'Especialidades';
   }, []);
 
+  console.log(paginatedData);
+
   return (
     <PageContainer>
       <PageHeader>

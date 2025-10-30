@@ -1,5 +1,6 @@
 import type { ISpecialty } from '@/@types/ISpecialty';
 import { usePagination } from '@/hooks/use-pagination';
+import { useGetClinic } from '@/services/clinic-service';
 import { useGetSpecialties } from '@/services/specialty-service';
 import { createContext, useState, useMemo, type ChangeEvent } from 'react';
 
@@ -32,7 +33,10 @@ export const SpecialtyProvider = ({
   );
   const itemsPerPage = 10;
 
+  const { data: clinic } = useGetClinic();
+
   const { data: specialties = [] } = useGetSpecialties({
+    clinicId: clinic?.id || '',
     limit: itemsPerPage,
     offset: 0,
   });

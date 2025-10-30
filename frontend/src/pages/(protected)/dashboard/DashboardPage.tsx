@@ -18,12 +18,11 @@ import { TopDoctors } from './_components/top-doctors';
 import { AppointmentNext } from './_components/appointment-next';
 import { TopSpecialties } from './_components/top-specialties';
 
-import { dailyAppointmentsData } from '@/mocks/daily-appointments-data';
 import { useGetAllPatients } from '@/services/patient-service';
 import { useGetDoctors } from '@/services/doctor-service';
 import { useGetAppointments } from '@/services/appointment-service';
+import { useGetFinancialService } from '@/services/financial-service';
 
-// ✅ Lazy load apenas o gráfico, que é mais pesado
 const AppointmentsChart = React.lazy(
   () => import('./_components/appointments-chart'),
 );
@@ -32,15 +31,16 @@ export const DashboardPage = () => {
   const { data: patients } = useGetAllPatients();
   const { data: doctors } = useGetDoctors();
   const { data: appointments } = useGetAppointments();
+  const { data: financial } = useGetFinancialService();
 
   const stats = useMemo(
     () => ({
-      totalRevenue: 6000,
       totalAppointments: appointments?.length || 0,
       totalPatients: patients?.length || 0,
       totalDoctors: doctors?.length || 0,
+      financial,
     }),
-    [appointments, patients, doctors],
+    [appointments, patients, doctors, financial],
   );
 
   useEffect(() => {
@@ -63,7 +63,7 @@ export const DashboardPage = () => {
       </PageHeader>
 
       <PageContent>
-        <StatsCards {...stats} />
+        <StatsCards {...stats} financial={financial} />
 
         <div className="grid md:grid-cols-[2.25fr_1fr] grid-cols-1 gap-4">
           <AppointmentNext appointments={appointments} />
@@ -77,7 +77,7 @@ export const DashboardPage = () => {
               <div className="h-[300px] bg-muted animate-pulse rounded-lg" />
             }
           >
-            <AppointmentsChart dailyAppointmentsData={dailyAppointmentsData} />
+            <AppointmentsChart financialData={financial as any} />
           </Suspense>
           <TopSpecialties appointments={appointments} />
         </div>

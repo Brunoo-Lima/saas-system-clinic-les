@@ -81,12 +81,12 @@ export class ConsultationSchedulingRepository implements IRepository {
         try {
             const filters = []
             let clause = or
-
             if(scheduling.getUUIDHash()) filters.push(eq(schedulingTable.id, scheduling.getUUIDHash()))
             if(scheduling.date) filters.push(sql` CAST(${schedulingTable.date} AS DATE) = CAST(${scheduling.date.toISOString()} AS DATE)`)
             if(scheduling.doctor?.getUUIDHash()) filters.push(eq(schedulingTable.doctor_id, scheduling.doctor.getUUIDHash()))
             if(filters.length > 1) clause = and
 
+            console.log(scheduling)
             return await db
             .select({
                 id: schedulingTable.id,

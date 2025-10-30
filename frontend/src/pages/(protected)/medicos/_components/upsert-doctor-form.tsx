@@ -51,6 +51,7 @@ import { formatCEP } from '@/utils/format-cep';
 import { brazilianStates } from '@/utils/brazilian-states';
 import { useCreateDoctor, useUpdateDoctor } from '@/services/doctor-service';
 import InputDate from '@/components/ui/input-date';
+import { useGetClinic } from '@/services/clinic-service';
 
 interface IUpsertDoctorFormProps {
   doctor?: IDoctor;
@@ -83,7 +84,10 @@ export const UpsertDoctorForm = ({
     useCreateDoctor();
   const { mutate: updateMutate, isPending: isPendingUpdate } =
     useUpdateDoctor();
-  const { data: specialtiesBackend } = useGetSpecialties();
+  const { data: clinic } = useGetClinic();
+  const { data: specialtiesBackend } = useGetSpecialties({
+    clinicId: clinic?.id || '',
+  });
 
   const specialties =
     specialtiesBackend?.map((specialty) => ({

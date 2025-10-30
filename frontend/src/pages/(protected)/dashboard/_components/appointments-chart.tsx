@@ -12,29 +12,63 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { formatCurrencyInCents } from '@/utils/format-currency-in-cents';
+import { formatCurrency } from '@/utils/format-currency-in-cents';
 import { useDashboard } from '@/hooks/use-dashboard';
 
-interface IDailyAppointment {
+interface IFinancial {
+  id: string;
   date: string;
-  appointments: number;
-  revenue: number | null;
+  total: number;
+  totalclinic: number;
+  totaldoctor: number;
+  totalinsurance: number;
 }
 
 interface IAppointmentsChartProps {
-  dailyAppointmentsData: IDailyAppointment[];
+  financialData?: IFinancial[];
 }
 
 export default function AppointmentsChart({
-  dailyAppointmentsData,
+  financialData = [],
 }: IAppointmentsChartProps) {
   const { from, to } = useDashboard();
 
-  // Cria um mapa dos dados existentes para busca rápida
-  const dataMap = dailyAppointmentsData.reduce((acc, item) => {
+  // Transforma financialData no formato para o chart
+  const transformFinancialData = () => {
+    const groupedByDate = financialData.reduce((acc, item) => {
+      if (!acc[item.date]) {
+        acc[item.date] = {
+          date: item.date,
+          total: 0,
+          totalclinic: 0,
+          totaldoctor: 0,
+          totalinsurance: 0,
+        };
+      }
+
+      acc[item.date].total += item.total;
+      acc[item.date].totalclinic += item.totalclinic;
+      acc[item.date].totaldoctor += item.totaldoctor;
+      acc[item.date].totalinsurance += item.totalinsurance;
+
+      return acc;
+    }, {} as Record<string, any>);
+
+    return Object.values(groupedByDate).map((item: any) => ({
+      date: item.date,
+      total: item.total,
+      totalclinic: item.totalclinic,
+      totaldoctor: item.totaldoctor,
+      totalinsurance: item.totalinsurance,
+    }));
+  };
+
+  const transformedData = transformFinancialData();
+
+  const dataMap = transformedData.reduce((acc, item) => {
     acc[item.date] = item;
     return acc;
-  }, {} as Record<string, IDailyAppointment>);
+  }, {} as Record<string, any>);
 
   // Gera todos os dias do range selecionado
   const generateCompleteDateRange = () => {
@@ -48,14 +82,15 @@ export default function AppointmentsChart({
       const currentDate = startDate.add(i, 'day');
       const dateString = currentDate.format('YYYY-MM-DD');
 
-      // Verifica se existe dado para esta data
       const existingData = dataMap[dateString];
 
       completeData.push({
         date: currentDate.format('DD/MM'),
         fullDate: dateString,
-        appointments: existingData?.appointments || 0,
-        revenue: existingData?.revenue || 0,
+        total: existingData?.total || 0,
+        totalclinic: existingData?.totalclinic || 0,
+        totaldoctor: existingData?.totaldoctor || 0,
+        totalinsurance: existingData?.totalinsurance || 0,
       });
     }
 
@@ -65,30 +100,42 @@ export default function AppointmentsChart({
   const chartData = generateCompleteDateRange();
 
   const chartConfig = {
-    appointments: {
-      label: 'Agendamentos',
+    totalclinic: {
+      label: 'Faturamento Clínica',
+      color: '#10B981',
+    },
+    total: {
+      label: 'Faturamento Total',
       color: '#0B68F7',
     },
-    revenue: {
-      label: 'Faturamento',
-      color: '#10B981',
+    totaldoctor: {
+      label: 'Repasse Médicos',
+      color: '#F59E0B',
+    },
+    totalinsurance: {
+      label: 'Repasse Convênios',
+      color: '#EF4444',
     },
   } satisfies ChartConfig;
 
   const hasNonZeroData = chartData.some(
-    (item) => item.appointments > 0 || item.revenue > 0,
+    (item) =>
+      item.total > 0 ||
+      item.totalclinic > 0 ||
+      item.totaldoctor > 0 ||
+      item.totalinsurance > 0,
   );
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center gap-2">
         <DollarSign />
-        <CardTitle>Agendamentos e Faturamento</CardTitle>
+        <CardTitle>Dashboard Financeiro</CardTitle>
       </CardHeader>
       <CardContent>
         {!hasNonZeroData ? (
           <div className="h-[400px] flex items-center justify-center text-muted-foreground">
-            Nenhum dado disponível para o período selecionado
+            Nenhum dado financeiro disponível para o período selecionado
           </div>
         ) : (
           <ChartContainer config={chartConfig} className="h-[400px] w-full">
@@ -110,18 +157,9 @@ export default function AppointmentsChart({
                 interval="preserveStartEnd"
               />
               <YAxis
-                yAxisId="left"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 12 }}
-                width={80}
-              />
-              <YAxis
-                yAxisId="right"
-                orientation="right"
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(v) => formatCurrencyInCents(v)}
+                tickFormatter={(v) => formatCurrency(v)}
                 tick={{ fontSize: 12 }}
                 width={80}
               />
@@ -135,36 +173,54 @@ export default function AppointmentsChart({
                         : label;
                     }}
                     formatter={(value, name) => {
-                      if (name === 'revenue') {
-                        return [
-                          formatCurrencyInCents(Number(value)),
-                          ' Faturamento',
-                        ];
-                      }
-                      return [value, ' Agendamentos'];
+                      const formattedValue = formatCurrency(Number(value));
+                      const label =
+                        chartConfig[name as keyof typeof chartConfig]?.label ||
+                        name;
+                      return [formattedValue, ' ', label];
                     }}
                   />
                 }
               />
+              {/* Faturamento Clínica */}
               <Area
-                yAxisId="left"
                 type="monotone"
-                dataKey="appointments"
-                stroke="var(--color-appointments)"
-                fill="var(--color-appointments)"
+                dataKey="totalclinic"
+                stroke="var(--color-totalclinic)"
+                fill="var(--color-totalclinic)"
                 fillOpacity={0.2}
                 strokeWidth={2}
-                name="appointments"
+                name="totalclinic"
               />
+              {/* Faturamento Total */}
               <Area
-                yAxisId="right"
                 type="monotone"
-                dataKey="revenue"
-                stroke="var(--color-revenue)"
-                fill="var(--color-revenue)"
+                dataKey="total"
+                stroke="var(--color-total)"
+                fill="var(--color-total)"
                 fillOpacity={0.2}
                 strokeWidth={2}
-                name="revenue"
+                name="total"
+              />
+              {/* Repasse Médicos */}
+              <Area
+                type="monotone"
+                dataKey="totaldoctor"
+                stroke="var(--color-totaldoctor)"
+                fill="var(--color-totaldoctor)"
+                fillOpacity={0.2}
+                strokeWidth={2}
+                name="totaldoctor"
+              />
+              {/* Repasse Convênios */}
+              <Area
+                type="monotone"
+                dataKey="totalinsurance"
+                stroke="var(--color-totalinsurance)"
+                fill="var(--color-totalinsurance)"
+                fillOpacity={0.2}
+                strokeWidth={2}
+                name="totalinsurance"
               />
             </AreaChart>
           </ChartContainer>

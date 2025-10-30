@@ -40,6 +40,7 @@ import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
 import { useUpdateInsurance } from '@/services/insurance-service';
 import { useGetSpecialties } from '@/services/specialty-service';
 import { Input } from '@/components/ui/input';
+import { useGetClinic } from '@/services/clinic-service';
 
 interface ISpecialty {
   id: string;
@@ -74,13 +75,15 @@ export const UpdateInsuranceForm = ({
       ],
     },
   });
-  const { data: specialtiesData = [] } = useGetSpecialties({
-    limit: 10,
-    offset: 0,
+
+  const { data: clinic } = useGetClinic();
+  const { data: specialtiesData } = useGetSpecialties({
+    clinicId: clinic?.id || '',
   });
-  const [filteredSpecialties, setFilteredSpecialties] = useState<ISpecialty[]>(
-    [],
-  );
+
+  const [filteredSpecialties, setFilteredSpecialties] = useState<
+    ISpecialty[] | []
+  >([]);
   const [editingName, setEditingName] = useState(false);
   const [editingModalities, setEditingModalities] = useState(false);
   const [editingSpecialties, setEditingSpecialties] = useState(false);
@@ -106,7 +109,7 @@ export const UpdateInsuranceForm = ({
   }, [isOpen, insurance?.id]);
 
   useEffect(() => {
-    setFilteredSpecialties(specialtiesData);
+    setFilteredSpecialties(specialtiesData || []);
   }, [specialtiesData]);
 
   const saveName = () => {
@@ -132,8 +135,6 @@ export const UpdateInsuranceForm = ({
         },
       },
     );
-
-    console.log(insurance);
   };
 
   const saveSpecialties = (specialties: any) => {
@@ -145,8 +146,6 @@ export const UpdateInsuranceForm = ({
         onSuccess: () => setEditingSpecialties(false),
       },
     );
-
-    console.log(mutate);
   };
 
   return (
@@ -248,9 +247,9 @@ export const UpdateInsuranceForm = ({
                       placeholder="Buscar especialidade..."
                       onValueChange={(value) => {
                         setFilteredSpecialties(
-                          specialtiesData.filter((s: any) =>
+                          specialtiesData?.filter((s: any) =>
                             s.name.toLowerCase().includes(value.toLowerCase()),
-                          ),
+                          ) ?? [],
                         );
                       }}
                       disabled={!editingSpecialties}
@@ -308,7 +307,7 @@ export const UpdateInsuranceForm = ({
                       <div className="flex items-center justify-between">
                         <span>
                           {
-                            specialtiesData.find((spec) => spec.id === s.id)
+                            specialtiesData?.find((spec) => spec.id === s.id)
                               ?.name
                           }
                         </span>

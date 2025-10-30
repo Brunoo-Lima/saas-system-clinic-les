@@ -42,6 +42,7 @@ import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
 import { useCreateInsurance } from '@/services/insurance-service';
 import { useGetSpecialties } from '@/services/specialty-service';
 import { Input } from '@/components/ui/input';
+import { useGetClinic } from '@/services/clinic-service';
 
 interface ISpecialty {
   id: string;
@@ -76,14 +77,14 @@ export const CreateInsuranceForm = ({
       ],
     },
   });
-  const { data: specialtiesData = [] } = useGetSpecialties({
-    limit: 10,
-    offset: 0,
+  const { data: clinic } = useGetClinic();
+  const { data: specialtiesData } = useGetSpecialties({
+    clinicId: clinic?.id || '',
   });
 
-  const [filteredSpecialties, setFilteredSpecialties] = useState<ISpecialty[]>(
-    [],
-  );
+  const [filteredSpecialties, setFilteredSpecialties] = useState<
+    ISpecialty[] | []
+  >([]);
 
   const {
     fields: modalityFields,
@@ -103,7 +104,7 @@ export const CreateInsuranceForm = ({
   }, [isOpen, insurance?.id]);
 
   useEffect(() => {
-    setFilteredSpecialties(specialtiesData);
+    setFilteredSpecialties(specialtiesData ?? []);
   }, [specialtiesData]);
 
   const onSubmit: SubmitHandler<InsuranceFormSchema> = (data) => {
@@ -191,9 +192,9 @@ export const CreateInsuranceForm = ({
                       placeholder="Buscar especialidade..."
                       onValueChange={(value) => {
                         setFilteredSpecialties(
-                          specialtiesData.filter((s: any) =>
+                          specialtiesData?.filter((s: any) =>
                             s.name.toLowerCase().includes(value.toLowerCase()),
-                          ),
+                          ) ?? [],
                         );
                       }}
                     />
@@ -249,7 +250,7 @@ export const CreateInsuranceForm = ({
                       <div className="flex items-center justify-between">
                         <span>
                           {
-                            specialtiesData.find((spec) => spec.id === s.id)
+                            specialtiesData?.find((spec) => spec.id === s.id)
                               ?.name
                           }
                         </span>

@@ -6,6 +6,7 @@ import { FindAllSchedulingController } from '../../App/controllers/(admin)/Consu
 import { PatchSchedulingController } from '../../App/controllers/(admin)/ConsultationSchedulingController/PatchSchedulingController';
 import { DispatchEmailsToSchedulingController } from '../../App/controllers/(admin)/ConsultationSchedulingController/DispatchEmailsToSchedulingController';
 import { autCronMiddleware } from '../../App/middlewares/authCronMiddleware';
+import { RequestCancelSchedulingController } from '../../App/controllers/(admin)/ConsultationSchedulingController/RequestCancelSchedulingController';
 
 const schedulingRoutes: Router = Router();
 
@@ -14,8 +15,9 @@ schedulingRoutes.post('/scheduling', authMiddleware, privateRoute, (req, res, ne
   return createClinicController.handle(req, res, next);
 });
 
-schedulingRoutes.get("/scheduling/findall", authMiddleware, privateRoute, new FindAllSchedulingController().handle)
+schedulingRoutes.get("/scheduling/findall", authMiddleware, new FindAllSchedulingController().handle)
 schedulingRoutes.patch("/scheduling", authMiddleware, privateRoute, new PatchSchedulingController().handle)
 schedulingRoutes.post("/scheduling/confirm", autCronMiddleware, new DispatchEmailsToSchedulingController().handle)
+schedulingRoutes.patch("/scheduling/cancel", authMiddleware, new RequestCancelSchedulingController().handle)
 
 export { schedulingRoutes };
