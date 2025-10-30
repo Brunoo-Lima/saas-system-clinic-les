@@ -29,7 +29,7 @@ ClinicRoutes.post(
   new CreateSpecialtiesController().handle,
 );
 ClinicRoutes.post(
-  '/specialty/find',
+  '/clinic/:id/specialty/find',
   authMiddleware,
   privateRoute,
   new FindSpecialtyController().handle,
@@ -37,12 +37,6 @@ ClinicRoutes.post(
 
 ClinicRoutes.put('/specialty', authMiddleware, privateRoute, new UpdateSpecialtiesController().handle)
 ClinicRoutes.delete('/specialty', authMiddleware, privateRoute, new DeleteSpecialtiesController().handle)
-
-ClinicRoutes.get(
-  '/specialty/findall',
-  authMiddleware,
-  privateRoute,
-  new GetSpecialtiesController().handle
-)
+ClinicRoutes.get('/clinic/:id/specialty/findall', authMiddleware, privateRoute, new GetSpecialtiesController().handle)
 
 export { ClinicRoutes };

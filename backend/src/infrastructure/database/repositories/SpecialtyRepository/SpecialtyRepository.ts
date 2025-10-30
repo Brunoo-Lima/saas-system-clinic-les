@@ -1,10 +1,11 @@
-import { and, DrizzleError, eq, ilike, inArray, isNotNull, or } from "drizzle-orm";
+import { and, DrizzleError, eq, ilike, inArray, isNotNull, or, sql } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Specialty } from "../../../../domain/entities/EntitySpecialty/Specialty";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
 import { specialtyTable } from "../../Schema/SpecialtySchema";
 import { IRepository } from "../IRepository";
+import { clinicToSpecialtyTable } from "../../Schema/ClinicSchema";
 
 export class SpecialtyRepository implements IRepository {
     async create(specialties: Array<Specialty>, id?: string): Promise<any> {
@@ -85,7 +86,7 @@ export class SpecialtyRepository implements IRepository {
             return ResponseHandler.error(errorCode === "23503" ? "You cannot deleted this entity because this linked with outer entity, remove the link and delete again !":"Failed to deleted the specialty")
         }
     }
-    async findAllEntity(specialties: Array<Specialty>, limit: number, offset: number) {
+    async findAllEntity(specialties: Array<Specialty>, limit: number, offset: number, clinic_id?: string) {
         try {
             const filters:any = []
             if(Array.isArray(specialties) && specialties.length){
@@ -95,11 +96,20 @@ export class SpecialtyRepository implements IRepository {
                 filters.push(isNotNull(specialtyTable.id))
             }
             return await db
-                .select()
+                .select({
+                    id: specialtyTable.id,
+                    name: specialtyTable.name,
+                    price: clinicToSpecialtyTable.price
+                })
                 .from(specialtyTable)
+                .innerJoin(
+                    clinicToSpecialtyTable,
+                    eq(clinicToSpecialtyTable.clinic_id, clinic_id || "")
+                )
                 .where(
                     or(...filters)
                 )
+                .groupBy(clinicToSpecialtyTable.price, specialtyTable.id)
                 .limit(limit)
                 .offset(offset)
 
