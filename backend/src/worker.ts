@@ -26,6 +26,17 @@ const workerPasswordReset = new Worker("password_reset_email", async(job) => {
   await EmailService.sendMail(job.data)
 }, { connection })
 
+
+const workerNewScheduling = new Worker("new_scheduling_email", async(job) => {
+  await EmailService.sendMail(job.data)
+}, { connection })
+
+
+const workerCanceledScheduling = new Worker("canceled_scheduling_email", async(job) => {
+  await EmailService.sendMail(job.data)
+}, { connection })
+
+
 worker.on("failed", (job, err) => {
   console.error(`❌ Falha ao enviar e-mail (Job ${job?.id}):`, err);
 });
@@ -35,5 +46,13 @@ workerScheduling.on("failed", (job, err) => {
 });
 
 workerPasswordReset.on("failed", (job, err) => {
+  console.error(`❌ Falha ao enviar e-mail (Job ${job?.id}):`, err);
+})
+
+workerNewScheduling.on("failed", (job, err) => {
+  console.error(`❌ Falha ao enviar e-mail (Job ${job?.id}):`, err);
+})
+
+workerCanceledScheduling.on("failed", (job, err) => {
   console.error(`❌ Falha ao enviar e-mail (Job ${job?.id}):`, err);
 })

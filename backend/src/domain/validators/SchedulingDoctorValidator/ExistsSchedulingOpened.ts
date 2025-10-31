@@ -9,7 +9,7 @@ export class ExistsSchedulingOpened implements IProcessValidator {
         try {
             const entityValidator = new EntityExits()
             const entityExists = await entityValidator.valid(schedulingDoctor, repository)
-            if (!entityExists.success) return ResponseHandler.error("The scheduling of the doctor it's still opened !\n\nIf You can closed the scheduling, please, update the scheduling to 'closed'")
+            if (!entityExists.success) return ResponseHandler.error("O médico já possui uma agenda aberta !\n\nSe você quer abrir uma nova agenda, atualize a agenda para fechada")
 
             return ResponseHandler.success(schedulingDoctor, "Success ! The scheduling can be open.")
         } catch (e) {

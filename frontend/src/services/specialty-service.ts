@@ -93,8 +93,13 @@ export function useGetSpecialties(params: IGetSpecialtiesParams) {
   });
 }
 
-export const updateSpecialty = async ({ name, id, price }: ISpecialtyProps) => {
-  const { data } = await api.put(`/clinic/${id}/specialty`, [
+export const updateSpecialty = async ({
+  name,
+  id,
+  price,
+  clinicId,
+}: ISpecialtyProps) => {
+  const { data } = await api.put(`/clinic/${clinicId}/specialty`, [
     { name, id, price },
   ]);
   return data;

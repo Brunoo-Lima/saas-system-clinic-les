@@ -12,7 +12,7 @@ export const getStatus = (status: string) => {
 };
 
 export const getStatusUi: Record<string, string> = {
-  CANCELLED: 'Cancelada',
+  CANCELED: 'Cancelada',
   CONCLUDE: 'Realizada',
   PENDING: 'Agendada',
 };

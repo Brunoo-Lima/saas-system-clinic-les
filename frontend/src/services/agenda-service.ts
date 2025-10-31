@@ -1,4 +1,4 @@
-import type { IAgendaRequest, IAgendaReturn } from '@/@types/IAgenda';
+import type { IAgendaRequest } from '@/@types/IAgenda';
 import api from './api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ export const useCreateAgenda = () => {
     mutationFn: createAgendaService,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['agenda'] });
+      toast.success('Agenda criada com sucesso!');
     },
     onError: (error: any) => {
       toast.error(error.message || 'Erro ao criar agenda.');
@@ -65,13 +66,24 @@ export const useGetAgenda = (doctorId: string) => {
   });
 };
 
+interface IAgendaRequestProps {
+  dateFrom?: string;
+  dateTo?: string;
+  datesBlocked?: Array<{
+    id?: string; // opcional para novos
+    date: string;
+    reason: string;
+  }>;
+  isActivate?: boolean;
+}
+
 export const updateAgendaService = async (
-  doctorId: string,
-  agenda: Partial<IAgendaReturn>,
+  agendaId: string,
+  agenda: Partial<IAgendaRequestProps>,
 ) => {
   try {
     const { data } = await api.patch(
-      `/doctor/scheduling/?id=${doctorId}`,
+      `/doctor/scheduling/?id=${agendaId}`,
       agenda,
     );
 
@@ -91,19 +103,19 @@ export const useUpdateAgenda = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      doctorId,
-      agenda,
-    }: {
-      doctorId: string;
-      agenda: Partial<IAgendaReturn>;
-    }) => updateAgendaService(doctorId, agenda),
-    onSuccess: () => {
+    mutationFn: (params: {
+      agendaId: string;
+      agenda: Partial<IAgendaRequestProps>;
+    }) => updateAgendaService(params.agendaId, params.agenda),
+    onSuccess: (variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['agenda', variables.agendaId],
+      });
       queryClient.invalidateQueries({ queryKey: ['agenda'] });
       toast.success('Agenda atualizada com sucesso!');
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Erro ao atualizar agenda.');
+      toast.error(error.message);
     },
   });
 };

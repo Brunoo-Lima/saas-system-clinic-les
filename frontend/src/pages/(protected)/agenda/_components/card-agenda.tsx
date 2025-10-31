@@ -214,8 +214,8 @@ export const CardAgenda = ({
   const totalAppointments =
     appointments?.filter((a) => a.doctor.id === currentDoctorId) ?? [];
 
-  const confirmedCount = totalAppointments.filter(
-    (a) => a.status === 'CONFIRMED',
+  const concludeCount = totalAppointments.filter(
+    (a) => a.status === 'CONCLUDE',
   ).length;
 
   const pendingCount = totalAppointments.filter(
@@ -329,8 +329,8 @@ export const CardAgenda = ({
             <span className="font-semibold">{totalAppointments.length}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Confirmadas</span>
-            <span className="font-semibold text-primary">{confirmedCount}</span>
+            <span className="text-muted-foreground">Realizadas</span>
+            <span className="font-semibold text-primary">{concludeCount}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Pendentes</span>

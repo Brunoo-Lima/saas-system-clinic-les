@@ -15,13 +15,13 @@ export class ExistsScheduling implements IProcessValidator {
 
             const doctorScheduling = new SchedulingDoctorRepository()
             const doctorHasScheduling = await doctorScheduling.findEntity(schedulingDoctor)
-            if (!doctorHasScheduling) return ResponseHandler.error("Doctor scheduling is inactivate or not exists !")
+            if (!doctorHasScheduling) return ResponseHandler.error("Agenda do médico fechada !")
 
             if (scheduling.date) {
                 const dateFrom = new Date(doctorHasScheduling.dateFrom)
                 const dateTo = new Date(doctorHasScheduling.dateTo)
 
-                if (scheduling.date < dateFrom || scheduling.date > dateTo) return ResponseHandler.error("This date is't available in scheduling doctor")
+                if (scheduling.date < dateFrom || scheduling.date > dateTo) return ResponseHandler.error("Data nao encontrada na agenda do medico informada.")
                 const datesBlocked = doctorHasScheduling.datesBlocked?.filter((dt: any) => {
                     const dateBlocked = new Date(dt.dateBlocked).toISOString().split("T")
                     const dateScheduling = scheduling.date?.toISOString().split("T")
@@ -29,9 +29,12 @@ export class ExistsScheduling implements IProcessValidator {
                 })
                 if (datesBlocked?.length) return ResponseHandler.error("This date is blocked in doctor scheduling")
             }
-            // const schedulingDao = new SchedulingQueriesDAO()
-            // const schedulingToDoctorExists = await schedulingDao.schedulingPerDoctor(scheduling)
-            // if (Array.isArray(schedulingToDoctorExists.data) && schedulingToDoctorExists.data.length) return ResponseHandler.error("The scheduling cannot be confirmed because already exists the scheduling in this date")
+            if (scheduling.doctor?.getUUIDHash() && scheduling.status && scheduling.status === "PENDING") { 
+                // Só iremos realizar a validacao se existir médico vinculado e o status for uma nova consulta/atualizacao de consulta
+                const schedulingDao = new SchedulingQueriesDAO()
+                const schedulingToDoctorExists = await schedulingDao.schedulingPerDoctor(scheduling)
+                if (Array.isArray(schedulingToDoctorExists.data) && schedulingToDoctorExists.data.length) return ResponseHandler.error("O agendamento nao pode ser realizado pois já existe um agendamento marcado para o horário informado (somando o tempo de cosulta)")
+            }
 
             return ResponseHandler.success(scheduling, "Success ! The scheduling can be inserted")
         } catch (e) {

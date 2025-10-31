@@ -95,9 +95,9 @@ export const UpsertDoctorForm = ({
       label: specialty.name,
     })) || [];
 
-  useEffect(() => {
-    console.log(form.formState.errors);
-  }, [form.formState.errors]);
+  // useEffect(() => {
+  //   console.log(form.formState.errors);
+  // }, [form.formState.errors]);
 
   useEffect(() => {
     if (isOpen && doctor) {
@@ -105,14 +105,9 @@ export const UpsertDoctorForm = ({
 
       const defaultValues = getDoctorDefaultValues(doctor);
 
-      // CORREÇÃO: Garante que todos os períodos tenham specialty_id
       if (defaultValues.periodToWork) {
         defaultValues.periodToWork = defaultValues.periodToWork.map(
-          (period, index) => {
-            console.log(
-              `Período ${index} - specialty_id:`,
-              period.specialty_id,
-            );
+          (period) => {
             return {
               ...period,
               specialty_id: period.specialty_id || '', // Garante que não seja undefined
@@ -123,11 +118,6 @@ export const UpsertDoctorForm = ({
 
       form.reset(defaultValues);
       setSelectedSpecialties(doctor?.specialties?.map((s) => s.id) ?? []);
-
-      // Debug após o reset
-      setTimeout(() => {
-        console.log('📋 Valores após reset:', form.getValues('periodToWork'));
-      }, 100);
     }
   }, [isOpen, form, doctor]);
 
@@ -347,8 +337,27 @@ export const UpsertDoctorForm = ({
   };
 
   const addPeriodToSpecialty = (specialtyId: string) => {
+    const currentPeriods = form.getValues('periodToWork') || [];
+
+    const periodsForSpecialty = currentPeriods.filter(
+      (period) => period.specialty_id === specialtyId,
+    );
+
+    // Encontra todos os dias já usados por esta especialidade
+    const usedDays = periodsForSpecialty.map((period) => period.dayWeek);
+
+    // Encontra o próximo dia disponível (1-7) que não está sendo usado
+    let nextDayWeek = 1;
+    while (usedDays.includes(nextDayWeek) && nextDayWeek <= 7) {
+      nextDayWeek++;
+    }
+
+    if (nextDayWeek > 7) {
+      nextDayWeek = 1;
+    }
+
     appendPeriod({
-      dayWeek: 1,
+      dayWeek: nextDayWeek,
       timeFrom: '08:00:00',
       timeTo: '12:00:00',
       specialty_id: specialtyId,

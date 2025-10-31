@@ -24,6 +24,7 @@ export class StatusValidationToUpdated implements IProcessValidator {
 
             return ResponseHandler.success(scheduling, "The scheduling can be updated !")
         } catch (e) {
+            console.log("HERHERERER", e)
             return ResponseHandler.error((e as Error).message)
         }
     }

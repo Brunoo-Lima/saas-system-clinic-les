@@ -1,4 +1,5 @@
 export interface IBlockedDate {
+  id?: string;
   date: string; // Formato "YYYY-MM-DD"
   reason: string;
 }

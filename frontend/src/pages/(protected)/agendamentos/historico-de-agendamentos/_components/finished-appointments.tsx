@@ -10,7 +10,7 @@ interface IAllAppointmentsProps {
 }
 
 const FinishedAppointments = ({ appointments }: IAllAppointmentsProps) => {
-  const filtered = appointments?.filter((p) => p.status === 'COMPLETED');
+  const filtered = appointments?.filter((p) => p.status === 'CONCLUDE');
 
   return (
     <div className="flex flex-col gap-y-4">

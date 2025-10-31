@@ -3,6 +3,7 @@ import { ClinicBuilder } from "../../../../../domain/entities/EntityClinic/Clini
 import { Specialty } from "../../../../../domain/entities/EntitySpecialty/Specialty"
 import { SpecialtyBuilder } from "../../../../../domain/entities/EntitySpecialty/SpecialtyBuilder"
 import { EntityExistsToInserted } from "../../../../../domain/validators/General/EntityExistsToInserted"
+import { EntityExistsToUpdated } from "../../../../../domain/validators/General/EntityExistsToUpdated"
 import { RequiredGeneralData } from "../../../../../domain/validators/General/RequiredGeneralData"
 import { UUIDValidator } from "../../../../../domain/validators/General/UUIDValidator"
 import { SpecialtyExists } from "../../../../../domain/validators/SpecialtyValidator/SpecialtiesExists"
@@ -13,6 +14,7 @@ import db from "../../../../../infrastructure/database/connection"
 import { ClinicRepository } from "../../../../../infrastructure/database/repositories/ClinicRepository/ClinicRepository"
 import { IRepository } from "../../../../../infrastructure/database/repositories/IRepository"
 import { SpecialtyRepository } from "../../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository"
+import { findOrCreate } from "../../../../../infrastructure/database/repositories/findOrCreate"
 
 
 export class SpecialtyService {
@@ -35,6 +37,7 @@ export class SpecialtyService {
                     .setName(s.name)
                     .setPrice(s.price)
                     .build()
+                specialty.setUuidHash(s.id ?? specialty.getUUIDHash())
                 return specialty
             })
             const clinicDomain = new ClinicBuilder()
@@ -43,12 +46,10 @@ export class SpecialtyService {
             clinicDomain.setUuidHash(id || "")
 
             validatorController.setValidator(`F-${Clinic.constructor.name}`, [
-                new EntityExistsToInserted(),
                 new UUIDValidator()
             ])
             validatorController.setValidator(`C-${Specialty.constructor.name}`, [
-                new RequiredGeneralData(Object.keys(specialties[0]?.props ?? {})),
-                new SpecialtyExists()
+                new RequiredGeneralData(Object.keys(specialties[0]?.props ?? {}))
             ])
 
             const dataValidated = await validatorController.process(`C-${Specialty.constructor.name}`, specialties, this.repository)
@@ -58,9 +59,11 @@ export class SpecialtyService {
             if (!dataValidated.success) return dataValidated
 
             const entitiesCreated = await db.transaction(async (tx) => {
-                await this.repository.create(specialties, tx)
+                await Promise.all(specialties.map(async (sp) => {
+                    return await findOrCreate(this.repository, sp, tx)
+                }))
                 const addedSpecialtiesInClinic = await this.clinicRepository.addedSpecialties(clinicDomain, tx)
-    
+
                 return addedSpecialtiesInClinic
             })
 

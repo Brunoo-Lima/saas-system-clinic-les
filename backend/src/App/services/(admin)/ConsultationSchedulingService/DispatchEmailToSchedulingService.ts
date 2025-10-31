@@ -23,15 +23,12 @@ export class DispatchEmailToSchedulingService {
                     .build()
                 scheduling.setUuidHash(sch.scheduling.id ?? "")
                 const schedulingUpdated = await this.repository.updateEntity(scheduling)
-                sch.template = "scheduling"
-
-                await queueScheduling.add("scheduling", { ...sch.scheduling as Object, template: "scheduling" })
+                await queueScheduling.add("scheduling_email", { ...sch.scheduling as Object, template: "scheduling" })
                 return schedulingUpdated
             })
 
             return ResponseHandler.success([], "Success ! Emails sended")
         } catch (e) {
-            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }

@@ -53,7 +53,7 @@ export const CardAppointment = ({
         return 'Pendente';
       case 'CONCLUDE':
         return 'Realizado';
-      case 'CANCELLED':
+      case 'CANCELED':
         return 'Cancelado';
       default:
         return 'N/A';
@@ -107,7 +107,18 @@ export const CardAppointment = ({
         </Badge>
 
         <Badge variant="outline">
-          Status: {formatStatus(appointment.status)}
+          Status:{' '}
+          <span
+            className={
+              appointment.status === 'CONCLUDE'
+                ? 'text-green-600'
+                : appointment.status === 'PENDING'
+                ? 'text-yellow-600'
+                : 'text-red-600'
+            }
+          >
+            {formatStatus(appointment.status)}
+          </span>
         </Badge>
         {appointment.isReturn && (
           <Badge variant="outline">

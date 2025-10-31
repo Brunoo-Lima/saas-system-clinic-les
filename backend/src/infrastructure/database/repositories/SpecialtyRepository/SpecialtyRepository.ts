@@ -1,5 +1,4 @@
-import { and, DrizzleError, eq, ilike, inArray, isNotNull, or, sql } from "drizzle-orm";
-import { EntityDomain } from "../../../../domain/entities/EntityDomain";
+import { and, eq, ilike, inArray, isNotNull, or, sql } from "drizzle-orm";
 import { Specialty } from "../../../../domain/entities/EntitySpecialty/Specialty";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
@@ -8,11 +7,13 @@ import { IRepository } from "../IRepository";
 import { clinicToSpecialtyTable } from "../../Schema/ClinicSchema";
 
 export class SpecialtyRepository implements IRepository {
-    async create(specialties: Array<Specialty>, id?: string): Promise<any> {
+    async create(specialty: Specialty , id?: string): Promise<any> {
         try {
 
-            const specialtiesMapped = specialties.map((s) => ({ id: s.getUUIDHash(), name: s.name! }))
-            const specialtiesSaved = await db.insert(specialtyTable).values(specialtiesMapped).returning({
+            const specialtiesSaved = await db.insert(specialtyTable).values({
+                id: specialty.getUUIDHash(),
+                name: specialty.name ?? ""
+            }).returning({
                 id: specialtyTable.id,
                 name: specialtyTable.name
             })
@@ -63,8 +64,8 @@ export class SpecialtyRepository implements IRepository {
     async updateEntity(specialties: Array<Specialty>, tx?: any){
         const dbUse = tx ? tx : db
         const specialtiesInserted = await Promise.all(
-            specialties.map((sp) =>
-                dbUse.update(specialtyTable)
+            specialties.map(async (sp) =>
+                await dbUse.update(specialtyTable)
                     .set({
                         name: sp.name,
                         updatedAt: sp.getUpdatedAt()

@@ -14,7 +14,6 @@ export const findOrCreate = async (
     }
 
     const dataInserted = await repository.create(entityDomain, tx);
-
     if (dataInserted && Array.isArray(dataInserted) && dataInserted.length) {
         entityDomain.setUuidHash(dataInserted[0].id);
         return dataInserted;

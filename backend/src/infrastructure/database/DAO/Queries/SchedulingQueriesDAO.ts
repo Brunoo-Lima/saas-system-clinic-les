@@ -3,7 +3,7 @@ import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../connection";
 import { Pool } from "pg";
 import { schedulingTable } from "../../Schema/SchedulingSchema";
-import { sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { Scheduling } from "../../../../domain/entities/EntityScheduling/Scheduling";
 import { patientTable } from "../../Schema/PatientSchema";
 import { userTable } from "../../Schema/UserSchema";
@@ -17,9 +17,7 @@ export class SchedulingQueriesDAO {
             const dbUse = tx ? tx : db
             const timeOfConsultation = `${scheduling.timeOfConsultation ?? 1} hour`
             const sqlCreated = sql`
-                (scheduling.sch_status = 'PENDING' AND scheduling.fk_sch_doc_id = ${scheduling.doctor?.getUUIDHash()}) AND
-                CAST(scheduling.sch_date AS DATE) = CAST(${scheduling.date} AS DATE) AND
-                (scheduling.sch_date + ${timeOfConsultation}::interval)::time >= (${scheduling.date}::timestamp)::time
+                (${schedulingTable.date} + ${timeOfConsultation}::interval) >= ${scheduling.date?.toISOString()}
             `
 
             const schedulingPerDoctor = await dbUse
@@ -30,7 +28,11 @@ export class SchedulingQueriesDAO {
                 })
                 .from(schedulingTable)
                 .where(
-                    sqlCreated
+                    and(
+                        eq(schedulingTable.status, "PENDING"),
+                        eq(schedulingTable.doctor_id, scheduling.doctor?.getUUIDHash() ?? ""),
+                        sqlCreated
+                    )
                 )
 
             return ResponseHandler.success(schedulingPerDoctor, "Scheduling can be inserted")
