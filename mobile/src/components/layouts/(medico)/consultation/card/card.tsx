@@ -17,7 +17,7 @@ export const Card = ({
     switch (consultation.status) {
       case 'CONCLUDE':
         return 'Realizada';
-      case 'CANCELLED':
+      case 'CANCELED':
         return 'Cancelada';
       default:
         return 'Pendente';
@@ -26,7 +26,7 @@ export const Card = ({
 
   // Verifica se pode cancelar (não completada e não cancelada)
   const canCancel =
-    consultation.status !== 'CONCLUDE' && consultation.status !== 'CANCELLED';
+    consultation.status !== 'CONCLUDE' && consultation.status !== 'CANCELED';
 
   return (
     <View style={styles.card}>
@@ -51,7 +51,7 @@ export const Card = ({
         </Text>
       </View>
 
-      {canCancel && consultation.status !== 'CANCELLED' && (
+      {canCancel && consultation.status !== 'CANCELED' && (
         <View style={styles.actions}>
           <TouchableOpacity
             style={[
@@ -80,7 +80,7 @@ export const Card = ({
         </View>
       )}
 
-      {consultation.status === 'CANCELLED' && (
+      {consultation.status === 'CANCELED' && (
         <View style={styles.actions}>
           <TouchableOpacity
             style={[styles.action, styles.actionDisabled]}
