@@ -63,8 +63,8 @@ export class SpecialtyRepository implements IRepository {
     async updateEntity(specialties: Array<Specialty>, tx?: any){
         const dbUse = tx ? tx : db
         const specialtiesInserted = await Promise.all(
-            specialties.map((sp) =>
-                dbUse.update(specialtyTable)
+            specialties.map(async (sp) =>
+                await dbUse.update(specialtyTable)
                     .set({
                         name: sp.name,
                         updatedAt: sp.getUpdatedAt()
