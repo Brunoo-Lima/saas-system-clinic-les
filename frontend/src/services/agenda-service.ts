@@ -1,4 +1,4 @@
-import type { IAgendaRequest, IAgendaReturn } from '@/@types/IAgenda';
+import type { IAgendaRequest } from '@/@types/IAgenda';
 import api from './api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ export const useCreateAgenda = () => {
     mutationFn: createAgendaService,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['agenda'] });
+      toast.success('Agenda criada com sucesso!');
     },
     onError: (error: any) => {
       toast.error(error.message || 'Erro ao criar agenda.');
@@ -81,17 +82,10 @@ export const updateAgendaService = async (
   agenda: Partial<IAgendaRequestProps>,
 ) => {
   try {
-    console.log('📤 Enviando para API:', {
-      agendaId,
-      agenda,
-    });
-
     const { data } = await api.patch(
       `/doctor/scheduling/?id=${agendaId}`,
       agenda,
     );
-
-    console.log('✅ Resposta da API:', data);
 
     if (!data.success) {
       throw new Error(data.message || 'Erro ao atualizar agenda.');
@@ -99,7 +93,6 @@ export const updateAgendaService = async (
 
     return data;
   } catch (error: any) {
-    console.error('❌ Erro na requisição:', error);
     throw new Error(
       error.response?.data?.message || 'Erro ao atualizar agenda.',
     );
@@ -114,7 +107,7 @@ export const useUpdateAgenda = () => {
       agendaId: string;
       agenda: Partial<IAgendaRequestProps>;
     }) => updateAgendaService(params.agendaId, params.agenda),
-    onSuccess: (data, variables) => {
+    onSuccess: (variables) => {
       queryClient.invalidateQueries({
         queryKey: ['agenda', variables.agendaId],
       });
