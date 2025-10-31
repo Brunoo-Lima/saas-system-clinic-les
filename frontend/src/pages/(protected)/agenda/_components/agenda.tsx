@@ -116,12 +116,11 @@ export function Agenda({ doctorId, doctor }: IAgendaProps) {
 
   useEffect(() => {
     if (existingAgendas && existingAgendas.length > 0) {
-      // Se existe agenda, usa os dados da agenda
       const latestAgenda = existingAgendas[0];
 
       const blockedDates =
         latestAgenda.datesBlocked?.map((blocked: any) => ({
-          id: blocked.id,
+          id: blocked.id, // ✅ Mantém o id
           date: blocked.dateBlocked,
           reason: blocked.reason,
         })) || [];
@@ -132,19 +131,16 @@ export function Agenda({ doctorId, doctor }: IAgendaProps) {
 
       setAvailabilitySettings(() => ({
         workingDays: workingDays,
-        blockedDates: blockedDates,
+        blockedDates: blockedDates, // ✅ Agora com ids
       }));
 
-      // Se já existe agenda, usar as datas da agenda
       if (latestAgenda.dateFrom && latestAgenda.dateTo) {
         setDateFrom(new Date(latestAgenda.dateFrom));
         setDateTo(new Date(latestAgenda.dateTo));
       }
     } else if (doctor) {
-      // Se não existe agenda mas existe médico, usa os dados do médico
       if (doctor.periodToWork) {
         const workingDays = extractWorkingDaysFromPeriods(doctor.periodToWork);
-
         setAvailabilitySettings((prev) => ({
           ...prev,
           workingDays: workingDays,
@@ -155,8 +151,6 @@ export function Agenda({ doctorId, doctor }: IAgendaProps) {
 
   const handleSaveAgenda = (dateFrom: Date, dateTo: Date) => {
     const changes: Partial<IAgendaRequest> = {};
-
-    // Pega a agenda atual para comparar
     const currentAgenda = existingAgendas?.[0];
 
     // Só envia dateFrom se mudou
@@ -171,24 +165,45 @@ export function Agenda({ doctorId, doctor }: IAgendaProps) {
       changes.dateTo = newDateTo;
     }
 
-    // Só envia datesBlocked se mudou
     const currentBlockedDates =
       currentAgenda?.datesBlocked?.map((b) => ({
+        id: b.id, //  Mantém o id para blocos existentes
         date: b.dateBlocked,
         reason: b.reason,
       })) || [];
 
-    const newBlockedDates = availabilitySettings.blockedDates.map(
-      (blocked) => ({
+    const newBlockedDates = availabilitySettings.blockedDates.map((blocked) => {
+      // Para blocos existentes, mantém o id. Para novos, pode ser undefined
+      const existingBlock = currentBlockedDates.find(
+        (current) => current.date === blocked.date,
+      );
+
+      return {
+        id: existingBlock?.id, // id será undefined para novos blocos
         date: blocked.date,
         reason: blocked.reason,
-      }),
-    );
+      };
+    });
 
-    // Compara se os blockedDates mudaram (comparação simples)
-    if (
-      JSON.stringify(currentBlockedDates) !== JSON.stringify(newBlockedDates)
-    ) {
+    // Comparação considerando apenas date e reason
+    const hasBlockedDatesChanged =
+      currentBlockedDates.length !== newBlockedDates.length ||
+      !currentBlockedDates.every((currentBlock) =>
+        newBlockedDates.some(
+          (newBlock) =>
+            newBlock.date === currentBlock.date &&
+            newBlock.reason === currentBlock.reason,
+        ),
+      ) ||
+      !newBlockedDates.every((newBlock) =>
+        currentBlockedDates.some(
+          (currentBlock) =>
+            currentBlock.date === newBlock.date &&
+            currentBlock.reason === newBlock.reason,
+        ),
+      );
+
+    if (hasBlockedDatesChanged) {
       changes.datesBlocked = newBlockedDates;
     }
 
@@ -198,42 +213,24 @@ export function Agenda({ doctorId, doctor }: IAgendaProps) {
       return;
     }
 
-    console.log('📤 Mudanças detectadas:', changes);
-
     if (hasNoAgendaData) {
-      createAgenda(
-        {
-          dateFrom: newDateFrom,
-          dateTo: newDateTo,
-          doctor: { id: doctorId || '' },
-          datesBlocked: newBlockedDates,
-        },
-        {
-          onSuccess: () => {
-            toast.success('Agenda criada com sucesso!');
-          },
-          onError: (error) => {
-            toast.error('Erro ao criar agenda');
-            console.error('Erro ao criar agenda:', error);
-          },
-        },
-      );
+      const createData = {
+        dateFrom: newDateFrom,
+        dateTo: newDateTo,
+        doctor: { id: doctorId || '' },
+        datesBlocked: newBlockedDates.map(({ date, reason }) => ({
+          id: '',
+          date,
+          reason,
+        })),
+      };
+
+      createAgenda(createData);
     } else {
-      updateAgenda(
-        {
-          doctorId: currentDoctorId,
-          agenda: changes,
-        },
-        {
-          onSuccess: () => {
-            toast.success('Agenda atualizada com sucesso!');
-          },
-          onError: (error) => {
-            toast.error('Erro ao atualizar agenda');
-            console.error('Erro ao atualizar agenda:', error);
-          },
-        },
-      );
+      updateAgenda({
+        agendaId: currentAgenda?.id || '',
+        agenda: changes,
+      });
     }
   };
 

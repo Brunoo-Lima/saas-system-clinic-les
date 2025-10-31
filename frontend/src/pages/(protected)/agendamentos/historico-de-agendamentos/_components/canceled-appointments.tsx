@@ -10,7 +10,7 @@ interface IAllAppointmentsProps {
 }
 
 const CanceledAppointments = ({ appointments }: IAllAppointmentsProps) => {
-  const filtered = appointments?.filter((p) => p.status === 'CANCELLED');
+  const filtered = appointments?.filter((p) => p.status === 'CANCELED');
 
   return (
     <div className="flex flex-col gap-y-4">

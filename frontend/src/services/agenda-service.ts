@@ -65,15 +65,33 @@ export const useGetAgenda = (doctorId: string) => {
   });
 };
 
+interface IAgendaRequestProps {
+  dateFrom?: string;
+  dateTo?: string;
+  datesBlocked?: Array<{
+    id?: string; // opcional para novos
+    date: string;
+    reason: string;
+  }>;
+  isActivate?: boolean;
+}
+
 export const updateAgendaService = async (
-  doctorId: string,
-  agenda: Partial<IAgendaReturn>,
+  agendaId: string,
+  agenda: Partial<IAgendaRequestProps>,
 ) => {
   try {
+    console.log('📤 Enviando para API:', {
+      agendaId,
+      agenda,
+    });
+
     const { data } = await api.patch(
-      `/doctor/scheduling/?id=${doctorId}`,
+      `/doctor/scheduling/?id=${agendaId}`,
       agenda,
     );
+
+    console.log('✅ Resposta da API:', data);
 
     if (!data.success) {
       throw new Error(data.message || 'Erro ao atualizar agenda.');
@@ -81,6 +99,7 @@ export const updateAgendaService = async (
 
     return data;
   } catch (error: any) {
+    console.error('❌ Erro na requisição:', error);
     throw new Error(
       error.response?.data?.message || 'Erro ao atualizar agenda.',
     );
@@ -91,19 +110,19 @@ export const useUpdateAgenda = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      doctorId,
-      agenda,
-    }: {
-      doctorId: string;
-      agenda: Partial<IAgendaReturn>;
-    }) => updateAgendaService(doctorId, agenda),
-    onSuccess: () => {
+    mutationFn: (params: {
+      agendaId: string;
+      agenda: Partial<IAgendaRequestProps>;
+    }) => updateAgendaService(params.agendaId, params.agenda),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['agenda', variables.agendaId],
+      });
       queryClient.invalidateQueries({ queryKey: ['agenda'] });
       toast.success('Agenda atualizada com sucesso!');
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Erro ao atualizar agenda.');
+      toast.error(error.message);
     },
   });
 };
