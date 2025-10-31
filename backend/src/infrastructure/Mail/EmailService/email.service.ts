@@ -4,6 +4,8 @@ import nodemailer from "nodemailer";
 import { generateEmail } from "../templates/welcome-user";
 import { generateSchedulingEmail } from "../templates/scheduling_confirmation";
 import { resetPasswordHTML } from "../templates/reset_password";
+import { newSchedulingTemplate } from "../templates/new_scheduling";
+import { schedulingCanceled } from "../templates/canceled_scheduling";
 
 class EmailService {
   private transporter: any
@@ -33,15 +35,30 @@ class EmailService {
           subject = "Boas vindas"
           emails = dataEMail.email;
           break
+
         case "scheduling": 
           htmlTemplate = generateSchedulingEmail(dataEMail)
           subject = "Confirmação de agendamento"
           emails = dataEMail.patient.email
+          break;
 
         case "reset_password":
           htmlTemplate = resetPasswordHTML(dataEMail)
           subject = "Reset de senha"
           emails = dataEMail.email
+          break;
+
+        case "new_scheduling":
+          htmlTemplate = newSchedulingTemplate(dataEMail)
+          subject = "Agendamento confirmado !"
+          emails = dataEMail.patient.email
+          break;
+
+        case "scheduling_canceled":
+          htmlTemplate = schedulingCanceled(dataEMail)
+          subject = "Agendamento Cancelado !"
+          emails = dataEMail.patient.email
+          break
       }
       
       await this.transporter.sendMail({
@@ -50,6 +67,7 @@ class EmailService {
         subject: subject,
         html: htmlTemplate
       });
+      
     } catch(e){
       console.log(e)
     }
