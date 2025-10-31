@@ -63,6 +63,7 @@ export class SpecialtyService {
                     return await findOrCreate(this.repository, sp, tx)
                 }))
                 const addedSpecialtiesInClinic = await this.clinicRepository.addedSpecialties(clinicDomain, tx)
+
                 return addedSpecialtiesInClinic
             })
 

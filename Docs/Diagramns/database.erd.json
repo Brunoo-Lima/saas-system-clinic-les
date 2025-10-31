@@ -4,9 +4,9 @@
   "settings": {
     "width": 8000,
     "height": 8000,
-    "scrollTop": -853.4834,
-    "scrollLeft": -1808.1026,
-    "zoomLevel": 0.91,
+    "scrollTop": -1688.933,
+    "scrollLeft": -1455.3854,
+    "zoomLevel": 0.73,
     "show": 431,
     "database": 2,
     "databaseName": "LifeCare",
@@ -715,7 +715,7 @@
           "color": ""
         },
         "meta": {
-          "updateAt": 1760613782824,
+          "updateAt": 1761874769630,
           "createAt": 1759377590009
         }
       },
