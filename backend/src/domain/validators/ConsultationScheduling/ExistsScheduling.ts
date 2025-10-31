@@ -29,9 +29,12 @@ export class ExistsScheduling implements IProcessValidator {
                 })
                 if (datesBlocked?.length) return ResponseHandler.error("This date is blocked in doctor scheduling")
             }
-            // const schedulingDao = new SchedulingQueriesDAO()
-            // const schedulingToDoctorExists = await schedulingDao.schedulingPerDoctor(scheduling)
-            // if (Array.isArray(schedulingToDoctorExists.data) && schedulingToDoctorExists.data.length) return ResponseHandler.error("The scheduling cannot be confirmed because already exists the scheduling in this date")
+            if (scheduling.doctor?.getUUIDHash() && scheduling.status && scheduling.status === "PENDING") { 
+                // Só iremos realizar a validacao se existir médico vinculado e o status for uma nova consulta/atualizacao de consulta
+                const schedulingDao = new SchedulingQueriesDAO()
+                const schedulingToDoctorExists = await schedulingDao.schedulingPerDoctor(scheduling)
+                if (Array.isArray(schedulingToDoctorExists.data) && schedulingToDoctorExists.data.length) return ResponseHandler.error("The scheduling cannot be confirmed because already exists the scheduling in this date")
+            }
 
             return ResponseHandler.success(scheduling, "Success ! The scheduling can be inserted")
         } catch (e) {

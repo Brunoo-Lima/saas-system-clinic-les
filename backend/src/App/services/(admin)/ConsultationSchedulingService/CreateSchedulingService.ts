@@ -13,6 +13,7 @@ import { IRepository } from "../../../../infrastructure/database/repositories/IR
 import { PatientRepository } from "../../../../infrastructure/database/repositories/PatientRepository/PatientRepository";
 import { SpecialtyRepository } from "../../../../infrastructure/database/repositories/SpecialtyRepository/SpecialtyRepository";
 import { ConsultationSchedulingDTO } from "../../../../infrastructure/DTOs/ConsultationSchedulingDTO";
+import { queueNewScheduling } from "../../../../infrastructure/queue/queue_email_client";
 
 export class CreateSchedulingService {
     private repository: IRepository;
@@ -75,6 +76,8 @@ export class CreateSchedulingService {
             if (hasErrors.length) return ResponseHandler.error(hasErrors.map((err) => err.message).flat())
 
             const schedulingInserted = await this.repository.create(consultationSchedulingDomain);
+            await queueNewScheduling.add("new_scheduling_email", {...schedulingInserted[0], template: "new_scheduling"})      
+
             return ResponseHandler.success(schedulingInserted, "Success ! Scheduling confirmed.")
         } catch (e) {
             return ResponseHandler.error((e as Error).message)

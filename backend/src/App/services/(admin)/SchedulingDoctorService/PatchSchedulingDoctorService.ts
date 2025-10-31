@@ -2,6 +2,7 @@ import { DoctorFactory } from "../../../../domain/entities/EntityDoctor/DoctorFa
 import { DoctorSchedulingBuilder } from "../../../../domain/entities/EntityDoctorScheduling/DoctorSchedulingBuilder";
 import { SchedulingBlockedDays } from "../../../../domain/entities/EntitySchedulingBlockedDays/SchedulingBlockedDays";
 import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
+import { DatesToBlockedValidator } from "../../../../domain/validators/SchedulingDoctorValidator/DatesToBlockedValidator";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import db from "../../../../infrastructure/database/connection";
@@ -49,7 +50,8 @@ export class PatchSchedulingDoctorService {
             if(!schedulingDoctorIsValid.success) return schedulingDoctorIsValid;
             if(schedulingDoctorDomain.datesBlocked?.length && schedulingDoctorDomain.datesBlocked[0]){
                 validator.setValidator(`F-${schedulingDoctorDomain.datesBlocked[0].constructor.name}`, [
-                    new UUIDValidator()
+                    new UUIDValidator(),
+                    new DatesToBlockedValidator()
                 ])
                 const datesBlockedIsValid = await validator.process(`F-${schedulingDoctorDomain.datesBlocked[0].constructor.name}`, schedulingDoctorDomain.datesBlocked)
                 if(!datesBlockedIsValid.success) return datesBlockedIsValid
@@ -72,7 +74,6 @@ export class PatchSchedulingDoctorService {
                             const idsCreated = datesCreated.filter((dt) => dt.id).map((dt => dt.id))
                             idsUpdated.push(...idsCreated)
                         }
-                    
                     }
                     datesRemoved = await this.blockedRepository.deleteEntity(schedulingDoctorDomain.datesBlocked as [], tx, schedulingDoctorDomain.getUUIDHash())
                 }

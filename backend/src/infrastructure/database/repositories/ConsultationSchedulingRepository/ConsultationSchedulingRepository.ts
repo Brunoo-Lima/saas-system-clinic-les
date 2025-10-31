@@ -21,13 +21,55 @@ export class ConsultationSchedulingRepository implements IRepository {
             dateOfRealizable: scheduling.dateOfRealizable ?? null,
             status: scheduling.status ?? "",
             doctor_id: scheduling.doctor?.getUUIDHash(),
-            insurance_id:  scheduling.insurance?.getUUIDHash() ?? null,
+            insurance_id: scheduling.insurance?.getUUIDHash() ?? null,
             patient_id: scheduling.patient?.getUUIDHash(),
             specialty_id: scheduling.specialty?.getUUIDHash(),
             priceOfConsultation: scheduling.priceOfConsultation ?? 0,
             createdAt: scheduling.getCreatedAt(),
             updatedAt: scheduling.getUpdatedAt()
-        }).returning()
+        }).returning(
+            {
+                id: schedulingTable.id,
+                date: schedulingTable.date,
+                dateOfConfirmation: schedulingTable.dateOfConfirmation,// Alterar o schema para poder adicionar null
+                isReturn: schedulingTable.isReturn,
+                dateOfRealizable: schedulingTable.dateOfRealizable,
+                status: schedulingTable.status,
+                priceOfConsultation: schedulingTable.priceOfConsultation,
+                createdAt: schedulingTable.createdAt,
+                updatedAt: schedulingTable.updatedAt,
+                specialty: sql`(
+                    SELECT 
+                        json_build_object(
+                            'id', ${specialtyTable.id},
+                            'name', ${specialtyTable.name}
+                        )
+                    FROM ${specialtyTable}
+                    WHERE ${specialtyTable.id} = ${schedulingTable.specialty_id}
+                )`,
+                patient: sql`(
+                    SELECT 
+                        json_build_object(
+                            'id', ${patientTable.id},
+                            'name', ${patientTable.name},
+                            'email', ${userTable.email}
+                        )
+                    FROM ${patientTable}
+                    INNER JOIN ${userTable} ON ${userTable.id} = ${patientTable.user_id}
+                    WHERE ${patientTable.id} = ${schedulingTable.patient_id}
+                    
+                )`,
+                doctor:  sql`(
+                    SELECT 
+                        json_build_object(
+                            'id', ${doctorTable.id},
+                            'name', ${doctorTable.name}
+                        )
+                    FROM ${doctorTable}
+                    WHERE ${doctorTable.id} = ${schedulingTable.doctor_id}
+                )`,
+            }
+        )
         return schedulingInserted;
     }
     async findEntity(scheduling: Scheduling, tx?: any): Promise<any> {
@@ -37,14 +79,14 @@ export class ConsultationSchedulingRepository implements IRepository {
             eq(schedulingTable.id, scheduling.getUUIDHash())
         )
     }
-    async findEntityByLinked(scheduling: Scheduling, tx?: any){
+    async findEntityByLinked(scheduling: Scheduling, tx?: any) {
         const dbUse = tx ? tx : db
         const conditions = []
-        if(scheduling.doctor?.getUUIDHash()) conditions.push(eq(schedulingTable.doctor_id, scheduling.doctor?.getUUIDHash() ?? ""))
-        if(scheduling.patient?.getUUIDHash()) conditions.push(eq(schedulingTable.patient_id, scheduling.patient?.getUUIDHash() ?? ""))
-        if(scheduling.specialty?.getUUIDHash()) conditions.push(eq(schedulingTable.specialty_id, scheduling.specialty?.getUUIDHash() ?? ""),)
-        if(scheduling.insurance?.getUUIDHash()) conditions.push(eq(schedulingTable.insurance_id, scheduling.insurance?.getUUIDHash() ?? ""),)
- 
+        if (scheduling.doctor?.getUUIDHash()) conditions.push(eq(schedulingTable.doctor_id, scheduling.doctor?.getUUIDHash() ?? ""))
+        if (scheduling.patient?.getUUIDHash()) conditions.push(eq(schedulingTable.patient_id, scheduling.patient?.getUUIDHash() ?? ""))
+        if (scheduling.specialty?.getUUIDHash()) conditions.push(eq(schedulingTable.specialty_id, scheduling.specialty?.getUUIDHash() ?? ""),)
+        if (scheduling.insurance?.getUUIDHash()) conditions.push(eq(schedulingTable.insurance_id, scheduling.insurance?.getUUIDHash() ?? ""),)
+
         return await dbUse.select().from(schedulingTable).where(
             and(
                 eq(schedulingTable.status, scheduling.status || "PENDING"),
@@ -69,7 +111,49 @@ export class ConsultationSchedulingRepository implements IRepository {
             updatedAt: scheduling.getUpdatedAt() ?? new Date().toISOString()
         }).where(
             eq(schedulingTable.id, scheduling.getUUIDHash())
-        ).returning()
+        ).returning(
+            {
+                id: schedulingTable.id,
+                date: schedulingTable.date,
+                dateOfConfirmation: schedulingTable.dateOfConfirmation,// Alterar o schema para poder adicionar null
+                isReturn: schedulingTable.isReturn,
+                dateOfRealizable: schedulingTable.dateOfRealizable,
+                status: schedulingTable.status,
+                priceOfConsultation: schedulingTable.priceOfConsultation,
+                createdAt: schedulingTable.createdAt,
+                updatedAt: schedulingTable.updatedAt,
+                specialty: sql`(
+                    SELECT 
+                        json_build_object(
+                            'id', ${specialtyTable.id},
+                            'name', ${specialtyTable.name}
+                        )
+                    FROM ${specialtyTable}
+                    WHERE ${specialtyTable.id} = ${schedulingTable.specialty_id}
+                )`,
+                patient: sql`(
+                    SELECT 
+                        json_build_object(
+                            'id', ${patientTable.id},
+                            'name', ${patientTable.name},
+                            'email', ${userTable.email}
+                        )
+                    FROM ${patientTable}
+                    INNER JOIN ${userTable} ON ${userTable.id} = ${patientTable.user_id}
+                    WHERE ${patientTable.id} = ${schedulingTable.patient_id}
+                    
+                )`,
+                doctor:  sql`(
+                    SELECT 
+                        json_build_object(
+                            'id', ${doctorTable.id},
+                            'name', ${doctorTable.name}
+                        )
+                    FROM ${doctorTable}
+                    WHERE ${doctorTable.id} = ${schedulingTable.doctor_id}
+                )`,
+            }
+        )
 
         return schedulingUpdated
     }
@@ -77,26 +161,26 @@ export class ConsultationSchedulingRepository implements IRepository {
         throw new Error("Method not implemented.");
     }
 
-    async findAllEntity(scheduling: Scheduling, limit: number, offset: number){
+    async findAllEntity(scheduling: Scheduling, limit: number, offset: number) {
         try {
             const filters = []
             let clause = or
-            if(scheduling.getUUIDHash()) filters.push(eq(schedulingTable.id, scheduling.getUUIDHash()))
-            if(scheduling.date) filters.push(sql` CAST(${schedulingTable.date} AS DATE) = CAST(${scheduling.date.toISOString()} AS DATE)`)
-            if(scheduling.doctor?.getUUIDHash()) filters.push(eq(schedulingTable.doctor_id, scheduling.doctor.getUUIDHash()))
-            if(filters.length > 1) clause = and
+            if (scheduling.getUUIDHash()) filters.push(eq(schedulingTable.id, scheduling.getUUIDHash()))
+            if (scheduling.date) filters.push(sql` CAST(${schedulingTable.date} AS DATE) = CAST(${scheduling.date.toISOString()} AS DATE)`)
+            if (scheduling.doctor?.getUUIDHash()) filters.push(eq(schedulingTable.doctor_id, scheduling.doctor.getUUIDHash()))
+            if (filters.length > 1) clause = and
 
             console.log(scheduling)
             return await db
-            .select({
-                id: schedulingTable.id,
-                date: schedulingTable.date,
-                status: schedulingTable.status,
-                isReturn: schedulingTable.isReturn,
-                priceOfConsultation: schedulingTable.priceOfConsultation,
-                createdAt: schedulingTable.createdAt,
-                updatedAt: schedulingTable.updatedAt,
-                insurance: sql`
+                .select({
+                    id: schedulingTable.id,
+                    date: schedulingTable.date,
+                    status: schedulingTable.status,
+                    isReturn: schedulingTable.isReturn,
+                    priceOfConsultation: schedulingTable.priceOfConsultation,
+                    createdAt: schedulingTable.createdAt,
+                    updatedAt: schedulingTable.updatedAt,
+                    insurance: sql`
                    (
                      SELECT 
                         json_build_object(
@@ -107,7 +191,7 @@ export class ConsultationSchedulingRepository implements IRepository {
                     WHERE ${insuranceTable.id} = ${schedulingTable.insurance_id}
                    )
                 `,
-                specialties: sql`(
+                    specialties: sql`(
                     SELECT 
                         json_build_object(
                             'id', ${specialtyTable.id},
@@ -117,7 +201,7 @@ export class ConsultationSchedulingRepository implements IRepository {
                     WHERE
                         ${specialtyTable.id} = ${schedulingTable.specialty_id}
                 )`,
-                patient: sql`
+                    patient: sql`
                     (SELECT 
                         json_build_object(
                             'id', ${patientTable.id},
@@ -134,7 +218,7 @@ export class ConsultationSchedulingRepository implements IRepository {
                         ${patientTable.id} = ${schedulingTable.patient_id}
                     )
                 `,
-                doctor: sql`
+                    doctor: sql`
                     (SELECT 
                         json_build_object(
                             'id', ${doctorTable.id},
@@ -149,17 +233,17 @@ export class ConsultationSchedulingRepository implements IRepository {
                         ${doctorTable.id} = ${schedulingTable.doctor_id}
                     )
                 `
-            })
-            .from(schedulingTable)
-            .where(
-                clause(...filters)
-            )
-            .limit(limit)
-            .offset(offset)
+                })
+                .from(schedulingTable)
+                .where(
+                    clause(...filters)
+                )
+                .limit(limit)
+                .offset(offset)
 
-        } catch(e){
+        } catch (e) {
             return ResponseHandler.error("Failed to find all scheduling")
         }
     }
-    
+
 }
