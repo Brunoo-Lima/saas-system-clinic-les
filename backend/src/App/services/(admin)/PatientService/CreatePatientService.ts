@@ -110,7 +110,7 @@ export class CreatePatientService {
 
                 // Disparo do email para a fila.
                 userInserted.data.template = "welcome"
-                await queueClient.add("welcome_email", userInserted.data)
+                await queueClient.add("queues_emails", userInserted.data)
 
                 return ResponseHandler.success({
                     patient: patientInserted[0],

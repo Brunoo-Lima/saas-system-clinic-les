@@ -17,7 +17,7 @@ import { ConsultationSchedulingRepository } from "../../../../infrastructure/dat
 import { FinancialRepository } from "../../../../infrastructure/database/repositories/FinancialRepository/FinancialRepository";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { ConsultationSchedulingDTO } from "../../../../infrastructure/DTOs/ConsultationSchedulingDTO";
-import { queueCanceledScheduling } from "../../../../infrastructure/queue/queue_email_client";
+import { queueClient } from "../../../../infrastructure/queue/queue_email_client";
 
 export class PatchSchedulingService {
     private repository: IRepository & ConsultationSchedulingRepository;
@@ -93,7 +93,7 @@ export class PatchSchedulingService {
             })
 
             if(!Array.isArray(entitiesUpdated.financial) && !Array.isArray(entitiesUpdated.scheduling)) return ResponseHandler.error("Sorry...but an error was founded.")
-            if(schedulingDomain.status === "CANCELED") await queueCanceledScheduling.add("canceled_scheduling_email", {...entitiesUpdated.scheduling[0], template: "scheduling_canceled"})
+            if(schedulingDomain.status === "CANCELED") await queueClient.add("queues_emails", {...entitiesUpdated.scheduling[0], template: "scheduling_canceled"})
                 
             return ResponseHandler.success(entitiesUpdated, "Success ! Scheduling updated.")
         } catch(e) {
