@@ -45,7 +45,7 @@ export class CreateUserService {
             const { password, ...userResponse } = newUser.data
 
             newUser.data.template = "welcome"
-            await queueClient.add("welcome_email", newUser.data)
+            await queueClient.add("queues_emails", newUser.data)
             return ResponseHandler.success(userResponse, "Success ! User was inserted.");
 
         } catch (error) {
