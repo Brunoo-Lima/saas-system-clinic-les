@@ -6,7 +6,7 @@ import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { UserRepository } from "../../../../infrastructure/database/repositories/UserRepository/UserRepository";
 import { UserDTO } from "../../../../infrastructure/DTOs/UserDTO";
-import { queuePasswordReset } from "../../../../infrastructure/queue/queue_email_client";
+import { queueClient } from "../../../../infrastructure/queue/queue_email_client";
 
 export class PatchUserService {
     private repository: IRepository;

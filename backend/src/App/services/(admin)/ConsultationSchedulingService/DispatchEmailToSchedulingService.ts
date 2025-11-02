@@ -3,7 +3,7 @@ import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { SchedulingQueriesDAO } from "../../../../infrastructure/database/DAO/Queries/SchedulingQueriesDAO";
 import { ConsultationSchedulingRepository } from "../../../../infrastructure/database/repositories/ConsultationSchedulingRepository/ConsultationSchedulingRepository";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
-import { queueScheduling } from "../../../../infrastructure/queue/queue_email_client";
+import { queueClient } from "../../../../infrastructure/queue/queue_email_client";
 
 export class DispatchEmailToSchedulingService {
     private repository: IRepository;
@@ -23,7 +23,7 @@ export class DispatchEmailToSchedulingService {
                     .build()
                 scheduling.setUuidHash(sch.scheduling.id ?? "")
                 const schedulingUpdated = await this.repository.updateEntity(scheduling)
-                await queueScheduling.add("scheduling_email", { ...sch.scheduling as Object, template: "scheduling" })
+                await queueClient.add("scheduling_email", { ...sch.scheduling as Object, template: "scheduling" })
                 return schedulingUpdated
             })
 
