@@ -8,7 +8,7 @@ const connection = new IORedis(process.env.REDIS_URL ?? "redis://127.0.0.1:6379"
   enableReadyCheck: false,
 });
 
-const worker = new Worker("welcome_email",
+const worker = new Worker("queues_emails",
   async (job) => {
     const data = job.data;
     await EmailService.sendMail(data);
@@ -17,42 +17,7 @@ const worker = new Worker("welcome_email",
   { connection }
 );
 
-const workerScheduling = new Worker("scheduling_email", 
-  async(job) => { await EmailService.sendMail(job.data) },
-  { connection }
-)
-
-const workerPasswordReset = new Worker("password_reset_email", async(job) => {
-  await EmailService.sendMail(job.data)
-}, { connection })
-
-
-const workerNewScheduling = new Worker("new_scheduling_email", async(job) => {
-  await EmailService.sendMail(job.data)
-}, { connection })
-
-
-const workerCanceledScheduling = new Worker("canceled_scheduling_email", async(job) => {
-  await EmailService.sendMail(job.data)
-}, { connection })
-
 
 worker.on("failed", (job, err) => {
   console.error(`❌ Falha ao enviar e-mail (Job ${job?.id}):`, err);
 });
-
-workerScheduling.on("failed", (job, err) => {
-  console.error(`❌ Falha ao enviar e-mail (Job ${job?.id}):`, err);
-});
-
-workerPasswordReset.on("failed", (job, err) => {
-  console.error(`❌ Falha ao enviar e-mail (Job ${job?.id}):`, err);
-})
-
-workerNewScheduling.on("failed", (job, err) => {
-  console.error(`❌ Falha ao enviar e-mail (Job ${job?.id}):`, err);
-})
-
-workerCanceledScheduling.on("failed", (job, err) => {
-  console.error(`❌ Falha ao enviar e-mail (Job ${job?.id}):`, err);
-})
