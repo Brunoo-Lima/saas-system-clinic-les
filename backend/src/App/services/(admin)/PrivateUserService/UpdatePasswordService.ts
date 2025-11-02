@@ -5,7 +5,7 @@ import { randomPassword } from "../../../../helpers/randomPassword";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { IRepository } from "../../../../infrastructure/database/repositories/IRepository";
 import { UserRepository } from "../../../../infrastructure/database/repositories/UserRepository/UserRepository";
-import { queuePasswordReset } from "../../../../infrastructure/queue/queue_email_client";
+import { queueClient } from "../../../../infrastructure/queue/queue_email_client";
 
 export class UpdatePasswordService {
     private repository: IRepository;
@@ -34,7 +34,7 @@ export class UpdatePasswordService {
             const {password, ...userOmitted} = user;
 
             user.template = "reset_password"
-            await queuePasswordReset.add("password_reset_email", user)
+            await queueClient.add("password_reset_email", user)
             
             return ResponseHandler.success(userOmitted, "Success ! Sended new password to user")
         } catch(e) {
