@@ -59,11 +59,8 @@ export const LoginForm = ({ role }: ILoginFormProps) => {
       console.log('Login realizado com sucesso:', user);
 
       // Redireciona baseado no role
-      if (role === 'paciente') {
-        router.push('/paciente/agendamentos');
-      } else {
-        router.push('/medico/painel');
-      }
+     router.push(role === 'paciente' ? '/paciente/agendamentos' : '/medico/painel');
+ 
     } catch (error: any) {
       console.error('Erro no login:', error);
       Alert.alert('Erro', error.message || 'Erro ao fazer login');
