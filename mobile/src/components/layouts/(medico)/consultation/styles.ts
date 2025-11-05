@@ -8,7 +8,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flex: 1,
   },
-
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
   content: {
     flex: 1,
     alignItems: 'center',

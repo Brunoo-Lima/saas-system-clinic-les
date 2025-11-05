@@ -1,6 +1,6 @@
 import { Text, TouchableOpacity, View } from 'react-native';
 import styles from './styles';
-import { IAppointmentReturn } from '../../../../../../services/appointment-service';
+import { IAppointmentReturn } from '../../../../../services/appointment-service';
 
 interface ICardProps {
   consultation: IAppointmentReturn;

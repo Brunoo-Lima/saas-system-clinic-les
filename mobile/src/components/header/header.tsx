@@ -1,14 +1,14 @@
-import { StatusBar, Text, TouchableOpacity, View } from "react-native";
-import { LogOutIcon } from "lucide-react-native";
-import { useRouter } from "expo-router";
-import styles from "./styles";
+import { StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { LogOutIcon } from 'lucide-react-native';
+import styles from './styles';
+import { useAuth } from '@/contexts/user-context';
 
 interface IHeaderProps {
   title: string;
 }
 
 export default function Header({ title }: IHeaderProps) {
-  const router = useRouter();
+  const { logout, user } = useAuth();
 
   return (
     <>
@@ -21,12 +21,9 @@ export default function Header({ title }: IHeaderProps) {
       />
 
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>{title}</Text>
+        <Text style={styles.headerTitle}>{user?.username}</Text>
 
-        <TouchableOpacity
-          style={styles.logout}
-          onPress={() => router.push("/")}
-        >
+        <TouchableOpacity style={styles.logout} onPress={logout}>
           <LogOutIcon size={24} color="#ffffff" />
         </TouchableOpacity>
       </View>

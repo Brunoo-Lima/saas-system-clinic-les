@@ -9,16 +9,18 @@ import Toast from 'react-native-toast-message';
 import {
   useGetAppointments,
   useRequestCancelAppointment,
-} from '../../../../../services/appointment-service';
-import { IAppointmentReturn } from '../../../../../services/appointment-service';
+} from '../../../../services/appointment-service';
+import { IAppointmentReturn } from '../../../../services/appointment-service';
+import { useAuth } from '@/contexts/user-context';
 
 export default function Consultation() {
+  const { user } = useAuth();
   const {
     data: appointments,
     isLoading,
     error,
     refetch,
-  } = useGetAppointments({ doctor_id: '' });
+  } = useGetAppointments({ user_id: user?.id });
   const { mutate: cancelAppointment, isPending: isCanceling } =
     useRequestCancelAppointment();
 
@@ -101,6 +103,7 @@ export default function Consultation() {
     return (
       <SafeAreaView style={styles.container}>
         <Header title="Consultas" />
+
         <View style={styles.centerContent}>
           <Text style={styles.emptyText}>Nenhuma consulta agendada</Text>
         </View>
@@ -113,6 +116,8 @@ export default function Consultation() {
       <Header title="Consultas" />
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+        <Text style={styles.title}>Consultas</Text>
+
         <View style={styles.content}>
           {appointments.map((appointment: IAppointmentReturn) => (
             <Card

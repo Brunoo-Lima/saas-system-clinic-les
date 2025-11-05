@@ -5,14 +5,20 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#fff',
     alignItems: 'center',
-    justifyContent: 'center',
     flex: 1,
+  },
+
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'left',
+    alignSelf: 'flex-start',
   },
 
   content: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: '#ffffff',
     height: '100%',
     width: '100%',

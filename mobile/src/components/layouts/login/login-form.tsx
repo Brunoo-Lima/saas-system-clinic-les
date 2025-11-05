@@ -11,8 +11,10 @@ import {
 import { useState } from 'react';
 import { LoginFormSchema, loginSchema } from '@/validation/login-form-schema';
 import { useRouter } from 'expo-router';
-import { loginService } from '../../../../services/login-service';
-import { StorageService } from '../../../../services/storage-service';
+import { loginService } from '../../../services/login-service';
+import { StorageService } from '../../../services/storage-service';
+import { InputPassword } from '@/components/ui/input/input-password';
+import { useAuth } from '@/contexts/user-context';
 
 interface ILoginFormProps {
   role: 'paciente' | 'medico';
@@ -24,6 +26,7 @@ const roleMapping = {
 } as const;
 
 export const LoginForm = ({ role }: ILoginFormProps) => {
+  const { login } = useAuth();
   const router = useRouter();
   const {
     control,
@@ -51,16 +54,14 @@ export const LoginForm = ({ role }: ILoginFormProps) => {
         role: backendRole,
       });
 
-      // Salva o token no SecureStore
-      await StorageService.setItem('userToken', token);
-      await StorageService.setItem('userRole', backendRole);
-      await StorageService.setItem('userData', JSON.stringify(user));
+      await login(token, user);
 
       console.log('Login realizado com sucesso:', user);
 
       // Redireciona baseado no role
-     router.push(role === 'paciente' ? '/paciente/agendamentos' : '/medico/painel');
- 
+      router.push(
+        role === 'paciente' ? '/paciente/agendamentos' : '/medico/painel',
+      );
     } catch (error: any) {
       console.error('Erro no login:', error);
       Alert.alert('Erro', error.message || 'Erro ao fazer login');
@@ -97,15 +98,7 @@ export const LoginForm = ({ role }: ILoginFormProps) => {
         control={control}
         name="password"
         render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            placeholder="Sua senha"
-            secureTextEntry
-            style={styles.input}
-            editable={!loading}
-          />
+          <InputPassword value={value} onChange={onChange} onBlur={onBlur} />
         )}
       />
       {errors.password && (
