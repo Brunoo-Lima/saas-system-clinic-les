@@ -160,11 +160,10 @@ export class DoctorRepository implements IRepository {
     async findAllEntity(doctor: Doctor, limit: number, offset: number): Promise<any> {
         try {
             const filters = []
-            if (doctor) {
-                filters.push(eq(doctorTable.id, doctor.getUUIDHash()))
-                filters.push(eq(doctorTable.crm, doctor.crm ?? ""))
-                filters.push(eq(doctorTable.cpf, doctor.cpf ?? ""))
-            }
+            if (doctor?.getUUIDHash()) filters.push(eq(doctorTable.id, doctor.getUUIDHash()))
+            if (doctor?.crm) filters.push(eq(doctorTable.id, doctor.crm))
+            if (doctor?.cpf) filters.push(eq(doctorTable.id, doctor.cpf))
+            if (doctor?.user?.getUUIDHash()) filters.push(eq(doctorTable.user_id, doctor.user?.getUUIDHash()))
 
             const doctorsFounded = await db.select({
                 id: doctorTable.id,
@@ -201,20 +200,15 @@ export class DoctorRepository implements IRepository {
                     FROM ${periodDoctorTable}
                     WHERE ${periodDoctorTable.doctor_id} = ${doctorTable.id}
                 )`,
-                user: sql`
-                    (SELECT 
-                        json_build_object(
-                            'id', ${userTable.id},
-                            'email', ${userTable.email},
-                            'status', ${userTable.status},
-                            'password', ${userTable.password},
-                            'profileCompleted', ${userTable.profileCompleted},
-                            'emailVerified', ${userTable.emailVerified},
-                            'username', ${userTable.username}
-                        )
-                    FROM ${userTable}
-                    WHERE ${userTable.id} = ${doctorTable.user_id})
-                `,
+                user: sql`json_build_object(
+                    'id', ${userTable.id},
+                    'email', ${userTable.email},
+                    'status', ${userTable.status},
+                    'password', ${userTable.password},
+                    'profileCompleted', ${userTable.profileCompleted},
+                    'emailVerified', ${userTable.emailVerified},
+                    'username', ${userTable.username}
+                )`,
                 address: sql`(
                     SELECT json_build_object(
                         'id', ${addressTable.id},
@@ -233,14 +227,15 @@ export class DoctorRepository implements IRepository {
                 )
                 `,
             })
-                .from(doctorTable)
-                .where(
-                    or(...filters)
-                ).limit(limit)
-                .offset(offset)
+            .from(doctorTable)
+            .where(or(...filters))
+            .innerJoin(userTable, 
+                eq(userTable.id, doctorTable.user_id)
+            )
+            .limit(limit)
+            .offset(offset)
             return doctorsFounded
         } catch (e) {
-            
             console.log(e)
             return ResponseHandler.error('Failed to find all doctors')
         }

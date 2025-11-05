@@ -3,14 +3,17 @@ import '../styles/global.css';
 import { Slot } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
+import { AuthProvider } from '@/contexts/user-context';
 export default function Layout() {
   const queryClient = new QueryClient();
 
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
-        <Slot />
-        <Toast />
+        <AuthProvider>
+          <Slot />
+          <Toast />
+        </AuthProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
   );
