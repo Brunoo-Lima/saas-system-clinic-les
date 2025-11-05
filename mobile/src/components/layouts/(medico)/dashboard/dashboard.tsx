@@ -3,31 +3,16 @@ import styles from './styles';
 import Header from '@/components/header/header';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LineChart, BarChart } from 'react-native-chart-kit';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { SelectMonth } from '@/components/ui/select-month/select-month';
-import { useGetProfileDoctor } from '../../../../services/doctor-profile-service';
-import { StorageService } from '../../../../services/storage-service';
+import { useAuth } from '@/contexts/(doctor)/user-context';
 
 export default function Dashboard() {
   const screenWidth = Dimensions.get('window').width;
+  const { doctor } = useAuth();
+  // const { data } = useGetFinancialDoctor(user?.id || '');
 
   const [selectedMonth, setSelectedMonth] = useState('Jan');
-  const [token, setToken] = useState<string | null>(null);
-  const [userData, setUserData] = useState<any>({});
-
-  useEffect(() => {
-    StorageService.getItem('userData').then((value) => {
-      setUserData(value);
-    });
-    StorageService.getItem('userToken').then((value) => {
-      setToken(value);
-    });
-  }, []);
-
-  const { data, isLoading } = useGetProfileDoctor({
-    user_id: userData.id,
-    token,
-  });
 
   // ganhos fictícios por mês (valores em R$ mil)
   const monthlyTotals: Record<string, number> = {

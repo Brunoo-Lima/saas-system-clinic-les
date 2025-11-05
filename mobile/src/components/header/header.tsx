@@ -1,7 +1,7 @@
 import { StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { LogOutIcon } from 'lucide-react-native';
 import styles from './styles';
-import { useAuth } from '@/contexts/user-context';
+import { useAuth } from '@/contexts/(doctor)/user-context';
 
 interface IHeaderProps {
   title: string;

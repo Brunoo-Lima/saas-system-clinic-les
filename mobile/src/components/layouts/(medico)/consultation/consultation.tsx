@@ -9,18 +9,18 @@ import Toast from 'react-native-toast-message';
 import {
   useGetAppointments,
   useRequestCancelAppointment,
-} from '../../../../services/appointment-service';
-import { IAppointmentReturn } from '../../../../services/appointment-service';
-import { useAuth } from '@/contexts/user-context';
+} from '../../../../services/doctor/appointment-service';
+import { IAppointmentReturn } from '../../../../services/doctor/appointment-service';
+import { useAuth } from '@/contexts/(doctor)/user-context';
 
 export default function Consultation() {
-  const { user } = useAuth();
+  const { doctor } = useAuth();
   const {
     data: appointments,
     isLoading,
     error,
     refetch,
-  } = useGetAppointments({ user_id: user?.id });
+  } = useGetAppointments({ doctor_id: doctor?.id });
   const { mutate: cancelAppointment, isPending: isCanceling } =
     useRequestCancelAppointment();
 
