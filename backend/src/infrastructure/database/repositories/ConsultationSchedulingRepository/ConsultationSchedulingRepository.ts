@@ -170,7 +170,6 @@ export class ConsultationSchedulingRepository implements IRepository {
             if (scheduling.doctor?.getUUIDHash()) filters.push(eq(schedulingTable.doctor_id, scheduling.doctor.getUUIDHash()))
             if (filters.length > 1) clause = and
 
-            console.log(scheduling)
             return await db
                 .select({
                     id: schedulingTable.id,

@@ -1,4 +1,4 @@
-import { eq, or, SQL, sql } from "drizzle-orm";
+import { and, eq, or, SQL, sql } from "drizzle-orm";
 import { EntityDomain } from "../../../../domain/entities/EntityDomain";
 import { Financial } from "../../../../domain/entities/EntityFinancial/Financial";
 import db from "../../connection";
@@ -8,7 +8,7 @@ import { ResponseHandler } from "../../../../helpers/ResponseHandler";
 import { schedulingTable } from "../../Schema/SchedulingSchema";
 import { doctorTable } from "../../Schema/DoctorSchema";
 
-export class FinancialRepository implements IRepository{
+export class FinancialRepository implements IRepository {
     async create(financial: Financial, tx?: any): Promise<any> {
         const dbUse = tx ? tx : db
         return await dbUse.insert(financialTable).values({
@@ -39,50 +39,48 @@ export class FinancialRepository implements IRepository{
     async findAllEntity(financial: Financial, limit: number, offset: number): Promise<any> {
         try {
             // ==== SELECT BASE ====
-            const sqlChunks: SQL[] = [
-            sql`SELECT`
-            ];
+            const sqlChunks: SQL[] = [sql`SELECT`];
 
             // ==== COLUNAS ====
             const sqlColumns: SQL[] = [
-            sql`${financialTable.id} as id`,
-            sql`${financialTable.date} as date`,
-            sql`${financialTable.total} as total`,
-            sql`${financialTable.totalDistributionClinic} as totalCLinic`,
-            sql`${financialTable.totalDistributionDoctor} as totalDoctor`,
-            sql`${financialTable.totalDistributionInsurance} as totalInsurance`
+                sql`${financialTable.id} as id`,
+                sql`${financialTable.date} as date`,
+                sql`${financialTable.total} as total`,
+                sql`${financialTable.totalDistributionClinic} as totalCLinic`,
+                sql`${financialTable.totalDistributionDoctor} as totalDoctor`,
+                sql`${financialTable.totalDistributionInsurance} as totalInsurance`,
+                sql`${financialTable.scheduling_id} as scheduling_id`,
             ];
 
             // ==== JOINS (caso precise trazer o médico) ====
             const sqlJoins: SQL[] = [];
 
             if (financial?.scheduling?.doctor?.getUUIDHash()) {
-            // Adiciona coluna agregada
-            sqlColumns.push(sql`
-                json_agg(
-                json_build_object(
-                    'id', ${doctorTable.id},
-                    'name', ${doctorTable.name},
-                    'crm', ${doctorTable.crm}
-                )
-                ) AS doctor
-            `);
+                // Adiciona coluna agregada
+                sqlColumns.push(sql`
+                    json_agg(
+                        json_build_object(
+                            'id', ${doctorTable.id},
+                            'name', ${doctorTable.name},
+                            'crm', ${doctorTable.crm}
+                        )
+                    ) AS doctor
+                `);
 
-            sqlJoins.push(sql`
-                INNER JOIN ${schedulingTable}
-                ON ${financialTable.scheduling_id} = ${schedulingTable.id}
-            `);
-
-            sqlJoins.push(sql`
-                INNER JOIN ${doctorTable}
-                ON ${schedulingTable.doctor_id} = ${financial.scheduling.doctor.getUUIDHash()}
-            `);
+                sqlJoins.push(sql`
+                    INNER JOIN ${schedulingTable}
+                    ON ${financialTable.scheduling_id} = ${schedulingTable.id}
+                `);
+                sqlJoins.push(sql`
+                    INNER JOIN ${doctorTable}
+                    ON ${schedulingTable.doctor_id} = ${financial.scheduling.doctor.getUUIDHash()}
+                `); 
             }
 
             // ==== WHERE CONDITIONS ====
             const sqlConditions: SQL[] = [];
 
-            if (financial?.getUUIDHash())  sqlConditions.push(sql`${financialTable.id} = ${financial.getUUIDHash()}`);
+            if (financial?.getUUIDHash()) sqlConditions.push(sql`${financialTable.id} = ${financial.getUUIDHash()}`);
             if (financial?.date) sqlConditions.push(sql`${financialTable.date} = ${financial.date}`);
             if (financial?.scheduling?.getUUIDHash()) sqlConditions.push(sql`${financialTable.scheduling_id} = ${financial.scheduling.getUUIDHash()}`);
 
@@ -98,7 +96,7 @@ export class FinancialRepository implements IRepository{
             if (sqlConditions.length > 0) sqlChunks.push(sql`WHERE ${sql.join(sqlConditions, sql` AND `)}`);
             if (sqlGroupBy.length > 0) sqlChunks.push(sql.join(sqlGroupBy, sql`, `));
 
-            if(limit && offset) sqlChunks.push(sql`LIMIT ${limit} OFFSET ${offset}`);
+            if (limit && offset) sqlChunks.push(sql`LIMIT ${limit} OFFSET ${offset}`);
 
             // ==== EXECUÇÃO ====
             const query = sql.join(sqlChunks, sql` `);
@@ -108,5 +106,30 @@ export class FinancialRepository implements IRepository{
         } catch (e) {
             return ResponseHandler.error((e as Error).message);
         }
-    }        
+    }
+
+    async getFinancialPerDoctor(financial: Financial) {
+        const filters: SQL[] = []
+
+        return await db.select({
+            id: financialTable.id,
+            date: financialTable.date,
+            totalDistributionClinic: financialTable.totalDistributionClinic,
+            totalDistributionDoctor: financialTable.totalDistributionDoctor,
+            totalDistributionInsurance: financialTable.totalDistributionInsurance,
+            total: financialTable.total
+
+        })
+        .from(financialTable)
+        .innerJoin(
+            schedulingTable,
+            eq(financialTable.scheduling_id, schedulingTable.id)
+        ).innerJoin(
+            doctorTable,
+            and(
+                eq(doctorTable.id, schedulingTable.doctor_id),
+                eq(doctorTable.id, financial.scheduling?.doctor?.getUUIDHash() as string)
+            )
+        )
+    }
 }

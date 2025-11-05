@@ -7,6 +7,7 @@ import { FindAllDoctorController } from '../../App/controllers/(admin)/DoctorCon
 import { PatchDoctorController } from '../../App/controllers/(admin)/DoctorController/PatchDoctorController';
 import { AddSpecialtiesToDoctorController } from '../../App/controllers/(admin)/DoctorController/DoctorToRelationsController/AddSpecialtiesToDoctorController';
 import { AddPeriodsToDoctorController } from '../../App/controllers/(admin)/DoctorController/DoctorToRelationsController/AddPeriodsToDoctorController';
+import { FindAllFinancialToDoctorController } from '../../App/controllers/(admin)/DoctorController/FindAllFinancialToDoctorController';
 
 const DoctorRoutes: Router = Router();
 
@@ -20,5 +21,6 @@ DoctorRoutes.get('/doctor/findall', authMiddleware, new FindAllDoctorController(
 DoctorRoutes.patch('/doctor', authMiddleware, privateRoute, new PatchDoctorController().handle)
 DoctorRoutes.post('/doctor/specialties/add', authMiddleware, privateRoute, new AddSpecialtiesToDoctorController().handle)
 DoctorRoutes.post('/doctor/periods/add', authMiddleware, privateRoute, new AddPeriodsToDoctorController().handle)
+DoctorRoutes.get('/doctor/:id/financial', authMiddleware, new FindAllFinancialToDoctorController().handle)
 
 export { DoctorRoutes };

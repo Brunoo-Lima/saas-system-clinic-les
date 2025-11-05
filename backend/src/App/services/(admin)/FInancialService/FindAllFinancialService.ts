@@ -1,7 +1,6 @@
 import { DoctorBuilder } from "../../../../domain/entities/EntityDoctor/DoctorBuilder";
 import { FinancialBuilder } from "../../../../domain/entities/EntityFinancial/FinancialBuilder";
 import { SchedulingBuilder } from "../../../../domain/entities/EntityScheduling/SchedulingBuilder";
-import { SchedulingFactory } from "../../../../domain/entities/EntityScheduling/SchedulingFactory";
 import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
 import { pagination } from "../../../../helpers/pagination";
