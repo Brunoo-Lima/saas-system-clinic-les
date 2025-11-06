@@ -1,15 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '../api';
 
-export const getFinancialDoctor = async (userId: string) => {
-  const { data } = await api.get(`/doctor/${userId}/financial`);
+export const getFinancialDoctor = async (doctorId: string) => {
+  const { data } = await api.get(`/doctor/${doctorId}/financial`);
 
   return data.data;
 };
 
-export const useGetFinancialDoctor = (userId: string) => {
+export const useGetFinancialDoctor = (doctorId: string) => {
   return useQuery({
     queryKey: ['financial'],
-    queryFn: () => getFinancialDoctor(userId),
+    queryFn: () => getFinancialDoctor(doctorId),
   });
 };
