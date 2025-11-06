@@ -16,6 +16,8 @@ interface User {
 interface IDoctor {
   id: string;
   name: string;
+  crm: string;
+  user: User;
 }
 
 interface AuthContextType {

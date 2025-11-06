@@ -32,19 +32,10 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
 
-  button: {
-    marginTop: 18,
-    backgroundColor: '#2b6cb0',
-    paddingVertical: 12,
-    borderRadius: 8,
-    width: '100%',
-    alignItems: 'center',
-    maxWidth: 250,
-  },
-
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
+  text: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
   },
 });
 

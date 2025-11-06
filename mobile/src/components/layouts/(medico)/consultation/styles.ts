@@ -8,10 +8,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flex: 1,
   },
+  headerAction: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
+  },
+  button: {
+    backgroundColor: '#2b7fff',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600',
   },
   content: {
     flex: 1,
@@ -30,73 +47,6 @@ const styles = StyleSheet.create({
     paddingTop: 32,
   },
 
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-
-  modalContainer: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: [{ translateX: -150 }, { translateY: -100 }],
-    width: 300,
-    height: 'auto',
-    padding: 20,
-    borderRadius: 12,
-    backgroundColor: '#155dfb',
-    alignItems: 'center',
-  },
-
-  modalText: {
-    fontSize: 16,
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#ffffff',
-  },
-
-  modalAttention: {
-    fontSize: 12,
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#ffffff',
-  },
-
-  modalActions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    gap: 16,
-  },
-  modalButton: {
-    backgroundColor: '#fff',
-    padding: 8,
-    borderRadius: 8,
-    width: 80,
-    alignItems: 'center',
-  },
-  modalAccept: {
-    backgroundColor: '#009689',
-    padding: 8,
-    borderRadius: 8,
-    width: 80,
-    alignItems: 'center',
-  },
-  modalCancel: {
-    backgroundColor: '#ff0000',
-    padding: 8,
-    borderRadius: 8,
-    width: 80,
-    alignItems: 'center',
-  },
-  modalButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
   centerContent: {
     flex: 1,
     justifyContent: 'center',
@@ -134,10 +84,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: 'bold',
-  },
-
-  buttonDisabled: {
-    opacity: 0.6,
   },
 });
 
