@@ -12,9 +12,8 @@ import { useState } from 'react';
 import { LoginFormSchema, loginSchema } from '@/validation/login-form-schema';
 import { useRouter } from 'expo-router';
 import { loginService } from '../../../services/login-service';
-import { StorageService } from '../../../services/storage-service';
 import { InputPassword } from '@/components/ui/input/input-password';
-import { useAuth } from '@/contexts/user-context';
+import { useAuth } from '@/contexts/(doctor)/user-context';
 
 interface ILoginFormProps {
   role: 'paciente' | 'medico';
@@ -55,8 +54,6 @@ export const LoginForm = ({ role }: ILoginFormProps) => {
       });
 
       await login(token, user);
-
-      console.log('Login realizado com sucesso:', user);
 
       // Redireciona baseado no role
       router.push(

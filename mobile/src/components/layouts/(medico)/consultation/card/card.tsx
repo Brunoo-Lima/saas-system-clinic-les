@@ -1,6 +1,6 @@
 import { Text, TouchableOpacity, View } from 'react-native';
 import styles from './styles';
-import { IAppointmentReturn } from '../../../../../services/appointment-service';
+import { IAppointmentReturn } from '../../../../../services/doctor/appointment-service';
 
 interface ICardProps {
   consultation: IAppointmentReturn;
@@ -69,7 +69,7 @@ export const Card = ({
         </View>
       )}
 
-      {consultation.status === 'PENDING' && (
+      {/* {consultation.status !== 'PENDING' && (
         <View style={styles.actions}>
           <TouchableOpacity
             style={[styles.action, styles.actionPending]}
@@ -78,7 +78,7 @@ export const Card = ({
             <Text style={styles.actionText}>Cancelamento solicitado</Text>
           </TouchableOpacity>
         </View>
-      )}
+      )} */}
 
       {consultation.status === 'CANCELED' && (
         <View style={styles.actions}>

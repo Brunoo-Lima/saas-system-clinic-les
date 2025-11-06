@@ -3,7 +3,7 @@ import '../styles/global.css';
 import { Slot } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import { AuthProvider } from '@/contexts/user-context';
+import { AuthProvider } from '@/contexts/(doctor)/user-context';
 export default function Layout() {
   const queryClient = new QueryClient();
 

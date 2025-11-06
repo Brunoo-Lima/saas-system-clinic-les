@@ -1,11 +1,10 @@
-import api from './api';
+import api from '../api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface IAppointmentGet {
   scheduling_id?: string;
   scheduling_date?: string;
   doctor_id?: string;
-  user_id?: string;
 }
 
 export interface IAppointmentReturn {
@@ -45,14 +44,12 @@ export const getAppointmentService = async ({
   scheduling_id,
   scheduling_date,
   doctor_id,
-  user_id,
 }: IAppointmentGet) => {
   const { data } = await api.get('/scheduling/findall', {
     params: {
       scheduling_id,
       scheduling_date,
       doctor_id,
-      user_id,
     },
   });
 
