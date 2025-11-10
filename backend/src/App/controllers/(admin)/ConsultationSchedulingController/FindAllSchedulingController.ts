@@ -9,6 +9,7 @@ export class FindAllSchedulingController {
                 scheduling_id, 
                 scheduling_date, 
                 doctor_id,
+                patient_id,
                 limit, 
                 offset 
             } = req.query
@@ -17,6 +18,7 @@ export class FindAllSchedulingController {
             const schedulingFounded = await service.execute({
                 doctor_id: doctor_id?.toString(),
                 limit: limit?.toString(),
+                patient_id: patient_id?.toString(),
                 offset: offset?.toString(),
                 scheduling_date: scheduling_date?.toString(),
                 scheduling_id: scheduling_id?.toString()

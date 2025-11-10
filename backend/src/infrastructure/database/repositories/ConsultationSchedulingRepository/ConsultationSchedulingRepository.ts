@@ -168,6 +168,7 @@ export class ConsultationSchedulingRepository implements IRepository {
             if (scheduling.getUUIDHash()) filters.push(eq(schedulingTable.id, scheduling.getUUIDHash()))
             if (scheduling.date) filters.push(sql` CAST(${schedulingTable.date} AS DATE) = CAST(${scheduling.date.toISOString()} AS DATE)`)
             if (scheduling.doctor?.getUUIDHash()) filters.push(eq(schedulingTable.doctor_id, scheduling.doctor.getUUIDHash()))
+            if (scheduling.patient?.getUUIDHash()) filters.push(eq(schedulingTable.patient_id, scheduling.patient.getUUIDHash()))
             if (filters.length > 1) clause = and
 
             return await db
