@@ -2,6 +2,7 @@ import { DoctorFactory } from "../../../../domain/entities/EntityDoctor/DoctorFa
 import { SchedulingBuilder } from "../../../../domain/entities/EntityScheduling/SchedulingBuilder";
 import { EntityExistsToInserted } from "../../../../domain/validators/General/EntityExistsToInserted";
 import { EntityExistsToUpdated } from "../../../../domain/validators/General/EntityExistsToUpdated";
+import { RequiredGeneralData } from "../../../../domain/validators/General/RequiredGeneralData";
 import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
 import { ResponseHandler } from "../../../../helpers/ResponseHandler";
@@ -25,7 +26,7 @@ export class RequestCancelSchedulingService {
             doctor.setUuidHash(schedulingDTO?.doctor?.id ?? "")
 
             const schedulingDomain = new SchedulingBuilder()
-            .setStatus("CANCEL_PENDING")
+            .setStatus(schedulingDTO.status)
             .setDate(undefined)
             .setDoctor(doctor)
             .build()
@@ -33,7 +34,8 @@ export class RequestCancelSchedulingService {
 
             const validator = new ValidatorController()
             validator.setValidator(`UDP-${schedulingDomain.constructor.name}`, [
-                new UUIDValidator()
+                new UUIDValidator(),
+                new RequiredGeneralData(Object.keys(schedulingDomain.props), [], ["status"])
             ])
             if(!schedulingDomain.doctor?.getUUIDHash()) return ResponseHandler.error("The doctor is required !")
             validator.setValidator(`UDP-${schedulingDomain.doctor.constructor.name}`, [
