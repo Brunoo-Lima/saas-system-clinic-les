@@ -27,7 +27,6 @@ export class FindAllPatientService {
     async execute(params: FindParams) {
         try {
             let patientDomain;
-            let userDomain;
 
             const regex = /\d+/
             let offsetClean;
