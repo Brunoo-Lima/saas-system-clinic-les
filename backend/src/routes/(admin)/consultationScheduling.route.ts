@@ -7,6 +7,7 @@ import { PatchSchedulingController } from '../../App/controllers/(admin)/Consult
 import { DispatchEmailsToSchedulingController } from '../../App/controllers/(admin)/ConsultationSchedulingController/DispatchEmailsToSchedulingController';
 import { autCronMiddleware } from '../../App/middlewares/authCronMiddleware';
 import { RequestCancelSchedulingController } from '../../App/controllers/(admin)/ConsultationSchedulingController/RequestCancelSchedulingController';
+import { RequestConfirmationSchedulingController } from '../../App/controllers/(admin)/ConsultationSchedulingController/RequestConfirmationSchedulingController';
 
 const schedulingRoutes: Router = Router();
 
@@ -17,7 +18,8 @@ schedulingRoutes.post('/scheduling', authMiddleware, privateRoute, (req, res, ne
 
 schedulingRoutes.get("/scheduling/findall", authMiddleware, new FindAllSchedulingController().handle)
 schedulingRoutes.patch("/scheduling", authMiddleware, privateRoute, new PatchSchedulingController().handle)
-schedulingRoutes.post("/scheduling/confirm", autCronMiddleware, new DispatchEmailsToSchedulingController().handle)
+schedulingRoutes.post("/scheduling/automation", autCronMiddleware, new DispatchEmailsToSchedulingController().handle)
 schedulingRoutes.patch("/scheduling/cancel", authMiddleware, new RequestCancelSchedulingController().handle)
+schedulingRoutes.patch("/scheduling/confirm", authMiddleware, new RequestConfirmationSchedulingController().handle)
 
 export { schedulingRoutes };
