@@ -77,7 +77,7 @@ export const requestCancelAppointment = async ({
   id,
   doctor,
 }: IAppointmentPayload) => {
-  const { data } = await api.patch(`/scheduling/cancel`, {
+  const { data } = await api.patch('/scheduling/cancel', {
     id,
     doctor,
   });

@@ -85,11 +85,13 @@ export class PatientRepository implements IRepository {
     async findAllEntity(patient: Patient, limit: number, offset: number) {
         try {
             const filters = []
-            if(patient){
+            if(patient?.cpf || patient?.getUUIDHash()){
                 filters.push(eq(patientTable.id, patient.getUUIDHash()))
                 filters.push(eq(patientTable.cpf, patient.cpf ?? ""))
             }
-
+            if(patient?.user){
+                filters.push(eq(patientTable.user_id, patient.user.getUUIDHash()))
+            }
             const patientsFounded = await db
             .select({
                 id: patientTable.id,
@@ -156,6 +158,7 @@ export class PatientRepository implements IRepository {
             ).limit(limit).offset(offset)
             return patientsFounded
         } catch(e){
+            console.log(e)
             return ResponseHandler.error("Failed to find all patients")
         }
     }

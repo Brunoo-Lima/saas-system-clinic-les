@@ -5,11 +5,12 @@ import { FindAllPatientService } from "../../../services/(admin)/PatientService/
 export class FindAllPatientController {
     async handle(req: Request, res: Response, next: NextFunction){
         try {
-            const {id, cpf, limit, offset} = req.query
+            const {id, cpf, user_id,limit, offset} = req.query
             const service = new FindAllPatientService()
             const patientsFounded = await service.execute({
                 cpf: cpf?.toString(),
                 id: id?.toString(),
+                user_id: user_id?.toString(),
                 limit: limit?.toString(),
                 offset: offset?.toString()
             })

@@ -12,7 +12,7 @@ export default function Layout() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <Slot />
-          <Toast />
+          <Toast position="top" topOffset={60} />
         </AuthProvider>
       </QueryClientProvider>
     </SafeAreaProvider>

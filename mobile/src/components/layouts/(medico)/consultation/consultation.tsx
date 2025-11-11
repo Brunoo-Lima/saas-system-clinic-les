@@ -1,10 +1,10 @@
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View, TouchableOpacity } from 'react-native';
 import styles from './styles';
 import Header from '@/components/header/header';
 import { Card } from './card/card';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
-import { TouchableOpacity, ActivityIndicator } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import Toast from 'react-native-toast-message';
 import {
   useGetAppointments,
@@ -12,6 +12,8 @@ import {
 } from '../../../../services/doctor/appointment-service';
 import { IAppointmentReturn } from '../../../../services/doctor/appointment-service';
 import { useAuth } from '@/contexts/(doctor)/user-context';
+import { ErrorConsultation } from './_components/error-consultation';
+import { ModalCancel } from './_components/modal/modal-cancel';
 
 export default function Consultation() {
   const { doctor } = useAuth();
@@ -20,10 +22,10 @@ export default function Consultation() {
     isLoading,
     error,
     refetch,
+    isFetching,
   } = useGetAppointments({ doctor_id: doctor?.id });
   const { mutate: cancelAppointment, isPending: isCanceling } =
     useRequestCancelAppointment();
-
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [appointmentToCancel, setAppointmentToCancel] =
     useState<IAppointmentReturn | null>(null);
@@ -53,9 +55,9 @@ export default function Consultation() {
               type: 'success',
               text1: 'Sucesso!',
               text2: 'A solicitação de cancelamento foi enviada com sucesso.',
+              visibilityTime: 2000,
             });
             handleCloseModal();
-            // O TanStack Query automaticamente invalidará o cache e fará refetch
           },
           onError: (error: any) => {
             Toast.show({
@@ -69,7 +71,10 @@ export default function Consultation() {
     }
   };
 
-  // Estados de loading e error
+  const handleUpdateList = () => {
+    refetch();
+  };
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -82,28 +87,12 @@ export default function Consultation() {
     );
   }
 
-  if (error) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Header title="Consultas" />
-        <View style={styles.centerContent}>
-          <Text style={styles.errorText}>Erro ao carregar consultas</Text>
-          <TouchableOpacity
-            style={styles.retryButton}
-            onPress={() => refetch()}
-          >
-            <Text style={styles.retryButtonText}>Tentar novamente</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  if (error) return <ErrorConsultation refetch={refetch} />;
 
   if (!appointments || appointments.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
         <Header title="Consultas" />
-
         <View style={styles.centerContent}>
           <Text style={styles.emptyText}>Nenhuma consulta agendada</Text>
         </View>
@@ -111,15 +100,31 @@ export default function Consultation() {
     );
   }
 
+  const sortedAppointments = [...(appointments || [])].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Consultas" />
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Consultas</Text>
+        <View style={styles.headerAction}>
+          <Text style={styles.title}>Consultas</Text>
+
+          <TouchableOpacity
+            onPress={handleUpdateList}
+            disabled={isFetching}
+            style={[styles.button, isFetching && { opacity: 0.6 }]}
+          >
+            <Text style={styles.buttonText}>
+              {isFetching ? 'Atualizando...' : 'Atualizar'}
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.content}>
-          {appointments.map((appointment: IAppointmentReturn) => (
+          {sortedAppointments.map((appointment: IAppointmentReturn) => (
             <Card
               key={appointment.id}
               consultation={appointment}
@@ -132,43 +137,12 @@ export default function Consultation() {
         </View>
       </ScrollView>
 
-      <Modal visible={isOpenModal} transparent animationType="fade">
-        <Pressable style={styles.overlay} onPress={handleCloseModal} />
-
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalText}>
-            Tem certeza que deseja cancelar essa consulta?
-          </Text>
-
-          <Text style={styles.modalAttention}>
-            Será enviada a solicitação para a clinica para que cancele ao
-            confirmar a ação.
-          </Text>
-
-          <View style={styles.modalActions}>
-            <TouchableOpacity
-              style={[
-                styles.modalButton,
-                styles.modalAccept,
-                isCanceling && styles.buttonDisabled,
-              ]}
-              onPress={handleConfirmCancel}
-              disabled={isCanceling}
-            >
-              <Text style={styles.modalButtonText}>
-                {isCanceling ? 'Cancelando...' : 'Sim'}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.modalButton, styles.modalCancel]}
-              onPress={handleCloseModal}
-              disabled={isCanceling}
-            >
-              <Text style={styles.modalButtonText}>Não</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      <ModalCancel
+        handleCloseModal={handleCloseModal}
+        handleConfirmCancel={handleConfirmCancel}
+        isCanceling={isCanceling}
+        isOpenModal={isOpenModal}
+      />
     </SafeAreaView>
   );
 }

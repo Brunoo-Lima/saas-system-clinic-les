@@ -9,6 +9,7 @@ import { patientTable } from "../../Schema/PatientSchema";
 import { userTable } from "../../Schema/UserSchema";
 import { doctorTable } from "../../Schema/DoctorSchema";
 import { specialtyTable } from "../../Schema/SpecialtySchema";
+import { insuranceTable } from "../../Schema/InsuranceSchema";
 
 export class SchedulingQueriesDAO {
     async schedulingPerDoctor(scheduling: Scheduling, tx?: NodePgDatabase<Record<string, never>> & { $client: Pool }) {
@@ -93,6 +94,26 @@ export class SchedulingQueriesDAO {
             `)
             return schedulingToConfirm.rows
         } catch (e) {
+            return ResponseHandler.error((e as Error).message)
+        }
+    }
+    async existsSchedulingByPatient(scheduling: Scheduling, tx?: NodePgDatabase<Record<string, never>> & { $client: Pool } ){
+        try {
+            const dbUse = tx ? tx : db
+            const schedulingByPatient = await dbUse.select()
+            .from(schedulingTable)
+            .where(
+                and(
+                    eq(schedulingTable.patient_id, scheduling.patient?.getUUIDHash() || ""),
+                    eq(schedulingTable.id, scheduling.getUUIDHash())
+                )
+            )
+            
+            if(!schedulingByPatient.length) return ResponseHandler.error(schedulingByPatient, "Scheduling not exist by this patient")
+            
+            return ResponseHandler.success(schedulingByPatient, "Success ! Data founded.")
+        } catch(e) {
+            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }

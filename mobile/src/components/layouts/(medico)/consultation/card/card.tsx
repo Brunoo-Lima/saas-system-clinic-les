@@ -51,25 +51,27 @@ export const Card = ({
         </Text>
       </View>
 
-      {canCancel && consultation.status !== 'CANCELED' && (
-        <View style={styles.actions}>
-          <TouchableOpacity
-            style={[
-              styles.action,
-              styles.actionCancel,
-              isCanceling && styles.buttonDisabled,
-            ]}
-            onPress={() => onOpenModal(consultation)}
-            disabled={isCanceling}
-          >
-            <Text style={styles.actionText}>
-              {isCanceling ? 'Cancelando...' : 'Cancelar Consulta'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      {canCancel &&
+        consultation.status !== 'CANCELED' &&
+        consultation.status !== 'CANCEL_PENDING' && (
+          <View style={styles.actions}>
+            <TouchableOpacity
+              style={[
+                styles.action,
+                styles.actionCancel,
+                isCanceling && styles.buttonDisabled,
+              ]}
+              onPress={() => onOpenModal(consultation)}
+              disabled={isCanceling}
+            >
+              <Text style={styles.actionText}>
+                {isCanceling ? 'Cancelando...' : 'Cancelar Consulta'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
-      {/* {consultation.status !== 'PENDING' && (
+      {consultation.status === 'CANCEL_PENDING' && (
         <View style={styles.actions}>
           <TouchableOpacity
             style={[styles.action, styles.actionPending]}
@@ -78,7 +80,7 @@ export const Card = ({
             <Text style={styles.actionText}>Cancelamento solicitado</Text>
           </TouchableOpacity>
         </View>
-      )} */}
+      )}
 
       {consultation.status === 'CANCELED' && (
         <View style={styles.actions}>
