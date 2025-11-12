@@ -4,6 +4,7 @@ import { Slot } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { AuthProvider } from '@/contexts/(doctor)/user-context';
+import { AuthPatientProvider } from '@/contexts/patient/patient-context';
 export default function Layout() {
   const queryClient = new QueryClient();
 
@@ -11,8 +12,10 @@ export default function Layout() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <Slot />
-          <Toast position="top" topOffset={60} />
+          <AuthPatientProvider>
+            <Slot />
+            <Toast position="top" topOffset={60} />
+          </AuthPatientProvider>
         </AuthProvider>
       </QueryClientProvider>
     </SafeAreaProvider>

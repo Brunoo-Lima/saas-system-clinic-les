@@ -5,6 +5,7 @@ interface IAppointmentGet {
   scheduling_id?: string;
   scheduling_date?: string;
   doctor_id?: string;
+  patient_id?: string;
 }
 
 export interface IAppointmentReturn {
@@ -44,12 +45,14 @@ export const getAppointmentService = async ({
   scheduling_id,
   scheduling_date,
   doctor_id,
+  patient_id,
 }: IAppointmentGet) => {
   const { data } = await api.get('/scheduling/findall', {
     params: {
       scheduling_id,
       scheduling_date,
       doctor_id,
+      patient_id,
     },
   });
 
@@ -98,13 +101,9 @@ export const useRequestCancelAppointment = () => {
       queryClient.invalidateQueries({
         queryKey: ['appointments', variables.doctor.id],
       });
-
-      console.log('Agendamento cancelado com sucesso:', data);
     },
 
     onError: (error: any) => {
-      console.error('Erro ao cancelar agendamento:', error);
-
       const message =
         error.response?.data?.message ||
         error.message ||
