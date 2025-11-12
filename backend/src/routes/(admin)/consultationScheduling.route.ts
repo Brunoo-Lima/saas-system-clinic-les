@@ -20,6 +20,6 @@ schedulingRoutes.get("/scheduling/findall", authMiddleware, new FindAllSchedulin
 schedulingRoutes.patch("/scheduling", authMiddleware, privateRoute, new PatchSchedulingController().handle)
 schedulingRoutes.post("/scheduling/automation", autCronMiddleware, new DispatchEmailsToSchedulingController().handle)
 schedulingRoutes.patch("/scheduling/cancel", authMiddleware, new RequestCancelSchedulingController().handle)
-schedulingRoutes.patch("/scheduling/confirm", authMiddleware, new RequestConfirmationSchedulingController().handle)
+schedulingRoutes.patch("/scheduling/status", authMiddleware, new RequestConfirmationSchedulingController().handle)
 
 export { schedulingRoutes };
