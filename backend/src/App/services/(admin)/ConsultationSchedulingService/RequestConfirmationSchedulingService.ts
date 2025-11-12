@@ -1,6 +1,7 @@
 import { PatientBuilder } from "../../../../domain/entities/EntityPatient/PatientBuilder";
 import { SchedulingBuilder } from "../../../../domain/entities/EntityScheduling/SchedulingBuilder";
 import { EntityExistsToInserted } from "../../../../domain/validators/General/EntityExistsToInserted";
+import { RequiredGeneralData } from "../../../../domain/validators/General/RequiredGeneralData";
 import { UUIDValidator } from "../../../../domain/validators/General/UUIDValidator";
 import { SchedulingLinked } from "../../../../domain/validators/Patient/SchedulingLinked";
 import { ValidatorController } from "../../../../domain/validators/ValidatorController";
@@ -26,7 +27,7 @@ export class RequestConfirmationSchedulingService{
             patientDomain.setUuidHash(schedulingDTO.patient.id ?? "")
 
             const schedulingDomain = new SchedulingBuilder()
-            .setStatus("CONFIRMED")
+            .setStatus(schedulingDTO.status)
             .setPatient(patientDomain)
             .build()
             schedulingDomain.setUuidHash(schedulingDTO.id ?? "")
@@ -36,6 +37,7 @@ export class RequestConfirmationSchedulingService{
         
             validator.setValidator(`FA-${schedulingDomain.constructor.name}`, [
                 new SchedulingLinked(),
+                new RequiredGeneralData(Object.keys(schedulingDomain.props), [], ["status"]),
                 ...validators
             ])
             validator.setValidator(`FA-${patientDomain.constructor.name}`, validators)
