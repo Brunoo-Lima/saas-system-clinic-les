@@ -42,7 +42,7 @@ export const useUpdateStatusScheduling = () => {
       const message =
         error.response?.data?.message ||
         error.message ||
-        'Erro ao cancelar agendamento';
+        'Erro ao atualizar status';
 
       throw new Error(message);
     },
