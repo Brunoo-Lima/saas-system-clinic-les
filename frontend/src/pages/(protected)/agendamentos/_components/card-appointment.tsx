@@ -57,6 +57,8 @@ export const CardAppointment = ({
         return 'Cancelado';
       case 'CANCEL_PENDING':
         return 'Solicitado cancelamento';
+      case 'CONFIRMED':
+        return 'Confirmado';
       default:
         return 'N/A';
     }

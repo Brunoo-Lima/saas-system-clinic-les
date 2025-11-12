@@ -1,5 +1,4 @@
 import {
-  PageActions,
   PageContainer,
   PageContent,
   PageDescription,
@@ -7,57 +6,35 @@ import {
   PageHeaderContent,
   PageTitle,
 } from '@/components/ui/page-container';
-import { AddAppointmentButton } from './_components/actions/add-appointment-button';
+
 import { Suspense, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { HistoryIcon, RectangleEllipsisIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { CardAppointment } from './_components/card-appointment';
 import { PaginationComponent } from '@/components/pagination-component';
 import { useAppointment } from '@/hooks/use-appointment';
 import { useGetDoctors } from '@/services/doctor-service';
+import { CardAppointment } from '../_components/card-appointment';
 
-export default function AppointmentPage() {
+export default function RequestsPage() {
   const { paginatedData, page, totalPages, handlePage } = useAppointment();
-  const navigate = useNavigate();
 
   const { data: doctors } = useGetDoctors();
 
   const filtered = paginatedData?.filter(
-    (ap) => ap.status !== 'CANCEL_PENDING',
+    (ap) => ap.status === 'CANCEL_PENDING',
   );
 
   useEffect(() => {
-    document.title = 'Agendamentos';
+    document.title = 'Solicitações';
   }, []);
 
   return (
     <PageContainer>
       <PageHeader>
         <PageHeaderContent>
-          <PageTitle>Agendamentos</PageTitle>
+          <PageTitle>Solicitações de agendamentos</PageTitle>
           <PageDescription>
-            Gerencie os agendamentos da sua clínica
+            Gerencie as solicitações de agendamentos
           </PageDescription>
         </PageHeaderContent>
-
-        <PageActions>
-          <AddAppointmentButton doctors={doctors} />
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => navigate('/agendamentos/solicitacoes')}
-          >
-            <RectangleEllipsisIcon /> Solicitações
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate('/agendamentos/historico-de-agendamentos')}
-          >
-            <HistoryIcon /> Histórico de agendamentos
-          </Button>
-        </PageActions>
       </PageHeader>
 
       <PageContent>
@@ -73,7 +50,7 @@ export default function AppointmentPage() {
               ))}
             </Suspense>
 
-            {filtered?.length === 0 && <p>Nenhum agendamento encontrado.</p>}
+            {filtered?.length === 0 && <p>Nenhuma solicitação encontrada.</p>}
           </div>
 
           <PaginationComponent
