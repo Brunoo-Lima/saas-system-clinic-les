@@ -1,8 +1,6 @@
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 import styles from './styles';
 import Header from '@/components/header/header';
-import { Input } from '@/components/ui/input/input';
-import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/(doctor)/user-context';
 

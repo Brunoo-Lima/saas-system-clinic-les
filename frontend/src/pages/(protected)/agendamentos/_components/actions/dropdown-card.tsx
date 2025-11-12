@@ -138,7 +138,7 @@ export const DropdownCard = ({ onDelete, appointment }: IDropdownCardProps) => {
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="SCHEDULED">Agendado</SelectItem>
+              <SelectItem value="PENDING">Agendado</SelectItem>
               <SelectItem value="CANCELED">Cancelado</SelectItem>
               <SelectItem value="CONCLUDE">Realizado</SelectItem>
             </SelectContent>

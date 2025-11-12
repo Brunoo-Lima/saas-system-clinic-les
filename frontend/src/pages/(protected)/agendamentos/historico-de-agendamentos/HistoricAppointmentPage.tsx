@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import {
   PageContainer,
   PageContent,
@@ -12,10 +13,12 @@ import { useGetAppointments } from '@/services/appointment-service';
 import {
   BookCheckIcon,
   BookXIcon,
+  ChevronLeftIcon,
   ClipboardClockIcon,
   ReceiptTextIcon,
 } from 'lucide-react';
 import React, { Suspense, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const AllAppointments = React.lazy(
   () => import('./_components/all-appointments'),
@@ -32,6 +35,7 @@ const CanceledAppointments = React.lazy(
 
 export default function HistoricAppointmentPage() {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('all');
   const { data: appointments } = useGetAppointments();
 
@@ -41,7 +45,14 @@ export default function HistoricAppointmentPage() {
 
   return (
     <PageContainer>
-      <PageHeader>
+      <PageHeader className="gap-x-4">
+        <Button
+          onClick={() => navigate('/agendamentos')}
+          type="button"
+          variant="outline"
+        >
+          <ChevronLeftIcon size={32} />
+        </Button>
         <PageHeaderContent>
           <PageTitle>Histórico de agendamentos</PageTitle>
           <PageDescription>

@@ -1,16 +1,11 @@
-import { Image, Text, TouchableOpacity, View } from "react-native";
-import styles from "./styles";
-import Header from "@/components/header/header";
-import { Input } from "@/components/ui/input/input";
-import { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Image, Text, View } from 'react-native';
+import styles from './styles';
+import Header from '@/components/header/header';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuthPatient } from '@/contexts/patient/patient-context';
 
 export default function ProfilePatient() {
-  const [formData, setFormData] = useState({
-    name: "Teste",
-    email: "Teste@email.com",
-    password: "12345678",
-  });
+  const { patient } = useAuthPatient();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -19,38 +14,14 @@ export default function ProfilePatient() {
       <View style={styles.content}>
         <View style={styles.avatarContainer}>
           <Image
-            source={{ uri: "https://i.pravatar.cc/150?img=3" }}
+            source={{ uri: 'https://i.pravatar.cc/150?img=3' }}
             style={styles.avatar}
           />
         </View>
 
-        <Input
-          label="Nome"
-          value={formData.name}
-          onChangeText={(e) => setFormData({ ...formData, name: e })}
-          placeholder="Digite seu nome"
-          keyboardType="default"
-        />
-
-        <Input
-          label="Email"
-          value={formData.email}
-          onChangeText={(e) => setFormData({ ...formData, email: e })}
-          placeholder="Digite seu email"
-          keyboardType="email-address"
-        />
-
-        <Input
-          label="Senha"
-          value={formData.password}
-          onChangeText={(e) => setFormData({ ...formData, password: e })}
-          placeholder="Digite sua senha"
-          keyboardType="default"
-        />
-
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Salvar</Text>
-        </TouchableOpacity>
+        <Text style={styles.text}>Nome: {patient?.name}</Text>
+        {/* <Text style={styles.text}>CRM: {patient?.crm}</Text> */}
+        <Text style={styles.text}>Email: {patient?.user.email}</Text>
       </View>
     </SafeAreaView>
   );

@@ -44,10 +44,13 @@ export const Card = ({
         </Text>
         <Text>
           Horário:{' '}
-          {new Date(consultation.date).toLocaleTimeString('pt-BR', {
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
+          {new Date(consultation.date.replace('Z', '')).toLocaleTimeString(
+            'pt-BR',
+            {
+              hour: '2-digit',
+              minute: '2-digit',
+            },
+          )}
         </Text>
       </View>
 
