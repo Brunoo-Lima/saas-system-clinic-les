@@ -7,16 +7,23 @@ import {
   PageTitle,
 } from '@/components/ui/page-container';
 
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { PaginationComponent } from '@/components/pagination-component';
 import { useAppointment } from '@/hooks/use-appointment';
-import { useGetDoctors } from '@/services/doctor-service';
-import { CardAppointment } from '../_components/card-appointment';
+import { CardRequest } from './card-request';
+import { ChevronLeftIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { useUpdateAppointment } from '@/services/appointment-service';
+import { ModalConfirmation } from './modal-confirmation';
 
 export default function RequestsPage() {
   const { paginatedData, page, totalPages, handlePage } = useAppointment();
+  const navigate = useNavigate();
+  const { mutate, isPending } = useUpdateAppointment();
 
-  const { data: doctors } = useGetDoctors();
+  const [open, setOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const filtered = paginatedData?.filter(
     (ap) => ap.status === 'CANCEL_PENDING',
@@ -26,13 +33,42 @@ export default function RequestsPage() {
     document.title = 'Solicitações';
   }, []);
 
+  const handleOpenConfirm = (id: string) => {
+    setSelectedId(id);
+    setOpen(true);
+  };
+
+  const handleConfirm = async () => {
+    if (!selectedId) return;
+    mutate({
+      id: selectedId,
+      appointment: { status: 'CANCELED' },
+    });
+    setOpen(false);
+    setSelectedId(null);
+  };
+
+  const handleRecuse = async (id: string) => {
+    mutate({
+      id,
+      appointment: { status: 'PENDING' },
+    });
+  };
+
   return (
     <PageContainer>
-      <PageHeader>
+      <PageHeader className="gap-x-4">
+        <Button
+          onClick={() => navigate('/agendamentos')}
+          type="button"
+          variant="outline"
+        >
+          <ChevronLeftIcon size={32} />
+        </Button>
         <PageHeaderContent>
-          <PageTitle>Solicitações de agendamentos</PageTitle>
+          <PageTitle>Solicitações de cancelamento de agendamentos</PageTitle>
           <PageDescription>
-            Gerencie as solicitações de agendamentos
+            Gerencie as solicitações de cancelamento
           </PageDescription>
         </PageHeaderContent>
       </PageHeader>
@@ -42,10 +78,12 @@ export default function RequestsPage() {
           <div className="flex flex-wrap gap-6 flex-1">
             <Suspense fallback={<p>Carregando...</p>}>
               {filtered?.map((appointment) => (
-                <CardAppointment
+                <CardRequest
                   key={appointment.id}
                   appointment={appointment}
-                  doctors={doctors}
+                  onOpenConfirmModal={() => handleOpenConfirm(appointment.id)}
+                  onRecuse={() => handleRecuse(appointment.id)} // 🔹 recusa direto
+                  isPending={isPending}
                 />
               ))}
             </Suspense>
@@ -60,6 +98,13 @@ export default function RequestsPage() {
           />
         </div>
       </PageContent>
+
+      <ModalConfirmation
+        open={open}
+        setOpen={setOpen}
+        isPending={isPending}
+        handleConfirm={handleConfirm}
+      />
     </PageContainer>
   );
 }
