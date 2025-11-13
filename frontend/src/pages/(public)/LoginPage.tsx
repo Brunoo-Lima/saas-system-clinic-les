@@ -29,7 +29,7 @@ export const LoginPage = () => {
         style={{ height: 'calc(100vh - 80px)' }}
       >
         <Card
-          className="min-h-max sm:w-[400px]"
+          className="min-h-max sm:w-[400px] max-w-[430px]"
           style={{ width: 'calc(100% - 2rem)' }}
         >
           <CardContent>
