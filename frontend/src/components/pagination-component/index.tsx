@@ -41,8 +41,8 @@ export function PaginationComponent({
 
   return (
     <div className="flex items-center gap-x-4 self-end">
-      <p>
-        Mostrando página {currentPage} de {totalPages}
+      <p className="text-muted-foreground sm:text-base text-sm">
+        Mostrando {currentPage} de {totalPages}
       </p>
 
       <Pagination className="mx-0 w-max">

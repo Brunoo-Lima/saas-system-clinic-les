@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import type { IUser } from '@/@types/IUser';
 import { loginService } from '@/services/login-service';
 import {
@@ -6,10 +5,10 @@ import {
   type ReactNode,
   type SetStateAction,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 
-import { useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -45,6 +44,7 @@ const AuthProvider = ({ children }: ChildrenProps) => {
   const [user, setUser] = useState<IUser | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const isRedirecting = useRef(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -86,47 +86,31 @@ const AuthProvider = ({ children }: ChildrenProps) => {
   // para redirecionamentos
   useEffect(() => {
     if (loading) return;
+    if (!isAuthenticated || !user) return;
+    if (isRedirecting.current) return;
 
-    const currentPath = location.pathname;
-    const isPublicRoute = currentPath === '/';
-    const isProfilePage = currentPath === '/completar-perfil';
+    const path = location.pathname;
 
-    // Se não está autenticado
-    if (!isAuthenticated) {
-      // Se não está em uma rota pública, redireciona para login
-      if (!isPublicRoute) {
-        navigate('/', { replace: true });
-      }
+    if (!user.profileCompleted && path !== '/completar-perfil') {
+      isRedirecting.current = true;
+      navigate('/completar-perfil', { replace: true });
       return;
     }
 
-    // Se está autenticado mas não tem dados do usuário ainda, aguarda
-    if (!user) return;
-
-    // Usuário autenticado com perfil incompleto
-    if (!user.profileCompleted) {
-      // Se não está na página de completar perfil, redireciona
-      if (!isProfilePage) {
-        navigate('/completar-perfil', { replace: true });
-      }
+    if (user.profileCompleted && path === '/completar-perfil') {
+      isRedirecting.current = true;
+      navigate('/dashboard', { replace: true });
       return;
     }
 
-    // Usuário autenticado com perfil completo
-    if (user.profileCompleted) {
-      // Se está na página de completar perfil, redireciona para dashboard
-      if (isProfilePage) {
-        navigate('/dashboard', { replace: true });
-        return;
-      }
+    const resetRedirecting = () => {
+      isRedirecting.current = false;
+    };
 
-      // Se está na página de login, redireciona para dashboard
-      if (isPublicRoute) {
-        navigate('/dashboard', { replace: true });
-        return;
-      }
-    }
-  }, [loading, isAuthenticated, location.pathname, navigate, user]);
+    const timer = setTimeout(resetRedirecting, 100);
+
+    return () => clearTimeout(timer);
+  }, [loading, isAuthenticated, user, location.pathname, navigate]);
 
   const login = async ({
     email,
@@ -189,20 +173,17 @@ const AuthProvider = ({ children }: ChildrenProps) => {
     setAuthToken(null);
   };
 
-  const authValue = useMemo(
-    () => ({
-      user,
-      setUser,
-      isAuthenticated: !!authToken?.token,
-      logout,
-      authToken,
-      setAuthToken,
-      loading,
-      login,
-      updateUser,
-    }),
-    [user, authToken, loading],
-  );
+  const authValue = {
+    user,
+    setUser,
+    isAuthenticated,
+    logout,
+    authToken,
+    setAuthToken,
+    loading,
+    login,
+    updateUser,
+  };
 
   return (
     <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>

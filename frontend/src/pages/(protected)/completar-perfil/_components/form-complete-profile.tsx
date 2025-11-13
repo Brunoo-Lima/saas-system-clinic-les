@@ -31,7 +31,6 @@ import {
 } from '@/validations/signup-form-clinic-schema';
 import FormInputPhoneCustom from '@/components/ui/form-custom/form-input-phone-custom';
 import FormInputCustom from '@/components/ui/form-custom/form-input-custom';
-import { useNavigate } from 'react-router-dom';
 import { useCreateClinic } from '@/services/clinic-service';
 import type { IClinic } from '@/@types/IClinic';
 import { useUpdateStatusProfileCompleted } from '@/services/user-clinic-service';
@@ -48,7 +47,6 @@ const times = Array.from(
 );
 
 export const FormCompleteProfile = () => {
-  const navigate = useNavigate();
   const form = useForm<RegisterFormClinicSchema>({
     resolver: zodResolver(
       registerFormClinicSchema,
@@ -120,8 +118,6 @@ export const FormCompleteProfile = () => {
           {
             onSuccess: () => {
               updateUser({ profileCompleted: true });
-
-              navigate('/dashboard', { replace: true });
             },
             onError: (error) => {
               console.error('Erro ao atualizar status do perfil:', error);

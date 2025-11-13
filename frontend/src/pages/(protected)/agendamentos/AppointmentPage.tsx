@@ -33,7 +33,7 @@ export default function AppointmentPage() {
 
   return (
     <PageContainer>
-      <PageHeader>
+      <PageHeader className="header__custom__appointment gap-x-3">
         <PageHeaderContent>
           <PageTitle>Agendamentos</PageTitle>
           <PageDescription>
@@ -41,7 +41,7 @@ export default function AppointmentPage() {
           </PageDescription>
         </PageHeaderContent>
 
-        <PageActions>
+        <PageActions className="md:flex-nowrap flex-wrap md:items-end items-start">
           <AddAppointmentButton doctors={doctors} />
           <Button
             type="button"

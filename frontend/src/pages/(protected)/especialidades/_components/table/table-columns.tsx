@@ -10,6 +10,7 @@ export const specialtyTableColumns: ColumnDef<Specialty>[] = [
     accessorKey: 'id',
     header: 'ID',
     size: 150,
+    cell: ({ row }) => <span className="ellipsis">{row.original.id}</span>,
   },
   {
     id: 'name',

@@ -88,9 +88,9 @@ export const StatsCards = ({
   ];
 
   return (
-    <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+    <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 cards__container">
       {/* Card de Estatísticas Financeiras */}
-      <Card className="col-span-1">
+      <Card className="lg:col-span-1">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-lg font-semibold">Financeiro</CardTitle>
           <div className="flex items-center gap-2">
@@ -106,7 +106,7 @@ export const StatsCards = ({
             return (
               <div
                 key={stat.title}
-                className="flex items-center justify-between"
+                className="flex sm:items-center items-start gap-y-2 sm:gap-y-0 justify-between flex-col sm:flex-row"
               >
                 <div className="flex items-center gap-3">
                   <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
@@ -129,7 +129,7 @@ export const StatsCards = ({
       </Card>
 
       {/* Card de Estatísticas Gerais */}
-      <Card className="col-span-1">
+      <Card className="lg:col-span-1">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-lg font-semibold">Geral</CardTitle>
           <CalendarIcon className="h-5 w-5 text-muted-foreground" />
