@@ -28,9 +28,12 @@ export const LoginPage = () => {
         className="flex items-center justify-center"
         style={{ height: 'calc(100vh - 80px)' }}
       >
-        <Card className="min-h-max">
+        <Card
+          className="min-h-max sm:w-[400px]"
+          style={{ width: 'calc(100% - 2rem)' }}
+        >
           <CardContent>
-            <Tabs value={tab} onValueChange={setTab} className="w-[400px]">
+            <Tabs value={tab} onValueChange={setTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Login</TabsTrigger>
                 <TabsTrigger value="register">Criar conta</TabsTrigger>
