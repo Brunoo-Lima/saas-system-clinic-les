@@ -165,3 +165,9 @@ input[type='number'] {
     flex-wrap: wrap;
   }
 }
+
+.card__hour__period {
+  @media (max-width: 568px) {
+    grid-template-columns: 1fr;
+  }
+}

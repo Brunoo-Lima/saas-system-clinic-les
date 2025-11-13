@@ -76,7 +76,7 @@ export const CardAppointment = ({
   const formattedDate = format(parseISO(appointment.date), 'dd/MM/yyyy');
 
   return (
-    <Card className="sm:min-w-[350px] w-[450px] ">
+    <Card className="sm:min-w-[350px] w-[450px]">
       <CardHeader>
         <div className="flex flex-col gap-2">
           <h2 className="text-lg font-semibold">
