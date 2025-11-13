@@ -159,3 +159,9 @@ input[type='number'] {
     grid-template-columns: 1fr;
   }
 }
+
+.header__custom__appointment {
+  @media (max-width: 1130px) {
+    flex-wrap: wrap;
+  }
+}
