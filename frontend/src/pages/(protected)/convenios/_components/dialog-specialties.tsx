@@ -34,10 +34,10 @@ export const DialogSpecialties = ({ specialties }: IDialogSpecialtiesProps) => {
           {specialties?.map((specialty) => (
             <div
               key={specialty.id}
-              className="flex justify-between gap-2 items-center"
+              className="flex justify-between gap-2 items-center flex-wrap"
             >
               <p>{specialty.name}</p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <p>
                   Preço:{' '}
                   {Intl.NumberFormat('pt-BR', {

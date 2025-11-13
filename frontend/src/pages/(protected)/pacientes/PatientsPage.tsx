@@ -53,9 +53,9 @@ export const PatientsPage = () => {
       </PageHeader>
 
       <PageContent classNameCustom="flex flex-col gap-y-4">
-        <div className="flex justify-between">
+        <div className="flex md:justify-between justify-start header__custom__appointment gap-4  ">
           <InputSearch
-            className="w-96"
+            className="sm:w-96 w-full"
             placeholder="Buscar paciente"
             value={searchTerm}
             onChange={handleSearch}

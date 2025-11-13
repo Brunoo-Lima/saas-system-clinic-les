@@ -493,7 +493,7 @@ export function Agenda({ doctorId, doctor }: IAgendaProps) {
             )}
 
             <Tabs defaultValue="all" className="w-full">
-              <TabsList className="grid w-full grid-cols-4 mb-6">
+              <TabsList className="grid w-full sm:grid-cols-4 grid-cols-1 mb-6 sm:pb-6 pb-0 sm:h-9 h-full">
                 <TabsTrigger value="all">Todos</TabsTrigger>
                 <TabsTrigger value="PENDING">Agendados</TabsTrigger>
                 <TabsTrigger value="CONFIRMED">Confirmados</TabsTrigger>

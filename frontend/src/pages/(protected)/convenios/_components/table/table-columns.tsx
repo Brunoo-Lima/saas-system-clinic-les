@@ -10,6 +10,7 @@ export const insurancesTableColumns: ColumnDef<Insurance>[] = [
     id: 'id',
     accessorKey: 'id',
     header: 'ID',
+    cell: ({ row }) => <span className="ellipsis">{row.original.id}</span>,
   },
   {
     id: 'type',

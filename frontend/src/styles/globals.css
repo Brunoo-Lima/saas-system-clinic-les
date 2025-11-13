@@ -171,3 +171,19 @@ input[type='number'] {
     grid-template-columns: 1fr;
   }
 }
+
+.ellipsis {
+  @media (max-width: 1068px) {
+    max-width: 160px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+}
+
+.modal {
+  @media (max-width: 668px) {
+    max-width: calc(100% - 2rem);
+  }
+}
