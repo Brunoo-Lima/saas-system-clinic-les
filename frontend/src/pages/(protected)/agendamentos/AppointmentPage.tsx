@@ -23,9 +23,9 @@ export default function AppointmentPage() {
 
   const { data: doctors } = useGetDoctors();
 
-  const filtered = paginatedData?.filter(
-    (ap) => ap.status !== 'CANCEL_PENDING',
-  );
+  const filtered = paginatedData
+    ?.filter((ap) => ap.status !== 'CANCEL_PENDING')
+    ?.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   useEffect(() => {
     document.title = 'Agendamentos';
