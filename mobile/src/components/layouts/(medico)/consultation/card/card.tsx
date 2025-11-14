@@ -13,20 +13,26 @@ export const Card = ({
   onOpenModal,
   isCanceling,
 }: ICardProps) => {
-  const getStatus = () => {
+  const getStatusLabel = () => {
     switch (consultation.status) {
       case 'CONCLUDE':
-        return 'Realizada';
+        return { label: 'Realizada', color: '#10B981' };
       case 'CANCELED':
-        return 'Cancelada';
+        return { label: 'Cancelada', color: '#EF4444' };
+      case 'CONFIRMED':
+        return { label: 'Confirmada', color: '#3B82F6' };
+      case 'CANCEL_PENDING':
+        return { label: 'Cancelamento solicitado', color: '#FFD166' };
       default:
-        return 'Pendente';
+        return { label: 'Pendente', color: '#F59E0B' };
     }
   };
 
   // Verifica se pode cancelar (não completada e não cancelada)
   const canCancel =
     consultation.status !== 'CONCLUDE' && consultation.status !== 'CANCELED';
+
+  const statusInfo = getStatusLabel();
 
   return (
     <View style={styles.card}>
@@ -35,7 +41,7 @@ export const Card = ({
         <Text style={styles.patientName}>{consultation.patient.name}</Text>
       </Text>
       <Text style={styles.status}>
-        Status: <Text style={styles.statusText}>{getStatus()}</Text>
+        Status: <Text style={styles.statusText}>{statusInfo.label}</Text>
       </Text>
 
       <View style={styles.info}>

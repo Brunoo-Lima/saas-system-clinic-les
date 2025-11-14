@@ -72,27 +72,30 @@ export const useGetAppointments = (params?: IAppointmentGet) => {
 
 interface IAppointmentPayload {
   id: string;
+  status: string;
   doctor: {
     id: string;
   };
 }
-export const requestCancelAppointment = async ({
+export const updateStatusSchedulingDoctor = async ({
   id,
   doctor,
+  status,
 }: IAppointmentPayload) => {
-  const { data } = await api.patch('/scheduling/cancel', {
+  const { data } = await api.patch('/scheduling/status', {
     id,
     doctor,
+    status,
   });
 
   return data;
 };
 
-export const useRequestCancelAppointment = () => {
+export const useUpdateStatusSchedulingDoctor = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: requestCancelAppointment,
+    mutationFn: updateStatusSchedulingDoctor,
 
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
@@ -107,7 +110,7 @@ export const useRequestCancelAppointment = () => {
       const message =
         error.response?.data?.message ||
         error.message ||
-        'Erro ao cancelar agendamento';
+        'Erro ao atualizar status';
 
       throw new Error(message);
     },
