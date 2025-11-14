@@ -1,11 +1,12 @@
-import React from "react";
+import { theme } from '@/styles/theme';
+import React from 'react';
 import {
   Text,
   TextInput,
   TextInputProps,
   StyleSheet,
   View,
-} from "react-native";
+} from 'react-native';
 
 interface InputProps extends TextInputProps {
   value: string;
@@ -33,6 +34,7 @@ export const Input: React.FC<InputProps> = ({
         onChangeText={onChangeText}
         onBlur={onBlur}
         placeholder={placeholder}
+        placeholderTextColor={theme.mutedForeground}
         autoCapitalize="none"
         editable={!loading}
         style={[styles.input, style]}
@@ -44,21 +46,25 @@ export const Input: React.FC<InputProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    width: '100%',
     marginBottom: 16,
   },
+
   label: {
     marginBottom: 6,
     fontSize: 14,
-    color: "#333",
-    fontWeight: "500",
+    fontWeight: '500',
+    color: theme.foreground,
   },
+
   input: {
-    width: "100%",
+    width: '100%',
     padding: 12,
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
+    borderColor: theme.input,
+    borderRadius: theme.radius,
     fontSize: 16,
+    backgroundColor: theme.card,
+    color: theme.foreground,
   },
 });

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { theme } from '@/styles/theme';
 
 interface InputPasswordProps {
   value: string;
@@ -25,9 +26,9 @@ export function InputPassword({
         onBlur={onBlur}
         placeholder="Sua senha"
         secureTextEntry={!showPassword}
-        style={styles.input}
         editable={!loading}
-        placeholderTextColor="#999"
+        placeholderTextColor={theme.mutedForeground}
+        style={[styles.input, styles.placeholder]}
       />
 
       <TouchableOpacity
@@ -37,7 +38,7 @@ export function InputPassword({
         <Ionicons
           name={showPassword ? 'eye-off' : 'eye'}
           size={22}
-          color="#666"
+          color={theme.mutedForeground}
         />
       </TouchableOpacity>
     </View>
@@ -46,22 +47,27 @@ export function InputPassword({
 
 const styles = StyleSheet.create({
   container: {
-    position: 'relative',
     width: '100%',
-    justifyContent: 'center',
+    marginBottom: 16,
   },
+
   input: {
     width: '100%',
-    height: 50,
-    borderColor: '#ccc',
+    padding: 12,
+    paddingRight: 45,
     borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 15,
+    borderColor: theme.input,
+    borderRadius: theme.radius,
     fontSize: 16,
+    backgroundColor: theme.card,
+    color: theme.foreground,
+  },
+  placeholder: {
+    fontSize: 14,
   },
   icon: {
     position: 'absolute',
-    right: 15,
+    right: 12,
     height: '100%',
     justifyContent: 'center',
   },
