@@ -142,6 +142,12 @@ const AuthProvider = ({ children }: ChildrenProps) => {
       setUser(newUser);
 
       localStorage.setItem('@user:data', JSON.stringify(newUser));
+
+      if (!newUser.profileCompleted) {
+        navigate('/completar-perfil', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
     } catch (err: any) {
       toast.error(err.message);
     } finally {
