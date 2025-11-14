@@ -84,12 +84,17 @@ const AuthProvider = ({ children }: ChildrenProps) => {
   }, []);
 
   // para redirecionamentos
+  // para redirecionamentos automáticos (após login ou refresh)
   useEffect(() => {
     if (loading) return;
-    if (!isAuthenticated || !user) return;
-    if (isRedirecting.current) return;
+
+    // só roda se token e user existem
+    if (!authToken || !user) return;
 
     const path = location.pathname;
+
+    // evitar duplo redirecionamento
+    if (isRedirecting.current) return;
 
     if (!user.profileCompleted && path !== '/completar-perfil') {
       isRedirecting.current = true;
@@ -103,14 +108,13 @@ const AuthProvider = ({ children }: ChildrenProps) => {
       return;
     }
 
-    const resetRedirecting = () => {
+    // libera o redirect
+    const timer = setTimeout(() => {
       isRedirecting.current = false;
-    };
-
-    const timer = setTimeout(resetRedirecting, 100);
+    }, 100);
 
     return () => clearTimeout(timer);
-  }, [loading, isAuthenticated, user, location.pathname, navigate]);
+  }, [loading, authToken, user, location.pathname, navigate]);
 
   const login = async ({
     email,
@@ -177,6 +181,7 @@ const AuthProvider = ({ children }: ChildrenProps) => {
     localStorage.removeItem('@user:data');
     setUser(null);
     setAuthToken(null);
+    navigate('/', { replace: true });
   };
 
   const authValue = {

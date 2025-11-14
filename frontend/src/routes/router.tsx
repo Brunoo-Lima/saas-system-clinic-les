@@ -11,6 +11,7 @@ import { DoctorsPage } from '@/pages/(protected)/medicos/DoctorsPage';
 import { PatientsPage } from '@/pages/(protected)/pacientes/PatientsPage';
 import ProfilePage from '@/pages/(protected)/perfil/ProfilePage';
 import { LoginPage } from '@/pages/(public)/LoginPage';
+import { PrivateRoute } from '@/providers/private-route';
 import { Route, Routes } from 'react-router-dom';
 
 export function AppRouter() {
@@ -20,22 +21,24 @@ export function AppRouter() {
       <Route path="/" element={<LoginPage />} />
 
       {/* Rotas protegidas */}
-      <Route element={<DefaultLayout />}>
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/agendamentos" element={<AppointmentPage />} />
-        <Route
-          path="/agendamentos/historico-de-agendamentos"
-          element={<HistoricAppointmentPage />}
-        />
-        <Route path="/agendamentos/solicitacoes" element={<RequestsPage />} />
-        <Route path="/medicos" element={<DoctorsPage />} />
-        <Route path="/agenda/medico/:doctorId" element={<AgendaPage />} />
+      <Route element={<PrivateRoute />}>
+        <Route element={<DefaultLayout />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/agendamentos" element={<AppointmentPage />} />
+          <Route
+            path="/agendamentos/historico-de-agendamentos"
+            element={<HistoricAppointmentPage />}
+          />
+          <Route path="/agendamentos/solicitacoes" element={<RequestsPage />} />
+          <Route path="/medicos" element={<DoctorsPage />} />
+          <Route path="/agenda/medico/:doctorId" element={<AgendaPage />} />
 
-        <Route path="/pacientes" element={<PatientsPage />} />
-        <Route path="/convenios" element={<InsurancePage />} />
-        <Route path="/perfil" element={<ProfilePage />} />
-        <Route path="/completar-perfil" element={<ProfileCompletePage />} />
-        <Route path="/especialidades" element={<SpecialtiesPage />} />
+          <Route path="/pacientes" element={<PatientsPage />} />
+          <Route path="/convenios" element={<InsurancePage />} />
+          <Route path="/perfil" element={<ProfilePage />} />
+          <Route path="/completar-perfil" element={<ProfileCompletePage />} />
+          <Route path="/especialidades" element={<SpecialtiesPage />} />
+        </Route>
       </Route>
     </Routes>
   );
