@@ -91,7 +91,7 @@ export const CardAppointment = ({
         </div>
       </CardHeader>
       <Separator />
-      <CardContent className="flex flex-col gap-2">
+      <CardContent className="flex flex-col gap-2 px-2 sm:px-4">
         <Badge variant="outline">
           <CalendarIcon className="mr-1" />
           {getDayOfWeekFromDate(appointment.date)} - Data: {formattedDate} -{' '}
@@ -131,13 +131,13 @@ export const CardAppointment = ({
         )}
       </CardContent>
       <Separator />
-      <CardFooter className="flex items-center gap-2">
+      <CardFooter className="flex items-center gap-2 px-4">
         <Dialog
           open={isUpsertAppointmentDialogOpen}
           onOpenChange={setIsUpsertAppointmentDialogOpen}
         >
           <DialogTrigger asChild>
-            <Button className="w-11/12">Ver detalhes</Button>
+            <Button className="sm:w-10/12 w-max">Ver detalhes</Button>
           </DialogTrigger>
           <UpsertAppointmentForm
             doctors={doctors}

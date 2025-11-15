@@ -134,7 +134,7 @@ export const CreateInsuranceForm = ({
   };
 
   return (
-    <DialogContent className="w-full sm:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-y-auto">
+    <DialogContent className="w-full sm:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-y-auto modal ">
       <DialogHeader>
         <DialogTitle>
           {insurance ? insurance.type : 'Adicionar Convênio'}

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import type { IUser } from '@/@types/IUser';
 import { loginService } from '@/services/login-service';
 import {
@@ -6,10 +5,10 @@ import {
   type ReactNode,
   type SetStateAction,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 
-import { useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -45,6 +44,7 @@ const AuthProvider = ({ children }: ChildrenProps) => {
   const [user, setUser] = useState<IUser | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const isRedirecting = useRef(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -84,49 +84,37 @@ const AuthProvider = ({ children }: ChildrenProps) => {
   }, []);
 
   // para redirecionamentos
+  // para redirecionamentos automáticos (após login ou refresh)
   useEffect(() => {
     if (loading) return;
 
-    const currentPath = location.pathname;
-    const isPublicRoute = currentPath === '/';
-    const isProfilePage = currentPath === '/completar-perfil';
+    // só roda se token e user existem
+    if (!authToken || !user) return;
 
-    // Se não está autenticado
-    if (!isAuthenticated) {
-      // Se não está em uma rota pública, redireciona para login
-      if (!isPublicRoute) {
-        navigate('/', { replace: true });
-      }
+    const path = location.pathname;
+
+    // evitar duplo redirecionamento
+    if (isRedirecting.current) return;
+
+    if (!user.profileCompleted && path !== '/completar-perfil') {
+      isRedirecting.current = true;
+      navigate('/completar-perfil', { replace: true });
       return;
     }
 
-    // Se está autenticado mas não tem dados do usuário ainda, aguarda
-    if (!user) return;
-
-    // Usuário autenticado com perfil incompleto
-    if (!user.profileCompleted) {
-      // Se não está na página de completar perfil, redireciona
-      if (!isProfilePage) {
-        navigate('/completar-perfil', { replace: true });
-      }
+    if (user.profileCompleted && path === '/completar-perfil') {
+      isRedirecting.current = true;
+      navigate('/dashboard', { replace: true });
       return;
     }
 
-    // Usuário autenticado com perfil completo
-    if (user.profileCompleted) {
-      // Se está na página de completar perfil, redireciona para dashboard
-      if (isProfilePage) {
-        navigate('/dashboard', { replace: true });
-        return;
-      }
+    // libera o redirect
+    const timer = setTimeout(() => {
+      isRedirecting.current = false;
+    }, 100);
 
-      // Se está na página de login, redireciona para dashboard
-      if (isPublicRoute) {
-        navigate('/dashboard', { replace: true });
-        return;
-      }
-    }
-  }, [loading, isAuthenticated, location.pathname, navigate, user]);
+    return () => clearTimeout(timer);
+  }, [loading, authToken, user, location.pathname, navigate]);
 
   const login = async ({
     email,
@@ -158,6 +146,12 @@ const AuthProvider = ({ children }: ChildrenProps) => {
       setUser(newUser);
 
       localStorage.setItem('@user:data', JSON.stringify(newUser));
+
+      if (!newUser.profileCompleted) {
+        navigate('/completar-perfil', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
     } catch (err: any) {
       toast.error(err.message);
     } finally {
@@ -187,22 +181,20 @@ const AuthProvider = ({ children }: ChildrenProps) => {
     localStorage.removeItem('@user:data');
     setUser(null);
     setAuthToken(null);
+    navigate('/', { replace: true });
   };
 
-  const authValue = useMemo(
-    () => ({
-      user,
-      setUser,
-      isAuthenticated: !!authToken?.token,
-      logout,
-      authToken,
-      setAuthToken,
-      loading,
-      login,
-      updateUser,
-    }),
-    [user, authToken, loading],
-  );
+  const authValue = {
+    user,
+    setUser,
+    isAuthenticated,
+    logout,
+    authToken,
+    setAuthToken,
+    loading,
+    login,
+    updateUser,
+  };
 
   return (
     <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>

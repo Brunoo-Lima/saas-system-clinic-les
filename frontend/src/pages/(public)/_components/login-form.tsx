@@ -49,7 +49,7 @@ export const LoginForm = () => {
           control={form.control}
           name="email"
           label="E-mail"
-          placeholder="E-mail"
+          placeholder="Digite seu e-mail"
         />
 
         <FormField

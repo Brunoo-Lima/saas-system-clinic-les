@@ -8,7 +8,7 @@ import { ActivityIndicator } from 'react-native';
 import Toast from 'react-native-toast-message';
 import {
   useGetAppointments,
-  useRequestCancelAppointment,
+  useUpdateStatusSchedulingDoctor,
 } from '../../../../services/doctor/appointment-service';
 import { IAppointmentReturn } from '../../../../services/doctor/appointment-service';
 import { useAuth } from '@/contexts/(doctor)/user-context';
@@ -25,28 +25,39 @@ export default function Consultation() {
     isFetching,
   } = useGetAppointments({ doctor_id: doctor?.id });
   const { mutate: cancelAppointment, isPending: isCanceling } =
-    useRequestCancelAppointment();
+    useUpdateStatusSchedulingDoctor();
   const [isOpenModal, setIsOpenModal] = useState(false);
-  const [appointmentToCancel, setAppointmentToCancel] =
-    useState<IAppointmentReturn | null>(null);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<
+    string | null
+  >(null);
 
-  const handleOpenModal = (appointment: IAppointmentReturn) => {
-    setAppointmentToCancel(appointment);
+  const handleOpenModal = (appointmentId: string) => {
+    setSelectedAppointmentId(appointmentId);
     setIsOpenModal(true);
   };
 
   const handleCloseModal = () => {
-    setAppointmentToCancel(null);
+    setSelectedAppointmentId(null);
     setIsOpenModal(false);
   };
 
-  const handleConfirmCancel = () => {
-    if (appointmentToCancel) {
+  const handleConfirmCancel = async () => {
+    if (!selectedAppointmentId) return;
+
+    try {
+      console.log('Payload enviado:', {
+        id: selectedAppointmentId,
+        status: 'CANCEL_PENDING',
+        doctor: {
+          id: doctor?.id ?? '',
+        },
+      });
       cancelAppointment(
         {
-          id: appointmentToCancel.id,
+          id: selectedAppointmentId,
+          status: 'CANCEL_PENDING',
           doctor: {
-            id: appointmentToCancel.doctor.id,
+            id: doctor?.id ?? '',
           },
         },
         {
@@ -60,14 +71,17 @@ export default function Consultation() {
             handleCloseModal();
           },
           onError: (error: any) => {
-            Toast.show({
-              type: 'error',
-              text1: 'Erro!',
-              text2: error.message || 'Erro ao cancelar consulta.',
-            });
+            console.log('❌ Erro da API:');
+            console.log(JSON.stringify(error, null, 2));
           },
         },
       );
+
+      await refetch();
+
+      console.log('Cancel appointment:', selectedAppointmentId);
+    } finally {
+      handleCloseModal();
     }
   };
 
@@ -117,7 +131,7 @@ export default function Consultation() {
             disabled={isFetching}
             style={[styles.button, isFetching && { opacity: 0.6 }]}
           >
-            <Text style={styles.buttonText}>
+            <Text style={styles.retryButtonText}>
               {isFetching ? 'Atualizando...' : 'Atualizar'}
             </Text>
           </TouchableOpacity>
@@ -128,9 +142,9 @@ export default function Consultation() {
             <Card
               key={appointment.id}
               consultation={appointment}
-              onOpenModal={() => handleOpenModal(appointment)}
+              onOpenModal={() => handleOpenModal(appointment.id)}
               isCanceling={
-                isCanceling && appointmentToCancel?.id === appointment.id
+                isCanceling && selectedAppointmentId === appointment.id
               }
             />
           ))}

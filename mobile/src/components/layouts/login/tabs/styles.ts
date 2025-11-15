@@ -1,28 +1,33 @@
-import { StyleSheet } from "react-native";
+import { theme } from '@/styles/theme';
+import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   tabs: {
-    flexDirection: "row",
-    borderRadius: 8,
-    backgroundColor: "#eef3f6",
+    flexDirection: 'row',
+    borderRadius: theme.radius,
+    backgroundColor: theme.muted,
     padding: 4,
     marginBottom: 16,
   },
+
   tab: {
     flex: 1,
     paddingVertical: 8,
-    alignItems: "center",
-    borderRadius: 6,
+    alignItems: 'center',
+    borderRadius: theme.radius - 2,
   },
+
   tabActive: {
-    backgroundColor: "#2b6cb0",
+    backgroundColor: theme.primary,
   },
+
   tabText: {
-    fontWeight: "600",
-    color: "#2b6cb0",
+    fontWeight: '600',
+    color: theme.primary,
   },
+
   tabTextActive: {
-    color: "#fff",
+    color: theme.primaryForeground,
   },
 });
 

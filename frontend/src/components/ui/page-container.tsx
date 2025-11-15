@@ -38,8 +38,16 @@ export const PageDescription = ({
   return <p className="text-muted-foreground text-sm">{children}</p>;
 };
 
-export const PageActions = ({ children }: { children: React.ReactNode }) => {
-  return <div className="flex items-center gap-2">{children}</div>;
+export const PageActions = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  return (
+    <div className={`flex items-center gap-2 ${className}`}>{children}</div>
+  );
 };
 
 export const PageContent = ({

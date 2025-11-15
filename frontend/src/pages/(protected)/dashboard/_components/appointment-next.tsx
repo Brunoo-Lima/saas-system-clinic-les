@@ -9,14 +9,12 @@ interface IAppointmentNextProps {
 export const AppointmentNext = ({
   appointments = [],
 }: IAppointmentNextProps) => {
-  // Filtrar agendamentos de hoje
   const todayAppointments = appointments.filter((appointment) => {
     const appointmentDate = new Date(appointment.date);
     const today = new Date();
     return appointmentDate.toDateString() === today.toDateString();
   });
 
-  // Ordenar por horário
   const sortedAppointments = todayAppointments.sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
@@ -31,7 +29,7 @@ export const AppointmentNext = ({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex sm:items-center items-start gap-y-2 sm:gap-y-0 justify-between flex-col sm:flex-row">
           <div className="flex items-center gap-3">
             <CalendarIcon className="text-muted-foreground" />
             <CardTitle className="text-base">Agendamentos de hoje</CardTitle>

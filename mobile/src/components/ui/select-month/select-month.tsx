@@ -41,7 +41,7 @@ export const SelectMonth = ({
         <Text style={styles.buttonText}>
           {months.find((m) => m.value === selectedMonth)?.label}
         </Text>
-        <ChevronDown size={20} color="#4A90E2" />
+        <ChevronDown size={20} color="#5B5CFF" />
       </Pressable>
 
       <Modal visible={open} transparent animationType="fade">

@@ -95,14 +95,8 @@ export const UpsertDoctorForm = ({
       label: specialty.name,
     })) || [];
 
-  // useEffect(() => {
-  //   console.log(form.formState.errors);
-  // }, [form.formState.errors]);
-
   useEffect(() => {
     if (isOpen && doctor) {
-      console.log('🔄 Inicializando formulário com doctor:', doctor);
-
       const defaultValues = getDoctorDefaultValues(doctor);
 
       if (defaultValues.periodToWork) {
@@ -110,7 +104,7 @@ export const UpsertDoctorForm = ({
           (period) => {
             return {
               ...period,
-              specialty_id: period.specialty_id || '', // Garante que não seja undefined
+              specialty_id: period.specialty_id || '',
             };
           },
         );
@@ -498,7 +492,7 @@ export const UpsertDoctorForm = ({
                   key={specialtyId}
                   className="border rounded-lg p-4 space-y-4"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between flex-wrap">
                     <FormLabel className="text-lg font-semibold">
                       {specialty?.label} - Horários de Trabalho
                     </FormLabel>
@@ -520,7 +514,7 @@ export const UpsertDoctorForm = ({
                     return (
                       <div
                         key={period.id}
-                        className="grid grid-cols-5 gap-2 items-end border p-3 rounded"
+                        className="grid lg:grid-cols-4 grid-cols-3 gap-2 items-end border p-3 rounded card__hour__period"
                       >
                         <FormField
                           control={form.control}
@@ -657,7 +651,7 @@ export const UpsertDoctorForm = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-x-6">
+          <div className="grid sm:grid-cols-2 grid-cols-1 gap-x-6 sm:gap-y-0 gap-y-3">
             <FormField
               control={form.control}
               name="cpf"
@@ -683,7 +677,7 @@ export const UpsertDoctorForm = ({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-x-6">
+          <div className="grid sm:grid-cols-2 grid-cols-1 gap-x-6 sm:gap-y-0 gap-y-3">
             <FormField
               control={form.control}
               name="dateOfBirth"
@@ -715,7 +709,7 @@ export const UpsertDoctorForm = ({
 
           <strong className="py-2 block text-2xl">Endereço</strong>
 
-          <div className="grid grid-cols-2 gap-x-6">
+          <div className="grid sm:grid-cols-2 grid-cols-1 gap-x-6 sm:gap-y-0 gap-y-3">
             <FormField
               control={form.control}
               name="address.cep"
@@ -751,7 +745,7 @@ export const UpsertDoctorForm = ({
             control={form.control}
           />
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 grid-cols-1 gap-x-6 sm:gap-y-0 gap-y-3">
             <FormInputCustom
               name="address.street"
               label="Rua"
@@ -767,7 +761,7 @@ export const UpsertDoctorForm = ({
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-3 grid-cols-1 gap-x-6 sm:gap-y-0 gap-y-3">
             <FormInputCustom
               name="address.city"
               label="Cidade"

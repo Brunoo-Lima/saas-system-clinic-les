@@ -65,13 +65,13 @@ export const DashboardPage = () => {
       <PageContent>
         <StatsCards {...stats} financial={financial} />
 
-        <div className="grid md:grid-cols-[2.25fr_1fr] grid-cols-1 gap-4">
+        <div className="grid xl:grid-cols-[2.25fr_1fr] grid-cols-1 gap-4">
           <AppointmentNext appointments={appointments} />
 
           <TopDoctors doctors={doctors} appointments={appointments} />
         </div>
 
-        <div className="grid md:grid-cols-[2.25fr_1fr] grid-cols-1 gap-4">
+        <div className="grid xl:grid-cols-[2fr_1fr] grid-cols-1 gap-4">
           <Suspense
             fallback={
               <div className="h-[300px] bg-muted animate-pulse rounded-lg" />

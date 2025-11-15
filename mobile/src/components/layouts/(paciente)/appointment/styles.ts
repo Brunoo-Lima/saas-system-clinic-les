@@ -1,3 +1,4 @@
+import { theme } from '@/styles/theme';
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
@@ -23,7 +24,7 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    backgroundColor: '#2563EB',
+    backgroundColor: theme.primary,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,

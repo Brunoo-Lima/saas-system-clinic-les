@@ -44,7 +44,7 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
   };
 
   return (
-    <Card className="sm:min-w-[350px] w-[450px] overflow-hidden">
+    <Card className="sm:min-w-[350px] w-[450px] overflow-hidden h-[350px]">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Avatar className="h-10 w-10">
@@ -59,7 +59,7 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
         </div>
       </CardHeader>
       <Separator />
-      <CardContent className="flex flex-col gap-2 flex-1">
+      <CardContent className="flex flex-col gap-2 flex-1 px-2 sm:px-4">
         <Badge variant="outline" className="">
           <CalendarIcon className="mr-1 shrink-0" />
           <p className="overflow-hidden text-ellipsis whitespace-nowrap w-[250px]">
@@ -88,13 +88,13 @@ export const CardDoctor = ({ doctor }: ICardDoctorProps) => {
         </Badge>
       </CardContent>
       <Separator />
-      <CardFooter className="flex items-center gap-2">
+      <CardFooter className="flex items-center gap-2 px-4">
         <Dialog
           open={isUpsertDoctorDialogOpen}
           onOpenChange={setIsUpsertDoctorDialogOpen}
         >
           <DialogTrigger asChild>
-            <Button className="w-11/12">Ver detalhes</Button>
+            <Button className="sm:w-10/12 w-max">Ver detalhes</Button>
           </DialogTrigger>
           <UpsertDoctorForm
             doctor={{

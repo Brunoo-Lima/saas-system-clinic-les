@@ -131,12 +131,12 @@ export default function Dashboard() {
                 backgroundGradientFrom: '#ffffff',
                 backgroundGradientTo: '#ffffff',
                 decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(52, 152, 219, ${opacity})`,
+                color: (opacity = 1) => `rgba(91, 92, 255, ${opacity})`,
                 labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
                 propsForDots: {
                   r: '4',
                   strokeWidth: '2',
-                  stroke: '#2b7fff',
+                  stroke: '#5b5cff',
                 },
               }}
               bezier
@@ -162,12 +162,12 @@ export default function Dashboard() {
               backgroundGradientFrom: '#ffffff',
               backgroundGradientTo: '#ffffff',
               decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(46, 134, 222, ${opacity})`,
+              color: (opacity = 1) => `rgba(91, 92, 255, ${opacity})`,
               labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
               propsForDots: {
                 r: '5',
                 strokeWidth: '2',
-                stroke: '#2b7fff',
+                stroke: '#5B5CFF',
               },
             }}
             bezier

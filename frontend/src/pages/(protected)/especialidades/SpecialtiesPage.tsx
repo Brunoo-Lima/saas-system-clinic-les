@@ -51,9 +51,9 @@ export default function SpecialtiesPage() {
       </PageHeader>
 
       <PageContent classNameCustom="flex flex-col gap-y-4">
-        <div className="flex md:justify-between justify-start gap-2  flex-wrap md:flex-nowrap ">
+        <div className="flex md:justify-between justify-start header__custom__appointment gap-4">
           <InputSearch
-            className="md:w-96 w-full"
+            className="sm:w-96 w-full"
             placeholder="Buscar especialidade"
             value={searchTerm}
             onChange={handleSearch}
