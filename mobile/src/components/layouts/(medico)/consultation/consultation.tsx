@@ -52,24 +52,30 @@ export default function Consultation() {
         status: 'CANCEL_PENDING',
         doctor: {
           id: doctor?.id ?? '',
-          cpf: doctor?.cpf ?? '',
         },
       };
 
-      console.log('Payload enviado:', payload);
+      console.log('Payload cancelamento:', payload);
 
-      cancelAppointment(payload, {
-        onSuccess: () => {
-          Toast.show({
-            type: 'success',
-            text1: 'Sucesso!',
-            text2: 'A solicitação de cancelamento foi enviada com sucesso.',
-            visibilityTime: 2000,
-          });
+      cancelAppointment(
+        {
+          id: selectedAppointmentId,
+          status: 'CANCEL_PENDING',
+          doctor: {
+            id: doctor?.id ?? '',
+          },
         },
-      });
-
-      await refetch();
+        {
+          onSuccess: () => {
+            Toast.show({
+              type: 'success',
+              text1: 'Sucesso!',
+              text2: 'A solicitação de cancelamento foi enviada com sucesso.',
+              visibilityTime: 2000,
+            });
+          },
+        },
+      );
     } finally {
       setIsProcessing(false);
       handleCloseModal();
