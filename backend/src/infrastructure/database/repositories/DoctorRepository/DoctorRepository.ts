@@ -41,9 +41,9 @@ export class DoctorRepository implements IRepository {
         const dbUse = tx ? tx : db
         const filters = []
         
-        if(doctor.crm) filters.push(eq(doctorTable.crm, doctor.crm))
-        if(doctor.cpf) filters.push(eq(doctorTable.crm, doctor.cpf))
-        if(doctor.name) filters.push(eq(doctorTable.crm, doctor.name))
+        if(doctor?.crm) filters.push(eq(doctorTable.crm, doctor.crm))
+        if(doctor?.cpf) filters.push(eq(doctorTable.cpf, doctor.cpf))
+        if(doctor?.name) filters.push(eq(doctorTable.name, doctor.name))
 
         const doctorFounded = await dbUse
             .select({
