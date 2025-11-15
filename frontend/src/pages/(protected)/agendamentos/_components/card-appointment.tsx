@@ -108,7 +108,10 @@ export const CardAppointment = ({
         </Badge>
 
         <Badge variant="outline">
-          Status: <span>{formatStatus(appointment.status).label}</span>
+          Status:{' '}
+          <span className={`text-${formatStatus(appointment.status).color}`}>
+            {formatStatus(appointment.status).label}
+          </span>
         </Badge>
         {appointment.isReturn && (
           <Badge variant="outline">
