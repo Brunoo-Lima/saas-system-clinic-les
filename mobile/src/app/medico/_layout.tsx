@@ -6,7 +6,7 @@ export default function MedicoLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#2563eb',
+        tabBarActiveTintColor: '#5B5CFF',
         tabBarInactiveTintColor: 'gray',
       }}
     >

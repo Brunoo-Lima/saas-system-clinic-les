@@ -1,13 +1,15 @@
+import { theme } from '@/styles/theme';
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
     height: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: theme.background,
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
   },
+
   headerAction: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -16,25 +18,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 16,
   },
+
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: theme.foreground,
   },
+
   button: {
-    backgroundColor: '#2b7fff',
+    backgroundColor: theme.primary,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 6,
   },
+
   buttonText: {
-    color: '#fff',
+    color: theme.card,
     fontWeight: '600',
   },
+
   content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.card,
     height: '100%',
     width: '100%',
     gap: 16,
@@ -57,31 +64,31 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#666',
+    color: theme.muted,
   },
 
   errorText: {
     fontSize: 16,
-    color: '#d32f2f',
+    color: theme.destructive,
     textAlign: 'center',
     marginBottom: 16,
   },
 
   emptyText: {
     fontSize: 16,
-    color: '#666',
+    color: theme.muted,
     textAlign: 'center',
   },
 
   retryButton: {
-    backgroundColor: '#1976d2',
+    backgroundColor: theme.ring,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
   },
 
   retryButtonText: {
-    color: '#fff',
+    color: theme.card,
     fontSize: 14,
     fontWeight: 'bold',
   },

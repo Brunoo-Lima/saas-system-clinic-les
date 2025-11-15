@@ -59,7 +59,7 @@ export const ModalAction = ({
             disabled={isProcessing}
           >
             <Text style={styles.modalButtonText}>
-              {isLoading ? <ActivityIndicator /> : 'Sim'}
+              {isLoading ? <ActivityIndicator color="#fff" /> : 'Sim'}
             </Text>
           </TouchableOpacity>
 

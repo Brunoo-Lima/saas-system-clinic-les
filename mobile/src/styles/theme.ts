@@ -7,7 +7,7 @@ export const theme = {
   card: '#FFFFFF',
   cardForeground: '#1F1F2A',
 
-  primary: '#5B5CFF', // baseado no oklch(61.874% 0.20682 259.248)
+  primary: '#5B5CFF',
   primaryForeground: '#F4F4FF',
 
   secondary: '#F4F4F9',

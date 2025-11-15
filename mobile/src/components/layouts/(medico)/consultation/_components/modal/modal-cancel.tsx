@@ -1,4 +1,11 @@
-import { Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import styles from './styles';
 
 interface IModalCancelProps {
@@ -39,7 +46,7 @@ export const ModalCancel = ({
             disabled={isCanceling}
           >
             <Text style={styles.modalButtonText}>
-              {isCanceling ? 'Cancelando...' : 'Sim'}
+              {isCanceling ? <ActivityIndicator /> : 'Sim'}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity

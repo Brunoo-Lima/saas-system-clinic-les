@@ -1,3 +1,4 @@
+import { theme } from '@/styles/theme';
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
@@ -7,10 +8,9 @@ const styles = StyleSheet.create({
     left: '50%',
     transform: [{ translateX: -150 }, { translateY: -100 }],
     width: 300,
-    height: 'auto',
     padding: 20,
-    borderRadius: 12,
-    backgroundColor: '#155dfb',
+    borderRadius: theme.radius,
+    backgroundColor: theme.primary,
     alignItems: 'center',
   },
 
@@ -18,14 +18,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
     textAlign: 'center',
-    color: '#ffffff',
+    color: theme.primaryForeground,
   },
 
   modalAttention: {
     fontSize: 12,
     marginBottom: 20,
     textAlign: 'center',
-    color: '#ffffff',
+    color: theme.primaryForeground,
   },
 
   modalActions: {
@@ -33,32 +33,37 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     gap: 16,
   },
+
   modalButton: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.card,
     padding: 8,
-    borderRadius: 8,
+    borderRadius: theme.radius,
     width: 80,
     alignItems: 'center',
   },
+
   modalAccept: {
-    backgroundColor: '#009689',
+    backgroundColor: theme.success,
     padding: 8,
-    borderRadius: 8,
+    borderRadius: theme.radius,
     width: 80,
     alignItems: 'center',
   },
+
   modalCancel: {
-    backgroundColor: '#ff0000',
+    backgroundColor: theme.destructive,
     padding: 8,
-    borderRadius: 8,
+    borderRadius: theme.radius,
     width: 80,
     alignItems: 'center',
   },
+
   modalButtonText: {
-    color: '#ffffff',
+    color: theme.card,
     fontSize: 16,
     fontWeight: 'bold',
   },
+
   overlay: {
     position: 'absolute',
     top: 0,
@@ -67,6 +72,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
+
   buttonDisabled: {
     opacity: 0.6,
   },

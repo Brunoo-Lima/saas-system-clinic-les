@@ -1,27 +1,29 @@
+import { theme } from '@/styles/theme';
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
-    height: '100%',
-    backgroundColor: '#fff',
-    alignItems: 'center',
     flex: 1,
+    height: '100%',
+    backgroundColor: theme.background,
+    alignItems: 'center',
   },
 
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '700',
     marginBottom: 16,
     textAlign: 'left',
     alignSelf: 'flex-start',
+    color: theme.foreground,
   },
 
   content: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: '#ffffff',
-    height: '100%',
+    backgroundColor: theme.card,
     width: '100%',
+    height: '100%',
     gap: 16,
     paddingVertical: 16,
     paddingHorizontal: 16,
