@@ -25,7 +25,12 @@ export default function AppointmentPage() {
 
   const filtered = paginatedData
     ?.filter((ap) => ap.status !== 'CANCEL_PENDING')
-    ?.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    ?.sort((a, b) => {
+      if (a.status === 'PENDING' && b.status !== 'PENDING') return -1;
+      if (a.status !== 'PENDING' && b.status === 'PENDING') return 1;
+
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
 
   useEffect(() => {
     document.title = 'Agendamentos';

@@ -49,21 +49,18 @@ export const CardAppointment = ({
 
   const formatStatus = (status: string) => {
     switch (status) {
-      case 'PENDING':
-        return 'Pendente';
       case 'CONCLUDE':
-        return 'Realizado';
+        return { label: 'Realizada', color: '#10B981' };
       case 'CANCELED':
-        return 'Cancelado';
-      case 'CANCEL_PENDING':
-        return 'Solicitado cancelamento';
+        return { label: 'Cancelada', color: '#EF4444' };
       case 'CONFIRMED':
-        return 'Confirmado';
+        return { label: 'Confirmada', color: '#3B82F6' };
+      case 'CANCEL_PENDING':
+        return { label: 'Cancelamento solicitado', color: '#FFD166' };
       default:
-        return 'N/A';
+        return { label: 'Pendente', color: '#F59E0B' };
     }
   };
-
   const handleDeleteAppointmentClick = () => {
     if (!appointment) return;
     toast.success('Agendamento deletado com sucesso.');
@@ -111,18 +108,7 @@ export const CardAppointment = ({
         </Badge>
 
         <Badge variant="outline">
-          Status:{' '}
-          <span
-            className={
-              appointment.status === 'CONCLUDE'
-                ? 'text-green-600'
-                : appointment.status === 'PENDING'
-                ? 'text-yellow-600'
-                : 'text-red-600'
-            }
-          >
-            {formatStatus(appointment.status)}
-          </span>
+          Status: <span>{formatStatus(appointment.status).label}</span>
         </Badge>
         {appointment.isReturn && (
           <Badge variant="outline">
