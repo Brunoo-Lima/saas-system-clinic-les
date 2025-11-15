@@ -30,6 +30,7 @@ export default function Consultation() {
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<
     string | null
   >(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleOpenModal = (appointmentId: string) => {
     setSelectedAppointmentId(appointmentId);
@@ -43,44 +44,34 @@ export default function Consultation() {
 
   const handleConfirmCancel = async () => {
     if (!selectedAppointmentId) return;
+    setIsProcessing(true);
 
     try {
-      console.log('Payload enviado:', {
+      const payload = {
         id: selectedAppointmentId,
         status: 'CANCEL_PENDING',
         doctor: {
           id: doctor?.id ?? '',
+          cpf: doctor?.cpf ?? '',
+        },
+      };
+
+      console.log('Payload enviado:', payload);
+
+      cancelAppointment(payload, {
+        onSuccess: () => {
+          Toast.show({
+            type: 'success',
+            text1: 'Sucesso!',
+            text2: 'A solicitação de cancelamento foi enviada com sucesso.',
+            visibilityTime: 2000,
+          });
         },
       });
-      cancelAppointment(
-        {
-          id: selectedAppointmentId,
-          status: 'CANCEL_PENDING',
-          doctor: {
-            id: doctor?.id ?? '',
-          },
-        },
-        {
-          onSuccess: () => {
-            Toast.show({
-              type: 'success',
-              text1: 'Sucesso!',
-              text2: 'A solicitação de cancelamento foi enviada com sucesso.',
-              visibilityTime: 2000,
-            });
-            handleCloseModal();
-          },
-          onError: (error: any) => {
-            console.log('❌ Erro da API:');
-            console.log(JSON.stringify(error, null, 2));
-          },
-        },
-      );
 
       await refetch();
-
-      console.log('Cancel appointment:', selectedAppointmentId);
     } finally {
+      setIsProcessing(false);
       handleCloseModal();
     }
   };
@@ -154,8 +145,8 @@ export default function Consultation() {
       <ModalCancel
         handleCloseModal={handleCloseModal}
         handleConfirmCancel={handleConfirmCancel}
-        isCanceling={isCanceling}
         isOpenModal={isOpenModal}
+        isProcessing={isProcessing}
       />
     </SafeAreaView>
   );

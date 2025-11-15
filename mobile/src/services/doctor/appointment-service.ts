@@ -75,18 +75,26 @@ interface IAppointmentPayload {
   status: string;
   doctor: {
     id: string;
+    cpf?: string;
   };
 }
 export const updateStatusSchedulingDoctor = async ({
   id,
-  doctor,
   status,
+  doctor,
 }: IAppointmentPayload) => {
   const { data } = await api.patch('/scheduling/status', {
     id,
-    doctor,
     status,
+    doctor: {
+      id: doctor.id,
+      cpf: doctor.cpf,
+    },
   });
+
+  if (data.success === false) {
+    throw new Error(data.message);
+  }
 
   return data;
 };
@@ -97,12 +105,9 @@ export const useUpdateStatusSchedulingDoctor = () => {
   return useMutation({
     mutationFn: updateStatusSchedulingDoctor,
 
-    onSuccess: (data, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['appointments'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['appointments', variables.doctor.id],
       });
     },
 

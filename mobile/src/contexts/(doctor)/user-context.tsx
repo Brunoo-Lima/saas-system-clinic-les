@@ -18,6 +18,7 @@ interface IDoctor {
   name: string;
   crm: string;
   user: User;
+  cpf: string;
 }
 
 interface AuthContextType {
@@ -38,30 +39,72 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const { data: doctorData } = useGetDoctorById(user?.id);
+  const { data: doctorData, error } = useGetDoctorById(user?.id);
 
   useEffect(() => {
     const loadStoredData = async () => {
-      const storedToken = await SecureStore.getItemAsync('userToken');
-      const storedUser = await SecureStore.getItemAsync('userData');
-      const storedDoctor = await SecureStore.getItemAsync('doctorData');
+      try {
+        const storedToken = await SecureStore.getItemAsync('userToken');
+        const storedUser = await SecureStore.getItemAsync('userData');
+        const storedDoctor = await SecureStore.getItemAsync('doctorData');
 
-      if (storedToken && storedUser) {
+        if (!storedToken || !storedUser) {
+          await logout();
+          setLoading(false);
+          return;
+        }
+
+        // tentativa de parse seguro
+        let parsedUser: User | null = null;
+        try {
+          parsedUser = JSON.parse(storedUser);
+        } catch (error) {
+          await logout();
+          setLoading(false);
+          return;
+        }
+
+        // usuário inválido?
+        if (!parsedUser || !parsedUser.id) {
+          await logout();
+          setLoading(false);
+          return;
+        }
+
         setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-        if (storedDoctor) setDoctor(JSON.parse(storedDoctor));
+        setUser(parsedUser);
+
+        if (storedDoctor) {
+          let parsedDoctor = null;
+          try {
+            parsedDoctor = JSON.parse(storedDoctor);
+            setDoctor(parsedDoctor);
+          } catch {
+            await SecureStore.deleteItemAsync('doctorData');
+          }
+        }
+
+        setLoading(false);
+      } catch (error) {
+        await logout();
+        setLoading(false);
       }
-      setLoading(false);
     };
+
     loadStoredData();
   }, []);
 
   useEffect(() => {
+    if (error) {
+      logout();
+      return;
+    }
+
     if (doctorData) {
       setDoctor(doctorData);
       SecureStore.setItemAsync('doctorData', JSON.stringify(doctorData));
     }
-  }, [doctorData]);
+  }, [doctorData, error]);
 
   const login = async (token: string, user: User) => {
     await SecureStore.setItemAsync('userToken', token);

@@ -20,13 +20,22 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 600,
   },
-  status: {
-    fontSize: 16,
-    fontWeight: 400,
+  label: {
+    fontSize: 15,
+    color: '#374151',
+    marginBottom: 4,
   },
+  statusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    marginBottom: 12,
+  },
+
   statusText: {
-    fontSize: 18,
-    fontWeight: 600,
+    fontSize: 16,
+    fontWeight: '700',
+    marginLeft: 6,
   },
 
   info: {

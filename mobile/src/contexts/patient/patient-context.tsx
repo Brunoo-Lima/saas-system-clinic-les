@@ -41,30 +41,72 @@ export function AuthPatientProvider({
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const { data: patientData } = useGetPatientById(user?.id);
+  const { data: patientData, error } = useGetPatientById(user?.id);
 
   useEffect(() => {
     const loadStoredData = async () => {
-      const storedToken = await SecureStore.getItemAsync('userToken');
-      const storedUser = await SecureStore.getItemAsync('userData');
-      const storedPatient = await SecureStore.getItemAsync('patientData');
+      try {
+        const storedToken = await SecureStore.getItemAsync('userToken');
+        const storedUser = await SecureStore.getItemAsync('userData');
+        const storedPatient = await SecureStore.getItemAsync('patientData');
 
-      if (storedToken && storedUser) {
+        if (!storedToken || !storedUser) {
+          await logout();
+          setLoading(false);
+          return;
+        }
+
+        // tentativa de parse seguro
+        let parsedUser: User | null = null;
+        try {
+          parsedUser = JSON.parse(storedUser);
+        } catch (error) {
+          await logout();
+          setLoading(false);
+          return;
+        }
+
+        // usuário inválido?
+        if (!parsedUser || !parsedUser.id) {
+          await logout();
+          setLoading(false);
+          return;
+        }
+
         setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-        if (storedPatient) setPatient(JSON.parse(storedPatient));
+        setUser(parsedUser);
+
+        if (storedPatient) {
+          let parsedPatient = null;
+          try {
+            parsedPatient = JSON.parse(storedPatient);
+            setPatient(parsedPatient);
+          } catch {
+            await SecureStore.deleteItemAsync('patientData');
+          }
+        }
+
+        setLoading(false);
+      } catch (error) {
+        await logout();
+        setLoading(false);
       }
-      setLoading(false);
     };
+
     loadStoredData();
   }, []);
 
   useEffect(() => {
+    if (error) {
+      logout();
+      return;
+    }
+
     if (patientData) {
       setPatient(patientData);
       SecureStore.setItemAsync('patientData', JSON.stringify(patientData));
     }
-  }, [patientData]);
+  }, [patientData, error]);
 
   const login = async (token: string, user: User) => {
     await SecureStore.setItemAsync('userToken', token);

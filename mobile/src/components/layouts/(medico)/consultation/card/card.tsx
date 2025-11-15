@@ -40,9 +40,13 @@ export const Card = ({
         Paciente:{' '}
         <Text style={styles.patientName}>{consultation.patient.name}</Text>
       </Text>
-      <Text style={styles.status}>
-        Status: <Text style={styles.statusText}>{statusInfo.label}</Text>
-      </Text>
+
+      <View style={styles.statusContainer}>
+        <Text style={styles.label}>Status:</Text>
+        <Text style={[styles.statusText, { color: statusInfo.color }]}>
+          {statusInfo.label}
+        </Text>
+      </View>
 
       <View style={styles.info}>
         <Text>

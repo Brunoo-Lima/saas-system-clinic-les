@@ -12,14 +12,14 @@ interface IModalCancelProps {
   isOpenModal: boolean;
   handleCloseModal: () => void;
   handleConfirmCancel: () => void;
-  isCanceling: boolean;
+  isProcessing?: boolean;
 }
 
 export const ModalCancel = ({
   isOpenModal,
   handleCloseModal,
   handleConfirmCancel,
-  isCanceling,
+  isProcessing,
 }: IModalCancelProps) => {
   return (
     <Modal visible={isOpenModal} transparent animationType="fade">
@@ -40,19 +40,19 @@ export const ModalCancel = ({
             style={[
               styles.modalButton,
               styles.modalAccept,
-              isCanceling && styles.buttonDisabled,
+              isProcessing && styles.buttonDisabled,
             ]}
             onPress={handleConfirmCancel}
-            disabled={isCanceling}
+            disabled={isProcessing}
           >
             <Text style={styles.modalButtonText}>
-              {isCanceling ? <ActivityIndicator /> : 'Sim'}
+              {isProcessing ? <ActivityIndicator /> : 'Sim'}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.modalButton, styles.modalCancel]}
             onPress={handleCloseModal}
-            disabled={isCanceling}
+            disabled={isProcessing}
           >
             <Text style={styles.modalButtonText}>Não</Text>
           </TouchableOpacity>
