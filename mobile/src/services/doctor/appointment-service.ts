@@ -82,10 +82,10 @@ export const updateStatusSchedulingDoctor = async ({
   doctor,
   status,
 }: IAppointmentPayload) => {
-  const { data } = await api.patch('/scheduling/status', {
+  const { data } = await api.patch('/scheduling/cancel', {
     id,
-    doctor,
     status,
+    doctor,
   });
 
   return data;
@@ -101,6 +101,7 @@ export const useUpdateStatusSchedulingDoctor = () => {
       queryClient.invalidateQueries({
         queryKey: ['appointments'],
       });
+
       queryClient.invalidateQueries({
         queryKey: ['appointments', variables.doctor.id],
       });
