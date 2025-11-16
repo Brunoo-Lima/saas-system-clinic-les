@@ -39,9 +39,10 @@ export class FindAllSpecialtyService {
             
             const specialties = await this.repository.findAllEntity(undefined, limitClean, offsetClean, clinicDomain.getUUIDHash())
 
-            if (!Array.isArray(specialties)) return specialties
-            return ResponseHandler.success(specialties, "Success ! Specialties founded.")
+            if (!Array.isArray(specialties.rows)) return specialties
+            return ResponseHandler.success(specialties.rows, "Success ! Specialties founded.")
         } catch (e) {
+            console.log(e)
             return ResponseHandler.error((e as Error).message)
         }
     }
