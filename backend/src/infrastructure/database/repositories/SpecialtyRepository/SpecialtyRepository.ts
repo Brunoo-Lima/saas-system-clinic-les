@@ -7,7 +7,7 @@ import { IRepository } from "../IRepository";
 import { clinicToSpecialtyTable } from "../../Schema/ClinicSchema";
 
 export class SpecialtyRepository implements IRepository {
-    async create(specialty: Specialty , id?: string): Promise<any> {
+    async create(specialty: Specialty, id?: string): Promise<any> {
         try {
 
             const specialtiesSaved = await db.insert(specialtyTable).values({
@@ -61,7 +61,7 @@ export class SpecialtyRepository implements IRepository {
             return ResponseHandler.error("Failed to find the specialty")
         }
     }
-    async updateEntity(specialties: Array<Specialty>, tx?: any){
+    async updateEntity(specialties: Array<Specialty>, tx?: any) {
         const dbUse = tx ? tx : db
         const specialtiesInserted = await Promise.all(
             specialties.map(async (sp) =>
@@ -75,45 +75,42 @@ export class SpecialtyRepository implements IRepository {
         );
         return specialtiesInserted
     }
-    async deleteEntity(specialties: Array<Specialty> | Specialty, id?: string){
+    async deleteEntity(specialties: Array<Specialty> | Specialty, id?: string) {
         try {
             const specialtiesFormatted = Array.isArray(specialties) ? specialties : [specialties]
             return await db.delete(specialtyTable).where(
                 inArray(specialtyTable.id, specialtiesFormatted.map((sp) => sp.getUUIDHash()).filter(sp => sp))
             )
-        } catch(e) {
-            const error = {...(e as any)}
+        } catch (e) {
+            const error = { ...(e as any) }
             const errorCode = error?.cause?.code
-            return ResponseHandler.error(errorCode === "23503" ? "You cannot deleted this entity because this linked with outer entity, remove the link and delete again !":"Failed to deleted the specialty")
+            return ResponseHandler.error(errorCode === "23503" ? "You cannot deleted this entity because this linked with outer entity, remove the link and delete again !" : "Failed to deleted the specialty")
         }
     }
     async findAllEntity(specialties: Array<Specialty>, limit: number, offset: number, clinic_id?: string) {
         try {
-            const filters:any = []
-            if(Array.isArray(specialties) && specialties.length){
-                filters.push(inArray(specialtyTable.id, specialties.map((sp) => sp.getUUIDHash())))
-                filters.push(inArray(specialtyTable.name, specialties.map((sp) => sp.name ?? "")))
-            }else{
-                filters.push(isNotNull(specialtyTable.id))
-            }
-            return await db
-                .select({
-                    id: specialtyTable.id,
-                    name: specialtyTable.name,
-                    price: clinicToSpecialtyTable.price
-                })
-                .from(specialtyTable)
-                .innerJoin(
-                    clinicToSpecialtyTable,
-                    eq(clinicToSpecialtyTable.clinic_id, clinic_id || "")
-                )
-                .where(
-                    or(...filters)
-                )
-                .groupBy(clinicToSpecialtyTable.price, specialtyTable.id)
-                .limit(limit)
-                .offset(offset)
+            const filters: any = []
+            const ids = specialties?.map((sp) => sp.getUUIDHash()) || []
+            const names = specialties?.map((sp) => sp.name) || []
+            const idsSql = ids.length
+                ? sql`${specialtyTable.id} IN (${sql.join(ids, sql`, `)})`
+                : sql`FALSE`;
 
+            const namesSql = names.length
+                ? sql`${specialtyTable.name} IN (${sql.join(names, sql`, `)})`
+                : sql`FALSE`;
+            return await db.execute(sql`
+                SELECT DISTINCT
+                    ${clinicToSpecialtyTable.price} as price,
+                    ${specialtyTable.id} as id,
+                    ${specialtyTable.name}
+                FROM ${specialtyTable}
+                INNER JOIN ${clinicToSpecialtyTable}
+                    ON ${clinicToSpecialtyTable.clinic_id} = ${clinic_id}
+                AND ${clinicToSpecialtyTable.specialty_id} = ${specialtyTable.id}
+                WHERE ${idsSql} OR ${namesSql} OR ${specialtyTable.id} IS NOT NULL
+                GROUP BY ${specialtyTable.id}, ${clinicToSpecialtyTable.price}
+                `);
         } catch (e) {
             console.log(e)
             return ResponseHandler.error("Failed to find the specialties")
