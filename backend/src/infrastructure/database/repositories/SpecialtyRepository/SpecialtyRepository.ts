@@ -103,7 +103,7 @@ export class SpecialtyRepository implements IRepository {
                 SELECT DISTINCT
                     ${clinicToSpecialtyTable.price} as price,
                     ${specialtyTable.id} as id,
-                    ${specialtyTable.name}
+                    ${specialtyTable.name} as name
                 FROM ${specialtyTable}
                 INNER JOIN ${clinicToSpecialtyTable}
                     ON ${clinicToSpecialtyTable.clinic_id} = ${clinic_id}

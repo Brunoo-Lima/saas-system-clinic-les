@@ -22,9 +22,9 @@ export class RequestConfirmationSchedulingService{
     async execute(schedulingDTO: ConsultationSchedulingDTO){
         try {
             const patientDomain = new PatientBuilder()
-            .setCpf(schedulingDTO.patient.cpf)
+            .setCpf(schedulingDTO?.patient?.cpf)
             .build()
-            patientDomain.setUuidHash(schedulingDTO.patient.id ?? "")
+            patientDomain.setUuidHash(schedulingDTO?.patient?.id ?? "")
 
             const schedulingDomain = new SchedulingBuilder()
             .setStatus(schedulingDTO.status)
