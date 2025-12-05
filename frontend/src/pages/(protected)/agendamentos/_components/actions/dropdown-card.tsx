@@ -49,8 +49,6 @@ export const DropdownCard = ({ onDelete, appointment }: IDropdownCardProps) => {
 
   const { mutate: updateStatus } = useUpdateAppointmentStatus();
 
-  console.log('id', appointment.id);
-
   const handleUpdateStatusAppointment = async (id: string) => {
     updateStatus(
       {
@@ -65,7 +63,7 @@ export const DropdownCard = ({ onDelete, appointment }: IDropdownCardProps) => {
           setOpenDialogEditStatus(false);
           setStatus(undefined);
         },
-      },
+      }
     );
   };
 
